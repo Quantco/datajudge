@@ -1,0 +1,22 @@
+name: datajudge
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python>=3.8
+  - pytest
+  - pytest-cov
+  - pytest-html
+  - make
+  - numpydoc
+  - sphinx
+  - sphinx_rtd_theme
+  - sphinxcontrib-apidoc
+  - pre-commit
+  - pyodbc
+  - sqlalchemy
+  - psycopg2
+  - freetds
+  - snowflake-sqlalchemy
+  - flit-core
+  - flit
