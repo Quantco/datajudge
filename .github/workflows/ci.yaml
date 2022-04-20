@@ -4,7 +4,7 @@ on: [push]
 jobs:
 
   pre-commit-checks:
-    name: "Linux - pre-commit checks - Python 3.8"
+    name: "Linux - pre-commit hooks - Python 3.8"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
@@ -87,7 +87,7 @@ jobs:
       - name: Wait for SQL Server
         timeout-minutes: 1
         run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
-      - name: Run Unit Tests
+      - name: Run Integration Tests
         shell: bash -l {0}
         run: |
           flit install -s
