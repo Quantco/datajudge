@@ -6,22 +6,14 @@ import pkg_resources
 
 from .constraints.base import Constraint
 from .db_access import Condition
-from .requirements import (
-    BetweenRequirement,
-    BetweenTableRequirement,
-    Requirement,
-    WithinRequirement,
-    WithinTableRequirement,
-)
+from .requirements import BetweenRequirement, Requirement, WithinRequirement
 
 __all__ = [
     "BetweenRequirement",
-    "BetweenTableRequirement",
     "Condition",
     "Constraint",
     "Requirement",
     "WithinRequirement",
-    "WithinTableRequirement",
 ]
 
 try:

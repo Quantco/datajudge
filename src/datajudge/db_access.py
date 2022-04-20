@@ -3,11 +3,9 @@ from __future__ import annotations
 import functools
 import json
 import operator
-import warnings
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
-from numbers import Number
 from typing import Sequence, final, overload
 
 import sqlalchemy as sa
@@ -50,8 +48,7 @@ def lowercase_column_names(column_names: str | list[str]) -> str | list[str]:
     return [column_name.lower() for column_name in column_names]
 
 
-# TODO: Turn into frozen once the deprecated approach is removed.
-@dataclass  # (frozen=True)
+@dataclass(frozen=True)
 class Condition:
     """Condition allows for further narrowing down of a DataSource in a Constraint.
 
@@ -64,89 +61,46 @@ class Condition:
     of a `DataSource, in lieu of creating a new custom `DataSource` with
     the `Condition` implicitly built in.
 
-    There are two interfaces for instantiating the `Condition` class:
-    1. Using `columns`, `values` and `operators` (deprecated)
-    2. Using `raw_string`, `conditions` and `reduction_operator`
-
-    The latter approach relies on a recursive definition of `Condition`s. A
-    `Condition` can either be 'atomic', i.e. not further reducible to sub-conditions
-    or 'composite', i.e. combining multiple subconditions.
-
-    In the former case, the logic is expressed via `raw_string`, e.g. `"col1 > 0"`.
-    In the latter case, the subconditions are meant to be provided via the
-    `conditions` parameter. The way in which subconditions are combined is specified
-    via the `reduction_operator` parameter. It allows for two values: `"and"` (logical
+    A `Condition` can either be 'atomic', i.e. not further reducible to sub-conditions
+    or 'composite', i.e. combining multiple subconditions. In the former case, it can
+    be instantiated with help of the `raw_string` parameter, e.g. `"col1 > 0"`. In the
+    latter case, it can be instantiated with help of the `conditions` and
+    `reduction_operator` parameters. `reduction_operator` allows for two values: `"and"` (logical
     conjunction) and `"or"` (logical disjunction). Note that composition of `Condition`s
     supports arbitrary degrees of nesting.
     """
 
-    # Deprecated old fields, to be removed
-    columns: Sequence[str] | None = None
-    values: Sequence[str | Number] | None = None
-    operators: Sequence[str] | None = None
-    # New fields
     raw_string: str | None = None
     conditions: Sequence[Condition] | None = None
     reduction_operator: str | None = None
 
     def __post_init__(self):
-        if self.is_deprecated():
-            warnings.warn(
-                (
-                    "A Condition object is created via columns and values parameters."
-                    "This approach is deprecated."
-                    "Please use raw_condition or conditions parameters instead."
-                ),
-                DeprecationWarning,
+        if self._is_atomic() and self.conditions is not None:
+            raise ValueError(
+                "Condition can either be instantiated atomically, with "
+                "the raw_query parameter, or in a composite fashion, with "
+                "the conditions parameter. "
+                "Exactly one of them needs to be provided, yet both are."
             )
-            if not self.columns or not self.values:
-                raise ValueError(
-                    "The columns or values cannot be None or and empty collection."
-                )
-
-            if len(self.columns) != len(self.values):
-                raise ValueError("The number of columns and values should match.")
-
-            if not self.operators:
-                self.operators = ["="] * len(self.values)
-        else:
-            if self._is_atomic() and self.conditions is not None:
-                raise ValueError(
-                    "Condition can either be instantiated atomically, with "
-                    "the raw_query parameter, or in a composite fashion, with "
-                    "the conditions parameter. "
-                    "Exactly one of them needs to be provided, yet both are."
-                )
-            if not self._is_atomic() and (
-                self.conditions is None or len(self.conditions) == 0
-            ):
-                raise ValueError(
-                    "Condition can either be instantiated atomically, with "
-                    "the raw_query parameter, or in a composite fashion, with "
-                    "the conditions parameter. "
-                    "Exactly one of them needs to be provided, yet none is."
-                )
-            if not self._is_atomic() and self.reduction_operator not in ["and", "or"]:
-                raise ValueError(
-                    "reuction_operator has to be either 'and' or 'or' but "
-                    f"obtained {self.reduction_operator}."
-                )
-
-    def is_deprecated(self):
-        return self.columns is not None
+        if not self._is_atomic() and (
+            self.conditions is None or len(self.conditions) == 0
+        ):
+            raise ValueError(
+                "Condition can either be instantiated atomically, with "
+                "the raw_query parameter, or in a composite fashion, with "
+                "the conditions parameter. "
+                "Exactly one of them needs to be provided, yet none is."
+            )
+        if not self._is_atomic() and self.reduction_operator not in ["and", "or"]:
+            raise ValueError(
+                "reuction_operator has to be either 'and' or 'or' but "
+                f"obtained {self.reduction_operator}."
+            )
 
     def _is_atomic(self):
         return self.raw_string is not None
 
     def __str__(self):
-        if self.is_deprecated():
-            conjuncted_clauses = " AND ".join(
-                [
-                    " ".join(map(str, t))
-                    for t in zip(self.columns, self.operators, self.values)
-                ]
-            )
-            return conjuncted_clauses
         if self._is_atomic():
             return self.raw_string
         return f" {self.reduction_operator} ".join(
@@ -156,15 +110,6 @@ class Condition:
     def snowflake_str(self):
         # Temporary method - should be removed as soon as snowflake-sqlalchemy
         # bug is fixed.
-        if self.is_deprecated():
-            column_names = lowercase_column_names(self.columns)
-            conjuncted_clauses = " AND ".join(
-                [
-                    " ".join(map(str, t))
-                    for t in zip(column_names, self.operators, self.values)
-                ]
-            )
-            return conjuncted_clauses
         return str(self)
 
 

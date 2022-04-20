@@ -1,4 +1,3 @@
-import warnings
 from abc import ABC
 from collections.abc import MutableSequence
 from typing import Callable, Collection, List, Optional, Sequence, TypeVar
@@ -76,57 +75,9 @@ class Requirement(ABC, MutableSequence):
         return [constraint.test(engine) for constraint in self]
 
 
-def WithinTableRequirement(*args, **kwargs):
-    warnings.warn(
-        (
-            "Future releases will no longer support the nomenclature `WithinTableRequirement`. "
-            "Instead, please use the identical `WithinRequirement`."
-        ),
-        DeprecationWarning,
-    )
-
-    return WithinRequirement(*args, **kwargs)
-
-
-def BetweenTableRequirement(*args, **kwargs):
-    warnings.warn(
-        (
-            "Future releases will no longer support the nomenclature `BetweenTableRequirement`. "
-            "Instead, please use the identical `BetweenRequirement`."
-        ),
-        DeprecationWarning,
-    )
-
-    return BetweenRequirement(*args, **kwargs)
-
-
 class WithinRequirement(Requirement):
-    def __init__(
-        self,
-        db_name: Optional[str] = None,
-        schema_name: Optional[str] = None,
-        table_name: Optional[str] = None,
-        data_source: Optional[DataSource] = None,
-    ):
-        if data_source is not None:
-            self.data_source = data_source
-        else:
-            if db_name is None or schema_name is None or table_name is None:
-                raise RuntimeError("Neither a DataSource nor table arguments provided.")
-            warnings.warn(
-                (
-                    "Future releases will no longer support the keyword arguments `db_name`, "
-                    "`schema_name` or `table_name` at instantiation of a Requirement. "
-                    "Instead, instantiate a `Requirement` via `from_table`, `from_raw_query "
-                    "or `from_expression`. Alternatively, one might also be able to "
-                    "provide a `DataSource` previously manually instantiated."
-                ),
-                DeprecationWarning,
-            )
-
-            self.data_source = TableDataSource(
-                db_name=db_name, schema_name=schema_name, table_name=table_name
-            )
+    def __init__(self, data_source: DataSource):
+        self.data_source = data_source
         super().__init__()
 
     @classmethod
@@ -702,46 +653,13 @@ class WithinRequirement(Requirement):
 class BetweenRequirement(Requirement):
     def __init__(
         self,
-        db_name1: Optional[str] = None,
-        schema_name1: Optional[str] = None,
-        table_name1: Optional[str] = None,
-        db_name2: Optional[str] = None,
-        schema_name2: Optional[str] = None,
-        table_name2: Optional[str] = None,
+        data_source: DataSource,
+        data_source2: DataSource,
         date_column: Optional[str] = None,
         date_column2: Optional[str] = None,
-        data_source: Optional[DataSource] = None,
-        data_source2: Optional[DataSource] = None,
     ):
-        if data_source is not None and data_source2 is not None:
-            self.data_source = data_source
-            self.data_source2 = data_source2
-        else:
-            if (
-                db_name1 is None
-                or schema_name1 is None
-                or table_name1 is None
-                or db_name2 is None
-                or schema_name2 is None
-                or table_name2 is None
-            ):
-                raise RuntimeError("Neither a DataSource nor table arguments provided.")
-            warnings.warn(
-                (
-                    "Future releases will no longer support the keyword arguments `db_name`, "
-                    "`schema_name` or `table_name` at instantiation of a Requirement. "
-                    "Instead, instantiate a `Requirement` via `from_tables`, "
-                    "from_raw_query` or `from_expressions`. Alternatively, one might also "
-                    "provide a `DataSource` previously manually instantiated."
-                ),
-                DeprecationWarning,
-            )
-            self.data_source = TableDataSource(
-                db_name1, schema_name=schema_name1, table_name=table_name1
-            )
-            self.data_source2 = TableDataSource(
-                db_name2, schema_name=schema_name2, table_name=table_name2
-            )
+        self.data_source = data_source
+        self.data_source2 = data_source2
         self.ref = DataReference(self.data_source)
         self.ref2 = DataReference(self.data_source2)
         self.date_column = date_column
