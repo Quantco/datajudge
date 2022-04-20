@@ -519,7 +519,8 @@ def varchar_table_real(engine, metadata):
             "L58.2X",
         ]
     ]
-    _handle_table(engine, metadata, table_name, columns, data)
+    _handle_table(engine, metadata, table_name, columns, data)
+
     return TEST_DB_NAME, SCHEMA, table_name
 
 
@@ -696,10 +697,3 @@ def get_fixture(request):
         return request.getfixturevalue(name)
 
     return _get_fixture
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_odbcsysini():
-    os.environ["ODBCSYSINI"] = str(
-        Path(os.environ["CONDA_PREFIX"]) / "etc" / "msodbcsql17"
-    )
