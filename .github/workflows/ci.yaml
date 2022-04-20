@@ -1,0 +1,94 @@
+name: CI
+on: [push]
+
+jobs:
+
+  pre-commit-checks:
+    name: "Linux - pre-commit checks - Python 3.8"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Install Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - name: Run pre-commit checks
+        uses: pre-commit/action@v2.0.3
+
+
+  linux:
+    name: "Linux - unit tests - Python ${{ matrix.PYTHON_VERSION }}"
+    runs-on: ubuntu-latest
+    env:
+      CI: True
+    strategy:
+      fail-fast: true
+      matrix:
+        PYTHON_VERSION: ['3.8', '3.9', '3.10']
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2.3.5
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Run Unit Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest tests/unit
+
+  linux-integration_tests-sqlserver:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - mssql"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: ['3.8', '3.9', '3.10']
+    services:
+      DB:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: datajudge-123
+        ports:
+          - 1433:1433
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Install msodbcsql17 driver
+        shell: bash -l {0}
+        run: |
+          wget https://packages.microsoft.com/ubuntu/20.04/prod/pool/main/m/msodbcsql17/msodbcsql17_17.9.1.1-1_amd64.deb
+          ACCEPT_EULA=Y sudo apt install ./msodbcsql17_17.9.1.1-1_amd64.deb
+      - name: Wait for SQL Server
+        timeout-minutes: 1
+        run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
+      - name: Run Unit Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --backend=mssql tests/integration

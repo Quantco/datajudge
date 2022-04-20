@@ -19,7 +19,7 @@ def get_engine(backend) -> sa.engine.Engine:
         connection_string = f"postgresql://dbcheck:dbcheck@{address}:5432/dbcheck"
     elif "mssql" in backend:
         connection_string = (
-            f"mssql+pyodbc://sa:QuantCo%40MSSQL@{address}:1433/{TEST_DB_NAME}"
+            f"mssql+pyodbc://sa:datajudge-123@{address}:1433/{TEST_DB_NAME}"
         )
         if backend == "mssql-freetds":
             connection_string += "?driver=libtdsodbc.so&tds_version=7.4"
