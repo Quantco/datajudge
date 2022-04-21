@@ -3,35 +3,19 @@ import pytest
 from datajudge.db_access import Condition
 
 
-def test_creation():
-    c = Condition(["col1", "col2"], ["1", "2"])
-    assert c.operators == ["=", "="]
-
-
 def test_equality():
-    c1 = Condition(["col1", "col2"], ["1", "2"])
-    c2 = Condition(["col1", "col2"], ["1", "2"])
+    c1_str = "col1 = 1"
+    c1 = Condition(raw_string=c1_str)
+    c2 = Condition(raw_string=c1_str)
 
     assert c1 == c2
 
 
 def test_inequality():
-    c1 = Condition(["col1", "col2"], ["1", "2"])
-    c2 = Condition(["col1", "col3"], ["1", "3"])
+    c1 = Condition(raw_string="col1 = 1")
+    c2 = Condition(raw_string="col2 = 1")
 
     assert c1 != c2
-
-
-@pytest.mark.parametrize("column", [None, [], ["col1"]])
-@pytest.mark.parametrize("value", [None, []])
-def test_raises_on_invalid_input(column, value):
-    # Not adding the case of non empty `value` since when matched with a non empty `column` the test will fail
-    # because it's indeed a correct combination. Due to the symmetry of `column` and `value` I deem this as
-    # relatively safe.
-    # Furthermore, in principle this tests check if the validation works as intended. In any case, due to the
-    # type annotations, at least in IDEs trying to input these pathological corner-cases, will raise alarms.
-    with pytest.raises(ValueError):
-        Condition(column, value)
 
 
 def test_atomic_str():
