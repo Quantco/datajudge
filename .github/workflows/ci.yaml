@@ -184,11 +184,11 @@ jobs:
         with:
           conda_api_key: ${{ secrets.QUETZ_API_KEY }}
           python_version: ${{ matrix.PYTHON_VERSION }}
-          src_folder: "dbcheck"
+          src_folder: "datajudge"
           run_parallel: "false"
           pytest_args: "--backend=snowflake tests/integration"
         env:
-          SNOWFLAKE_USER: DBCHECK
+          SNOWFLAKE_USER: DATAJUDGE
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       - uses: codecov/codecov-action@v3.0.0
