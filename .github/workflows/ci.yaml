@@ -92,3 +92,60 @@ jobs:
         run: |
           flit install -s
           pytest --backend=mssql tests/integration
+
+  linux-integration_tests-postgres:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }} server"
+    runs-on: ubuntu-latest
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
+        POSTGRES_VERSION: [ '11', 'latest' ]
+    services:
+      DB:
+        image: postgres:${{ matrix.POSTGRES_VERSION }}
+        env:
+          POSTGRES_USER: dbcheck
+          POSTGRES_PASSWORD: dbcheck
+          POSTGRES_DB: dbcheck
+        ports:
+          - 5432:5432
+    steps:
+      - name: Docker login
+        run: docker login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+      - name: Pull image
+        run: docker pull ghcr.io/quantco/qc-mambaforge-base:latest
+      - name: Checkout branch
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/checkout@v3
+      - name: Checkout plain HEAD commit
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - name: Checkout github-actions repo
+        uses: actions/checkout@v3
+        with:
+          repository: Quantco/github-actions
+          ref: main
+          token: ${{ secrets.FQ_GH_TOKEN }}
+          path: .github/quantco-actions
+      - name: Run unit tests inside of container
+        uses: ./.github/quantco-actions/unittests
+        with:
+          conda_api_key: ${{ secrets.QUETZ_API_KEY }}
+          python_version: ${{ matrix.PYTHON_VERSION }}
+          src_folder: "dbcheck"
+          run_parallel: "false"
+          pytest_args: "--backend=postgres tests/integration"
+        env:
+          DB_ADDR: DB
+          PORT: 5432
+      - uses: codecov/codecov-action@v3.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
