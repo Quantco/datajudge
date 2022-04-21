@@ -25,8 +25,7 @@ dynamic = ["version", "description"]
 requires-python = ">=3.8.0"
 
 dependencies = [
-    "sqlalchemy",
-    "pyodbc"
+    "sqlalchemy"
 ]
 
 [project.urls]
