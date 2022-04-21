@@ -2,7 +2,6 @@ import datetime
 import itertools
 import os
 import urllib.parse
-from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
@@ -19,7 +18,7 @@ def get_engine(backend) -> sa.engine.Engine:
         connection_string = f"postgresql://dbcheck:dbcheck@{address}:5432/dbcheck"
     elif "mssql" in backend:
         connection_string = (
-            f"mssql+pyodbc://sa:QuantCo%40MSSQL@{address}:1433/{TEST_DB_NAME}"
+            f"mssql+pyodbc://sa:datajudge-123@{address}:1433/{TEST_DB_NAME}"
         )
         if backend == "mssql-freetds":
             connection_string += "?driver=libtdsodbc.so&tds_version=7.4"
@@ -519,7 +518,8 @@ def varchar_table_real(engine, metadata):
             "L58.2X",
         ]
     ]
-    _handle_table(engine, metadata, table_name, columns, data)
+    _handle_table(engine, metadata, table_name, columns, data)
+
     return TEST_DB_NAME, SCHEMA, table_name
 
 
@@ -696,10 +696,3 @@ def get_fixture(request):
         return request.getfixturevalue(name)
 
     return _get_fixture
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_odbcsysini():
-    os.environ["ODBCSYSINI"] = str(
-        Path(os.environ["CONDA_PREFIX"]) / "etc" / "msodbcsql17"
-    )
