@@ -15,16 +15,9 @@ Over time, we have found some people find the following aspects of datajudge use
 
 # Installation instructions
 
-This package is available on QuantCo's conda channel and installing it via the conda channel is strongly encouraged. Once you've added the QuantCo channel to your list of channels in use, you an simply run `conda install datajudge` from the environment of your choice. You will likely want to use `datajudge` in conjuction with other packages - in particular `pytest` and database drivers relevant to your database. You might want to install `snowflake-sqlalchemy` when using snowflake, `pyscopg` when using postgres and platform-specific drivers ([Windows](https://docs.microsoft.com/en-us/sql/connect/odbc/windows/microsoft-odbc-driver-for-sql-server-on-windows?view=sql-server-ver15), [Linux](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15), [macOS](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15)) when using mssql.
+`datajudge` can either be installed via pypi with `pip install datajudge` or via conda-forge with `conda install datajudge -c conda-forge`.
 
-If for some reason, you prefer not to install the package via the conda channel, you'll need to do as follows:
-
-```bash
-git clone https://github.com/Quantco/datajudge
-cd datajudge
-conda activate your_client_environment
-pip install --no-build-isolation --disable-pip-version-check .
-```
+You will likely want to use `datajudge` in conjuction with other packages - in particular `pytest` and database drivers relevant to your database. You might want to install `snowflake-sqlalchemy` when using snowflake, `pyscopg` when using postgres and platform-specific drivers ([Windows](https://docs.microsoft.com/en-us/sql/connect/odbc/windows/microsoft-odbc-driver-for-sql-server-on-windows?view=sql-server-ver15), [Linux](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15), [macOS](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15)) when using mssql.
 
 For development _on_ `datajudge` - in contrast to merely using it - you can get started as follows:
 ```bash
@@ -154,20 +147,6 @@ specification.py::test_constraint[RowSuperset::companies|companies_archive] PASS
 
 You can also use a formatted html report using the ``--html=report.html`` flag.
 
-
-# Nomenclature
-
-`Constraint` < `Requirement` < `Specification`.
-
-A `Constraint` captures a comparison between either two `DataSource`s or a single `DataSource`
-and a reference value.
-
-A `Requirement` captures all `Constraint`s between two given `DataSource`s or all
-`Constraint`s within a `DataSource`.
-
-A specification captures all requirements against a database.
-
-
 # Usage instructions
 
 ## Creating a specification
@@ -259,3 +238,15 @@ the test failure, the constraint at hand as well as the underlying database quer
 
 While designed as dbms-agnostically as possible, `datajudge` likely doesn't work in its entirety for every dbms.
 We run integration tests against various versions of postgres, mssql and snowflake.
+
+# Nomenclature
+
+`Constraint` < `Requirement` < `Specification`.
+
+A `Constraint` captures a comparison between either two `DataSource`s or a single `DataSource`
+and a reference value.
+
+A `Requirement` captures all `Constraint`s between two given `DataSource`s or all
+`Constraint`s within a `DataSource`.
+
+A specification captures all requirements against a database.
