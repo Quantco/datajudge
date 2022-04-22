@@ -92,3 +92,75 @@ jobs:
         run: |
           flit install -s
           pytest --backend=mssql tests/integration
+
+  linux-integration_tests-postgres:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }}"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
+        POSTGRES_VERSION: [ '11', 'latest' ]
+    services:
+      DB:
+        image: postgres:${{ matrix.POSTGRES_VERSION }}
+        env:
+          POSTGRES_USER: datajudge
+          POSTGRES_PASSWORD: datajudge
+          POSTGRES_DB: datajudge
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --backend=postgres tests/integration
+
+  linux-integration_tests-snowflake:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Snowflake"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8' ]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --backend=snowflake tests/integration
+        env:
+          SNOWFLAKE_USER: DATAJUDGE
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
