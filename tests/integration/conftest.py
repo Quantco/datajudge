@@ -28,10 +28,10 @@ def get_engine(backend) -> sa.engine.Engine:
             )
             connection_string += f"?driver={msodbc_driver_name}"
     elif "snowflake" in backend:
-        user = os.environ.get("SNOWFLAKE_USER", "dbcheck")
+        user = os.environ.get("SNOWFLAKE_USER", "datajudge")
         password = os.environ.get("SNOWFLAKE_PASSWORD")
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
-        connection_string = f"snowflake://{user}:{password}@{account}/dbcheck/DBO?warehouse=dbcheck&role=accountadmin"
+        connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
 
     return sa.create_engine(connection_string)
 
