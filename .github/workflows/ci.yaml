@@ -107,9 +107,9 @@ jobs:
       DB:
         image: postgres:${{ matrix.POSTGRES_VERSION }}
         env:
-          POSTGRES_USER: dbcheck
-          POSTGRES_PASSWORD: dbcheck
-          POSTGRES_DB: dbcheck
+          POSTGRES_USER: datajudge
+          POSTGRES_PASSWORD: datajudge
+          POSTGRES_DB: datajudge
         ports:
           - 5432:5432
     steps:

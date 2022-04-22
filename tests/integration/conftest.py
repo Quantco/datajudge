@@ -15,7 +15,7 @@ SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
 def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
     if backend == "postgres":
-        connection_string = f"postgresql://dbcheck:dbcheck@{address}:5432/dbcheck"
+        connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
     elif "mssql" in backend:
         connection_string = (
             f"mssql+pyodbc://sa:datajudge-123@{address}:1433/{TEST_DB_NAME}"
