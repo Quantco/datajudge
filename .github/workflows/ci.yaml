@@ -127,9 +127,9 @@ jobs:
           use-mamba: true
           environment-file: environment.yml
           activate-environment: datajudge
-      - name: Wait for Postgres server
-        timeout-minutes: 1
-        run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "Postgres server is now ready"; do sleep 10; done
+      # - name: Wait for Postgres server
+      #  timeout-minutes: 1
+      #  run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "Postgres server is now ready"; do sleep 10; done
       - name: Run Integration Tests
         shell: bash -l {0}
         run: |
