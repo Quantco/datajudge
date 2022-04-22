@@ -1,6 +1,6 @@
 # datajudge
 
-[![CI](https://github.com/Quantco/datajudge/actions/workflows/ci.yml/badge.svg)](https://github.com/Quantco/datajudge/actions/workflows/ci.yml)
+[![CI](https://github.com/Quantco/datajudge/actions/workflows/ci.yaml/badge.svg)](https://github.com/Quantco/datajudge/actions/workflows/ci.yaml)
 
 Express and test specifications against data from database.
 
