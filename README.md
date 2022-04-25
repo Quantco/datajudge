@@ -1,6 +1,10 @@
 # datajudge
 
 [![CI](https://github.com/Quantco/datajudge/actions/workflows/ci.yaml/badge.svg)](https://github.com/Quantco/datajudge/actions/workflows/ci.yaml)
+[![Documentation Status](https://readthedocs.org/projects/datajudge/badge/?version=latest)](https://datajudge.readthedocs.io/en/latest/?badge=latest)
+[![Conda-forge](https://img.shields.io/conda/vn/conda-forge/datajudge?logoColor=white&logo=conda-forge)](https://anaconda.org/conda-forge/datajudge)
+[![PypiVersion](https://img.shields.io/pypi/v/datajudge.svg?logo=pypi&logoColor=white)](https://pypi.org/project/datajudge)
+
 
 Express and test specifications against data from database.
 
@@ -238,6 +242,7 @@ the test failure, the constraint at hand as well as the underlying database quer
 
 While designed as dbms-agnostically as possible, `datajudge` likely doesn't work in its entirety for every dbms.
 We run integration tests against various versions of postgres, mssql and snowflake.
+
 
 # Nomenclature
 
