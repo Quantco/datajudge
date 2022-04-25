@@ -8,4 +8,6 @@ Contents
 
 .. toctree::
 
+   installation
+   Examples <examples/examples.rst>
    API Reference <api/datajudge.rst>
