@@ -8,4 +8,4 @@ Contents
 
 .. toctree::
 
-   API Reference <api/pytsql.rst>
+   API Reference <api/datajudge.rst>
