@@ -119,6 +119,7 @@ Column capitalization
 
 Different database management systems handle capitalization of entities, such as column names, differently.
 For the time being:
+
 - Mssql: ``datajudge`` expects column name capitalization as is seen in database, either lowercase or uppercase.
 - Postgres: ``datajudge`` expects lowercase column names.
 - Snowflake: ``datajudge`` will lowercase independently of the capitalization provided.
