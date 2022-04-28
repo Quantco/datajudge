@@ -1,9 +1,9 @@
 Motivation
 ==========
 
-Ensuring data quality is important. ``datajudge`` seeks to make this convenient.
+Ensuring data quality is of great importance for many use cases. ``datajudge`` seeks to make this convenient.
 
-Not trying to reinvent the wheel, ``datajudge`` relies on ``pytest`` to test expectations against data. ``datajudge`` allows for the expression of expectations held against data stored in databases. In particular, it allows for comparing different ``DataSource`` s.
+Not trying to reinvent the wheel, ``datajudge`` relies on ``pytest`` to test expectations against data. ``datajudge`` allows for the expression of expectations held against data stored in databases. In particular, it allows for comparing different ``DataSource`` s. Yet, it also comes with functionalities to compare data from a single ``DataSource`` to fixed reference values derived from explicit domain knowledge.
 
 
 Comparisons between DataSources
