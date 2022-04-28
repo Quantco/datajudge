@@ -97,7 +97,7 @@ for other ``DataSource`` s as well. These are often derived from primitive table
      - ``WithinRequirement.from_table``
      - ``BetweenRequirement.from_tables``
    * - ``ExpressionDataSource``
-     - represents the result of a `` sqlalchemy`` expression
+     - represents the result of a ``sqlalchemy`` expression
      - ``WithinRequirement.from_table``
      - ``BetweenRequirement.from_tables``
    * - ``RawQueryDataSource``
@@ -124,7 +124,7 @@ For the time being:
 - Snowflake: ``datajudge`` will lowercase independently of the capitalization provided.
 
 The snowflake behavior is due to an upstream `bug <https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157>`_
-in `` snowflake-sqlalchemy``.
+in ``snowflake-sqlalchemy``.
 
 This behavior is subject to change.
 
