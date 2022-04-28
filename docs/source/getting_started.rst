@@ -17,7 +17,7 @@ Glossary
 Creating a specification
 ------------------------
 
-In order to get going, you might want to copy `` skeleton.py`` to the location of
+In order to get going, you might want to copy ``skeleton.py`` to the location of
 your choice. The skeleton represents a specification.
 
 
