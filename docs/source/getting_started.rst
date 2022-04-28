@@ -25,8 +25,8 @@ Specifying `Constraint`s
 --------------------------
 
 In order to discover possible `Constraint`s, please investigate the `_add_*_constraint` methods
-for `BetweenRequirement<https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.BetweenRequirement>`__
-and `WithinRequirement<https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.WithinRequirement>`__
+for `BetweenRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.BetweenRequirement>`_
+and `WithinRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.WithinRequirement>`_
 respectively.
 
 These methods are meant to be mostly self-documenting through usage of expressive parameters.
@@ -121,7 +121,7 @@ For the time being:
 - Postgres: `datajudge` expects lowercase column names.
 - Snowflake: `datajudge` will lowercase independently of the capitalization provided.
 
-The snowflake behavior is due to an upstream `bug<https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157>`__
+The snowflake behavior is due to an upstream `bug <https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157>`_
 in `snowflake-sqlalchemy`.
 
 This behavior is subject to change.
