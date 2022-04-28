@@ -15,7 +15,7 @@ Unit tests can be run by executing
 
 ::
 
-   pytest tetss/unit
+   pytest tests/unit
 
 Integration tests are run against a specific backend at a time. As of now, we provide helper
 scripts to spin up either a postgres or mssql backend.
