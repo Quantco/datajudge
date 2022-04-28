@@ -62,7 +62,7 @@ you can run
 
    pytest your_specification.py --html=your_report.html
 
-As the testing relies on `pytest<https://docs.pytest.org/en/latest/>`__, all of `pytest`'s features can be
+As the testing relies on `pytest <https://docs.pytest.org/en/latest/>`_, all of `pytest`'s features can be
 used, e.g. early stopping with `-x` or sub-selecting specific tests with `-k`.
 
 
@@ -109,7 +109,7 @@ for other ``DataSource`` s as well. These are often derived from primitive table
 Typically, a user does not need to instantiate a corresponding ``DataSource`` themselves. Rather, this is taken care
 of by using the appropriate constructor for ``WithinRequirement`` or ``BetweenRequirement``.
 
-Note that in principle, several tables _can_ be combined to make up for a single ``DataSource``. Yet, most of
+Note that in principle, several tables can be combined to make up for a single ``DataSource``. Yet, most of
 the time when trying to compare two tables, it is more convenient to create a ``BetweenRequirement`` and use
 the ``from_tables`` constructor.
 
@@ -125,7 +125,7 @@ For the time being:
 - Snowflake: ``datajudge`` will lowercase independently of the capitalization provided.
 
 The snowflake behavior is due to an upstream `bug <https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157>`_
-in ``snowflake-sqlalchemy``.
+in snowflake-sqlalchemy.
 
 This behavior is subject to change.
 
