@@ -11,4 +11,4 @@ or from a ``conda`` environment
 
 ::
 
-    mamba install datajudge
+    conda install datajudge -c conda-forge
