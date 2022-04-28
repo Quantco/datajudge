@@ -9,30 +9,32 @@
 Express and test specifications against data from database.
 
 
+[Documentation](https://datajugde.readthedocs.io/en/latest/index.html)
+
 # Installation instructions
 
 `datajudge` can either be installed via pypi with `pip install datajudge` or via conda-forge with `conda install datajudge -c conda-forge`.
 
-You will likely want to use `datajudge` in conjuction with other packages - in particular `pytest` and database drivers relevant to your database. You might want to install `snowflake-sqlalchemy` when using snowflake, `pyscopg` when using postgres and platform-specific drivers ([Windows](https://docs.microsoft.com/en-us/sql/connect/odbc/windows/microsoft-odbc-driver-for-sql-server-on-windows?view=sql-server-ver15), [Linux](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15), [macOS](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15)) when using mssql.
+# Usage
 
-For development _on_ `datajudge` - in contrast to merely using it - you can get started as follows:
-```bash
-git clone https://github.com/Quantco/datajudge
-cd datajudge
-mamba env create
-conda activate datajudge
-pip install --no-build-isolation --disable-pip-version-check -e .
-```
+Please refer to the [Getting Started](https://datajugde.readthedocs.io/en/latest/getting_started.html) section of our documentation for details.
 
-# Example
+Expressing an expectations between different tables from a database may look as such:
 
+```python
+ from datajudge import (
+	BetweenRequirement
+ )
 
-# Usage instructions
+ companies_between_req = BetweenRequirement.from_tables(
+     db_name1="example",
+     table_name1="companies",
+     db_name2="example",
+     table_name2="companies_archive",
+)
 
-
-## Database management system support
-
-While designed as dbms-agnostically as possible, `datajudge` likely doesn't work in its entirety for every dbms.
-We run integration tests against various versions of postgres, mssql and snowflake.
-
+companies_between_req.add_row_superset_constraint(
+     columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
+)
+ ```
 
