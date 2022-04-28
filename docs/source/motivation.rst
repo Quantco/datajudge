@@ -10,6 +10,7 @@ Comparisons between DataSources
 -------------------------------
 
 The data generating process can be obscure for a variety of reasons. In such scenarios one might ask the questions of
+
 - Has the data 'changed' over time?
 - Was the transformation of the data successful?
 
@@ -19,9 +20,10 @@ In both cases one might want to compare different data - either from different p
 Why not Great Expectations?
 ---------------------------
 
-The major selling point is to be able to conveniently express expectations _between_ different ``DataSource`` s. Great Expectations, in contrast, focuses on expectations against single ``DataSource`` s.
+The major selling point is to be able to conveniently express expectations **between** different ``DataSource`` s. Great Expectations, in contrast, focuses on expectations against single ``DataSource`` s.
 
 Moreover, some users have pointed out the following advantages:
+
 - lots of 'query writing' is taken care of by having tailored ``Constraint`` s
 - easier and faster onboarding
 - assertion messages with counterexamples and other context information, speeding up the data debugging process
