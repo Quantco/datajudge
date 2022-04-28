@@ -17,8 +17,28 @@ Glossary
 Creating a specification
 ------------------------
 
-In order to get going, you might want to copy ``skeleton.py`` to the location of
-your choice. The skeleton represents a specification.
+In order to get going, you might want to use the following snippet in a new python file.
+This file will represent a specification.
+
+.. code-block:: python
+
+    import pytest
+    import sqlalchemy as sa
+    from dbcheck.pytest_integration import collect_data_tests
+
+
+    @pytest.fixture(scope="module")
+    def datajudge_engine():
+        # TODO: Adapt connection string to database at hand.
+        return sa.create_engine("your_connection_string")
+
+
+    # TODO: Insert Requirement objects to list.
+    requirements = []
+
+    test_constraint = collect_data_tests(requirements)
+
+This file will eventually lead as an input to pytest. More on that in the section 'Testing a specification'.
 
 
 Specifying Constraints
