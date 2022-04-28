@@ -1,7 +1,7 @@
 Installation
 ============
 
-To install, execute:
+To install, execute
 
 ::
 
