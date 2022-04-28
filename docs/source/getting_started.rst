@@ -52,12 +52,14 @@ Testing a specification
 In order to test whether the ``Constraint`` s expressed in a specification hold true, you can simply run
 
 ::
+
     pytest your_specification.py
 
 This will produce results directly in your terminal. If you prefer to additionally generate a pdf report,
 you can run
 
 ::
+
    pytest your_specification.py --html=your_report.html
 
 As the testing relies on `pytest<https://docs.pytest.org/en/latest/>`__, all of `pytest`'s features can be
