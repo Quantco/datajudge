@@ -18,4 +18,5 @@ Contents
    Getting Started <getting_started.rst>
    motivation
    Examples <examples/examples.rst>
+   development
    API Reference <api/datajudge.rst>
