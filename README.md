@@ -22,19 +22,19 @@ Please refer to the [Getting Started](https://datajugde.readthedocs.io/en/latest
 Expressing an expectations between different tables from a database may look as such:
 
 ```python
- from datajudge import (
-	BetweenRequirement
- )
+from datajudge import (
+    BetweenRequirement
+)
 
- companies_between_req = BetweenRequirement.from_tables(
-     db_name1="example",
-     table_name1="companies",
-     db_name2="example",
-     table_name2="companies_archive",
+companies_between_req = BetweenRequirement.from_tables(
+    db_name1="example",
+    table_name1="companies",
+    db_name2="example",
+    table_name2="companies_archive",
 )
 
 companies_between_req.add_row_superset_constraint(
-     columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
+    columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
 )
  ```
 

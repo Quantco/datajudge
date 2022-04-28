@@ -1,9 +1,9 @@
 Welcome to datajudges's documentation!
 ===================================
 
-``datajudge`` allows to assess whether data from database complies with reference information.
+``datajudge`` allows for assessing whether data from database complies with reference information.
 
-While meant to be as database management system agnostic as possible, ``datajudge`` currently supports:
+While meant to be as agnostic to concrete database management systems possible, ``datajudge`` currently supports:
 
 - Postgres
 - Mssql
