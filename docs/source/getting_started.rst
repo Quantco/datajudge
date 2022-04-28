@@ -3,43 +3,43 @@ Getting Started
 
 
 Glossary
-------------
+--------
 
-- A ```DataSource``` represents a way to retrieve data from database. Typically, this corresponds to a table in the database. Yet, it could also be a more elaborate object. See the section on 'Alternative ``DataSource``s' for more detail.
+- A ``DataSource`` represents a way to retrieve data from database. Typically, this corresponds to a table in the database. Yet, it could also be a more elaborate object. See the section on 'Alternative ``DataSource`` s' for more detail.
 
-- A ``Constraint`` captures a concrete expectation between either two ``DataSource``s or a single ``DataSource`` and a reference value.
+- A ``Constraint`` captures a concrete expectation between either two ``DataSource`` s or a single ``DataSource`` and a reference value.
 
-- A ``Requirement`` captures all ``Constraint``s between two given ``DataSource``s or all ``Constraint``s within a single ``DataSource``. If a ``Requirement`` refers links to ``DataSource``s, it is a ``BetweenRequirement``. If a ``Requirement`` merely refers to a single ``DataSource``, it is a ``WithinRequirement``.
+- A ``Requirement`` captures all ``Constraint`` s between two given ``DataSource`` s or all ``Constraint`` s within a single ``DataSource``. If a ``Requirement`` refers links to ``DataSource`` s, it is a ``BetweenRequirement``. If a ``Requirement`` merely refers to a single ``DataSource``, it is a ``WithinRequirement``.
 
-- A specification captures all ``Requirement``s against a database.
+- A specification captures all ``Requirement`` s against a database.
 
 
 Creating a specification
 ------------------------
 
-In order to get going, you might want to copy ``skeleton.py`` to the location of
+In order to get going, you might want to copy `` skeleton.py`` to the location of
 your choice. The skeleton represents a specification.
 
 
-Specifying ``Constraint``s
---------------------------
+Specifying Constraints
+----------------------
 
-In order to discover possible ``Constraint``s, please investigate the ``_add_*_constraint`` methods
+In order to discover possible ``Constraint`` s, please investigate the ``_add_*_constraint`` methods
 for `BetweenRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.BetweenRequirement>`_
 and `WithinRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.WithinRequirement>`_
 respectively.
 
 These methods are meant to be mostly self-documenting through usage of expressive parameters.
 
-Note that most ``Constraint``s will allow for at least one ``Condition``. A ``Condition``
+Note that most ``Constraint`` s will allow for at least one ``Condition``. A ``Condition``
 can be thought of as a conditional event in probability theory or a filter/clause in a datbase
 query. Please consult the doc string of ``Condition`` for greater detail. For examples, please
 see ``tests/unit/test_condition.py``.
 
-Many ``Constraint``s have optional ``columns`` parameters. If no argument is given, all
+Many ``Constraint`` s have optional ``columns`` parameters. If no argument is given, all
 available columns  will be used.
 
-``BetweenRequirement``s allow for ``Constraint``s expressing the limitation of a loss or gain (e.g. ``NRowsMinGain``).
+``BetweenRequirement`` s allow for ``Constraint`` s expressing the limitation of a loss or gain (e.g. ``NRowsMinGain``).
 These limitations can often be defined explicitly or be the result of a comparison of date ranges.
 In the latter case the date column must be passed during the instantiation of the ``BetweenRequirement`` and ``date_range_*`` must be passed
 in the respective ``add_*_constraint`` method. When using date ranges as an indicator of change, the ``constant_max_*``
@@ -49,7 +49,7 @@ argument can safely be ignored.
 Testing a specification
 -----------------------
 
-In order to test whether the ``Constraint``s expressed in a specification hold true, you can simply run
+In order to test whether the ``Constraint`` s expressed in a specification hold true, you can simply run
 
 ::
     pytest your_specification.py
@@ -78,10 +78,10 @@ purposes.
 Alternative DataSources
 ---------------------------
 
-A ``Requirement`` is instantiated with either one or two fixed ``DataSource``s.
+A ``Requirement`` is instantiated with either one or two fixed ``DataSource`` s.
 
 While the most typical example of a ``DataSource`` seems to be a table in a database, ``datajudge`` allows
-for other ``DataSource``s as well. These are often derived from primitive tables of a database.
+for other ``DataSource`` s as well. These are often derived from primitive tables of a database.
 
 .. list-table:: DataSources
    :header-rows: 1
@@ -95,7 +95,7 @@ for other ``DataSource``s as well. These are often derived from primitive tables
      - ``WithinRequirement.from_table``
      - ``BetweenRequirement.from_tables``
    * - ``ExpressionDataSource``
-     - represents the result of a ``sqlalchemy`` expression
+     - represents the result of a `` sqlalchemy`` expression
      - ``WithinRequirement.from_table``
      - ``BetweenRequirement.from_tables``
    * - ``RawQueryDataSource``
@@ -122,7 +122,7 @@ For the time being:
 - Snowflake: ``datajudge`` will lowercase independently of the capitalization provided.
 
 The snowflake behavior is due to an upstream `bug <https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157>`_
-in ``snowflake-sqlalchemy``.
+in `` snowflake-sqlalchemy``.
 
 This behavior is subject to change.
 
