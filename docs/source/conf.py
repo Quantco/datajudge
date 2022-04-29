@@ -2,7 +2,7 @@
 
 # -- Project information
 project = "datajudge"
-copyright = "(C) 2020-2021 QuantCo Inc."
+copyright = "(C) 2022 QuantCo Inc."
 author = "QuantCo Inc."
 
 release = "1.0"
