@@ -62,11 +62,42 @@ see ``tests/unit/test_condition.py``.
 Many ``Constraint`` s have optional ``columns`` parameters. If no argument is given, all
 available columns  will be used.
 
-``BetweenRequirement`` s allow for ``Constraint`` s expressing the limitation of a loss or gain (e.g. ``NRowsMinGain``).
-These limitations can often be defined explicitly or be the result of a comparison of date ranges.
-In the latter case the date column must be passed during the instantiation of the ``BetweenRequirement`` and ``date_range_*`` must be passed
-in the respective ``add_*_constraint`` method. When using date ranges as an indicator of change, the ``constant_max_*``
-argument can safely be ignored.
+
+Defining limitations of change
+------------------------------
+
+``BetweenRequirement`` s allow for ``Constraint`` s expressing the limitation of a loss or gain. For example, the ``NRowsMinGain`` ``Constraint``
+expresses by how much the number of rows must at least grow from the first ``DataSource`` to the second. In the example of ``NRowsMinGain`` ,
+this growth limitation is expressed relative to the number of rows of the first ``DataSource``.
+
+Generally, such relative limitations can be defined in two ways:
+- manually, based on domain knowledge (e.g. 'at least 5% growth')
+- automatically, based on date ranges
+
+The former would translate to
+
+::
+
+    #rows_table_2 > (1 + min_relative_gain) * #rows_table_1
+
+while the latter would translate to
+
+::
+
+   date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_date_table_1)
+   #rows_table_2 > (1 + date_growth) * #rows_table_1
+
+
+In the latter case a date column must be passed during the instantiation of the ``BetweenRequirement``. Moreover, the  and ``date_range_*`` must be passed
+in the respective ``add_*_constraint`` method. When using date ranges as an indicator of change, the ``constant_max_*`` argument can safely be ignored. Additionally,
+an additional buffer to the date growth can be added with help of the ``date_range_gain_deviation`` parameter:
+
+::
+
+   date_growth := (max_date_table_2 - min_date_table_2)/(max_date_table_1 - min_date_table_1)
+   #rows_table_2 > (1 + date_growth + date_range_gain_deviation) + * #rows_table_1
+
+This example revolving around ``NRowsMinGain`` generalizes to many ``Constraint`` s concerned with growth, gain, loss or shrinkage limitations.
 
 
 Testing a specification
