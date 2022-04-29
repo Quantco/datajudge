@@ -52,15 +52,15 @@ for `BetweenRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudg
 and `WithinRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.WithinRequirement>`_
 respectively.
 
-These methods are meant to be mostly self-documenting through usage of expressive parameters.
+These methods are meant to be mostly self-documenting through the usage of expressive parameters.
 
 Note that most ``Constraint`` s will allow for at least one ``Condition``. A ``Condition``
-can be thought of as a conditional event in probability theory or a filter/clause in a datbase
+can be thought of as a conditional event in probability theory or a filter/clause in a database
 query. Please consult the doc string of ``Condition`` for greater detail. For examples, please
 see ``tests/unit/test_condition.py``.
 
 Many ``Constraint`` s have optional ``columns`` parameters. If no argument is given, all
-available columns  will be used.
+available columns will be used.
 
 
 Defining limitations of change
@@ -109,7 +109,7 @@ In order to test whether the ``Constraint`` s expressed in a specification hold 
 
     pytest your_specification.py
 
-This will produce results directly in your terminal. If you prefer to additionally generate a pdf report,
+This will produce results directly in your terminal. If you prefer to additionally generate a report,
 you can run
 
 ::
@@ -136,7 +136,7 @@ Alternative DataSources
 
 A ``Requirement`` is instantiated with either one or two fixed ``DataSource`` s.
 
-While the most typical example of a ``DataSource`` seems to be a table in a database, ``datajudge`` allows
+While the most typical example of a ``DataSource`` would be a table in a database, ``datajudge`` allows
 for other ``DataSource`` s as well. These are often derived from primitive tables of a database.
 
 .. list-table:: DataSources
@@ -171,7 +171,7 @@ the ``from_tables`` constructor.
 Column capitalization
 ---------------------
 
-Different database management systems handle capitalization of entities, such as column names, differently.
+Different database management systems handle the capitalization of entities, such as column names, differently.
 For the time being:
 
 - Mssql: ``datajudge`` expects column name capitalization as is seen in database, either lowercase or uppercase.

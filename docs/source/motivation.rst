@@ -22,7 +22,7 @@ In both cases one might want to compare different data -- either from different 
 Why not Great Expectations?
 ---------------------------
 
-The major selling point is to be able to conveniently express expectations **between** different ``DataSource`` s. Great Expectations, in contrast, focuses on expectations against single ``DataSource`` s.
+The major selling point is to be able to conveniently express expectations **between** different ``DataSource`` s. Great Expectations, in contrast, focuses on expectations against a single ``DataSource``.
 
 Moreover, some users have pointed out the following advantages:
 
