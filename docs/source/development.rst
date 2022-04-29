@@ -44,3 +44,11 @@ and
 
    pytest tests/integration --backend=mssql-freetds
 
+or
+
+::
+
+   pytest tests/integration --backend=mssql
+
+depending on the driver you are using.
+
