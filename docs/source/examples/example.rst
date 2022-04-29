@@ -85,37 +85,40 @@ As an example, we will run 4 tests on this table:
 	db_name="example", schema_name=None, table_name="companies"
     )
 
-   # Adding a constraint: column "name" should exist in our table
-   companies_req.add_column_existence_constraint(columns=["name"])
+    # Adding a constraint: column "name" should exist in our table
+    companies_req.add_column_existence_constraint(columns=["name"])
 
-   # Adding a constraint with a condiction
-   condition = Condition(raw_string="name = 'QuantCo'")
-   companies_req.add_n_rows_min_constraint(n_rows_min=1, condition=condition)
+    # Adding a constraint with a Condition
+    condition = Condition(raw_string="name = 'QuantCo'")
+    companies_req.add_n_rows_min_constraint(n_rows_min=1, condition=condition)
 
-   companies_req.add_numeric_min_constraint(column="num_employees", min_value=1)
+    companies_req.add_numeric_min_constraint(column="num_employees", min_value=1)
 
-   # Creating a requirement (set of constraints) to test constraint between
-   # the table "companies" and the table "companies_archive".
-   companies_between_req = BetweenRequirement.from_tables(
-	db_name1="example",
-	schema_name1=None,
-	table_name1="companies",
-	db_name2="example",
-	schema_name2=None,
-	table_name2="companies_archive",
-   )
+    # Creating a requirement (set of constraints) to test constraint between
+    # the table "companies" and the table "companies_archive".
+    companies_between_req = BetweenRequirement.from_tables(
+	 db_name1="example",
+	 schema_name1=None,
+	 table_name1="companies",
+	 db_name2="example",
+	 schema_name2=None,
+	 table_name2="companies_archive",
+    )
 
-   companies_between_req.add_row_superset_constraint(
-	columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
-   )
+    companies_between_req.add_row_superset_constraint(
+        columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
+    )
 
-   @pytest.fixture()
-   def datajudge_engine():
-       return sa.create_engine("sqlite:///example.db")
+    # collect_data_tests expects a pytest fixture with the name
+    # "datajudge_engine" that is a SQLAlchemy engine
 
-   requirements = [companies_req, companies_between_req]
-   # "collect_data_tests" expects a pytest fixture with the name "datajudge_engine" that is a SQLAlchemy engine.
-   test_constraint = collect_data_tests(requirements)
+    @pytest.fixture()
+    def datajudge_engine():
+        return sa.create_engine("sqlite:///example.db")
+
+    requirements = [companies_req, companies_between_req]
+
+    test_constraint = collect_data_tests(requirements)
 
 
 Saving this file as ``specification.py`` and calling ``pytest specification.py -v``
