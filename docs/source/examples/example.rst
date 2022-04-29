@@ -111,7 +111,7 @@ As an example, we will run 4 tests on this table:
     )
 
     # We add a constraint to ensure that all of the rows from the first DataSource
-    # are a subset of the second DataSource.
+    # are a subset of the second DataSource matched by the column ``name``.
     companies_between_req.add_row_superset_constraint(
         columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
     )
