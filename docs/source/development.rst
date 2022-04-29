@@ -18,9 +18,9 @@ Unit tests can be run by executing
    pytest tests/unit
 
 Integration tests are run against a specific backend at a time. As of now, we provide helper
-scripts to spin up either a postgres or mssql backend.
+scripts to spin up either a Postgres or MSSQL backend.
 
-To run integration tests against postgres, first start a docker container with a postgres database:
+To run integration tests against Postgres, first start a docker container with a Postgres database:
 
 ::
 
@@ -32,7 +32,7 @@ Once this is running, you may execute integration tests as follows:
 
    pytest tests/integration --backend=postgres
 
-Analogously, for mssql, run
+Analogously, for MSSQL, run
 
 ::
 

@@ -37,13 +37,13 @@ This file will represent a specification.
 
 
     # TODO: Insert Requirement objects to list.
-    requirements = []
+    test = []
 
-    test_constraint = collect_data_tests(requirements)
+    requirements_constraint = collect_data_tests(requirements)
 
 This file will eventually lead as an input to pytest. More on that in the section 'Testing a specification'.
 
-In case you haven't worked with sqlalchemy engines before, you might need to install drivers to connect to your database. You might want to install snowflake-sqlalchemy when using snowflake, pyscopg when using postgres and platform-specific drivers (`Windows <https://docs.microsoft.com/en-us/sql/connect/odbc/windows/microsoft-odbc-driver-for-sql-server-on-windows?view=sql-server-ver15>`_, `Linux <https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15>`_, `macOS` <https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15>`_) when using mssql.
+In case you haven't worked with sqlalchemy engines before, you might need to install drivers to connect to your database. You might want to install snowflake-sqlalchemy when using Snowflake, pyscopg when using Postgres and platform-specific drivers (`Windows <https://docs.microsoft.com/en-us/sql/connect/odbc/windows/microsoft-odbc-driver-for-sql-server-on-windows?view=sql-server-ver15>`_, `Linux <https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15>`_, `macOS` <https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15>`_) when using MSSQL.
 
 
 Specifying Constraints
@@ -180,7 +180,7 @@ For the time being:
 - Postgres: ``datajudge`` expects lowercase column names.
 - Snowflake: ``datajudge`` will lowercase independently of the capitalization provided.
 
-The snowflake behavior is due to an upstream `bug <https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157>`_
+The Snowflake behavior is due to an upstream `bug <https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157>`_
 in snowflake-sqlalchemy.
 
 This behavior is subject to change.

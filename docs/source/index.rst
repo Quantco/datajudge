@@ -6,7 +6,7 @@ Welcome to datajudges's documentation!
 While meant to be as agnostic to concrete database management systems as possible, ``datajudge`` currently explicitly supports:
 
 - Postgres
-- Mssql
+- MSSQL
 - Snowflake
 
 Contents
