@@ -14,7 +14,7 @@ Glossary
 - Conceptually, a 'specification' captures all ``Requirement`` s against a database. In practice that means it is usually a separate python file which:
   - gathers all relevant ``Requirement`` s
   - turns these ``Requirement`` s' ``Constraint`` s into individual tests
-  - can be used to be called with pytest
+  - can be 'tested' by pytest
 
 
 Creating a specification
