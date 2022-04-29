@@ -9,7 +9,7 @@ Glossary
 
 - A ``Constraint`` captures a concrete expectation between either two ``DataSource`` s or a single ``DataSource`` and a reference value.
 
-- A ``Requirement`` captures all ``Constraint`` s between two given ``DataSource`` s or all ``Constraint`` s within a single ``DataSource``. If a ``Requirement`` refers links to ``DataSource`` s, it is a ``BetweenRequirement``. If a ``Requirement`` merely refers to a single ``DataSource``, it is a ``WithinRequirement``.
+- A ``Requirement`` captures all ``Constraint`` s between two given ``DataSource`` s or all ``Constraint`` s within a single ``DataSource``. If a ``Requirement`` refers links to two ``DataSource`` s, it is a ``BetweenRequirement``. If a ``Requirement`` merely refers to a single ``DataSource``, it is a ``WithinRequirement``.
 
 - A specification captures all ``Requirement`` s against a database.
 

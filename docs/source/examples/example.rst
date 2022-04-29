@@ -125,11 +125,7 @@ should be similar to this:
 .. code-block::
 
     =================================== test session starts ===================================
-    platform darwin -- Python 3.9.7, pytest-6.2.5, py-1.11.0, pluggy-1.0.0 -- /Users/marc_qco/miniconda3/envs/datajudge/bin/python
-    cachedir: .pytest_cache
-    metadata: {'Python': '3.9.7', 'Platform': 'macOS-11.6-x86_64-i386-64bit', 'Packages': {'pytest': '6.2.5', 'py': '1.11.0', 'pluggy': '1.0.0'}, 'Plugins': {'html': '3.1.1', 'metadata': '1.11.0', 'cov': '3.0.0'}}
-    rootdir: /Users/marc_qco/repos/datajudge
-    plugins: html-3.1.1, metadata-1.11.0, cov-3.0.0
+...
     collected 4 items
 
     specification.py::test_constraint[ColumnExistence::companies] PASSED                [ 25%]
