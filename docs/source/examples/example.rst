@@ -77,7 +77,7 @@ As an example, we will run 4 tests on this table:
     from datajudge.pytest_integration import collect_data_tests
 
 
-    # We create a Requirement (within table). This object will contain
+    # We create a Requirement, within a table. This object will contain
     # all the constraints we want to test on the specified table.
     # To test another table or test the same table against another table,
     # we would create another Requirement object.
@@ -85,17 +85,22 @@ As an example, we will run 4 tests on this table:
 	db_name="example", schema_name=None, table_name="companies"
     )
 
-    # Adding a constraint: column "name" should exist in our table
+    # We add a constraint to ensure the column "name" is present in the
+    # Requirement's table.
     companies_req.add_column_existence_constraint(columns=["name"])
 
-    # Adding a constraint with a Condition
+    # We add a constraint with a Condition. We ensure that at least one
+    # row satisfies the condition in the Requirement's table.
     condition = Condition(raw_string="name = 'QuantCo'")
     companies_req.add_n_rows_min_constraint(n_rows_min=1, condition=condition)
 
+    # We add a constraint to ensure the minimum value of the column "num_employees"
+    # is not below 1. 
     companies_req.add_numeric_min_constraint(column="num_employees", min_value=1)
 
-    # Creating a requirement (set of constraints) to test constraint between
-    # the table "companies" and the table "companies_archive".
+    # We create a new Requirement, this time between different tables.
+    # Concretely, we intent to test constraints between the table "companies"
+    # and the table "companies_archive".
     companies_between_req = BetweenRequirement.from_tables(
 	 db_name1="example",
 	 schema_name1=None,
@@ -116,8 +121,12 @@ As an example, we will run 4 tests on this table:
     def datajudge_engine():
         return sa.create_engine("sqlite:///example.db")
 
+    # We gather our distinct Requirements in a list.
     requirements = [companies_req, companies_between_req]
 
+    # "collect_data_tests" takes all requirements and turns their respective
+    # Constraints into individual tests. pytest will be able to pick
+    # up these tests.
     test_constraint = collect_data_tests(requirements)
 
 
