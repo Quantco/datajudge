@@ -95,7 +95,7 @@ As an example, we will run 4 tests on this table:
     companies_req.add_n_rows_min_constraint(n_rows_min=1, condition=condition)
 
     # We add a constraint to ensure the minimum value of the column "num_employees"
-    # is not below 1. 
+    # is not below 1.
     companies_req.add_numeric_min_constraint(column="num_employees", min_value=1)
 
     # We create a new Requirement, this time between different tables.
@@ -110,6 +110,8 @@ As an example, we will run 4 tests on this table:
 	 table_name2="companies_archive",
     )
 
+    # We add a constraint to ensure that all of the rows from the first DataSource
+    # are a subset of the second DataSource.
     companies_between_req.add_row_superset_constraint(
         columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
     )
