@@ -11,7 +11,10 @@ Glossary
 
 - A ``Requirement`` captures all ``Constraint`` s between two given ``DataSource`` s or all ``Constraint`` s within a single ``DataSource``. If a ``Requirement`` refers links to two ``DataSource`` s, it is a ``BetweenRequirement``. If a ``Requirement`` merely refers to a single ``DataSource``, it is a ``WithinRequirement``.
 
-- A specification captures all ``Requirement`` s against a database.
+- Conceptually, a 'specification' captures all ``Requirement`` s against a database. In practice that means it is usually a separate python file which:
+  - gathers all relevant ``Requirement`` s
+  - turns these ``Requirement`` s' ``Constraint`` s into individual tests
+  - can be used to be called with pytest
 
 
 Creating a specification
