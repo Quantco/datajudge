@@ -12,10 +12,10 @@ To get started, we will create a sample database using sqlite that contains a li
     eng = sa.create_engine('sqlite:///example.db')
 
     with eng.connect() as con:
-	con.execute("CREATE TABLE companies (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
-	con.execute("INSERT INTO companies (name, num_employees) VALUES ('QuantCo', 100), ('Google', 150000), ('BMW', 120000), ('Apple', 145000)")
-	con.execute("CREATE TABLE companies_archive (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
-	con.execute("INSERT INTO companies_archive (name, num_employees) VALUES ('QuantCo', 90), ('Google', 140000), ('BMW', 110000)")
+        con.execute("CREATE TABLE companies (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
+        con.execute("INSERT INTO companies (name, num_employees) VALUES ('QuantCo', 100), ('Google', 150000), ('BMW', 120000), ('Apple', 145000)")
+        con.execute("CREATE TABLE companies_archive (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
+        con.execute("INSERT INTO companies_archive (name, num_employees) VALUES ('QuantCo', 90), ('Google', 140000), ('BMW', 110000)")
 
 The table "companies_archive" contains three entries:
 
@@ -70,9 +70,9 @@ As an example, we will run 4 tests on this table:
     import sqlalchemy as sa
 
     from datajudge import (
-	Condition,
-	WithinRequirement,
-	BetweenRequirement
+        Condition,
+        WithinRequirement,
+        BetweenRequirement
     )
     from datajudge.pytest_integration import collect_data_tests
 
@@ -109,9 +109,9 @@ As an example, we will run 4 tests on this table:
 	columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
    )
 
-   @pytest.fixture(scope="module")
+   @pytest.fixture()
    def datajudge_engine():
-   return sa.create_engine("sqlite:///example.db")
+       return sa.create_engine("sqlite:///example.db")
 
    requirements = [companies_req, companies_between_req]
    # "collect_data_tests" expects a pytest fixture with the name "datajudge_engine" that is a SQLAlchemy engine.
@@ -125,7 +125,7 @@ should be similar to this:
 .. code-block::
 
     =================================== test session starts ===================================
-...
+    ...
     collected 4 items
 
     specification.py::test_constraint[ColumnExistence::companies] PASSED                [ 25%]
