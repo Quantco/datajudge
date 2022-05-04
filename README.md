@@ -11,20 +11,16 @@ Express and test specifications against data from database.
 
 [Documentation](https://datajugde.readthedocs.io/en/latest/index.html)
 
-# Installation instructions
+# Usage
 
 `datajudge` can either be installed via pypi with `pip install datajudge` or via conda-forge with `conda install datajudge -c conda-forge`.
-
-# Usage
 
 Please refer to the [Getting Started](https://datajugde.readthedocs.io/en/latest/getting_started.html) section of our documentation for details.
 
 Expressing an expectations between different tables from a database may look as such:
 
 ```python
-from datajudge import (
-    BetweenRequirement
-)
+from datajudge import BetweenRequirement
 
 companies_between_req = BetweenRequirement.from_tables(
     db_name1="example",
@@ -34,7 +30,7 @@ companies_between_req = BetweenRequirement.from_tables(
 )
 
 companies_between_req.add_row_superset_constraint(
-    columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
+    columns1=["name"], columns2=["name"], constant_max_missing_fraction=0
 )
  ```
 
