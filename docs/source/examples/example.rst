@@ -58,11 +58,11 @@ While "companies" contains an additional entry:
 
 As an example, we will run 4 tests on this table:
 
-- Does the table "companies" contain a column named "name"?
-- Does the table "companies" contain at least 1 entry with the name "QuantCo"?
-- Does the column "num_employees" of the "companies" table have all positive values?
-- Does the column "name" of the table "companies" contain at least all the values of
-  the corresponding column in "companies_archive"?
+1. Does the table "companies" contain a column named "name"?
+2. Does the table "companies" contain at least 1 entry with the name "QuantCo"?
+3. Does the column "num_employees" of the "companies" table have all positive values?
+4. Does the column "name" of the table "companies" contain at least all the values of
+   the corresponding column in "companies_archive"?
 
 .. code-block:: python
 
@@ -72,7 +72,7 @@ As an example, we will run 4 tests on this table:
     from datajudge import (
         Condition,
         WithinRequirement,
-        BetweenRequirement
+        BetweenRequirement,
     )
     from datajudge.pytest_integration import collect_data_tests
 
@@ -82,36 +82,32 @@ As an example, we will run 4 tests on this table:
     # To test another table or test the same table against another table,
     # we would create another Requirement object.
     companies_req = WithinRequirement.from_table(
-	db_name="example", schema_name=None, table_name="companies"
+        db_name="example", schema_name=None, table_name="companies"
     )
 
-    # We add a constraint to ensure the column "name" is present in the
-    # Requirement's table.
+    # Constraint 1.: Does the table "companies" contain a column named "name"?
     companies_req.add_column_existence_constraint(columns=["name"])
 
-    # We add a constraint with a Condition. We ensure that at least one
-    # row satisfies the condition in the Requirement's table.
+    # Constraint 2.: Does the table "companies" contain at least 1 entry with the name "QuantCo"?
     condition = Condition(raw_string="name = 'QuantCo'")
     companies_req.add_n_rows_min_constraint(n_rows_min=1, condition=condition)
 
-    # We add a constraint to ensure the minimum value of the column "num_employees"
-    # is not below 1.
+    # Constraint 3.: Does the column "num_employees" of the "companies" table have all positive values?
     companies_req.add_numeric_min_constraint(column="num_employees", min_value=1)
 
     # We create a new Requirement, this time between different tables.
     # Concretely, we intent to test constraints between the table "companies"
     # and the table "companies_archive".
     companies_between_req = BetweenRequirement.from_tables(
-	 db_name1="example",
-	 schema_name1=None,
-	 table_name1="companies",
-	 db_name2="example",
-	 schema_name2=None,
-	 table_name2="companies_archive",
+        db_name1="example",
+        schema_name1=None,
+        table_name1="companies",
+        db_name2="example",
+        schema_name2=None,
+        table_name2="companies_archive",
     )
 
-    # We add a constraint to ensure that all of the rows from the first DataSource
-    # are a subset of the second DataSource matched by the column ``name``.
+    # Constraint 4.: Does the column "name" of the table "companies" contain at least all the values of the corresponding column in "companies_archive"?
     companies_between_req.add_row_superset_constraint(
         columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
     )
