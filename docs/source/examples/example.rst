@@ -4,19 +4,6 @@ Example
 
 To get started, we will create a sample database using sqlite that contains a list of companies.
 
-
-.. code-block:: python
-
-    import sqlalchemy as sa
-
-    eng = sa.create_engine('sqlite:///example.db')
-
-    with eng.connect() as con:
-        con.execute("CREATE TABLE companies (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
-        con.execute("INSERT INTO companies (name, num_employees) VALUES ('QuantCo', 100), ('Google', 150000), ('BMW', 120000), ('Apple', 145000)")
-        con.execute("CREATE TABLE companies_archive (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
-        con.execute("INSERT INTO companies_archive (name, num_employees) VALUES ('QuantCo', 90), ('Google', 140000), ('BMW', 110000)")
-
 The table "companies_archive" contains three entries:
 
 .. list-table:: companies_archive
@@ -55,6 +42,20 @@ While "companies" contains an additional entry:
    * - 4
      - Apple
      - 145,000
+
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+
+    eng = sa.create_engine('sqlite:///example.db')
+
+    with eng.connect() as con:
+        con.execute("CREATE TABLE companies (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
+        con.execute("INSERT INTO companies (name, num_employees) VALUES ('QuantCo', 100), ('Google', 150000), ('BMW', 120000), ('Apple', 145000)")
+        con.execute("CREATE TABLE companies_archive (id INTEGER PRIMARY KEY, name TEXT, num_employees INTEGER)")
+        con.execute("INSERT INTO companies_archive (name, num_employees) VALUES ('QuantCo', 90), ('Google', 140000), ('BMW', 110000)")
+
 
 As an example, we will run 4 tests on this table:
 
