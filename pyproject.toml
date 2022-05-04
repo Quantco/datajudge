@@ -25,7 +25,8 @@ dynamic = ["version", "description"]
 requires-python = ">=3.8.0"
 
 dependencies = [
-    "sqlalchemy >=1.4"
+    "sqlalchemy >=1.4",
+    "setuptools"
 ]
 
 [project.urls]
@@ -47,6 +48,6 @@ multi_line_output = 3
 include_trailing_comma = true
 ensure_newline_before_comments = true
 line_length = 88
-known_first_party = "pytsql"
+known_first_party = "datajudge"
 skip_glob = '\.eggs/*,\.git/*,\.venv/*,build/*,dist/*'
 default_section = 'THIRDPARTY'
