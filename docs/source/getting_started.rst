@@ -86,7 +86,7 @@ while the latter would translate to
 ::
 
    date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_date_table_1)
-   #rows_table_2 > (1 + date_growth) * \#rows_table_1
+   #rows_table_2 > (1 + date_growth) * #rows_table_1
 
 
 In the latter case a date column must be passed during the instantiation of the ``BetweenRequirement``. Moreover, the  and ``date_range_*`` must be passed
@@ -96,7 +96,7 @@ an additional buffer to the date growth can be added with help of the ``date_ran
 ::
 
    date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_date_table_1)
-   #rows_table_2 > (1 + date_growth + date_range_gain_deviation) + * \#rows_table_1
+   #rows_table_2 > (1 + date_growth + date_range_gain_deviation) + * #rows_table_1
 
 This example revolving around ``NRowsMinGain`` generalizes to many ``Constraint`` s concerned with growth, gain, loss or shrinkage limitations.
 
