@@ -51,7 +51,7 @@ Specifying Constraints
 ----------------------
 
 In order to discover possible ``Constraint`` s, please investigate the ``_add_*_constraint`` methods
-for :class:`~datajudge.requirements.BetweenRequirement>` and :class:`~datajudge.requirements.WithinRequirement>` respectively.
+for :class:`~datajudge.requirements.BetweenRequirement` and :class:`~datajudge.requirements.WithinRequirement` respectively.
 
 These methods are meant to be mostly self-documenting through the usage of expressive parameters.
 
