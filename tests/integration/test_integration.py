@@ -1750,3 +1750,15 @@ def test_groupby_aggregation_within_with_failures(
 
 def test_diff_average_between():
     return
+
+
+@pytest.mark.parametrize("data", [
+    (identity, "col_1", "col_1", 1.0),
+    (identity, "col_1", "col_2", 0.5)
+])
+def test_kolgomorov_smirnov_2sample_between(engine, mix_table1, mix_table2, data):
+    (operation, col_1, col_2, significance_level) = data
+    req = requirements.BetweenRequirement.from_tables(*mix_table1, *mix_table2)
+    req.add_kolmogorov_smirnov_2sample_constraint(significance_level)
+
+    assert operation(req[0].test(engine).outcome)
