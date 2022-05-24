@@ -48,7 +48,9 @@ class KolmogorovSmirnov2Sample(Constraint):
     def compare(
             self, value_factual: Any, value_target: Any
     ) -> Tuple[bool, Optional[str]]:
-        result = value_factual <= value_target
+        # value_factual := calculated p-value from data
+        # value_target := required significance level provided by user
+        result = value_factual > value_target
         assertion_text = (
             f"2-Sample Kolmogorov-Smirnov between {self.ref.get_string()} and {self.target_prefix}"
             f"has p-value {value_factual}"
