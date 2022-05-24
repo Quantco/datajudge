@@ -325,16 +325,7 @@ def merge_conditions(condition1, condition2):
         return condition2
     if condition2 is None:
         return condition1
-    if not condition1.is_deprecated() and not condition2.is_deprecated():
-        return Condition(conditions=[condition1, condition2], reduction_operator="and")
-    # At least one condition is of the deprecated fashion.
-    return Condition(
-        conditions=[
-            Condition(raw_string=str(condition1)),
-            Condition(raw_string=str(condition2)),
-        ],
-        reduction_operator="and",
-    )
+    return Condition(conditions=[condition1, condition2], reduction_operator="and")
 
 
 def get_date_span(engine, ref, date_column_name):
