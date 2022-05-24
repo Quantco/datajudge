@@ -799,7 +799,12 @@ def test_numeric_max_between(engine, int_table1, int_table2, data):
 
 
 @pytest.mark.parametrize(
-    "data", [(identity, 5, 15, 0.57, None), (negation, 5, 15, 0.58, None)]
+    "data",
+    [
+        (identity, 5, 15, 0.57, None),
+        (negation, 5, 15, 0.58, None),
+        (negation, 5, 15, 0.58, Condition(raw_string="col_int IS NOT NULL")),
+    ],
 )
 def test_numeric_between_within(engine, int_table1, data):
     (operation, lower_bound, upper_bound, min_fraction, condition) = data
