@@ -13,6 +13,7 @@ from .constraints import numeric as numeric_constraints
 from .constraints import row as row_constraints
 from .constraints import uniques as uniques_constraints
 from .constraints import varchar as varchar_constraints
+from .constraints import stats as statistical_constraints
 from .constraints.base import Constraint, TestResult
 from .db_access import (
     Condition,
@@ -1250,4 +1251,13 @@ class BetweenRequirement(Requirement):
                 comparison_columns2,
                 lambda engine: max_missing_fraction,
             )
+        )
+
+    def add_kolmogorov_smirnov_2sample_constraint(self, significance_level: float):
+        """
+        Apply the so-called two-sample Kolmogorov-Smirnov test to compare the distributions of the given DataSources.
+        This contraint is fulfilled, when the resulting p-value of the Kolmogorov-Smirnov test is higher than the
+        """
+        self._constraints.append(
+            statistical_constraints.KolmogorovSmirnov2Sample(self.ref, self.ref2, significance_level)
         )
