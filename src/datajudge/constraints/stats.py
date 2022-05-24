@@ -13,7 +13,7 @@ class KolmogorovSmirnov2Sample(Constraint):
     """
 
     def __init__(self, ref: DataReference, ref2: DataReference, significance_level: float = 0.01):
-        self.significance_leve = significance_level
+        self.significance_level = significance_level
         super().__init__(ref, ref2=ref2)
 
     @staticmethod
@@ -43,14 +43,14 @@ class KolmogorovSmirnov2Sample(Constraint):
         return p_value
 
     def get_target_value(self, engine: sa.engine.Engine) -> Any:
-        return self.significance_leve
+        return self.significance_level
 
     def compare(
             self, value_factual: Any, value_target: Any
     ) -> Tuple[bool, Optional[str]]:
         # value_factual := calculated p-value from data
         # value_target := required significance level provided by user
-        result = value_factual > value_target
+        result = value_factual >= value_target
         assertion_text = (
             f"2-Sample Kolmogorov-Smirnov between {self.ref.get_string()} and {self.target_prefix}"
             f"has p-value {value_factual}"
