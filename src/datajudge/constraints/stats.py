@@ -12,7 +12,7 @@ class KolmogorovSmirnov2Sample(Constraint):
     This is detected by applying the two-sample Kolmogorov-Smirnov test.
     """
 
-    def __init__(self, ref: DataReference, ref2: DataReference, significance_level: float = 0.01):
+    def __init__(self, ref: DataReference, ref2: DataReference, significance_level: float = 0.05):
         self.significance_level = significance_level
         super().__init__(ref, ref2=ref2)
 
