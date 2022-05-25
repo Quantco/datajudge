@@ -9,6 +9,7 @@ dependencies:
   - pytest-html
   - make
   - numpydoc
+  - scipy
   - sphinx
   - sphinx_rtd_theme
   - sphinxcontrib-apidoc
