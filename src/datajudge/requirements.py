@@ -1253,11 +1253,20 @@ class BetweenRequirement(Requirement):
             )
         )
 
-    def add_kolmogorov_smirnov_2sample_constraint(self, significance_level: float):
+    def add_ks_2sample_constraint(
+            self,
+            column1: str,
+            column2: str,
+            condition1: Condition = None,
+            condition2: Condition = None,
+            significance_level: float = 0.05
+    ):
         """
         Apply the so-called two-sample Kolmogorov-Smirnov test to compare the distributions of the given DataSources.
         This contraint is fulfilled, when the resulting p-value of the Kolmogorov-Smirnov test is higher than the
         """
+        ref = DataReference(self.data_source, [column1], condition=condition1)
+        ref2 = DataReference(self.data_source2, [column2], condition=condition2)
         self._constraints.append(
-            statistical_constraints.KolmogorovSmirnov2Sample(self.ref, self.ref2, significance_level)
+            statistical_constraints.KolmogorovSmirnov2Sample(ref, ref2, significance_level)
         )
