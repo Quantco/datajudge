@@ -1757,22 +1757,25 @@ def test_diff_average_between():
     return
 
 
-@pytest.mark.parametrize("data", [
-    (identity, "col_int", "col_int", None, 1.0),
-    (identity, "col_int", "col_int", Condition("col_int >= 3"), 1.0)
-])
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, "col_int", "col_int", None, 1.0),
+        (identity, "col_int", "col_int", Condition("col_int >= 3"), 1.0),
+    ],
+)
 def test_ks_2sample_constraint_perfect_between(engine, int_table1, int_table2, data):
     """
     Test Kolmogorov-Smirnov for the same column -> p-value should be perfect 1.0.
     """
     (operation, col_1, col_2, condition, significance_level) = data
     req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table1)
-    req.add_ks_2sample_constraint(column1=col_1,
-                                  column2=col_2,
-                                  condition1=condition,
-                                  condition2=condition,
-                                  significance_level=significance_level
-                                  )
+    req.add_ks_2sample_constraint(
+        column1=col_1,
+        column2=col_2,
+        condition1=condition,
+        condition2=condition,
+        significance_level=significance_level,
+    )
 
     assert operation(req[0].test(engine).outcome)
-

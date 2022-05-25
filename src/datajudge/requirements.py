@@ -11,9 +11,9 @@ from .constraints import miscs as miscs_constraints
 from .constraints import nrows as nrows_constraints
 from .constraints import numeric as numeric_constraints
 from .constraints import row as row_constraints
+from .constraints import stats as statistical_constraints
 from .constraints import uniques as uniques_constraints
 from .constraints import varchar as varchar_constraints
-from .constraints import stats as statistical_constraints
 from .constraints.base import Constraint, TestResult
 from .db_access import (
     Condition,
@@ -1254,12 +1254,12 @@ class BetweenRequirement(Requirement):
         )
 
     def add_ks_2sample_constraint(
-            self,
-            column1: str,
-            column2: str,
-            condition1: Condition = None,
-            condition2: Condition = None,
-            significance_level: float = 0.05
+        self,
+        column1: str,
+        column2: str,
+        condition1: Condition = None,
+        condition2: Condition = None,
+        significance_level: float = 0.05,
     ):
         """
         Apply the so-called two-sample Kolmogorov-Smirnov test to compare the distributions of the given DataSources.
@@ -1268,5 +1268,7 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, [column1], condition=condition1)
         ref2 = DataReference(self.data_source2, [column2], condition=condition2)
         self._constraints.append(
-            statistical_constraints.KolmogorovSmirnov2Sample(ref, ref2, significance_level)
+            statistical_constraints.KolmogorovSmirnov2Sample(
+                ref, ref2, significance_level
+            )
         )
