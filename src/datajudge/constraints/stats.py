@@ -1,9 +1,10 @@
 from typing import Any, Tuple, Optional, Callable
-
+from .. import db_access
 from datajudge import Constraint
+from datajudge.constraints.base import OptionalSelections
 from datajudge.db_access import DataReference
 import sqlalchemy as sa
-from scipy.stats import ks_2samp, kstest
+from scipy.stats import ks_2samp
 
 
 class KolmogorovSmirnov2Sample(Constraint):
@@ -30,30 +31,20 @@ class KolmogorovSmirnov2Sample(Constraint):
 
         return p_value
 
-    def get_factual_value(self, engine: sa.engine.Engine) -> Any:
-        # get data
-        data = self.retrieve(engine, self.ref)
-        data2 = self.retrieve(engine, self.ref2)
-
-        # clean data
-
-        # calculate test statistics
-        p_value = self.calculate_2sample_ks_test(data, data2)
-
-        return p_value
-
-    def get_target_value(self, engine: sa.engine.Engine) -> Any:
-        return self.significance_level
+    def retrieve(
+        self, engine: sa.engine.Engine, ref: DataReference
+    ) -> Tuple[Any, OptionalSelections]:
+        return db_access.get_data(engine, ref)
 
     def compare(
             self, value_factual: Any, value_target: Any
     ) -> Tuple[bool, Optional[str]]:
-        # value_factual := calculated p-value from data
-        # value_target := required significance level provided by user
-        result = value_factual >= value_target
+        # factual and target values are the corresponding columns from our data source
+        p_value = self.calculate_2sample_ks_test(value_factual, value_target)
+        result = p_value >= self.significance_level
         assertion_text = (
             f"2-Sample Kolmogorov-Smirnov between {self.ref.get_string()} and {self.target_prefix}"
-            f"has p-value {value_factual}"
+            f"has p-value {p_value}"
             f"{self.condition_string}"
         )
 
