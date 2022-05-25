@@ -1,10 +1,13 @@
-from typing import Any, Tuple, Optional, Callable
-from .. import db_access
+from typing import Any, Optional, Tuple
+
+import sqlalchemy as sa
+from scipy.stats import ks_2samp
+
 from datajudge import Constraint
 from datajudge.constraints.base import OptionalSelections
 from datajudge.db_access import DataReference
-import sqlalchemy as sa
-from scipy.stats import ks_2samp
+
+from .. import db_access
 
 
 class KolmogorovSmirnov2Sample(Constraint):
@@ -13,7 +16,9 @@ class KolmogorovSmirnov2Sample(Constraint):
     This is detected by applying the two-sample Kolmogorov-Smirnov test.
     """
 
-    def __init__(self, ref: DataReference, ref2: DataReference, significance_level: float = 0.05):
+    def __init__(
+        self, ref: DataReference, ref2: DataReference, significance_level: float = 0.05
+    ):
         self.significance_level = significance_level
         super().__init__(ref, ref2=ref2)
 
@@ -37,7 +42,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         return db_access.get_data(engine, ref)
 
     def compare(
-            self, value_factual: Any, value_target: Any
+        self, value_factual: Any, value_target: Any
     ) -> Tuple[bool, Optional[str]]:
         # factual and target values are the corresponding columns from our data source
         p_value = self.calculate_2sample_ks_test(value_factual, value_target)
