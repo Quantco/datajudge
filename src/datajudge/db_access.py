@@ -640,6 +640,19 @@ def _column_aggregate(engine, ref, column_operator):
     return result, [selection]
 
 
+def _column(engine, ref):
+    subquery = ref.get_selection(engine).alias()
+    column = subquery.c[ref.get_column(engine)]
+    selection = sa.select([column])
+    result = engine.connect().execute(selection).all()
+
+    return [elem[0] for elem in result], [selection]
+
+
+def get_data(engine, ref):
+    return _column(engine, ref)
+
+
 def get_min(engine, ref):
     column_operator = sa.func.min
     return _column_aggregate(engine, ref, column_operator)
