@@ -655,7 +655,7 @@ def _column(engine, ref, aggregate_operator: Callable = None):
         selection = sa.select([aggregate_operator(column)])
         result = engine.connect().execute(selection).scalar()
 
-        return result, [selection]
+    return result, [selection]
 
 
 def get_data(engine, ref):
