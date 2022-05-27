@@ -649,13 +649,13 @@ def _column(engine, ref, aggregate_operator: Callable = None):
         selection = sa.select([column])
         result = engine.connect().execute(selection).all()
 
-        return [elem[0] for elem in result], [selection]
+        result = [elem[0] for elem in result]
 
     else:
         selection = sa.select([aggregate_operator(column)])
         result = engine.connect().execute(selection).scalar()
 
-        return result, [selection]
+    return result, [selection]
 
 
 def get_data(engine, ref):
