@@ -6,7 +6,7 @@ import operator
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
-from typing import Sequence, final, overload
+from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
@@ -632,21 +632,30 @@ def get_row_count(engine, ref, row_limit: int = None):
     return result, [selection]
 
 
-def _column_aggregate(engine, ref, column_operator):
+def _column(engine, ref, aggregate_operator: Callable = None):
+    """
+    Queries the database for the values of the relevant column (as returned by `get_column(...)`).
+    If an aggregation operation is passed, the results are aggregated accordingly
+    and a single scalar value is returned.
+    @param engine: SQLAlchemy engine
+    @param ref: DataReference object
+    @param aggregate_operator: Aggregation operation, e.g. SQLAlchemy's `sa.func.min`
+    @return: Scalar value if aggregate_operator is requested, otherwise list of values in column
+    """
     subquery = ref.get_selection(engine).alias()
     column = subquery.c[ref.get_column(engine)]
-    selection = sa.select([column_operator(column)])
-    result = engine.connect().execute(selection).scalar()
-    return result, [selection]
 
+    if not aggregate_operator:
+        selection = sa.select([column])
+        result = engine.connect().execute(selection).all()
 
-def _column(engine, ref):
-    subquery = ref.get_selection(engine).alias()
-    column = subquery.c[ref.get_column(engine)]
-    selection = sa.select([column])
-    result = engine.connect().execute(selection).all()
+        return [elem[0] for elem in result], [selection]
 
-    return [elem[0] for elem in result], [selection]
+    else:
+        selection = sa.select([aggregate_operator(column)])
+        result = engine.connect().execute(selection).scalar()
+
+        return result, [selection]
 
 
 def get_data(engine, ref):
@@ -655,33 +664,33 @@ def get_data(engine, ref):
 
 def get_min(engine, ref):
     column_operator = sa.func.min
-    return _column_aggregate(engine, ref, column_operator)
+    return _column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_max(engine, ref):
     column_operator = sa.func.max
-    return _column_aggregate(engine, ref, column_operator)
+    return _column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_mean(engine, ref):
     def column_operator(column):
         return sa.func.avg(sa.cast(column, sa.DECIMAL))
 
-    return _column_aggregate(engine, ref, column_operator)
+    return _column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_min_length(engine, ref):
     def column_operator(column):
         return sa.func.min(sa.func.length(column))
 
-    return _column_aggregate(engine, ref, column_operator)
+    return _column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_max_length(engine, ref):
     def column_operator(column):
         return sa.func.max(sa.func.length(column))
 
-    return _column_aggregate(engine, ref, column_operator)
+    return _column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_fraction_between(engine, ref, lower_bound, upper_bound):
