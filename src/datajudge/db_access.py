@@ -632,7 +632,7 @@ def get_row_count(engine, ref, row_limit: int = None):
     return result, [selection]
 
 
-def _column(engine, ref, aggregate_operator: Callable = None):
+def _column(engine: sa.engine.Engine, ref: DataReference, aggregate_operator: Callable = None):
     """
     Queries the database for the values of the relevant column (as returned by `get_column(...)`).
     If an aggregation operation is passed, the results are aggregated accordingly

@@ -11,10 +11,6 @@ from .. import db_access
 
 
 class KolmogorovSmirnov2Sample(Constraint):
-    """
-    This constraint assures that two given given data references are sampled from the same underlying distribution.
-    This is detected by applying the two-sample Kolmogorov-Smirnov test.
-    """
 
     def __init__(
         self, ref: DataReference, ref2: DataReference, significance_level: float = 0.05
@@ -49,7 +45,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         result = p_value >= self.significance_level
         assertion_text = (
             f"2-Sample Kolmogorov-Smirnov between {self.ref.get_string()} and {self.target_prefix}"
-            f"has p-value {p_value}"
+            f"has p-value {p_value}  < {self.significance_level}"
             f"{self.condition_string}"
         )
 
