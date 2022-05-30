@@ -647,9 +647,7 @@ def _column(engine: sa.engine.Engine, ref: DataReference, aggregate_operator: Ca
 
     if not aggregate_operator:
         selection = sa.select([column])
-        result = engine.connect().execute(selection).all()
-
-        result = [elem[0] for elem in result]
+        result = engine.connect().execute(selection).scalars().all()
 
     else:
         selection = sa.select([aggregate_operator(column)])
