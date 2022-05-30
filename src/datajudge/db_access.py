@@ -6,7 +6,7 @@ import operator
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
-from typing import Callable, Sequence, final, overload, Optional
+from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
@@ -632,7 +632,11 @@ def get_row_count(engine, ref, row_limit: int = None):
     return result, [selection]
 
 
-def _column(engine: sa.engine.Engine, ref: DataReference, aggregate_operator: Optional[Callable] = None):
+def _column(
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    aggregate_operator: Callable | None = None,
+):
     """
     Queries the database for the values of the relevant column (as returned by `get_column(...)`).
     If an aggregation operation is passed, the results are aggregated accordingly

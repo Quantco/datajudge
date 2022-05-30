@@ -3,11 +3,9 @@ from typing import Any, Optional, Tuple
 import sqlalchemy as sa
 from scipy.stats import ks_2samp
 
-from datajudge import Constraint
-from datajudge.constraints.base import OptionalSelections
-from datajudge.db_access import DataReference
-
 from .. import db_access
+from ..db_access import DataReference
+from .base import Constraint, OptionalSelections
 
 
 class KolmogorovSmirnov2Sample(Constraint):
