@@ -21,8 +21,6 @@ class KolmogorovSmirnov2Sample(Constraint):
         For two given lists of values calculates the Kolmogorov-Smirnov test.
         Read more here: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kstest.html
         """
-        # data validation:
-        # TODO: perform checks that are needed for scipy's test function
 
         # calculate statistic
         statistic, p_value = ks_2samp(data, data2)
