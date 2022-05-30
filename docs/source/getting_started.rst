@@ -51,9 +51,7 @@ Specifying Constraints
 ----------------------
 
 In order to discover possible ``Constraint`` s, please investigate the ``_add_*_constraint`` methods
-for `BetweenRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.BetweenRequirement>`_
-and `WithinRequirement <https://datajugde.readthedocs.io/en/latest/api/datajudge.requirements.html#datajudge.requirements.WithinRequirement>`_
-respectively.
+for :class:`~datajudge.requirements.BetweenRequirement` and :class:`~datajudge.requirements.WithinRequirement` respectively.
 
 These methods are meant to be mostly self-documenting through the usage of expressive parameters.
 
@@ -81,14 +79,14 @@ The former would translate to
 
 ::
 
-    \#rows_table_2 > (1 + min_relative_gain) * #rows_table_1
+    #rows_table_2 > (1 + min_relative_gain) * #rows_table_1
 
 while the latter would translate to
 
 ::
 
    date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_date_table_1)
-   \#rows_table_2 > (1 + date_growth) * \#rows_table_1
+   #rows_table_2 > (1 + date_growth) * #rows_table_1
 
 
 In the latter case a date column must be passed during the instantiation of the ``BetweenRequirement``. Moreover, the  and ``date_range_*`` must be passed
@@ -98,7 +96,7 @@ an additional buffer to the date growth can be added with help of the ``date_ran
 ::
 
    date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_date_table_1)
-   \#rows_table_2 > (1 + date_growth + date_range_gain_deviation) + * \#rows_table_1
+   #rows_table_2 > (1 + date_growth + date_range_gain_deviation) + * #rows_table_1
 
 This example revolving around ``NRowsMinGain`` generalizes to many ``Constraint`` s concerned with growth, gain, loss or shrinkage limitations.
 
@@ -145,22 +143,22 @@ for other ``DataSource`` s as well. These are often derived from primitive table
 .. list-table:: DataSources
    :header-rows: 1
 
-   * - ``DataSource``
+   * - :class:`~datajudge.db_access.DataSource`
      - explanation
-     - ``WithinRequirement`` constructor
-     - ``BetweenRequirement`` constructor
-   * - ``TableDataSource``
+     - :class:`~datajudge.requirements.WithinRequirement` constructor
+     - :class:`~datajudge.requirements.BetweenRequirement` constructor
+   * - :class:`~datajudge.db_access.TableDataSource`
      - represents a table in a database
-     - ``WithinRequirement.from_table``
-     - ``BetweenRequirement.from_tables``
-   * - ``ExpressionDataSource``
+     - :meth:`~datajudge.requirements.WithinRequirement.from_table`
+     - :meth:`~datajudge.requirements.BetweenRequirement.from_tables`
+   * - :class:`~datajudge.db_access.ExpressionDataSource`
      - represents the result of a ``sqlalchemy`` expression
-     - ``WithinRequirement.from_table``
-     - ``BetweenRequirement.from_tables``
-   * - ``RawQueryDataSource``
+     - :meth:`~datajudge.requirements.WithinRequirement.from_expression`
+     - :meth:`~datajudge.requirements.BetweenRequirement.from_expressions`
+   * - :class:`~datajudge.db_access.RawQueryDataSource`
      - represents the result of a sql query expressed via a string
-     - ``WithinRequirement.from_raw_query``
-     - ``BetweenRequirement.from_raw_queries``
+     - :meth:`~datajudge.requirements.WithinRequirement.from_raw_query`
+     - :meth:`~datajudge.requirements.BetweenRequirement.from_raw_queries`
 
 
 Typically, a user does not need to instantiate a corresponding ``DataSource`` themselves. Rather, this is taken care
