@@ -11,7 +11,6 @@ from .. import db_access
 
 
 class KolmogorovSmirnov2Sample(Constraint):
-
     def __init__(
         self, ref: DataReference, ref2: DataReference, significance_level: float = 0.05
     ):
@@ -29,10 +28,6 @@ class KolmogorovSmirnov2Sample(Constraint):
 
         # calculate statistic
         statistic, p_value = ks_2samp(data, data2)
-
-        sql_query = """
-            < BIG SQL >
-        """
 
         return p_value
 
@@ -54,11 +49,3 @@ class KolmogorovSmirnov2Sample(Constraint):
         )
 
         return result, assertion_text
-
-    # test() -> get_factual + get_target
-    # get_factual -> retrieve(ref)
-    # get_target -> retrieve(ref2)
-    # test: compare(factual, target)
-
-    # get_factual -> runs sql query -> retrieves p_value
-    # get_target -> returns the TARGET p_value
