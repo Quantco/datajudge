@@ -30,6 +30,10 @@ class KolmogorovSmirnov2Sample(Constraint):
         # calculate statistic
         statistic, p_value = ks_2samp(data, data2)
 
+        sql_query = """
+            < BIG SQL >
+        """
+
         return p_value
 
     def retrieve(
@@ -50,3 +54,11 @@ class KolmogorovSmirnov2Sample(Constraint):
         )
 
         return result, assertion_text
+
+    # test() -> get_factual + get_target
+    # get_factual -> retrieve(ref)
+    # get_target -> retrieve(ref2)
+    # test: compare(factual, target)
+
+    # get_factual -> runs sql query -> retrieves p_value
+    # get_target -> returns the TARGET p_value

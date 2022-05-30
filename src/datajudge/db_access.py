@@ -637,10 +637,6 @@ def _column(engine: sa.engine.Engine, ref: DataReference, aggregate_operator: Ca
     Queries the database for the values of the relevant column (as returned by `get_column(...)`).
     If an aggregation operation is passed, the results are aggregated accordingly
     and a single scalar value is returned.
-    @param engine: SQLAlchemy engine
-    @param ref: DataReference object
-    @param aggregate_operator: Aggregation operation, e.g. SQLAlchemy's `sa.func.min`
-    @return: Scalar value if aggregate_operator is requested, otherwise list of values in column
     """
     subquery = ref.get_selection(engine).alias()
     column = subquery.c[ref.get_column(engine)]
