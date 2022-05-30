@@ -35,7 +35,7 @@ class KolmogorovSmirnov2Sample(Constraint):
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> Tuple[Any, OptionalSelections]:
-        return db_access.get_data(engine, ref)
+        return db_access.get_column(engine, ref)
 
     def compare(
         self, value_factual: Any, value_target: Any

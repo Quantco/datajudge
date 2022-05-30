@@ -658,7 +658,7 @@ def _column(engine: sa.engine.Engine, ref: DataReference, aggregate_operator: Ca
     return result, [selection]
 
 
-def get_data(engine, ref):
+def get_column(engine, ref):
     return _column(engine, ref)
 
 

@@ -1764,7 +1764,7 @@ def test_diff_average_between():
         (identity, "col_int", "col_int", Condition("col_int >= 3"), 1.0),
     ],
 )
-def test_ks_2sample_constraint_perfect_between(engine, int_table1, int_table2, data):
+def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
     """
     Test Kolmogorov-Smirnov for the same column -> p-value should be perfect 1.0.
     """
