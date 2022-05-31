@@ -1,6 +1,7 @@
 from typing import Any, Optional, Tuple
 
 import sqlalchemy as sa
+from numpy import typing
 
 from .. import db_access
 from ..db_access import DataReference
@@ -15,7 +16,9 @@ class KolmogorovSmirnov2Sample(Constraint):
         super().__init__(ref, ref2=ref2)
 
     @staticmethod
-    def calculate_2sample_ks_test(data, data2):
+    def calculate_2sample_ks_test(
+        data: typing.ArrayLike, data2: typing.ArrayLike
+    ) -> float:
         """
         For two given lists of values calculates the Kolmogorov-Smirnov test.
         Read more here: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kstest.html
