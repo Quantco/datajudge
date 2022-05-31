@@ -1,7 +1,6 @@
 from typing import Any, Optional, Tuple
 
 import sqlalchemy as sa
-from scipy.stats import ks_2samp
 
 from .. import db_access
 from ..db_access import DataReference
@@ -21,6 +20,13 @@ class KolmogorovSmirnov2Sample(Constraint):
         For two given lists of values calculates the Kolmogorov-Smirnov test.
         Read more here: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kstest.html
         """
+        try:
+            from scipy.stats import ks_2samp
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "Calculating the Kolmogorov-Smirnov test relies on scipy."
+                "Therefore, please install scipy before using this test."
+            )
 
         # calculate statistic
         statistic, p_value = ks_2samp(data, data2)
