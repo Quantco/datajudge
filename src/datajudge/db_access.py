@@ -632,7 +632,7 @@ def get_row_count(engine, ref, row_limit: int = None):
     return result, [selection]
 
 
-def _column(
+def get_column(
     engine: sa.engine.Engine,
     ref: DataReference,
     *,
@@ -657,39 +657,35 @@ def _column(
     return result, [selection]
 
 
-def get_column(engine, ref):
-    return _column(engine, ref)
-
-
 def get_min(engine, ref):
     column_operator = sa.func.min
-    return _column(engine, ref, aggregate_operator=column_operator)
+    return get_column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_max(engine, ref):
     column_operator = sa.func.max
-    return _column(engine, ref, aggregate_operator=column_operator)
+    return get_column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_mean(engine, ref):
     def column_operator(column):
         return sa.func.avg(sa.cast(column, sa.DECIMAL))
 
-    return _column(engine, ref, aggregate_operator=column_operator)
+    return get_column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_min_length(engine, ref):
     def column_operator(column):
         return sa.func.min(sa.func.length(column))
 
-    return _column(engine, ref, aggregate_operator=column_operator)
+    return get_column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_max_length(engine, ref):
     def column_operator(column):
         return sa.func.max(sa.func.length(column))
 
-    return _column(engine, ref, aggregate_operator=column_operator)
+    return get_column(engine, ref, aggregate_operator=column_operator)
 
 
 def get_fraction_between(engine, ref, lower_bound, upper_bound):
