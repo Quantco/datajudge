@@ -1784,7 +1784,7 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
-        (identity, "col_int", "col_int"),
+        (negation, "col_int", "col_int"),
     ],
 )
 def test_ks_2sample_constraint_wrong_between(
@@ -1801,4 +1801,4 @@ def test_ks_2sample_constraint_wrong_between(
     )
 
     # test should fail, i.e. be below the default significance level
-    assert not operation(req[0].test(engine).outcome)
+    assert operation(req[0].test(engine).outcome)
