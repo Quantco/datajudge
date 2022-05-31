@@ -635,7 +635,8 @@ def get_row_count(engine, ref, row_limit: int = None):
 def _column(
     engine: sa.engine.Engine,
     ref: DataReference,
-    *, aggregate_operator: Callable | None = None,
+    *,
+    aggregate_operator: Callable | None = None,
 ):
     """
     Queries the database for the values of the relevant column (as returned by `get_column(...)`).

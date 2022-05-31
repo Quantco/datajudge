@@ -31,7 +31,11 @@ class KolmogorovSmirnov2Sample(Constraint):
                 "Therefore, please install scipy before using this test."
             )
 
-        # calculate statistic
+        # Currently, the calculation will be performed locally through scipy
+        # In future versions, an implementation where either the database engine
+        # (1) calculates the CDF
+        # or even (2) calculates the KS test
+        # can be expected
         statistic, p_value = ks_2samp(data, data2)
 
         return p_value
@@ -44,7 +48,7 @@ class KolmogorovSmirnov2Sample(Constraint):
     def compare(
         self, value_factual: Any, value_target: Any
     ) -> Tuple[bool, Optional[str]]:
-        # factual and target values are the corresponding columns from our data source
+
         p_value = self.calculate_2sample_ks_test(value_factual, value_target)
         result = p_value >= self.significance_level
         assertion_text = (
