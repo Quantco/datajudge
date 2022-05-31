@@ -1784,7 +1784,13 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
-        (negation, "col_int", "col_int"),
+        (negation, "col_int", "col_int", 0.05),
+        (
+            identity,
+            "col_int",
+            "col_int",
+            0.0,
+        ),  # test should succeed although data is different
     ],
 )
 def test_ks_2sample_constraint_wrong_between(
@@ -1793,11 +1799,10 @@ def test_ks_2sample_constraint_wrong_between(
     """
     Test kolmogorov smirnov test for table and square of table -> significance level should be less than default 0.05
     """
-    (operation, col_1, col_2) = data
+    (operation, col_1, col_2, min_p_value) = data
     req = requirements.BetweenRequirement.from_tables(*int_table1, *int_square_table)
     req.add_ks_2sample_constraint(
-        column1=col_1,
-        column2=col_2,
+        column1=col_1, column2=col_2, significance_level=min_p_value
     )
 
     # test should fail, i.e. be below the default significance level
