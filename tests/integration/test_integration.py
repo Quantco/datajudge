@@ -1805,5 +1805,4 @@ def test_ks_2sample_constraint_wrong_between(
         column1=col_1, column2=col_2, significance_level=min_p_value
     )
 
-    # test should fail, i.e. be below the default significance level
     assert operation(req[0].test(engine).outcome)
