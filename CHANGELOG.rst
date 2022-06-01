@@ -14,10 +14,6 @@ Changelog
 
 - Implemented a new constraint :class:`~datajudge.constraints.stats.KolmogorovSmirnov2Sample` for :class:`~datajudge.BetweenRequirement` that performs a [Kolmogorov-Smirnov test](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test) between two data sources.
 
-**New method: get_column**
-
-- :meth:`db_access.get_column` allows retrieving the full data column, i.e. without applying any operations.
-
 1.0.1 - 2022.05.24
 ------------------
 
