@@ -11,7 +11,7 @@ from .constraints import miscs as miscs_constraints
 from .constraints import nrows as nrows_constraints
 from .constraints import numeric as numeric_constraints
 from .constraints import row as row_constraints
-from .constraints import stats as statistical_constraints
+from .constraints import stats as stats_constraints
 from .constraints import uniques as uniques_constraints
 from .constraints import varchar as varchar_constraints
 from .constraints.base import Constraint, TestResult
