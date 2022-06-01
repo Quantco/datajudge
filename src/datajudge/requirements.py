@@ -1265,7 +1265,14 @@ class BetweenRequirement(Requirement):
         Apply the so-called two-sample Kolmogorov-Smirnov test to the distributions of the two given columns.
         The constraint is fulfilled, when the resulting p-value of the test is higher than the significance level
         (default is 0.05, i.e., 5%).
+        The signifance_level must be a value between 0.0 and 1.0.
         """
+
+        if significance_level < 0.0 or significance_level > 1.0:
+            raise ValueError(
+                "The requested significance level has to be between 0.0 and 1.0. Default is 0.05."
+            )
+
         ref = DataReference(self.data_source, [column1], condition=condition1)
         ref2 = DataReference(self.data_source2, [column2], condition=condition2)
         self._constraints.append(
