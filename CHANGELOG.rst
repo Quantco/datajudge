@@ -12,7 +12,7 @@ Changelog
 
 **New feature: Statistical Tests**
 
-- Implemented a :class:`~datajudge.BetweenRequirement` constraint running a Kolmogorov Smirnov test.
+- Implemented a new constraint :class:`~datajudge.constraints.stats.KolmogorovSmirnov2Sample` for :class:`~datajudge.BetweenRequirement` that performs a [Kolmogorov-Smirnov test](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test) between two data sources.
 
 **New method: get_column**
 
