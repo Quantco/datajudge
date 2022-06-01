@@ -1269,7 +1269,5 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, [column1], condition=condition1)
         ref2 = DataReference(self.data_source2, [column2], condition=condition2)
         self._constraints.append(
-            stats_constraints.KolmogorovSmirnov2Sample(
-                ref, ref2, significance_level
-            )
+            stats_constraints.KolmogorovSmirnov2Sample(ref, ref2, significance_level)
         )
