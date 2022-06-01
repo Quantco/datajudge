@@ -11,6 +11,7 @@ from .constraints import miscs as miscs_constraints
 from .constraints import nrows as nrows_constraints
 from .constraints import numeric as numeric_constraints
 from .constraints import row as row_constraints
+from .constraints import stats as stats_constraints
 from .constraints import uniques as uniques_constraints
 from .constraints import varchar as varchar_constraints
 from .constraints.base import Constraint, TestResult
@@ -1250,4 +1251,30 @@ class BetweenRequirement(Requirement):
                 comparison_columns2,
                 lambda engine: max_missing_fraction,
             )
+        )
+
+    def add_ks_2sample_constraint(
+        self,
+        column1: str,
+        column2: str,
+        condition1: Condition = None,
+        condition2: Condition = None,
+        significance_level: float = 0.05,
+    ):
+        """
+        Apply the so-called two-sample Kolmogorov-Smirnov test to the distributions of the two given columns.
+        The constraint is fulfilled, when the resulting p-value of the test is higher than the significance level
+        (default is 0.05, i.e., 5%).
+        The signifance_level must be a value between 0.0 and 1.0.
+        """
+
+        if significance_level < 0.0 or significance_level > 1.0:
+            raise ValueError(
+                "The requested significance level has to be between 0.0 and 1.0. Default is 0.05."
+            )
+
+        ref = DataReference(self.data_source, [column1], condition=condition1)
+        ref2 = DataReference(self.data_source2, [column2], condition=condition2)
+        self._constraints.append(
+            stats_constraints.KolmogorovSmirnov2Sample(ref, ref2, significance_level)
         )
