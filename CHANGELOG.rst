@@ -7,6 +7,17 @@
 Changelog
 =========
 
+1.1.0 - 2022.06.01
+------------------
+
+**New feature: Statistical Tests**
+
+- Implemented a :class:`~datajudge.BetweenRequirement` constraint running a Kolmogorov Smirnov test.
+
+**New method: get_column**
+
+- :meth:`db_access.get_column` allows retrieving the full data column, i.e. without applying any operations.
+
 1.0.1 - 2022.05.24
 ------------------
 
