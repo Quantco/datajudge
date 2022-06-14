@@ -653,7 +653,11 @@ def get_column(
             snowflake_cursor = engine.connect().connection.cursor()
 
             # note: this step requires pandas to be installed
-            result = snowflake_cursor.execute(str(selection)).fetch_pandas_all().values.ravel()
+            result = (
+                snowflake_cursor.execute(str(selection))
+                .fetch_pandas_all()
+                .values.ravel()
+            )
 
         else:
             result = engine.connect().execute(selection).scalars().all()
