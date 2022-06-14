@@ -648,7 +648,15 @@ def get_column(
 
     if not aggregate_operator:
         selection = sa.select([column])
-        result = engine.connect().execute(selection).scalars().all()
+
+        if is_snowflake(engine):  # check if we have a snowflake cursor
+            snowflake_cursor = engine.connect().connection.cursor()
+
+            # note: this step requires pandas to be installed
+            result = snowflake_cursor.execute(str(selection)).fetch_pandas_all().values.ravel()
+
+        else:
+            result = engine.connect().execute(selection).scalars().all()
 
     else:
         selection = sa.select([aggregate_operator(column)])
