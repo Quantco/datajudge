@@ -657,6 +657,8 @@ def get_column(
             pa_table = snowflake_cursor.execute(str(selection)).fetch_arrow_all()
             if pa_table:  # snowflake connector returns NoneType when the table is empty
                 result = pa_table.column(0).to_numpy()
+            else:
+                result = []
 
         else:
             result = engine.connect().execute(selection).scalars().all()
