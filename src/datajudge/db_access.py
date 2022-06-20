@@ -650,7 +650,8 @@ def get_column(
     if not aggregate_operator:
         selection = sa.select([column])
 
-        if is_snowflake(engine):  # check if we have a snowflake cursor
+        # snowflake-specific optimization
+        if is_snowflake(engine):
             snowflake_cursor: SnowflakeCursor = engine.connect().connection.cursor()
 
             # note: this step requires pandas to be installed
