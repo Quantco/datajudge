@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
+from snowflake.connector.cursor import SnowflakeCursor
 from sqlalchemy.sql.expression import FromClause
 
 
@@ -650,14 +651,12 @@ def get_column(
         selection = sa.select([column])
 
         if is_snowflake(engine):  # check if we have a snowflake cursor
-            snowflake_cursor = engine.connect().connection.cursor()
+            snowflake_cursor: SnowflakeCursor = engine.connect().connection.cursor()
 
             # note: this step requires pandas to be installed
-            result = (
-                snowflake_cursor.execute(str(selection))
-                .fetch_pandas_all()
-                .values.ravel()
-            )
+            pa_table = snowflake_cursor.execute(str(selection)).fetch_arrow_all()
+            if pa_table:  # snowflake connector returns NoneType when the table is empty
+                result = pa_table.column(0).to_numpy()
 
         else:
             result = engine.connect().execute(selection).scalars().all()
