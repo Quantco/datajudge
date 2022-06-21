@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
-from snowflake.connector.cursor import SnowflakeCursor
 from sqlalchemy.sql.expression import FromClause
 
 
@@ -652,7 +651,7 @@ def get_column(
 
         # snowflake-specific optimization
         if is_snowflake(engine):
-            snowflake_cursor: SnowflakeCursor = engine.connect().connection.cursor()
+            snowflake_cursor = engine.connect().connection.cursor()
 
             # note: in addition to pyarrow, this currently requires pandas as well
             pa_table = snowflake_cursor.execute(str(selection)).fetch_arrow_all()
