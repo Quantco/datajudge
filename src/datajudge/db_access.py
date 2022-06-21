@@ -654,7 +654,7 @@ def get_column(
         if is_snowflake(engine):
             snowflake_cursor: SnowflakeCursor = engine.connect().connection.cursor()
 
-            # note: this step requires pandas to be installed
+            # note: in addition to pyarrow, this currently requires pandas as well
             pa_table = snowflake_cursor.execute(str(selection)).fetch_arrow_all()
             if pa_table:  # snowflake connector returns NoneType when the table is empty
                 result = pa_table.column(0).to_numpy()
