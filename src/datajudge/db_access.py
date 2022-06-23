@@ -13,12 +13,15 @@ import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
 
 try:
+    snowflake_available = importlib.import_module("snowflake") is not None
     pandas_available = importlib.import_module("pandas") is not None
-except ModuleNotFoundError:
-    pandas_available = False
-    print(
-        "For snowflake users: `pandas` is not installed, that means optimized data loading is not available."
-    )
+except ModuleNotFoundError as err:  # ex.: 'snowflake' not found
+    snowflake_available = "snowflake" not in str(err)
+    pandas_available = "pandas" not in str(err)
+    if snowflake_available and not pandas_available:
+        print(
+            "For snowflake users: `pandas` is not installed, that means optimized data loading is not available."
+        )
 
 
 def is_mssql(engine: sa.engine.Engine) -> bool:
