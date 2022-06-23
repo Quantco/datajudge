@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import functools
-import importlib
 import json
 import operator
 from abc import ABC, abstractmethod
@@ -13,8 +12,12 @@ import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
 
 try:
-    snowflake_available = importlib.import_module("snowflake") is not None
-    pandas_available = importlib.import_module("pandas") is not None
+    import snowflake
+
+    snowflake_available = True
+    import pandas
+
+    pandas_available = True
 except ModuleNotFoundError as err:  # ex.: 'snowflake' not found
     snowflake_available = "snowflake" not in str(err)
     pandas_available = "pandas" not in str(err)
