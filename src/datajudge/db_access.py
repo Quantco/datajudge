@@ -16,6 +16,9 @@ try:
     pandas_available = importlib.import_module("pandas") is not None
 except ModuleNotFoundError:
     pandas_available = False
+    print(
+        "For snowflake users: `pandas` is not installed, that means optimized data loading is not available."
+    )
 
 
 def is_mssql(engine: sa.engine.Engine) -> bool:
@@ -655,7 +658,7 @@ def get_column(
     if not aggregate_operator:
         selection = sa.select([column])
 
-        # snowflake-specific optimization iff pandas is installed additionally
+        # snowflake-specific optimization iff pandas is installed
         if is_snowflake(engine) and pandas_available:
             snowflake_cursor = engine.connect().connection.cursor()
 
