@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import importlib
 import json
 import operator
 from abc import ABC, abstractmethod
@@ -10,6 +11,11 @@ from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
+
+try:
+    pandas_available = importlib.import_module("pandas") is not None
+except ModuleNotFoundError:
+    pandas_available = False
 
 
 def is_mssql(engine: sa.engine.Engine) -> bool:
@@ -649,8 +655,8 @@ def get_column(
     if not aggregate_operator:
         selection = sa.select([column])
 
-        # snowflake-specific optimization
-        if is_snowflake(engine):
+        # snowflake-specific optimization iff pandas is installed additionally
+        if is_snowflake(engine) and pandas_available:
             snowflake_cursor = engine.connect().connection.cursor()
 
             # note: in addition to pyarrow, this currently requires pandas as well
