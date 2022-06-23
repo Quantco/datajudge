@@ -902,3 +902,50 @@ def get_column_array_agg(
             for t in result
         ]
     return result, selections
+
+
+def get_ks_2sample(engine: sa.engine.Engine, ref: DataReference, ref2: DataReference):
+    """
+    Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
+    """
+
+    tab1, col1 = None, None
+    tab2, col2 = None, None
+
+    ks_query_string = f"""
+        WITH cdf_unfilled AS (
+            -- Step 1: Calculate the CDF for both tables and join them together
+            SELECT coalesce(tab1.val, tab2.val) as v, tab1.cdf as cdf1, tab2.cdf as cdf2
+            FROM
+            (
+                SELECT val, MAX(cdf) as cdf FROM (
+                    SELECT val, cume_dist() over (order by val) as cdf
+                    FROM (SELECT {col1} as val FROM {tab1}) -- Change TABLE and COL here
+                    ORDER BY val
+                ) GROUP BY val
+            ) as tab1
+            FULL OUTER JOIN
+            (
+                SELECT val, MAX(cdf) as cdf FROM (
+                    SELECT val, cume_dist() over (order by val) as cdf
+                    FROM (SELECT {col2} as val FROM {tab2}) -- Change TABLE and COL here
+                    ORDER BY val
+                ) GROUP BY val
+            ) as tab2
+            ON tab1.val = tab2.val
+            ORDER BY v
+        ), grouped_table AS ( -- Step 2: Create a grouper attribute to fill values forward
+            SELECT v,
+                COUNT(cdf1) over (order by v) as _grp1, cdf1,
+                COUNT(cdf2) over (order by v) as _grp2, cdf2
+            FROM cdf_unfilled
+        ), filled_cdf AS ( -- Step 3: Select first non-null value per group (defined by grouper)
+            SELECT v, first_value(cdf1) over (partition by _grp1 order by v) as cdf1_filled,
+                    first_value(cdf2) over (partition by _grp2 order by v) as cdf2_filled
+        FROM grouped_table
+        ) SELECT * FROM filled_cdf;
+    """
+
+    d_statisitic = engine.execute(ks_query_string).scalar()
+
+    return d_statisitic
