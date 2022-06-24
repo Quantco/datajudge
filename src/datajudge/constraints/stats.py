@@ -1,10 +1,12 @@
-from typing import Any, Collection, Optional, Tuple
+import math
+import warnings
+from typing import Any, Tuple
 
 import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from .base import Constraint, OptionalSelections
+from .base import Constraint, OptionalSelections, TestResult
 
 
 class KolmogorovSmirnov2Sample(Constraint):
@@ -14,44 +16,66 @@ class KolmogorovSmirnov2Sample(Constraint):
         self.significance_level = significance_level
         super().__init__(ref, ref2=ref2)
 
-    @staticmethod
-    def calculate_2sample_ks_test(data: Collection, data2: Collection) -> float:
-        """
-        For two given lists of values calculates the Kolmogorov-Smirnov test.
-        Read more here: https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.kstest.html
-        """
-        try:
-            from scipy.stats import ks_2samp
-        except ModuleNotFoundError:
-            raise ModuleNotFoundError(
-                "Calculating the Kolmogorov-Smirnov test relies on scipy."
-                "Therefore, please install scipy before using this test."
-            )
-
-        # Currently, the calculation will be performed locally through scipy
-        # In future versions, an implementation where either the database engine
-        # (1) calculates the CDF
-        # or even (2) calculates the KS test
-        # can be expected
-        statistic, p_value = ks_2samp(data, data2)
-
-        return p_value
-
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> Tuple[Any, OptionalSelections]:
-        return db_access.get_column(engine, ref)
+        sel = ref.get_selection(engine)  # table selection incl. WHERE condition
+        col = ref.get_column(engine)  # column name
+        return sel, col
 
-    def compare(
-        self, value_factual: Any, value_target: Any
-    ) -> Tuple[bool, Optional[str]]:
+    @staticmethod
+    def approximate_p_value(d: float, m: int, n: int) -> float | None:
+        """
+        Calculates the approximate p-value according to
+        'A procedure to find exact critical values of Kolmogorov-Smirnov Test', Silvia Fachinetti, 2009
+        """
 
-        p_value = self.calculate_2sample_ks_test(value_factual, value_target)
-        result = p_value >= self.significance_level
-        assertion_text = (
-            f"2-Sample Kolmogorov-Smirnov between {self.ref.get_string()} and {self.target_prefix}"
-            f"has p-value {p_value}  < {self.significance_level}"
-            f"{self.condition_string}"
+        n = max(m, n) // min(m, n)
+        if n < 35:
+            warnings.warn(
+                "Approximating the p-value is not accurate enough for sample size < 35"
+            )
+            return None
+
+        d_alpha = d * math.sqrt(n)
+        return -2 * math.exp(-(d_alpha**2))
+
+    @staticmethod
+    def check_acceptance(d: float, n: int, m: int, accepted_level):
+        def c(alpha: float):
+            return math.sqrt(-math.log(alpha / 2.0) * 0.5)
+
+        # source: https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
+        return d <= c(accepted_level) * math.sqrt((n + m) / (n * m))
+
+    def test(self, engine: sa.engine.Engine) -> TestResult:
+
+        # get query selections and column names for target columns
+        selection1 = self.ref.get_selection(engine)
+        column1 = self.ref.get_column(engine)
+        selection2 = self.ref2.get_selection(engine)
+        column2 = self.ref2.get_column(engine)
+
+        # retrieve test statistic d, as well as sample sizes m and n
+        d_statistic, m, n = db_access.get_ks_2sample(
+            engine, table1=(selection1, column1), table2=(selection2, column2)
         )
 
-        return result, assertion_text
+        # calculate approximate p-value
+        p_value = self.approximate_p_value(d_statistic, m, n)
+
+        # calculate test acceptance
+        result = self.check_acceptance(d_statistic, n, m, self.significance_level)
+
+        assertion_text = (
+            f"Null hypothesis (H0) for the 2-sample Kolmogorov-Smirnov test was rejected, i.e., "
+            f"the two samples ({self.ref.get_string()} and {self.target_prefix})"
+            f" do not originate from the same distribution."
+        )
+        if p_value:
+            assertion_text += f"\n p-value: {p_value}"
+
+        if not result:
+            return TestResult.failure(assertion_text)
+
+        return TestResult.success()
