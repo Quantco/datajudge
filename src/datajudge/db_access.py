@@ -3,6 +3,7 @@ from __future__ import annotations
 import functools
 import json
 import operator
+import warnings
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
@@ -12,19 +13,24 @@ import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
 
 try:
-    import snowflake
+    import snowflake  # noqa
 
     snowflake_available = True
-    import pandas
+except ModuleNotFoundError:
+    snowflake_available = False
+
+try:
+    import pandas  # noqa
 
     pandas_available = True
-except ModuleNotFoundError as err:  # ex.: 'snowflake' not found
-    snowflake_available = "snowflake" not in str(err)
-    pandas_available = "pandas" not in str(err)
-    if snowflake_available and not pandas_available:
-        print(
-            "For snowflake users: `pandas` is not installed, that means optimized data loading is not available."
-        )
+except ModuleNotFoundError:
+    pandas_available = False
+
+
+if snowflake_available and not pandas_available:
+    warnings.warn(
+        "For snowflake users: `pandas` is not installed, that means optimized data loading is not available."
+    )
 
 
 def is_mssql(engine: sa.engine.Engine) -> bool:
