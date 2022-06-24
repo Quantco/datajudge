@@ -1,6 +1,6 @@
 import math
 import warnings
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 import sqlalchemy as sa
 
@@ -24,7 +24,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         return sel, col
 
     @staticmethod
-    def approximate_p_value(d: float, m: int, n: int) -> float | None:
+    def approximate_p_value(d: float, m: int, n: int) -> Optional[float]:
         """
         Calculates the approximate p-value according to
         'A procedure to find exact critical values of Kolmogorov-Smirnov Test', Silvia Fachinetti, 2009
