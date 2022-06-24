@@ -945,5 +945,7 @@ def get_ks_2sample(engine: sa.engine.Engine, table1: tuple, table2: tuple):
     """
 
     d_statisitic = engine.execute(ks_query_string).scalar()
+    n = engine.execute(f"SELECT COUNT(*) FROM ({table1_selection})").scalar()
+    m = engine.execute(f"SELECT COUNT(*) FROM ({table2_selection})").scalar()
 
-    return d_statisitic
+    return d_statisitic, n, m
