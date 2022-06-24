@@ -947,8 +947,8 @@ SELECT MAX(ABS(cdf1 - cdf2))
 FROM replaced_nulls; -- Step 5: Calculate final statistic
     """
 
-    d_statisitic = engine.execute(ks_query_string).scalar()
+    d_statistic = engine.execute(ks_query_string).scalar()
     n = engine.execute(f"SELECT COUNT(*) FROM ({table1_selection}) as n_table").scalar()
     m = engine.execute(f"SELECT COUNT(*) FROM ({table2_selection}) as m_table").scalar()
 
-    return d_statisitic, n, m
+    return d_statistic, n, m
