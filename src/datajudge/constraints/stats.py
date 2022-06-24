@@ -30,7 +30,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         'A procedure to find exact critical values of Kolmogorov-Smirnov Test', Silvia Fachinetti, 2009
         """
 
-        n = max(m, n) // min(m, n)
+        n = m + n // 2
         if n < 35:
             warnings.warn(
                 "Approximating the p-value is not accurate enough for sample size < 35"
@@ -38,11 +38,16 @@ class KolmogorovSmirnov2Sample(Constraint):
             return None
 
         d_alpha = d * math.sqrt(n)
-        return -2 * math.exp(-(d_alpha**2))
+        approx_p = 2 * math.exp(-(d_alpha**2))
+
+        # clamp value to [0, 1]
+        return 1.0 if approx_p > 1.0 else 0.0 if approx_p < 0.0 else approx_p
 
     @staticmethod
     def check_acceptance(d: float, n: int, m: int, accepted_level):
         def c(alpha: float):
+            if alpha == 0.0:
+                return alpha + 1e-10
             return math.sqrt(-math.log(alpha / 2.0) * 0.5)
 
         # source: https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
