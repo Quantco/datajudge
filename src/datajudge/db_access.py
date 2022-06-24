@@ -916,18 +916,21 @@ WITH tab1 AS (SELECT val, MAX(cdf) as cdf
               FROM (SELECT val, cume_dist() over (order by val) as cdf
                     FROM (SELECT {col1} as val
                           FROM ({table1_selection}) as temp01) as temp03 -- Change TABLE and COL here
-                    ORDER BY val) as temp05
+                    -- ORDER BY val -- removed, because invalid in MS-SQL Server
+                    ) as temp05
               GROUP BY val),
      tab2 AS (SELECT val, MAX(cdf) as cdf
               FROM (SELECT val, cume_dist() over (order by val) as cdf
                     FROM (SELECT {col2} as val
                           FROM ({table2_selection}) as temp02) as temp04 -- Change TABLE and COL here
-                    ORDER BY val) as temp06
+                    -- ORDER BY val -- removed, because invalid in MS-SQL Server
+                    ) as temp06
               GROUP BY val),
      cdf_unfilled AS (SELECT coalesce(tab1.val, tab2.val) as v, tab1.cdf as cdf1, tab2.cdf as cdf2
                       FROM tab1
                                FULL OUTER JOIN tab2 ON tab1.val = tab2.val
-                      ORDER BY v),
+                      -- ORDER BY v -- removed, because invalid in MS-SQL Server
+                      ),
      grouped_table AS ( -- Step 2: Create a grouper attribute to fill values forward
          SELECT v,
                 COUNT(cdf1) over (order by v) as _grp1,
