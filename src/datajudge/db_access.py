@@ -904,24 +904,24 @@ def get_column_array_agg(
     return result, selections
 
 
-def get_ks_2sample(engine: sa.engine.Engine, ref: DataReference, ref2: DataReference):
+def get_ks_2sample(engine: sa.engine.Engine, table1: tuple, table2: tuple):
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
+    table1_selection, col1 = table1
+    table2_selection, col2 = table2
 
-    tab1, col1 = str(ref.get_selection(engine)), ref.get_column(engine)
-    tab2, col2 = str(ref2.get_selection(engine)), ref2.get_column(engine)
     ks_query_string = f"""
         WITH tab1 AS (
             SELECT val, MAX(cdf) as cdf FROM (
                 SELECT val, cume_dist() over (order by val) as cdf
-                FROM (SELECT {col1} as val FROM ({tab1})) -- Change TABLE and COL here
+                FROM (SELECT {col1} as val FROM ({table1_selection})) -- Change TABLE and COL here
                 ORDER BY val
             ) GROUP BY val
         ), tab2 AS (
             SELECT val, MAX(cdf) as cdf FROM (
                 SELECT val, cume_dist() over (order by val) as cdf
-                FROM (SELECT {col2} as val FROM ({tab2})) -- Change TABLE and COL here
+                FROM (SELECT {col2} as val FROM ({table2_selection})) -- Change TABLE and COL here
                 ORDER BY val
             ) GROUP BY val
         ), cdf_unfilled AS (
