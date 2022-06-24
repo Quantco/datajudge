@@ -913,17 +913,17 @@ def get_ks_2sample(engine: sa.engine.Engine, ref: DataReference, ref2: DataRefer
     tab2, col2 = str(ref2.get_selection(engine)), ref2.get_column(engine)
     ks_query_string = f"""
         WITH tab1 AS (
-        SELECT val, MAX(cdf) as cdf FROM (
-            SELECT val, cume_dist() over (order by val) as cdf
-            FROM (SELECT {col1} as val FROM ({tab1})) -- Change TABLE and COL here
-            ORDER BY val
-        ) GROUP BY val
+            SELECT val, MAX(cdf) as cdf FROM (
+                SELECT val, cume_dist() over (order by val) as cdf
+                FROM (SELECT {col1} as val FROM ({tab1})) -- Change TABLE and COL here
+                ORDER BY val
+            ) GROUP BY val
         ), tab2 AS (
-        SELECT val, MAX(cdf) as cdf FROM (
-            SELECT val, cume_dist() over (order by val) as cdf
-            FROM (SELECT {col2} as val FROM ({tab2})) -- Change TABLE and COL here
-            ORDER BY val
-        ) GROUP BY val
+            SELECT val, MAX(cdf) as cdf FROM (
+                SELECT val, cume_dist() over (order by val) as cdf
+                FROM (SELECT {col2} as val FROM ({tab2})) -- Change TABLE and COL here
+                ORDER BY val
+            ) GROUP BY val
         ), cdf_unfilled AS (
         SELECT coalesce(tab1.val, tab2.val) as v, tab1.cdf as cdf1, tab2.cdf as cdf2
         FROM tab1 FULL OUTER JOIN tab2 ON tab1.val = tab2.val
