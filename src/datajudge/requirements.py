@@ -1268,6 +1268,11 @@ class BetweenRequirement(Requirement):
         The signifance_level must be a value between 0.0 and 1.0.
         """
 
+        if not column1 or not column2:
+            raise ValueError(
+                "Column names have to be given for this test's functionality."
+            )
+
         if significance_level < 0.0 or significance_level > 1.0:
             raise ValueError(
                 "The requested significance level has to be between 0.0 and 1.0. Default is 0.05."
