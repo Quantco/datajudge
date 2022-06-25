@@ -911,18 +911,22 @@ def get_ks_2sample(engine: sa.engine.Engine, table1: tuple, table2: tuple):
     table1_selection, col1 = table1
     table2_selection, col2 = table2
 
+    if is_mssql(engine):
+        table1_selection = str(table1_selection).replace('"', "")
+        table2_selection = str(table2_selection).replace('"', "")
+
     ks_query_string = f"""
 WITH tab1 AS (SELECT val, MAX(cdf) as cdf
               FROM (SELECT val, cume_dist() over (order by val) as cdf
                     FROM (SELECT {col1} as val
-                          FROM ({table1_selection}) as temp01) as temp03 -- Change TABLE and COL here
+                          FROM {table1_selection} as temp01) as temp03 -- Change TABLE and COL here
                     -- ORDER BY val -- removed, because invalid in MS-SQL Server
                     ) as temp05
               GROUP BY val),
      tab2 AS (SELECT val, MAX(cdf) as cdf
               FROM (SELECT val, cume_dist() over (order by val) as cdf
                     FROM (SELECT {col2} as val
-                          FROM ({table2_selection}) as temp02) as temp04 -- Change TABLE and COL here
+                          FROM {table2_selection} as temp02) as temp04 -- Change TABLE and COL here
                     -- ORDER BY val -- removed, because invalid in MS-SQL Server
                     ) as temp06
               GROUP BY val),
@@ -951,7 +955,7 @@ FROM replaced_nulls; -- Step 5: Calculate final statistic
     """
 
     d_statistic = engine.execute(ks_query_string).scalar()
-    n = engine.execute(f"SELECT COUNT(*) FROM ({table1_selection}) as n_table").scalar()
-    m = engine.execute(f"SELECT COUNT(*) FROM ({table2_selection}) as m_table").scalar()
+    n = engine.execute(f"SELECT COUNT(*) FROM {table1_selection} as n_table").scalar()
+    m = engine.execute(f"SELECT COUNT(*) FROM {table2_selection} as m_table").scalar()
 
     return d_statistic, n, m
