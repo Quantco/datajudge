@@ -24,32 +24,45 @@ class KolmogorovSmirnov2Sample(Constraint):
         return sel, col
 
     @staticmethod
-    def approximate_p_value(d: float, m: int, n: int) -> Optional[float]:
+    def approximate_p_value(
+        d: float, n_samples: int, m_samples: int
+    ) -> Optional[float]:
         """
         Calculates the approximate p-value according to
         'A procedure to find exact critical values of Kolmogorov-Smirnov Test', Silvia Fachinetti, 2009
         """
 
-        n = m + n // 2
-        if n < 35:
+        # approximation does not work for small sample sizes
+        samples = min(n_samples, m_samples)
+        if samples < 35:
             warnings.warn(
                 "Approximating the p-value is not accurate enough for sample size < 35"
             )
             return None
 
-        d_alpha = d * math.sqrt(n)
+        d_alpha = d * math.sqrt(samples)
         approx_p = 2 * math.exp(-(d_alpha**2))
 
         # clamp value to [0, 1]
         return 1.0 if approx_p > 1.0 else 0.0 if approx_p < 0.0 else approx_p
 
     @staticmethod
-    def check_acceptance(d: float, n: int, m: int, accepted_level):
+    def check_acceptance(
+        d_statistic: float, n_samples: int, m_samples: int, accepted_level: float
+    ):
+        """
+        For a given test statistic, d, and the respective sample sizes `n` and `m`, this function
+        checks whether the null hypothesis can be rejected for an accepted significance level.
+
+        For more information, check out the `Wikipedia entry <https://w.wiki/5May>`.
+        """
+
         def c(alpha: float):
             return math.sqrt(-math.log(alpha / 2.0 + 1e-10) * 0.5)
 
-        # source: https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
-        return d <= c(accepted_level) * math.sqrt((n + m) / (n * m))
+        return d_statistic <= c(accepted_level) * math.sqrt(
+            (n_samples + m_samples) / (n_samples * m_samples)
+        )
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
 
