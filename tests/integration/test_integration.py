@@ -1783,15 +1783,7 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
 
 @pytest.mark.parametrize(
     "data",
-    [
-        (negation, "col_int", "col_int", 0.05),
-        (
-            identity,
-            "col_int",
-            "col_int",
-            0.0,
-        ),  # test should succeed although data is different
-    ],
+    [(negation, "col_int", "col_int", 0.05)],
 )
 def test_ks_2sample_constraint_wrong_between(
     engine, int_table1, int_square_table, data

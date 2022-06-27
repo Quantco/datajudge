@@ -46,9 +46,7 @@ class KolmogorovSmirnov2Sample(Constraint):
     @staticmethod
     def check_acceptance(d: float, n: int, m: int, accepted_level):
         def c(alpha: float):
-            if alpha == 0.0:
-                alpha = alpha + 1e-10
-            return math.sqrt(-math.log(alpha / 2.0) * 0.5)
+            return math.sqrt(-math.log(alpha / 2.0 + 1e-10) * 0.5)
 
         # source: https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
         return d <= c(accepted_level) * math.sqrt((n + m) / (n * m))

@@ -1273,9 +1273,9 @@ class BetweenRequirement(Requirement):
                 "Column names have to be given for this test's functionality."
             )
 
-        if significance_level < 0.0 or significance_level > 1.0:
+        if significance_level <= 0.0 or significance_level > 1.0:
             raise ValueError(
-                "The requested significance level has to be between 0.0 and 1.0. Default is 0.05."
+                "The requested significance level has to be in `(0.0, 1.0]`. Default is 0.05."
             )
 
         ref = DataReference(self.data_source, [column1], condition=condition1)
