@@ -1,8 +1,10 @@
 import functools
 
 import pytest
+import scipy.stats
 
 import datajudge.requirements as requirements
+from datajudge import db_access
 from datajudge.db_access import Condition, is_mssql, is_postgresql, is_snowflake
 
 
@@ -1798,3 +1800,49 @@ def test_ks_2sample_constraint_wrong_between(
     )
 
     assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "configuration",
+    [
+        (identity, "value_0_1", "value_0_1", 0.8),  # p-value should be very high
+        (
+            negation,
+            "value_0_1",
+            "value_02_1",
+            0.05,
+        ),  # p-value should be very low, tables are not similar enough
+        (
+            negation,
+            "value_0_1",
+            "value_1_1",
+            1e-50,
+        ),  # test should fail even for very small values
+    ],
+)
+def test_ks_2sample_random(engine, random_normal_table, configuration):
+    (operation, col_1, col_2, min_p_value) = configuration
+    req = requirements.BetweenRequirement.from_tables(
+        *random_normal_table, *random_normal_table
+    )
+    req.add_ks_2sample_constraint(
+        column1=col_1, column2=col_2, significance_level=min_p_value
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome)
+
+    # compare with scipy implementation
+    d_statistic = test_result.result_values["d_statistic"]
+    p_value = test_result.result_values["p_value"]
+
+    (data1, _), (data2, _) = db_access.get_column(
+        engine, req[0].ref
+    ), db_access.get_column(engine, req[0].ref2)
+    scipy_result = scipy.stats.ks_2samp(data1, data2)
+
+    assert (
+        abs(d_statistic - scipy_result.statistic) <= 1e-50
+    ), f"The test statistic does not match: {scipy_result.statistic} vs {d_statistic}"
+    assert (
+        abs(p_value - scipy_result.pvalue) <= 1e-10
+    ), f"The approx. p-value does not match: {scipy_result.pvalue} vs {p_value}"

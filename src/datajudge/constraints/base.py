@@ -29,6 +29,7 @@ class TestResult:
     constraint_description: Optional[str] = field(default=None, repr=False)
     _factual_queries: Optional[str] = field(default=None, repr=False)
     _target_queries: Optional[str] = field(default=None, repr=False)
+    result_values: Optional[dict] = field(default=None, repr=False)
 
     @property
     def logging_message(self):
@@ -63,8 +64,8 @@ class TestResult:
         )
 
     @classmethod
-    def success(cls):
-        return cls(True)
+    def success(cls, **kwargs):
+        return cls(True, **kwargs)
 
     @classmethod
     def failure(cls, *args, **kwargs):

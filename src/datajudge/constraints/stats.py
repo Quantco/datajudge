@@ -91,7 +91,9 @@ class KolmogorovSmirnov2Sample(Constraint):
         if p_value:
             assertion_text += f"\n p-value: {p_value}"
 
+        # store values s.t. they can be checked later
+        result_values = {"d_statistic": d_statistic, "p_value": p_value}
         if not result:
-            return TestResult.failure(assertion_text)
+            return TestResult.failure(assertion_text, result_values=result_values)
 
-        return TestResult.success()
+        return TestResult.success(result_values=result_values)

@@ -3,6 +3,7 @@ import itertools
 import os
 import urllib.parse
 
+import numpy as np
 import pytest
 import sqlalchemy as sa
 
@@ -656,6 +657,30 @@ def groupby_aggregation_table_incorrect(engine, metadata):
         {"some_id": id, "extra_id": e, "value": v}
         for id, e, values in data_source
         for v in values
+    ]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
+def random_normal_table(engine, metadata):
+    """
+    Table containing 10_000 randomly distributed values with mean = 0 and std.dev = 1.
+    """
+    table_name = "random_normal_table"
+    columns = [
+        sa.Column("value_0_1", sa.Float()),
+        sa.Column("value_02_1", sa.Float()),
+        sa.Column("value_1_1", sa.Float()),
+    ]
+    row_size = 10_000
+    rand1 = np.random.normal(0, 1, size=(row_size,))
+    rand2 = np.random.normal(0.2, 1, size=(row_size,))
+    rand3 = np.random.normal(1, 1, size=(row_size,))
+    data_source = np.vstack((rand1, rand2, rand3))
+    data = [
+        {"value_0_1": d1, "value_02_1": d2, "value_1_1": d3}
+        for d1, d2, d3 in data_source.T
     ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
