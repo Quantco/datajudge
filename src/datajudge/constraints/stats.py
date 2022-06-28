@@ -67,11 +67,9 @@ class KolmogorovSmirnov2Sample(Constraint):
     def test(self, engine: sa.engine.Engine) -> TestResult:
 
         # get query selections and column names for target columns
-        selection1 = (
-            self.ref.data_source.table_name  # type: ignore
-        )  # TODO: this will fail for RawQueryDataSource objects.
+        selection1 = str(self.ref.data_source.get_clause(engine))
         column1 = self.ref.get_column(engine)
-        selection2 = self.ref2.data_source.table_name  # mypy: ignore-errors
+        selection2 = str(self.ref2.data_source.get_clause(engine))
         column2 = self.ref2.get_column(engine)
 
         # retrieve test statistic d, as well as sample sizes m and n
