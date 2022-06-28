@@ -919,6 +919,7 @@ def get_ks_2sample(engine: sa.engine.Engine, table1: tuple, table2: tuple):
             '"', ""
         )  # "tempdb.dbo".int_table
 
+    # for RawQueryDataSource this could be a whole subquery and will therefore need to be wrapped
     if "SELECT" in table1_selection:
         table1_selection = f"({table1_selection})"
         table2_selection = f"({table2_selection})"
