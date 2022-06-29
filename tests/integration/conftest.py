@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import os
+import random
 import urllib.parse
 
 import numpy as np
@@ -675,13 +676,12 @@ def random_normal_table(engine, metadata):
     ]
     row_size = 10_000
     np.random.seed(0)
-    rand1 = np.random.normal(0, 1, size=(row_size,))
-    rand2 = np.random.normal(0.2, 1, size=(row_size,))
-    rand3 = np.random.normal(1, 1, size=(row_size,))
-    data_source = np.vstack((rand1, rand2, rand3))
+    rand1 = [random.gauss(0, 1) for _ in range(row_size)]
+    rand2 = [random.gauss(0.2, 1) for _ in range(row_size)]
+    rand3 = [random.gauss(1, 1) for _ in range(row_size)]
     data = [
-        {"value_0_1": d1, "value_02_1": d2, "value_1_1": d3}
-        for d1, d2, d3 in data_source.T
+        {"value_0_1": rand1[idx], "value_02_1": rand2[idx], "value_1_1": rand3[idx]}
+        for idx in range(row_size)
     ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
