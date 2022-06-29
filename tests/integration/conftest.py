@@ -674,6 +674,7 @@ def random_normal_table(engine, metadata):
         sa.Column("value_1_1", sa.Float()),
     ]
     row_size = 10_000
+    np.random.seed(0)
     rand1 = np.random.normal(0, 1, size=(row_size,))
     rand2 = np.random.normal(0.2, 1, size=(row_size,))
     rand3 = np.random.normal(1, 1, size=(row_size,))

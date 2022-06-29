@@ -1831,13 +1831,42 @@ def test_ks_2sample_random(engine, random_normal_table, configuration):
     test_result = req[0].test(engine)
     assert operation(test_result.outcome)
 
-    # compare with scipy implementation
-    d_statistic = test_result.result_values["d_statistic"]
-    p_value = test_result.result_values["p_value"]
 
-    (data1, _), (data2, _) = db_access.get_column(
-        engine, req[0].ref
-    ), db_access.get_column(engine, req[0].ref2)
+@pytest.mark.parametrize(
+    "configuration",
+    [
+        ("value_0_1", "value_0_1"),
+        ("value_0_1", "value_02_1"),
+        ("value_0_1", "value_1_1"),
+    ],
+)
+def test_ks_2sample_implementation(engine, random_normal_table, configuration):
+    col_1, col_2 = configuration
+    req = requirements.BetweenRequirement.from_tables(
+        *random_normal_table, *random_normal_table
+    )
+    req.add_ks_2sample_constraint(column1=col_1, column2=col_2)
+    constraint = req[0]
+
+    # calculate the 2-sample ks test with db access manually
+    # note: this is also what req[0].test() would do
+    # get query selections and column names for target columns
+    selection1 = str(constraint.ref.data_source.get_clause(engine))
+    column1 = constraint.ref.get_column(engine)
+    selection2 = str(constraint.ref2.data_source.get_clause(engine))
+    column2 = constraint.ref2.get_column(engine)
+
+    # retrieve test statistic d, as well as sample sizes m and n
+    d_statistic, m, n = db_access.get_ks_2sample(
+        engine, table1=(selection1, column1), table2=(selection2, column2)
+    )
+
+    # calculate approximate p-value
+    p_value = constraint.approximate_p_value(d_statistic, m, n)
+
+    # compare with scipy implementation
+    data1, _ = db_access.get_column(engine, constraint.ref)
+    data2, _ = db_access.get_column(engine, constraint.ref2)
     scipy_result = scipy.stats.ks_2samp(data1, data2)
 
     assert (
