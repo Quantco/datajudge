@@ -904,7 +904,9 @@ def get_column_array_agg(
     return result, selections
 
 
-def get_ks_2sample(engine: sa.engine.Engine, table1: tuple, table2: tuple):
+def get_ks_2sample(
+    engine: sa.engine.Engine, table1: tuple, table2: tuple
+) -> tuple[float, int, int]:
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
@@ -978,7 +980,11 @@ def get_ks_2sample(engine: sa.engine.Engine, table1: tuple, table2: tuple):
     """
 
     d_statistic = engine.execute(ks_query_string).scalar()
-    n = engine.execute(f"SELECT COUNT(*) FROM {table1_selection} as n_table").scalar()
-    m = engine.execute(f"SELECT COUNT(*) FROM {table2_selection} as m_table").scalar()
+    n_samples = engine.execute(
+        f"SELECT COUNT(*) FROM {table1_selection} as n_table"
+    ).scalar()
+    m_samples = engine.execute(
+        f"SELECT COUNT(*) FROM {table2_selection} as m_table"
+    ).scalar()
 
-    return d_statistic, n, m
+    return d_statistic, n_samples, m_samples

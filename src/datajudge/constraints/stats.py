@@ -1,8 +1,9 @@
 import math
 import warnings
-from typing import Any, Optional
+from typing import Optional
 
 import sqlalchemy as sa
+from sqlalchemy.sql import Selectable
 
 from .. import db_access
 from ..db_access import DataReference
@@ -33,6 +34,7 @@ class KolmogorovSmirnov2Sample(Constraint):
             )
             return None
 
+        # if scipy is installed, accurately calculate the p_value using the full distribution
         try:
             from scipy.stats.distributions import kstwo
 
@@ -65,7 +67,11 @@ class KolmogorovSmirnov2Sample(Constraint):
         )
 
     @staticmethod
-    def calculate_statistic(engine, table1_def: tuple, table2_def: tuple) -> Any:
+    def calculate_statistic(
+        engine,
+        table1_def: tuple[Selectable | str, str],
+        table2_def: tuple[Selectable | str, str],
+    ) -> tuple[float, Optional[float], int, int]:
 
         # retrieve test statistic d, as well as sample sizes m and n
         d_statistic, n_samples, m_samples = db_access.get_ks_2sample(
