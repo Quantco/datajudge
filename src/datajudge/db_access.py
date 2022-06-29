@@ -11,7 +11,8 @@ from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
-from utils import check_module_installed
+
+from .utils import check_module_installed
 
 snowflake_available = check_module_installed("snowflake")
 pandas_available = check_module_installed("pandas")
