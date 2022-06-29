@@ -1841,7 +1841,7 @@ def test_ks_2sample_random(engine, random_normal_table, configuration):
 
 @pytest.mark.parametrize(
     "configuration",
-    [
+    [  # these values were calculated using scipy.stats.ks_2samp on scipy=1.8.1
         ("value_0_1", "value_0_1", 0.0, 1.0),
         ("value_0_1", "value_005_1", 0.0294, 0.00035221594346540835),
         ("value_0_1", "value_02_1", 0.0829, 2.6408848561586672e-30),
@@ -1850,7 +1850,6 @@ def test_ks_2sample_random(engine, random_normal_table, configuration):
 )
 def test_ks_2sample_implementation(engine, random_normal_table, configuration):
     col_1, col_2, expected_d, expected_p = configuration
-    # different order because schema is optional
     database, schema, table = random_normal_table
     tds = TableDataSource(database, table, schema)
     ref = DataReference(tds, columns=[col_1])
