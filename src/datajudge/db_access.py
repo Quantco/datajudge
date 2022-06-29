@@ -11,20 +11,10 @@ from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
+from utils import check_module_installed
 
-try:
-    import snowflake  # noqa
-
-    snowflake_available = True
-except ModuleNotFoundError:
-    snowflake_available = False
-
-try:
-    import pandas  # noqa
-
-    pandas_available = True
-except ModuleNotFoundError:
-    pandas_available = False
+snowflake_available = check_module_installed("snowflake")
+pandas_available = check_module_installed("pandas")
 
 
 if snowflake_available and not pandas_available:
