@@ -1875,8 +1875,10 @@ def test_ks_2sample_implementation(engine, random_normal_table, configuration):
     data2, _ = db_access.get_column(engine, ref2)
 
     assert (
-        abs(d_statistic - expected_d) <= 1e-50
+        abs(d_statistic - expected_d) <= 1e-10
     ), f"The test statistic does not match: {expected_d} vs {d_statistic}"
+
+    # 1e-05 should cover common p_values; if scipy is installed, a very accurate p_value is automatically calculated
     assert (
-        abs(p_value - expected_p) <= 1e-10
+        abs(p_value - expected_p) <= 1e-05
     ), f"The approx. p-value does not match: {expected_p} vs {p_value}"

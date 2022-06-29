@@ -40,8 +40,15 @@ class KolmogorovSmirnov2Sample(Constraint):
             )
             return None
 
-        d_alpha = d * math.sqrt(samples)
-        approx_p = 2 * math.exp(-(d_alpha**2))
+        try:
+            from scipy.stats.distributions import kstwo
+
+            approx_p = kstwo.sf(
+                d, round((n_samples * m_samples) / (n_samples + m_samples))
+            )
+        except ModuleNotFoundError:
+            d_alpha = d * math.sqrt(samples)
+            approx_p = 2 * math.exp(-(d_alpha**2))
 
         # clamp value to [0, 1]
         return 1.0 if approx_p > 1.0 else 0.0 if approx_p < 0.0 else approx_p
