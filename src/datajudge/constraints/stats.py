@@ -1,6 +1,6 @@
 import math
 import warnings
-from typing import Optional
+from typing import Optional, Union
 
 import sqlalchemy as sa
 from sqlalchemy.sql import Selectable
@@ -69,8 +69,8 @@ class KolmogorovSmirnov2Sample(Constraint):
     @staticmethod
     def calculate_statistic(
         engine,
-        table1_def: tuple[Selectable | str, str],
-        table2_def: tuple[Selectable | str, str],
+        table1_def: tuple[Union[Selectable, str], str],
+        table2_def: tuple[Union[Selectable, str], str],
     ) -> tuple[float, Optional[float], int, int]:
 
         # retrieve test statistic d, as well as sample sizes m and n
