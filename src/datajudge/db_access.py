@@ -908,16 +908,14 @@ def get_ks_2sample(engine: sa.engine.Engine, table1: tuple, table2: tuple):
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
-    table1_selection, col1 = table1
-    table2_selection, col2 = table2
 
-    if is_mssql(engine):
-        table1_selection = str(table1_selection).replace(
-            '"', ""
-        )  # tempdb.dbo.int_table
-        table2_selection = str(table2_selection).replace(
-            '"', ""
-        )  # "tempdb.dbo".int_table
+    # make sure we have a string representation here
+    table1_selection, col1 = str(table1[0]), str(table1[1])
+    table2_selection, col2 = str(table2[0]), str(table2[1])
+
+    if is_mssql(engine):  # "tempdb.dbo".table_name -> tempdb.dbo.table_name
+        table1_selection = table1_selection.replace('"', "")
+        table2_selection = table2_selection.replace('"', "")
 
     # for RawQueryDataSource this could be a whole subquery and will therefore need to be wrapped
     if "SELECT" in table1_selection:

@@ -3,7 +3,6 @@ import functools
 import pytest
 
 import datajudge.requirements as requirements
-from datajudge import db_access
 from datajudge.constraints.stats import KolmogorovSmirnov2Sample
 from datajudge.db_access import (
     Condition,
@@ -1856,9 +1855,9 @@ def test_ks_2sample_implementation(engine, random_normal_table, configuration):
     ref2 = DataReference(tds, columns=[col_2])
 
     # retrieve table selections from data references
-    selection1 = str(ref.data_source.get_clause(engine))
+    selection1 = ref.data_source.get_clause(engine)
     column1 = ref.get_column(engine)
-    selection2 = str(ref2.data_source.get_clause(engine))
+    selection2 = ref2.data_source.get_clause(engine)
     column2 = ref2.get_column(engine)
 
     (
@@ -1869,10 +1868,6 @@ def test_ks_2sample_implementation(engine, random_normal_table, configuration):
     ) = KolmogorovSmirnov2Sample.calculate_statistic(
         engine, (selection1, column1), (selection2, column2)
     )
-
-    # compare with scipy implementation
-    data1, _ = db_access.get_column(engine, ref)
-    data2, _ = db_access.get_column(engine, ref2)
 
     assert (
         abs(d_statistic - expected_d) <= 1e-10

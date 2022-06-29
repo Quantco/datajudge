@@ -1,12 +1,12 @@
 import math
 import warnings
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from .base import Constraint, OptionalSelections, TestResult
+from .base import Constraint, TestResult
 
 
 class KolmogorovSmirnov2Sample(Constraint):
@@ -15,13 +15,6 @@ class KolmogorovSmirnov2Sample(Constraint):
     ):
         self.significance_level = significance_level
         super().__init__(ref, ref2=ref2)
-
-    def retrieve(
-        self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[Any, OptionalSelections]:
-        sel = ref.get_selection(engine)  # table selection incl. WHERE condition
-        col = ref.get_column(engine)  # column name
-        return sel, col
 
     @staticmethod
     def approximate_p_value(
@@ -56,12 +49,12 @@ class KolmogorovSmirnov2Sample(Constraint):
     @staticmethod
     def check_acceptance(
         d_statistic: float, n_samples: int, m_samples: int, accepted_level: float
-    ):
+    ) -> bool:
         """
         For a given test statistic, d, and the respective sample sizes `n` and `m`, this function
         checks whether the null hypothesis can be rejected for an accepted significance level.
 
-        For more information, check out the `Wikipedia entry <https://w.wiki/5May>`.
+        For more information, check out the `Wikipedia entry <https://w.wiki/5May>`_.
         """
 
         def c(alpha: float):
@@ -72,24 +65,26 @@ class KolmogorovSmirnov2Sample(Constraint):
         )
 
     @staticmethod
-    def calculate_statistic(engine, table1, table2) -> Any:
+    def calculate_statistic(engine, table1_def: tuple, table2_def: tuple) -> Any:
 
         # retrieve test statistic d, as well as sample sizes m and n
-        d_statistic, m, n = db_access.get_ks_2sample(
-            engine, table1=table1, table2=table2
+        d_statistic, n_samples, m_samples = db_access.get_ks_2sample(
+            engine, table1=table1_def, table2=table2_def
         )
 
         # calculate approximate p-value
-        p_value = KolmogorovSmirnov2Sample.approximate_p_value(d_statistic, m, n)
+        p_value = KolmogorovSmirnov2Sample.approximate_p_value(
+            d_statistic, n_samples, m_samples
+        )
 
-        return d_statistic, p_value, n, m
+        return d_statistic, p_value, n_samples, m_samples
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
 
         # get query selections and column names for target columns
-        selection1 = str(self.ref.data_source.get_clause(engine))
+        selection1 = self.ref.data_source.get_clause(engine)
         column1 = self.ref.get_column(engine)
-        selection2 = str(self.ref2.data_source.get_clause(engine))
+        selection2 = self.ref2.data_source.get_clause(engine)
         column2 = self.ref2.get_column(engine)
 
         d_statistic, p_value, n_samples, m_samples = self.calculate_statistic(
@@ -105,11 +100,11 @@ class KolmogorovSmirnov2Sample(Constraint):
             f"Null hypothesis (H0) for the 2-sample Kolmogorov-Smirnov test was rejected, i.e., "
             f"the two samples ({self.ref.get_string()} and {self.target_prefix})"
             f" do not originate from the same distribution."
+            f"The test results are d={d_statistic}"
         )
-        if p_value:
-            assertion_text += f"\n p-value: {p_value}"
+        if p_value is not None:
+            assertion_text += f"and {p_value=}"
 
-        # store values s.t. they can be checked later
         if not result:
             return TestResult.failure(assertion_text)
 
