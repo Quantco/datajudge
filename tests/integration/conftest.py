@@ -4,7 +4,6 @@ import os
 import random
 import urllib.parse
 
-import numpy as np
 import pytest
 import sqlalchemy as sa
 
@@ -671,16 +670,23 @@ def random_normal_table(engine, metadata):
     table_name = "random_normal_table"
     columns = [
         sa.Column("value_0_1", sa.Float()),
+        sa.Column("value_005_1", sa.Float()),
         sa.Column("value_02_1", sa.Float()),
         sa.Column("value_1_1", sa.Float()),
     ]
     row_size = 10_000
-    np.random.seed(0)
+    random.seed(0)
     rand1 = [random.gauss(0, 1) for _ in range(row_size)]
-    rand2 = [random.gauss(0.2, 1) for _ in range(row_size)]
-    rand3 = [random.gauss(1, 1) for _ in range(row_size)]
+    rand2 = [random.gauss(0.05, 1) for _ in range(row_size)]
+    rand3 = [random.gauss(0.2, 1) for _ in range(row_size)]
+    rand4 = [random.gauss(1, 1) for _ in range(row_size)]
     data = [
-        {"value_0_1": rand1[idx], "value_02_1": rand2[idx], "value_1_1": rand3[idx]}
+        {
+            "value_0_1": rand1[idx],
+            "value_005_1": rand2[idx],
+            "value_02_1": rand3[idx],
+            "value_1_1": rand4[idx],
+        }
         for idx in range(row_size)
     ]
     _handle_table(engine, metadata, table_name, columns, data)

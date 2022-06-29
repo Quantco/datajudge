@@ -1,11 +1,18 @@
 import functools
 
 import pytest
-import scipy.stats
 
 import datajudge.requirements as requirements
 from datajudge import db_access
-from datajudge.db_access import Condition, is_mssql, is_postgresql, is_snowflake
+from datajudge.constraints.stats import KolmogorovSmirnov2Sample
+from datajudge.db_access import (
+    Condition,
+    DataReference,
+    TableDataSource,
+    is_mssql,
+    is_postgresql,
+    is_snowflake,
+)
 
 
 def skip_if_mssql(engine):
@@ -1835,43 +1842,42 @@ def test_ks_2sample_random(engine, random_normal_table, configuration):
 @pytest.mark.parametrize(
     "configuration",
     [
-        ("value_0_1", "value_0_1"),
-        ("value_0_1", "value_02_1"),
-        ("value_0_1", "value_1_1"),
+        ("value_0_1", "value_0_1", 0.0, 1.0),
+        ("value_0_1", "value_005_1", 0.0294, 0.00035221594346540835),
+        ("value_0_1", "value_02_1", 0.0829, 2.6408848561586672e-30),
+        ("value_0_1", "value_1_1", 0.3924, 0.0),
     ],
 )
 def test_ks_2sample_implementation(engine, random_normal_table, configuration):
-    col_1, col_2 = configuration
-    req = requirements.BetweenRequirement.from_tables(
-        *random_normal_table, *random_normal_table
+    col_1, col_2, expected_d, expected_p = configuration
+    # different order because schema is optional
+    database, schema, table = random_normal_table
+    tds = TableDataSource(database, table, schema)
+    ref = DataReference(tds, columns=[col_1])
+    ref2 = DataReference(tds, columns=[col_2])
+
+    # retrieve table selections from data references
+    selection1 = str(ref.data_source.get_clause(engine))
+    column1 = ref.get_column(engine)
+    selection2 = str(ref2.data_source.get_clause(engine))
+    column2 = ref2.get_column(engine)
+
+    (
+        d_statistic,
+        p_value,
+        n_samples,
+        m_samples,
+    ) = KolmogorovSmirnov2Sample.calculate_statistic(
+        engine, (selection1, column1), (selection2, column2)
     )
-    req.add_ks_2sample_constraint(column1=col_1, column2=col_2)
-    constraint = req[0]
-
-    # calculate the 2-sample ks test with db access manually
-    # note: this is also what req[0].test() would do
-    # get query selections and column names for target columns
-    selection1 = str(constraint.ref.data_source.get_clause(engine))
-    column1 = constraint.ref.get_column(engine)
-    selection2 = str(constraint.ref2.data_source.get_clause(engine))
-    column2 = constraint.ref2.get_column(engine)
-
-    # retrieve test statistic d, as well as sample sizes m and n
-    d_statistic, m, n = db_access.get_ks_2sample(
-        engine, table1=(selection1, column1), table2=(selection2, column2)
-    )
-
-    # calculate approximate p-value
-    p_value = constraint.approximate_p_value(d_statistic, m, n)
 
     # compare with scipy implementation
-    data1, _ = db_access.get_column(engine, constraint.ref)
-    data2, _ = db_access.get_column(engine, constraint.ref2)
-    scipy_result = scipy.stats.ks_2samp(data1, data2)
+    data1, _ = db_access.get_column(engine, ref)
+    data2, _ = db_access.get_column(engine, ref2)
 
     assert (
-        abs(d_statistic - scipy_result.statistic) <= 1e-50
-    ), f"The test statistic does not match: {scipy_result.statistic} vs {d_statistic}"
+        abs(d_statistic - expected_d) <= 1e-50
+    ), f"The test statistic does not match: {expected_d} vs {d_statistic}"
     assert (
-        abs(p_value - scipy_result.pvalue) <= 1e-10
-    ), f"The approx. p-value does not match: {scipy_result.pvalue} vs {p_value}"
+        abs(p_value - expected_p) <= 1e-10
+    ), f"The approx. p-value does not match: {expected_p} vs {p_value}"

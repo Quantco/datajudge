@@ -64,6 +64,19 @@ class KolmogorovSmirnov2Sample(Constraint):
             (n_samples + m_samples) / (n_samples * m_samples)
         )
 
+    @staticmethod
+    def calculate_statistic(engine, table1, table2) -> Any:
+
+        # retrieve test statistic d, as well as sample sizes m and n
+        d_statistic, m, n = db_access.get_ks_2sample(
+            engine, table1=table1, table2=table2
+        )
+
+        # calculate approximate p-value
+        p_value = KolmogorovSmirnov2Sample.approximate_p_value(d_statistic, m, n)
+
+        return d_statistic, p_value, n, m
+
     def test(self, engine: sa.engine.Engine) -> TestResult:
 
         # get query selections and column names for target columns
@@ -72,16 +85,14 @@ class KolmogorovSmirnov2Sample(Constraint):
         selection2 = str(self.ref2.data_source.get_clause(engine))
         column2 = self.ref2.get_column(engine)
 
-        # retrieve test statistic d, as well as sample sizes m and n
-        d_statistic, m, n = db_access.get_ks_2sample(
-            engine, table1=(selection1, column1), table2=(selection2, column2)
+        d_statistic, p_value, n_samples, m_samples = self.calculate_statistic(
+            engine, (selection1, column1), (selection2, column2)
         )
 
-        # calculate approximate p-value
-        p_value = self.approximate_p_value(d_statistic, m, n)
-
         # calculate test acceptance
-        result = self.check_acceptance(d_statistic, n, m, self.significance_level)
+        result = self.check_acceptance(
+            d_statistic, n_samples, m_samples, self.significance_level
+        )
 
         assertion_text = (
             f"Null hypothesis (H0) for the 2-sample Kolmogorov-Smirnov test was rejected, i.e., "
