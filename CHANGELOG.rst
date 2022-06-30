@@ -7,6 +7,13 @@
 Changelog
 =========
 
+1.1.1 - 2022.06.30
+------------------
+
+**New: SQL implementation for KS-test**
+
+- The Kolgomorov Smirnov test is now implemented in pure SQL, shifting the computation to the database engine, improving performance tremendously.
+
 1.1.0 - 2022.06.01
 ------------------
 

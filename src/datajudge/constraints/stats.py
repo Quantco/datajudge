@@ -24,6 +24,8 @@ class KolmogorovSmirnov2Sample(Constraint):
         """
         Calculates the approximate p-value according to
         'A procedure to find exact critical values of Kolmogorov-Smirnov Test', Silvia Fachinetti, 2009
+
+        Note: For environments with `scipy` installed, this method will return a quasi-exact p-value.
         """
 
         # approximation does not work for small sample sizes
