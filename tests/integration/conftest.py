@@ -1,6 +1,7 @@
 import datetime
 import itertools
 import os
+import random
 import urllib.parse
 
 import pytest
@@ -656,6 +657,37 @@ def groupby_aggregation_table_incorrect(engine, metadata):
         {"some_id": id, "extra_id": e, "value": v}
         for id, e, values in data_source
         for v in values
+    ]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
+def random_normal_table(engine, metadata):
+    """
+    Table containing 10_000 randomly distributed values with mean = 0 and std.dev = 1.
+    """
+    table_name = "random_normal_table"
+    columns = [
+        sa.Column("value_0_1", sa.Float()),
+        sa.Column("value_005_1", sa.Float()),
+        sa.Column("value_02_1", sa.Float()),
+        sa.Column("value_1_1", sa.Float()),
+    ]
+    row_size = 10_000
+    random.seed(0)
+    rand1 = [random.gauss(0, 1) for _ in range(row_size)]
+    rand2 = [random.gauss(0.05, 1) for _ in range(row_size)]
+    rand3 = [random.gauss(0.2, 1) for _ in range(row_size)]
+    rand4 = [random.gauss(1, 1) for _ in range(row_size)]
+    data = [
+        {
+            "value_0_1": rand1[idx],
+            "value_005_1": rand2[idx],
+            "value_02_1": rand3[idx],
+            "value_1_1": rand4[idx],
+        }
+        for idx in range(row_size)
     ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
