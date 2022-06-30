@@ -3,7 +3,15 @@ import functools
 import pytest
 
 import datajudge.requirements as requirements
-from datajudge.db_access import Condition, is_mssql, is_postgresql, is_snowflake
+from datajudge.constraints.stats import KolmogorovSmirnov2Sample
+from datajudge.db_access import (
+    Condition,
+    DataReference,
+    TableDataSource,
+    is_mssql,
+    is_postgresql,
+    is_snowflake,
+)
 
 
 def skip_if_mssql(engine):
@@ -1783,15 +1791,7 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
 
 @pytest.mark.parametrize(
     "data",
-    [
-        (negation, "col_int", "col_int", 0.05),
-        (
-            identity,
-            "col_int",
-            "col_int",
-            0.0,
-        ),  # test should succeed although data is different
-    ],
+    [(negation, "col_int", "col_int", 0.05)],
 )
 def test_ks_2sample_constraint_wrong_between(
     engine, int_table1, int_square_table, data
@@ -1806,3 +1806,74 @@ def test_ks_2sample_constraint_wrong_between(
     )
 
     assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "configuration",
+    [
+        (identity, "value_0_1", "value_0_1", 0.8),  # p-value should be very high
+        (
+            negation,
+            "value_0_1",
+            "value_02_1",
+            0.05,
+        ),  # p-value should be very low, tables are not similar enough
+        (
+            negation,
+            "value_0_1",
+            "value_1_1",
+            1e-50,
+        ),  # test should fail even for very small values
+    ],
+)
+def test_ks_2sample_random(engine, random_normal_table, configuration):
+    (operation, col_1, col_2, min_p_value) = configuration
+    req = requirements.BetweenRequirement.from_tables(
+        *random_normal_table, *random_normal_table
+    )
+    req.add_ks_2sample_constraint(
+        column1=col_1, column2=col_2, significance_level=min_p_value
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome)
+
+
+@pytest.mark.parametrize(
+    "configuration",
+    [  # these values were calculated using scipy.stats.ks_2samp on scipy=1.8.1
+        ("value_0_1", "value_0_1", 0.0, 1.0),
+        ("value_0_1", "value_005_1", 0.0294, 0.00035221594346540835),
+        ("value_0_1", "value_02_1", 0.0829, 2.6408848561586672e-30),
+        ("value_0_1", "value_1_1", 0.3924, 0.0),
+    ],
+)
+def test_ks_2sample_implementation(engine, random_normal_table, configuration):
+    col_1, col_2, expected_d, expected_p = configuration
+    database, schema, table = random_normal_table
+    tds = TableDataSource(database, table, schema)
+    ref = DataReference(tds, columns=[col_1])
+    ref2 = DataReference(tds, columns=[col_2])
+
+    # retrieve table selections from data references
+    selection1 = ref.data_source.get_clause(engine)
+    column1 = ref.get_column(engine)
+    selection2 = ref2.data_source.get_clause(engine)
+    column2 = ref2.get_column(engine)
+
+    (
+        d_statistic,
+        p_value,
+        n_samples,
+        m_samples,
+    ) = KolmogorovSmirnov2Sample.calculate_statistic(
+        engine, (selection1, column1), (selection2, column2)
+    )
+
+    assert (
+        abs(d_statistic - expected_d) <= 1e-10
+    ), f"The test statistic does not match: {expected_d} vs {d_statistic}"
+
+    # 1e-05 should cover common p_values; if scipy is installed, a very accurate p_value is automatically calculated
+    assert (
+        abs(p_value - expected_p) <= 1e-05
+    ), f"The approx. p-value does not match: {expected_p} vs {p_value}"
