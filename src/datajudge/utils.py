@@ -2,7 +2,7 @@ def check_module_installed(module_name: str) -> bool:
     import importlib
 
     try:
-        mod = importlib.import_module(module_name)
-        return mod is not None
+        importlib.import_module(module_name)
+        return True
     except ModuleNotFoundError:
         return False
