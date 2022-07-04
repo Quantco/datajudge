@@ -1,7 +1,7 @@
 Development
 ===========
 
-In order to work on ``datajudge``, you can create development conda environment as follows:
+In order to work on ``datajudge``, you can create a development conda environment as follows:
 
 ::
 
