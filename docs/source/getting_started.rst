@@ -89,7 +89,7 @@ while the latter would translate to
    #rows_table_2 > (1 + date_growth) * #rows_table_1
 
 
-In the latter case a date column must be passed during the instantiation of the ``BetweenRequirement``. Moreover, the  and ``date_range_*`` must be passed
+In the latter case a date column must be passed during the instantiation of the ``BetweenRequirement``. Moreover, the ``date_range_*`` must be passed
 in the respective ``add_*_constraint`` method. When using date ranges as an indicator of change, the ``constant_max_*`` argument can safely be ignored. Additionally,
 an additional buffer to the date growth can be added with help of the ``date_range_gain_deviation`` parameter:
 
