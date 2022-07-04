@@ -207,7 +207,7 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
     ):
-        """Check if unique calues of columns are contained in the reference data.
+        """Check if unique values of columns are contained in the reference data.
 
         The `UniquesSuperset` constraint asserts that reference set of expected values,
         specified via `uniques`, is contained in given columns of a `DataSource`.
@@ -949,7 +949,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
     ):
-        """Check if unique calues of columns are contained in the reference data.
+        """Check if unique values of columns are contained in the reference data.
 
         The `UniquesSuperset` constraint asserts that reference set of expected values,
         derived from the unique values in given columns of the reference `DataSource`,
