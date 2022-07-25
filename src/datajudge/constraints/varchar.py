@@ -1,5 +1,6 @@
 import re
 from typing import Optional, Tuple
+import itertools
 
 import sqlalchemy as sa
 
@@ -27,11 +28,13 @@ class VarCharRegex(Constraint):
         allow_none: bool = False,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
+        n_counterexamples: int = 5,
     ):
         super().__init__(ref, ref_value=regex)
         self.allow_none = allow_none
         self.relative_tolerance = relative_tolerance
         self.aggregated = aggregated
+        self.n_counterexamples = n_counterexamples
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         uniques_counter, selections = db_access.get_uniques(engine, self.ref)
@@ -61,11 +64,14 @@ class VarCharRegex(Constraint):
                 sum(uniques_counter[key] for key in uniques_mismatching) / total
             )
 
+        counterexamples = list(itertools.islice(uniques_mismatching, self.n_counterexamples))
+
         if n_relative_violations > self.relative_tolerance:
             assertion_text = (
                 f"{self.ref.get_string()} "
-                f"breaks regex {self.ref_value} for example values {uniques_mismatching}"
-                f"for a fraction '{n_relative_violations}' over the accepted tolerance '{self.relative_tolerance}'"
+                f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
+                f"{self.relative_tolerance} of the cases. "
+                f"Some counterexamples consist of the following: {counterexamples} "
                 f"{self.condition_string}"
             )
             return TestResult.failure(assertion_text)
