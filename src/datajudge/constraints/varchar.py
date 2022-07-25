@@ -71,7 +71,7 @@ class VarCharRegex(Constraint):
                 f"{self.ref.get_string()} "
                 f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
                 f"{self.relative_tolerance} of the cases. "
-                f"Some counterexamples consist of the following: {counterexamples} "
+                f"Some counterexamples consist of the following: {counterexamples}. "
                 f"{self.condition_string}"
             )
             return TestResult.failure(assertion_text)
