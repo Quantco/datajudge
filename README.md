@@ -4,7 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/datajudge/badge/?version=latest)](https://datajudge.readthedocs.io/en/latest/?badge=latest)
 [![Conda-forge](https://img.shields.io/conda/vn/conda-forge/datajudge?logoColor=white&logo=conda-forge)](https://anaconda.org/conda-forge/datajudge)
 [![PypiVersion](https://img.shields.io/pypi/v/datajudge.svg?logo=pypi&logoColor=white)](https://pypi.org/project/datajudge)
-
+[![codecov.io](https://codecov.io/github/QuantCo/datajudge/coverage.svg?branch=master)](https://codecov.io/github/QuantCo/datajudge?branch=master)
 
 Express and test specifications against data from database.
 

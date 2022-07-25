@@ -21,3 +21,4 @@ dependencies:
   - snowflake-sqlalchemy
   - flit-core
   - flit
+  - pytest-cov
