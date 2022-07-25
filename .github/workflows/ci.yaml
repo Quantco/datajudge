@@ -136,7 +136,7 @@ jobs:
         shell: bash -l {0}
         run: |
           flit install -s
-          pytest --backend=postgres tests/integration
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=postgres tests/integration
 
   linux-integration_tests-snowflake:
     name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Snowflake"
