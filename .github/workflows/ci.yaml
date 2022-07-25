@@ -137,6 +137,10 @@ jobs:
         run: |
           flit install -s
           pytest --cov=datajudge --cov-report=xml --cov-append --backend=postgres tests/integration
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v2.1.0
+        with:
+          file: ./coverage.xml
 
   linux-integration_tests-snowflake:
     name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Snowflake"
