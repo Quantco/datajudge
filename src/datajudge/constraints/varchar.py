@@ -46,12 +46,13 @@ class VarCharRegex(Constraint):
         }
 
         if self.aggregated:
-            n_relative_violations = len(uniques_mismatching) / len(uniques_factual)
+            n_violations = len(uniques_mismatching)
+            n_total = len(uniques_factual)
         else:
-            total = sum(count for _, count in uniques_counter.items())
-            n_relative_violations = (
-                sum(uniques_counter[key] for key in uniques_mismatching) / total
-            )
+            n_violations = sum(uniques_counter[key] for key in uniques_mismatching)
+            n_total = sum(count for _, count in uniques_counter.items())
+
+        n_relative_violations = n_violations / n_total
 
         if self.n_counterexamples == -1:
             counterexamples = list(uniques_mismatching)
@@ -65,6 +66,7 @@ class VarCharRegex(Constraint):
                 f"{self.ref.get_string()} "
                 f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
                 f"{self.relative_tolerance} of the cases. "
+                f"In absolute terms, {n_violations} of the {n_total} samples violated the regex. "
                 f"Some counterexamples consist of the following: {counterexamples}. "
                 f"{self.condition_string}"
             )
