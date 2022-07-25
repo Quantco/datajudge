@@ -1,3 +1,4 @@
+import itertools
 import re
 from typing import Optional, Tuple
 
@@ -9,17 +10,6 @@ from .base import Constraint, OptionalSelections, TestResult
 
 
 class VarCharRegex(Constraint):
-    """
-    Assesses whether the values in a column match a given regex pattern.
-
-    The option `allow_none` can be used in cases where the column is defined as nullable and contains null values.
-
-    How the tolerance factor is calculated can be controlled with the `aggregated` flag. When `True`,
-
-    the tolerance is calculated using unique values. If not, the tolerance is calculated using all the instances
-    of the data.
-    """
-
     def __init__(
         self,
         ref: DataReference,
@@ -27,11 +17,13 @@ class VarCharRegex(Constraint):
         allow_none: bool = False,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
+        n_counterexamples: int = 5,
     ):
         super().__init__(ref, ref_value=regex)
         self.allow_none = allow_none
         self.relative_tolerance = relative_tolerance
         self.aggregated = aggregated
+        self.n_counterexamples = n_counterexamples
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         uniques_counter, selections = db_access.get_uniques(engine, self.ref)
@@ -54,18 +46,28 @@ class VarCharRegex(Constraint):
         }
 
         if self.aggregated:
-            n_relative_violations = len(uniques_mismatching) / len(uniques_factual)
+            n_violations = len(uniques_mismatching)
+            n_total = len(uniques_factual)
         else:
-            total = sum(count for _, count in uniques_counter.items())
-            n_relative_violations = (
-                sum(uniques_counter[key] for key in uniques_mismatching) / total
+            n_violations = sum(uniques_counter[key] for key in uniques_mismatching)
+            n_total = sum(count for _, count in uniques_counter.items())
+
+        n_relative_violations = n_violations / n_total
+
+        if self.n_counterexamples == -1:
+            counterexamples = list(uniques_mismatching)
+        else:
+            counterexamples = list(
+                itertools.islice(uniques_mismatching, self.n_counterexamples)
             )
 
         if n_relative_violations > self.relative_tolerance:
             assertion_text = (
                 f"{self.ref.get_string()} "
-                f"breaks regex {self.ref_value} for example values {uniques_mismatching}"
-                f"for a fraction '{n_relative_violations}' over the accepted tolerance '{self.relative_tolerance}'"
+                f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
+                f"{self.relative_tolerance} of the cases. "
+                f"In absolute terms, {n_violations} of the {n_total} samples violated the regex. "
+                f"Some counterexamples consist of the following: {counterexamples}. "
                 f"{self.condition_string}"
             )
             return TestResult.failure(assertion_text)

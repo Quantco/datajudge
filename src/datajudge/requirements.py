@@ -591,7 +591,22 @@ class WithinRequirement(Requirement):
         allow_none: bool = False,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
+        n_counterexamples: int = 5,
     ):
+        """
+        Assesses whether the values in a column match a given regular expresion pattern.
+
+        The option ``allow_none`` can be used in cases where the column is defined as
+        nullable and contains null values.
+
+        How the tolerance factor is calculated can be controlled with the ``aggregated``
+        flag. When ``True``, the tolerance is calculated using unique values. If not, the
+        tolerance is calculated using all the instances of the data.
+
+        ``n_counterexamples`` defines how many counterexamples are displayed in an
+        assertion text. If all counterexamples are meant to be shown, provide ``-1`` as
+        an argument.
+        """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             varchar_constraints.VarCharRegex(
@@ -600,6 +615,7 @@ class WithinRequirement(Requirement):
                 allow_none=allow_none,
                 relative_tolerance=relative_tolerance,
                 aggregated=aggregated,
+                n_counterexamples=n_counterexamples,
             )
         )
 
