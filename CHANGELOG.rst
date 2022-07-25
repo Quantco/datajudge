@@ -7,6 +7,14 @@
 Changelog
 =========
 
+1.2.0 - 2022.xx.xx
+------------------
+
+**New features**
+
+- Implemented specification of number of counterexamples in :meth:`~datajudge.WithinRequirement.add_varchar_regex_constraint`.
+
+
 1.1.1 - 2022.06.30
 ------------------
 
