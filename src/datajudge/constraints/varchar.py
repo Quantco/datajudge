@@ -1,6 +1,6 @@
+import itertools
 import re
 from typing import Optional, Tuple
-import itertools
 
 import sqlalchemy as sa
 
@@ -64,7 +64,9 @@ class VarCharRegex(Constraint):
                 sum(uniques_counter[key] for key in uniques_mismatching) / total
             )
 
-        counterexamples = list(itertools.islice(uniques_mismatching, self.n_counterexamples))
+        counterexamples = list(
+            itertools.islice(uniques_mismatching, self.n_counterexamples)
+        )
 
         if n_relative_violations > self.relative_tolerance:
             assertion_text = (
