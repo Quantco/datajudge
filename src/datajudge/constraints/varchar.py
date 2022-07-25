@@ -53,9 +53,12 @@ class VarCharRegex(Constraint):
                 sum(uniques_counter[key] for key in uniques_mismatching) / total
             )
 
-        counterexamples = list(
-            itertools.islice(uniques_mismatching, self.n_counterexamples)
-        )
+        if self.n_counterexamples == -1:
+            counterexamples = list(uniques_mismatching)
+        else:
+            counterexamples = list(
+                itertools.islice(uniques_mismatching, self.n_counterexamples)
+            )
 
         if n_relative_violations > self.relative_tolerance:
             assertion_text = (
