@@ -45,7 +45,11 @@ jobs:
         shell: bash -l {0}
         run: |
           flit install -s
-          pytest tests/unit
+          pytest tests/unit --cov=datajudge --cov-report=xml
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v2.1.0
+        with:
+          file: ./coverage.xml
 
   linux-integration_tests-sqlserver:
     name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - mssql"
