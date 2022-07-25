@@ -591,6 +591,7 @@ class WithinRequirement(Requirement):
         allow_none: bool = False,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
+        n_counterexamples: int = 5,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -600,6 +601,7 @@ class WithinRequirement(Requirement):
                 allow_none=allow_none,
                 relative_tolerance=relative_tolerance,
                 aggregated=aggregated,
+                n_counterexamples=n_counterexamples,
             )
         )
 
