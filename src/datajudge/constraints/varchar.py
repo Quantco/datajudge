@@ -10,17 +10,6 @@ from .base import Constraint, OptionalSelections, TestResult
 
 
 class VarCharRegex(Constraint):
-    """
-    Assesses whether the values in a column match a given regex pattern.
-
-    The option `allow_none` can be used in cases where the column is defined as nullable and contains null values.
-
-    How the tolerance factor is calculated can be controlled with the `aggregated` flag. When `True`,
-
-    the tolerance is calculated using unique values. If not, the tolerance is calculated using all the instances
-    of the data.
-    """
-
     def __init__(
         self,
         ref: DataReference,
