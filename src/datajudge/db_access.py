@@ -306,7 +306,7 @@ class DataReference:
     def get_column_selection_string(self):
         if self.columns is None:
             return " * "
-        return ", ".join(self.columns)
+        return ", ".join(map(lambda x: f"'{x}'", self.columns))
 
     def get_clause_string(self, *, return_where=True):
         where_string = "WHERE " if return_where else ""
@@ -315,7 +315,7 @@ class DataReference:
     def get_string(self):
         if self.columns is None:
             return str(self.data_source)
-        return f"{self.data_source}'s columns " f" {self.get_column_selection_string()}"
+        return f"{self.data_source}'s column(s) {self.get_column_selection_string()}"
 
 
 def merge_conditions(condition1, condition2):
