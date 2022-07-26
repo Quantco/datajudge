@@ -1,3 +1,4 @@
+import warnings
 from abc import ABC
 from collections.abc import MutableSequence
 from typing import Callable, Collection, List, Optional, Sequence, TypeVar
@@ -592,6 +593,7 @@ class WithinRequirement(Requirement):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
+        computation_in_db=False,
     ):
         """
         Assesses whether the values in a column match a given regular expresion pattern.
@@ -606,18 +608,41 @@ class WithinRequirement(Requirement):
         ``n_counterexamples`` defines how many counterexamples are displayed in an
         assertion text. If all counterexamples are meant to be shown, provide ``-1`` as
         an argument.
+
+        ``computation_in_db`` defines whether the regex matching takes place in database or
+        in memory. Typically the former is both faster and substantially more memory-saving.
+        Yet, it is only supported for Postrres, sqllite and Snowflake.
         """
         ref = DataReference(self.data_source, [column], condition)
-        self._constraints.append(
-            varchar_constraints.VarCharRegex(
-                ref,
-                regex,
-                allow_none=allow_none,
-                relative_tolerance=relative_tolerance,
-                aggregated=aggregated,
-                n_counterexamples=n_counterexamples,
+        if computation_in_db:
+            if allow_none:
+                warnings.warn(
+                    """
+                    Parameter 'allow_none' is not allowed when using 'computation_in_db'.
+                    Please use a Condition with of the sort 'column IS NOT NULL' instead.
+                    """
+                )
+            self._constraints.append(
+                varchar_constraints.VarCharRegexDb(
+                    ref,
+                    regex=regex,
+                    relative_tolerance=relative_tolerance,
+                    aggregated=aggregated,
+                    n_counterexamples=n_counterexamples,
+                )
             )
-        )
+
+        else:
+            self._constraints.append(
+                varchar_constraints.VarCharRegex(
+                    ref,
+                    regex,
+                    allow_none=allow_none,
+                    relative_tolerance=relative_tolerance,
+                    aggregated=aggregated,
+                    n_counterexamples=n_counterexamples,
+                )
+            )
 
     def add_varchar_min_length_constraint(
         self, column: str, min_length: int, condition: Condition = None

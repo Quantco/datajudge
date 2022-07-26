@@ -16,7 +16,12 @@ from datajudge.db_access import (
 
 def skip_if_mssql(engine):
     if is_mssql(engine):
-        pytest.skip("array_agg not supported by SQL Server")
+        pytest.skip("functionality not supported by SQL Server")
+
+
+def skip_if_not_mssql(engine):
+    if not is_mssql(engine):
+        pytest.skip("functionality only supported by SQL Server")
 
 
 def identity(boolean_value):
@@ -1258,6 +1263,7 @@ def test_date_no_gap_within_inclusion_exclusion(engine, date_table_gap, data):
     assert operation(test_result.outcome), test_result.failure_message
 
 
+@pytest.mark.parametrize("computation_in_db", [True, False])
 @pytest.mark.parametrize(
     "data",
     [
@@ -1265,11 +1271,19 @@ def test_date_no_gap_within_inclusion_exclusion(engine, date_table_gap, data):
         (negation, "^hi[0-9]$", None),
     ],
 )
-def test_varchar_regex_within(engine, mix_table1, data):
+def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
+    if computation_in_db:
+        skip_if_mssql(engine)
     (operation, regex, condition) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
-    req.add_varchar_regex_constraint("col_varchar", regex, condition=condition)
-    assert operation(req[0].test(engine).outcome)
+    req.add_varchar_regex_constraint(
+        column="col_varchar",
+        regex=regex,
+        computation_in_db=computation_in_db,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
@@ -1280,6 +1294,7 @@ def test_varchar_regex_within(engine, mix_table1, data):
     ],
 )
 def test_varchar_regex_with_none_within(engine, varchar_table1, data):
+    skip_if_not_mssql(engine)
     (operation, regex, condition, allow) = data
     req = requirements.WithinRequirement.from_table(*varchar_table1)
     req.add_varchar_regex_constraint(
@@ -1288,9 +1303,11 @@ def test_varchar_regex_with_none_within(engine, varchar_table1, data):
         condition=condition,
         allow_none=allow,
     )
-    assert operation(req[0].test(engine).outcome)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
+@pytest.mark.parametrize("computation_in_db", [True, False])
 @pytest.mark.parametrize(
     "data",
     [
@@ -1300,17 +1317,21 @@ def test_varchar_regex_with_none_within(engine, varchar_table1, data):
         (negation, None, False, 0.15),
     ],
 )
-def test_varchar_regex_tolerance(engine, varchar_table_real, data):
+def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, data):
+    if computation_in_db:
+        skip_if_mssql(engine)
     (operation, condition, aggregated, tolerance) = data
     req = requirements.WithinRequirement.from_table(*varchar_table_real)
     req.add_varchar_regex_constraint(
         "col_varchar",
         r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
         condition=condition,
+        computation_in_db=computation_in_db,
         relative_tolerance=tolerance,
         aggregated=aggregated,
     )
-    assert operation(req[0].test(engine).outcome)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 def test_backend_dependent_condition(engine, mix_table1):
