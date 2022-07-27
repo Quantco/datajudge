@@ -1018,9 +1018,10 @@ def get_regex_violations(engine, ref, aggregated, regex, n_counterexamples):
             counterexamples_result = connection.execute(
                 counterexamples_selection
             ).fetchall()
+            counterexamples = [result[0] for result in counterexamples_result]
         else:
-            counterexamples_result = None
-    return (n_violations_result, counterexamples_result), [
+            counterexamples = None
+    return (n_violations_result, counterexamples), [
         n_violations_selection,
         counterexamples_selection,
     ]
