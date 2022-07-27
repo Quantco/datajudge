@@ -1273,7 +1273,11 @@ def test_date_no_gap_within_inclusion_exclusion(engine, date_table_gap, data):
 )
 def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
     if computation_in_db:
-        skip_if_mssql(engine)
+        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
+        # Once we remove or update the pinned version, we can enable this test
+        # for snowflake.
+        if is_mssql(engine) or is_snowflake(engine):
+            pytest.skip("Functionality not supported by given dialect.")
     (operation, regex, condition) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
     req.add_varchar_regex_constraint(
@@ -1319,7 +1323,11 @@ def test_varchar_regex_with_none_within(engine, varchar_table1, data):
 )
 def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, data):
     if computation_in_db:
-        skip_if_mssql(engine)
+        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
+        # Once we remove or update the pinned version, we can enable this test
+        # for snowflake.
+        if is_mssql(engine) or is_snowflake(engine):
+            pytest.skip("Functionality not supported by given dialect.")
     (operation, condition, aggregated, tolerance) = data
     req = requirements.WithinRequirement.from_table(*varchar_table_real)
     req.add_varchar_regex_constraint(
