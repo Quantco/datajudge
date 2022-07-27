@@ -19,11 +19,6 @@ def skip_if_mssql(engine):
         pytest.skip("functionality not supported by SQL Server")
 
 
-def skip_if_not_mssql(engine):
-    if not is_mssql(engine):
-        pytest.skip("functionality only supported by SQL Server")
-
-
 def identity(boolean_value):
     return boolean_value
 
@@ -1298,7 +1293,6 @@ def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
     ],
 )
 def test_varchar_regex_with_none_within(engine, varchar_table1, data):
-    skip_if_not_mssql(engine)
     (operation, regex, condition, allow) = data
     req = requirements.WithinRequirement.from_table(*varchar_table1)
     req.add_varchar_regex_constraint(
