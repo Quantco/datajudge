@@ -54,13 +54,20 @@ class VarCharRegexDb(Constraint):
         ) = violations_factual
         factual_relative_violations = factual_n_violations / factual_n_rows
         result = factual_relative_violations <= violations_target
+        counterexample_string = (
+            (
+                "Some counterexamples consist of the following: "
+                f"{factual_counterexamples}. "
+            )
+            if factual_counterexamples and len(factual_counterexamples) > 0
+            else ""
+        )
         assertion_text = (
             f"{self.ref.get_string()} "
             f"breaks regex '{self.regex}' in {factual_relative_violations} > "
             f"{violations_target} of the cases. "
             f"In absolute terms, {factual_n_violations} of the {factual_n_rows} samples "
-            "violated the regex. Some counterexamples consist of the following: "
-            f"{factual_counterexamples}. {self.condition_string}"
+            f"violated the regex. {counterexample_string}{self.condition_string}"
         )
         return result, assertion_text
 
@@ -117,14 +124,19 @@ class VarCharRegex(Constraint):
                 itertools.islice(uniques_mismatching, self.n_counterexamples)
             )
 
+        counterexample_string = (
+            ("Some counterexamples consist of the following: " f"{counterexamples}. ")
+            if counterexamples and len(counterexamples) > 0
+            else ""
+        )
+
         if n_relative_violations > self.relative_tolerance:
             assertion_text = (
                 f"{self.ref.get_string()} "
                 f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
                 f"{self.relative_tolerance} of the cases. "
                 f"In absolute terms, {n_violations} of the {n_total} samples violated the regex. "
-                f"Some counterexamples consist of the following: {counterexamples}. "
-                f"{self.condition_string}"
+                f"{counterexample_string}{self.condition_string}"
             )
             return TestResult.failure(assertion_text)
         return TestResult.success()
