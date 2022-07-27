@@ -14,6 +14,10 @@ Changelog
 
 - Implemented specification of number of counterexamples in :meth:`~datajudge.WithinRequirement.add_varchar_regex_constraint`.
 
+**Bug fix:**
+
+- Snowflake-sqlalchemy version 1.4.0 introduced an unexpected change in behaviour. This problem is resolved by pinning it to the previous version, 1.3.4.
+
 
 1.1.1 - 2022.06.30
 ------------------
