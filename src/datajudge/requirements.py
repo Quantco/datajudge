@@ -611,7 +611,8 @@ class WithinRequirement(Requirement):
 
         ``computation_in_db`` defines whether the regex matching takes place in database or
         in memory. Typically the former is both faster and substantially more memory-saving.
-        Yet, it is only supported for Postrres, sqllite and Snowflake.
+        Yet, it is only supported for Postgres, Sqllite and Snowflake. Note that for this
+        feature is only for Snowflake when using sqlalchemy-snowflake >= 1.4.0.
         """
         ref = DataReference(self.data_source, [column], condition)
         if computation_in_db:
@@ -619,7 +620,7 @@ class WithinRequirement(Requirement):
                 warnings.warn(
                     """
                     Parameter 'allow_none' is not allowed when using 'computation_in_db'.
-                    Please use a Condition with of the sort 'column IS NOT NULL' instead.
+                    Please use a Condition of the sort 'column IS NOT NULL' instead.
                     """
                 )
             self._constraints.append(
