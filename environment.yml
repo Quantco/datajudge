@@ -18,7 +18,9 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - freetds
-  - snowflake-sqlalchemy
+  # Pinned at least until this bug is resolved:
+  # https://github.com/snowflakedb/snowflake-sqlalchemy/issues/325
+  - snowflake-sqlalchemy=1.3.4
   - flit-core
   - flit
   - pytest-cov
