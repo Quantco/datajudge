@@ -1897,25 +1897,59 @@ def test_diff_average_between():
 @pytest.mark.parametrize(
     "data",
     [
-        (identity, "col_int", "col_int", None, 1.0),
-        (identity, "col_int", "col_int", Condition("col_int >= 3"), 1.0),
+        (identity, "col_int", "col_int", None, None, 1.0),
+        (
+            identity,
+            "col_int",
+            "col_int",
+            Condition("col_int >= 3"),
+            Condition("col_int >= 3"),
+            1.0,
+        ),
     ],
 )
 def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
     """
     Test Kolmogorov-Smirnov for the same column -> p-value should be perfect 1.0.
     """
-    (operation, col_1, col_2, condition, significance_level) = data
+    (operation, col_1, col_2, condition1, condition2, significance_level) = data
     req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table1)
     req.add_ks_2sample_constraint(
         column1=col_1,
         column2=col_2,
-        condition1=condition,
-        condition2=condition,
+        condition1=condition1,
+        condition2=condition2,
         significance_level=significance_level,
     )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
-    assert operation(req[0].test(engine).outcome)
+
+# TODO: Enable this test once the bug is fixed.
+@pytest.mark.skip(reason="This is a known bug and unintended behaviour.")
+@pytest.mark.parametrize(
+    "data",
+    [
+        (negation, "col_int", "col_int", None, Condition("col_int >= 10"), 1.0),
+    ],
+)
+def test_ks_2sample_constraint_perfect_between_different_condition(
+    engine, int_table1, data
+):
+    """
+    Test Kolmogorov-Smirnov for the same column -> p-value should be perfect 1.0.
+    """
+    (operation, col_1, col_2, condition1, condition2, significance_level) = data
+    req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table1)
+    req.add_ks_2sample_constraint(
+        column1=col_1,
+        column2=col_2,
+        condition1=condition1,
+        condition2=condition2,
+        significance_level=significance_level,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
@@ -1933,8 +1967,8 @@ def test_ks_2sample_constraint_wrong_between(
     req.add_ks_2sample_constraint(
         column1=col_1, column2=col_2, significance_level=min_p_value
     )
-
-    assert operation(req[0].test(engine).outcome)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
@@ -1964,7 +1998,7 @@ def test_ks_2sample_random(engine, random_normal_table, configuration):
         column1=col_1, column2=col_2, significance_level=min_p_value
     )
     test_result = req[0].test(engine)
-    assert operation(test_result.outcome)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
@@ -1983,20 +2017,12 @@ def test_ks_2sample_implementation(engine, random_normal_table, configuration):
     ref = DataReference(tds, columns=[col_1])
     ref2 = DataReference(tds, columns=[col_2])
 
-    # retrieve table selections from data references
-    selection1 = ref.data_source.get_clause(engine)
-    column1 = ref.get_column(engine)
-    selection2 = ref2.data_source.get_clause(engine)
-    column2 = ref2.get_column(engine)
-
     (
         d_statistic,
         p_value,
         n_samples,
         m_samples,
-    ) = KolmogorovSmirnov2Sample.calculate_statistic(
-        engine, (selection1, column1), (selection2, column2)
-    )
+    ) = KolmogorovSmirnov2Sample.calculate_statistic(engine, ref, ref2)
 
     assert (
         abs(d_statistic - expected_d) <= 1e-10
