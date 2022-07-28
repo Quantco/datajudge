@@ -908,7 +908,7 @@ def get_ks_2sample(
     engine: sa.engine.Engine,
     ref1: DataReference,
     ref2: DataReference,
-) -> tuple[float, int, int]:
+) -> float:
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
@@ -973,6 +973,4 @@ def get_ks_2sample(
     """
 
     d_statistic = engine.execute(ks_query_string).scalar()
-    n_samples, _ = get_row_count(engine, ref1)
-    m_samples, _ = get_row_count(engine, ref2)
-    return d_statistic, n_samples, m_samples
+    return d_statistic

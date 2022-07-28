@@ -75,11 +75,14 @@ class KolmogorovSmirnov2Sample(Constraint):
     ) -> Tuple[float, Optional[float], int, int]:
 
         # retrieve test statistic d, as well as sample sizes m and n
-        d_statistic, n_samples, m_samples = db_access.get_ks_2sample(
+        d_statistic = db_access.get_ks_2sample(
             engine,
             ref1,
             ref2,
         )
+
+        n_samples, _ = db_access.get_row_count(engine, ref1)
+        m_samples, _ = db_access.get_row_count(engine, ref2)
 
         # calculate approximate p-value
         p_value = KolmogorovSmirnov2Sample.approximate_p_value(
