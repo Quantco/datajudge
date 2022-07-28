@@ -1,4 +1,3 @@
-import warnings
 from abc import ABC
 from collections.abc import MutableSequence
 from typing import Callable, Collection, List, Optional, Sequence, TypeVar
@@ -593,7 +592,6 @@ class WithinRequirement(Requirement):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
-        computation_in_db=False,
     ):
         """
         Assesses whether the values in a column match a given regular expresion pattern.
@@ -609,41 +607,60 @@ class WithinRequirement(Requirement):
         assertion text. If all counterexamples are meant to be shown, provide ``-1`` as
         an argument.
 
-        ``computation_in_db`` defines whether the regex matching takes place in database or
-        in memory. Typically the former is both faster and substantially more memory-saving.
-        Yet, it is only supported for Postgres, Sqllite and Snowflake. Note that for this
-        feature is only for Snowflake when using sqlalchemy-snowflake >= 1.4.0.
+        When using this method, the regex matching will take place in memory. If instead,
+        you would like the matching to take place in database which is typically faster and
+        substantially more memory-saving, please consider using
+        ``add_varchar_regex_constraint_db``.
         """
         ref = DataReference(self.data_source, [column], condition)
-        if computation_in_db:
-            if allow_none:
-                warnings.warn(
-                    """
-                    Parameter 'allow_none' is not allowed when using 'computation_in_db'.
-                    Please use a Condition of the sort 'column IS NOT NULL' instead.
-                    """
-                )
-            self._constraints.append(
-                varchar_constraints.VarCharRegexDb(
-                    ref,
-                    regex=regex,
-                    relative_tolerance=relative_tolerance,
-                    aggregated=aggregated,
-                    n_counterexamples=n_counterexamples,
-                )
+        self._constraints.append(
+            varchar_constraints.VarCharRegex(
+                ref,
+                regex,
+                allow_none=allow_none,
+                relative_tolerance=relative_tolerance,
+                aggregated=aggregated,
+                n_counterexamples=n_counterexamples,
             )
+        )
 
-        else:
-            self._constraints.append(
-                varchar_constraints.VarCharRegex(
-                    ref,
-                    regex,
-                    allow_none=allow_none,
-                    relative_tolerance=relative_tolerance,
-                    aggregated=aggregated,
-                    n_counterexamples=n_counterexamples,
-                )
+    def add_varchar_regex_constraint_db(
+        self,
+        column: str,
+        regex: str,
+        condition: Condition = None,
+        relative_tolerance: float = 0.0,
+        aggregated: bool = True,
+        n_counterexamples: int = 5,
+    ):
+        """
+        Assesses whether the values in a column match a given regular expresion pattern.
+
+        How the tolerance factor is calculated can be controlled with the ``aggregated``
+        flag. When ``True``, the tolerance is calculated using unique values. If not, the
+        tolerance is calculated using all the instances of the data.
+
+        ``n_counterexamples`` defines how many counterexamples are displayed in an
+        assertion text. If all counterexamples are meant to be shown, provide ``-1`` as
+        an argument.
+
+        When using this method, the regex matching will take place in database, which is
+        only supported for Postgres, Sqllite and Snowflake. Note that for this
+        feature is only for Snowflake when using sqlalchemy-snowflake >= 1.4.0. As an
+        altenative, ``add_varchar_regex_constraint`` performs the regex matching in memory.
+        This is typically slower and more expensive in terms of memory but available
+        on all supported database mamangement systems.
+        """
+        ref = DataReference(self.data_source, [column], condition)
+        self._constraints.append(
+            varchar_constraints.VarCharRegexDb(
+                ref,
+                regex=regex,
+                relative_tolerance=relative_tolerance,
+                aggregated=aggregated,
+                n_counterexamples=n_counterexamples,
             )
+        )
 
     def add_varchar_min_length_constraint(
         self, column: str, min_length: int, condition: Condition = None

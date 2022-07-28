@@ -1267,20 +1267,25 @@ def test_date_no_gap_within_inclusion_exclusion(engine, date_table_gap, data):
     ],
 )
 def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
+    (operation, regex, condition) = data
+    req = requirements.WithinRequirement.from_table(*mix_table1)
     if computation_in_db:
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
         if is_mssql(engine) or is_snowflake(engine):
             pytest.skip("Functionality not supported by given dialect.")
-    (operation, regex, condition) = data
-    req = requirements.WithinRequirement.from_table(*mix_table1)
-    req.add_varchar_regex_constraint(
-        column="col_varchar",
-        regex=regex,
-        computation_in_db=computation_in_db,
-        condition=condition,
-    )
+        req.add_varchar_regex_constraint_db(
+            column="col_varchar",
+            regex=regex,
+            condition=condition,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            column="col_varchar",
+            regex=regex,
+            condition=condition,
+        )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
@@ -1316,22 +1321,29 @@ def test_varchar_regex_with_none_within(engine, varchar_table1, data):
     ],
 )
 def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, data):
+    (operation, condition, aggregated, tolerance) = data
+    req = requirements.WithinRequirement.from_table(*varchar_table_real)
     if computation_in_db:
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
         if is_mssql(engine) or is_snowflake(engine):
             pytest.skip("Functionality not supported by given dialect.")
-    (operation, condition, aggregated, tolerance) = data
-    req = requirements.WithinRequirement.from_table(*varchar_table_real)
-    req.add_varchar_regex_constraint(
-        "col_varchar",
-        r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
-        condition=condition,
-        computation_in_db=computation_in_db,
-        relative_tolerance=tolerance,
-        aggregated=aggregated,
-    )
+        req.add_varchar_regex_constraint_db(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=condition,
+            relative_tolerance=tolerance,
+            aggregated=aggregated,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=condition,
+            relative_tolerance=tolerance,
+            aggregated=aggregated,
+        )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
@@ -1354,22 +1366,30 @@ def test_varchar_regex_counterexample(
     n_counterexamples,
     n_received_counterexamples,
 ):
+    req = requirements.WithinRequirement.from_table(*varchar_table_real)
     if computation_in_db:
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
         if is_mssql(engine) or is_snowflake(engine):
             pytest.skip("Functionality not supported by given dialect.")
-    req = requirements.WithinRequirement.from_table(*varchar_table_real)
-    req.add_varchar_regex_constraint(
-        "col_varchar",
-        r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
-        condition=None,
-        computation_in_db=computation_in_db,
-        relative_tolerance=0,
-        aggregated=True,
-        n_counterexamples=n_counterexamples,
-    )
+        req.add_varchar_regex_constraint_db(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
     test_result = req[0].test(engine)
     failure_message = test_result.failure_message
     # If no counterexample are given, this marker should not be present in the
@@ -1394,22 +1414,30 @@ def test_varchar_regex_counterexample(
 def test_varchar_regex_counterexample_invalid(
     engine, varchar_table_real, computation_in_db, n_counterexamples
 ):
+    req = requirements.WithinRequirement.from_table(*varchar_table_real)
     if computation_in_db:
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
         if is_mssql(engine) or is_snowflake(engine):
             pytest.skip("Functionality not supported by given dialect.")
-    req = requirements.WithinRequirement.from_table(*varchar_table_real)
-    req.add_varchar_regex_constraint(
-        "col_varchar",
-        r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
-        condition=None,
-        computation_in_db=computation_in_db,
-        relative_tolerance=0,
-        aggregated=True,
-        n_counterexamples=n_counterexamples,
-    )
+        req.add_varchar_regex_constraint_db(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
     with pytest.raises(ValueError):
         req[0].test(engine)
 
