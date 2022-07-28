@@ -919,6 +919,7 @@ def get_ks_2sample(
     selection1 = ref1.get_selection(engine)
     selection2 = ref2.get_selection(engine)
 
+    # Step 1: Calculate the CDF over the value column
     s1 = sa.select(
         [
             selection1.selected_columns[col1].label("val"),
@@ -932,6 +933,7 @@ def get_ks_2sample(
         ]
     ).subquery()
 
+    # Step 2: Remove unnecessary values, s.t. we have (x, cdf(x)) rows only
     t1 = (
         sa.select([s1.c["val"], sa.func.max(s1.c["cdf"]).label("cdf")])
         .group_by(s1.c["val"])
@@ -943,6 +945,7 @@ def get_ks_2sample(
         .subquery()
     )
 
+    # Step 3: combine the cdfs
     join = (
         sa.select(
             sa.func.coalesce(t1.c["val"], t2.c["val"]).label("v"),
@@ -953,6 +956,7 @@ def get_ks_2sample(
         .subquery()
     )
 
+    # Step 4: Create a grouper id based on the value count; this is just a helper for forward-filling
     grouped_cdf = sa.select(
         [
             join.c["v"],
@@ -963,6 +967,7 @@ def get_ks_2sample(
         ]
     ).subquery()
 
+    # Step 5: Forward-Filling: Select first non-null value per group (defined in the prev. step)
     filled_cdf = sa.select(
         [
             grouped_cdf.c["v"],
@@ -975,6 +980,7 @@ def get_ks_2sample(
         ]
     ).subquery()
 
+    # Step 6: Replace NULL values (at the beginning) with 0 to calculate difference
     replaced_nulls = sa.select(
         [
             sa.func.coalesce(filled_cdf.c["cdf1_filled"], 0).label("cdf1"),
@@ -982,6 +988,7 @@ def get_ks_2sample(
         ]
     ).subquery()
 
+    # Step 7: Calculate final statistic as max. distance
     final_selection = sa.select(
         sa.func.max(sa.func.abs(replaced_nulls.c["cdf1"] - replaced_nulls.c["cdf2"]))
     )
