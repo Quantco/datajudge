@@ -16,7 +16,7 @@ from datajudge.db_access import (
 
 def skip_if_mssql(engine):
     if is_mssql(engine):
-        pytest.skip("array_agg not supported by SQL Server")
+        pytest.skip("functionality not supported by SQL Server")
 
 
 def identity(boolean_value):
@@ -1258,6 +1258,7 @@ def test_date_no_gap_within_inclusion_exclusion(engine, date_table_gap, data):
     assert operation(test_result.outcome), test_result.failure_message
 
 
+@pytest.mark.parametrize("computation_in_db", [True, False])
 @pytest.mark.parametrize(
     "data",
     [
@@ -1265,11 +1266,28 @@ def test_date_no_gap_within_inclusion_exclusion(engine, date_table_gap, data):
         (negation, "^hi[0-9]$", None),
     ],
 )
-def test_varchar_regex_within(engine, mix_table1, data):
+def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
     (operation, regex, condition) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
-    req.add_varchar_regex_constraint("col_varchar", regex, condition=condition)
-    assert operation(req[0].test(engine).outcome)
+    if computation_in_db:
+        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
+        # Once we remove or update the pinned version, we can enable this test
+        # for snowflake.
+        if is_mssql(engine) or is_snowflake(engine):
+            pytest.skip("Functionality not supported by given dialect.")
+        req.add_varchar_regex_constraint_db(
+            column="col_varchar",
+            regex=regex,
+            condition=condition,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            column="col_varchar",
+            regex=regex,
+            condition=condition,
+        )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
@@ -1288,9 +1306,11 @@ def test_varchar_regex_with_none_within(engine, varchar_table1, data):
         condition=condition,
         allow_none=allow,
     )
-    assert operation(req[0].test(engine).outcome)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
+@pytest.mark.parametrize("computation_in_db", [True, False])
 @pytest.mark.parametrize(
     "data",
     [
@@ -1300,17 +1320,126 @@ def test_varchar_regex_with_none_within(engine, varchar_table1, data):
         (negation, None, False, 0.15),
     ],
 )
-def test_varchar_regex_tolerance(engine, varchar_table_real, data):
+def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, data):
     (operation, condition, aggregated, tolerance) = data
     req = requirements.WithinRequirement.from_table(*varchar_table_real)
-    req.add_varchar_regex_constraint(
-        "col_varchar",
-        r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
-        condition=condition,
-        relative_tolerance=tolerance,
-        aggregated=aggregated,
-    )
-    assert operation(req[0].test(engine).outcome)
+    if computation_in_db:
+        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
+        # Once we remove or update the pinned version, we can enable this test
+        # for snowflake.
+        if is_mssql(engine) or is_snowflake(engine):
+            pytest.skip("Functionality not supported by given dialect.")
+        req.add_varchar_regex_constraint_db(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=condition,
+            relative_tolerance=tolerance,
+            aggregated=aggregated,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=condition,
+            relative_tolerance=tolerance,
+            aggregated=aggregated,
+        )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize("computation_in_db", [True, False])
+@pytest.mark.parametrize(
+    "n_counterexamples, n_received_counterexamples",
+    [
+        (-1, 2),
+        (0, 0),
+        (1, 1),
+        (2, 2),
+        (3, 2),
+    ],
+)
+def test_varchar_regex_counterexample(
+    engine,
+    varchar_table_real,
+    computation_in_db,
+    n_counterexamples,
+    n_received_counterexamples,
+):
+    req = requirements.WithinRequirement.from_table(*varchar_table_real)
+    if computation_in_db:
+        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
+        # Once we remove or update the pinned version, we can enable this test
+        # for snowflake.
+        if is_mssql(engine) or is_snowflake(engine):
+            pytest.skip("Functionality not supported by given dialect.")
+        req.add_varchar_regex_constraint_db(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
+    test_result = req[0].test(engine)
+    failure_message = test_result.failure_message
+    # If no counterexample are given, this marker should not be present in the
+    # failure message.
+    marker = "Some counterexamples consist of the following: "
+    location = failure_message.find(marker)
+    if n_received_counterexamples == 0:
+        assert location == -1
+    else:
+        assert location != -1
+        # In the example of this very fixture, we know that no commas are used
+        # in values. We can therefore assume that commas indicate seperation
+        # between counterexamples.
+        assert (
+            len(failure_message[location + len(marker) :].split(","))
+            == n_received_counterexamples
+        )
+
+
+@pytest.mark.parametrize("computation_in_db", [True, False])
+@pytest.mark.parametrize("n_counterexamples", [-2, -100])
+def test_varchar_regex_counterexample_invalid(
+    engine, varchar_table_real, computation_in_db, n_counterexamples
+):
+    req = requirements.WithinRequirement.from_table(*varchar_table_real)
+    if computation_in_db:
+        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
+        # Once we remove or update the pinned version, we can enable this test
+        # for snowflake.
+        if is_mssql(engine) or is_snowflake(engine):
+            pytest.skip("Functionality not supported by given dialect.")
+        req.add_varchar_regex_constraint_db(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
+    else:
+        req.add_varchar_regex_constraint(
+            "col_varchar",
+            r"[A-Z][0-9]{2}\.[0-9]{0,2}$",
+            condition=None,
+            relative_tolerance=0,
+            aggregated=True,
+            n_counterexamples=n_counterexamples,
+        )
+    with pytest.raises(ValueError):
+        req[0].test(engine)
 
 
 def test_backend_dependent_condition(engine, mix_table1):
