@@ -665,7 +665,7 @@ def groupby_aggregation_table_incorrect(engine, metadata):
 @pytest.fixture(scope="module")
 def random_normal_table(engine, metadata):
     """
-    Table containing 10_000 randomly distributed values with mean = 0 and std.dev = 1.
+    Table with normally distributed values of varying means and sd 1.
     """
     table_name = "random_normal_table"
     columns = [
