@@ -923,10 +923,10 @@ def get_ks_2sample(
     ks_query_string = f"""
         WITH
         tab1 AS ( -- Step 0: Prepare data source and value column
-            SELECT aux.{col1} as val FROM {table1_str} as aux
+            SELECT {col1} as val FROM {table1_str}
         ),
         tab2 AS (
-            SELECT aux.{col2} as val FROM {table2_str} as aux
+            SELECT {col2} as val FROM {table2_str}
         ),
         tab1_cdf AS ( -- Step 1: Calculate the CDF over the value column
             SELECT val, cume_dist() over (order by val) as cdf
