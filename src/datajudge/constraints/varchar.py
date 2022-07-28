@@ -34,12 +34,12 @@ class VarCharRegexDb(Constraint):
             regex=self.regex,
             n_counterexamples=self.n_counterexamples,
         )
-        if not self.aggregated:
-            n_rows, n_rows_selections = db_access.get_row_count(engine=engine, ref=ref)
-        else:
+        if self.aggregated:
             n_rows, n_rows_selections = db_access.get_unique_count(
                 engine=engine, ref=ref
             )
+        else:
+            n_rows, n_rows_selections = db_access.get_row_count(engine=engine, ref=ref)
         return (
             n_violations,
             n_rows,

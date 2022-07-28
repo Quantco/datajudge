@@ -1019,11 +1019,11 @@ def get_regex_violations(engine, ref, aggregated, regex, n_counterexamples):
 
     with engine.connect() as connection:
         n_violations_result = connection.execute(n_violations_selection).scalar()
-        if counterexamples_selection is not None:
+        if counterexamples_selection is None:
+            counterexamples = []
+        else:
             counterexamples_result = connection.execute(
                 counterexamples_selection
             ).fetchall()
             counterexamples = [result[0] for result in counterexamples_result]
-        else:
-            counterexamples = []
     return (n_violations_result, counterexamples), selections
