@@ -988,3 +988,42 @@ def get_ks_2sample(
     ).scalar()
 
     return d_statistic, n_samples, m_samples
+
+
+def get_regex_violations(engine, ref, aggregated, regex, n_counterexamples):
+    subquery = ref.get_selection(engine)
+    column = ref.get_column(engine)
+    if aggregated:
+        subquery = subquery.distinct()
+    subquery = subquery.subquery()
+    violation_selection = sa.select(subquery.c[column]).where(
+        sa.not_(subquery.c[column].regexp_match(regex))
+    )
+    n_violations_selection = sa.select([sa.func.count()]).select_from(
+        violation_selection.subquery()
+    )
+
+    selections = [n_violations_selection]
+
+    if n_counterexamples == -1:
+        counterexamples_selection = violation_selection
+    elif n_counterexamples == 0:
+        counterexamples_selection = None
+    elif n_counterexamples > 0:
+        counterexamples_selection = violation_selection.limit(n_counterexamples)
+    else:
+        raise ValueError(f"Unexpected number of counterexamples: {n_counterexamples}")
+
+    if counterexamples_selection is not None:
+        selections.append(counterexamples_selection)
+
+    with engine.connect() as connection:
+        n_violations_result = connection.execute(n_violations_selection).scalar()
+        if counterexamples_selection is None:
+            counterexamples = []
+        else:
+            counterexamples_result = connection.execute(
+                counterexamples_selection
+            ).fetchall()
+            counterexamples = [result[0] for result in counterexamples_result]
+    return (n_violations_result, counterexamples), selections

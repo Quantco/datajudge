@@ -9,6 +9,69 @@ from ..db_access import DataReference
 from .base import Constraint, OptionalSelections, TestResult
 
 
+class VarCharRegexDb(Constraint):
+    def __init__(
+        self,
+        ref: DataReference,
+        regex: str,
+        relative_tolerance: float = 0.0,
+        aggregated: bool = True,
+        n_counterexamples: int = 5,
+    ):
+        super().__init__(ref, ref_value=relative_tolerance)
+        self.regex = regex
+        self.aggregated = aggregated
+        self.n_counterexamples = n_counterexamples
+
+    def retrieve(self, engine: sa.engine.Engine, ref: DataReference):
+        (
+            n_violations,
+            counterexamples,
+        ), violations_selections = db_access.get_regex_violations(
+            engine=engine,
+            ref=ref,
+            aggregated=self.aggregated,
+            regex=self.regex,
+            n_counterexamples=self.n_counterexamples,
+        )
+        if self.aggregated:
+            n_rows, n_rows_selections = db_access.get_unique_count(
+                engine=engine, ref=ref
+            )
+        else:
+            n_rows, n_rows_selections = db_access.get_row_count(engine=engine, ref=ref)
+        return (
+            n_violations,
+            n_rows,
+            counterexamples,
+        ), violations_selections + n_rows_selections
+
+    def compare(self, violations_factual, violations_target):
+        (
+            factual_n_violations,
+            factual_n_rows,
+            factual_counterexamples,
+        ) = violations_factual
+        factual_relative_violations = factual_n_violations / factual_n_rows
+        result = factual_relative_violations <= violations_target
+        counterexample_string = (
+            (
+                "Some counterexamples consist of the following: "
+                f"{factual_counterexamples}. "
+            )
+            if factual_counterexamples and len(factual_counterexamples) > 0
+            else ""
+        )
+        assertion_text = (
+            f"{self.ref.get_string()} "
+            f"breaks regex '{self.regex}' in {factual_relative_violations} > "
+            f"{violations_target} of the cases. "
+            f"In absolute terms, {factual_n_violations} of the {factual_n_rows} samples "
+            f"violated the regex. {counterexample_string}{self.condition_string}"
+        )
+        return result, assertion_text
+
+
 class VarCharRegex(Constraint):
     def __init__(
         self,
@@ -61,14 +124,19 @@ class VarCharRegex(Constraint):
                 itertools.islice(uniques_mismatching, self.n_counterexamples)
             )
 
+        counterexample_string = (
+            ("Some counterexamples consist of the following: " f"{counterexamples}. ")
+            if counterexamples and len(counterexamples) > 0
+            else ""
+        )
+
         if n_relative_violations > self.relative_tolerance:
             assertion_text = (
                 f"{self.ref.get_string()} "
                 f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
                 f"{self.relative_tolerance} of the cases. "
                 f"In absolute terms, {n_violations} of the {n_total} samples violated the regex. "
-                f"Some counterexamples consist of the following: {counterexamples}. "
-                f"{self.condition_string}"
+                f"{counterexample_string}{self.condition_string}"
             )
             return TestResult.failure(assertion_text)
         return TestResult.success()
