@@ -912,9 +912,10 @@ def get_ks_2sample(
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
-    table1_selection = ref1.get_selection(engine).subquery()
+    # For mssql: "tempdb.dbo".table_name -> tempdb.dbo.table_name
+    table1_str = str(ref1.data_source.get_clause(engine)).replace('"', "")
     col1 = ref1.get_column(engine)
-    table2_selection = ref2.get_selection(engine).subquery()
+    table2_str = str(ref2.data_source.get_clause(engine)).replace('"', "")
     col2 = ref2.get_column(engine)
 
     # for a more extensive explanation, see:
@@ -922,10 +923,10 @@ def get_ks_2sample(
     ks_query_string = f"""
         WITH
         tab1 AS ( -- Step 0: Prepare data source and value column
-            SELECT aux.{col1} as val FROM ({table1_selection}) as aux
+            SELECT aux.{col1} as val FROM {table1_str} as aux
         ),
         tab2 AS (
-            SELECT aux.{col2} as val FROM ({table2_selection}) as aux
+            SELECT aux.{col2} as val FROM {table2_str} as aux
         ),
         tab1_cdf AS ( -- Step 1: Calculate the CDF over the value column
             SELECT val, cume_dist() over (order by val) as cdf
