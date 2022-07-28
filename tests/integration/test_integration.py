@@ -1854,20 +1854,12 @@ def test_ks_2sample_implementation(engine, random_normal_table, configuration):
     ref = DataReference(tds, columns=[col_1])
     ref2 = DataReference(tds, columns=[col_2])
 
-    # retrieve table selections from data references
-    selection1 = ref.data_source.get_clause(engine)
-    column1 = ref.get_column(engine)
-    selection2 = ref2.data_source.get_clause(engine)
-    column2 = ref2.get_column(engine)
-
     (
         d_statistic,
         p_value,
         n_samples,
         m_samples,
-    ) = KolmogorovSmirnov2Sample.calculate_statistic(
-        engine, (selection1, column1), (selection2, column2)
-    )
+    ) = KolmogorovSmirnov2Sample.calculate_statistic(engine, ref, ref2)
 
     assert (
         abs(d_statistic - expected_d) <= 1e-10

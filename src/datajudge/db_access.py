@@ -905,34 +905,27 @@ def get_column_array_agg(
 
 
 def get_ks_2sample(
-    engine: sa.engine.Engine, table1: tuple, table2: tuple
+    engine: sa.engine.Engine,
+    ref1: DataReference,
+    ref2: DataReference,
 ) -> tuple[float, int, int]:
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
-
-    # make sure we have a string representation here
-    table1_selection, col1 = str(table1[0]), str(table1[1])
-    table2_selection, col2 = str(table2[0]), str(table2[1])
-
-    if is_mssql(engine):  # "tempdb.dbo".table_name -> tempdb.dbo.table_name
-        table1_selection = table1_selection.replace('"', "")
-        table2_selection = table2_selection.replace('"', "")
-
-    # for RawQueryDataSource this could be a whole subquery and will therefore need to be wrapped
-    if "SELECT" in table1_selection:
-        table1_selection = f"({table1_selection})"
-        table2_selection = f"({table2_selection})"
+    table1_selection = ref1.get_selection(engine).subquery()
+    col1 = ref1.get_column(engine)
+    table2_selection = ref2.get_selection(engine).subquery()
+    col2 = ref2.get_column(engine)
 
     # for a more extensive explanation, see:
     # https://github.com/Quantco/datajudge/pull/28#issuecomment-1165587929
     ks_query_string = f"""
         WITH
         tab1 AS ( -- Step 0: Prepare data source and value column
-            SELECT {col1} as val FROM {table1_selection}
+            SELECT aux.{col1} as val FROM ({table1_selection}) as aux
         ),
         tab2 AS (
-            SELECT {col2} as val FROM {table2_selection}
+            SELECT aux.{col2} as val FROM ({table2_selection}) as aux
         ),
         tab1_cdf AS ( -- Step 1: Calculate the CDF over the value column
             SELECT val, cume_dist() over (order by val) as cdf
@@ -980,11 +973,6 @@ def get_ks_2sample(
     """
 
     d_statistic = engine.execute(ks_query_string).scalar()
-    n_samples = engine.execute(
-        f"SELECT COUNT(*) FROM {table1_selection} as n_table"
-    ).scalar()
-    m_samples = engine.execute(
-        f"SELECT COUNT(*) FROM {table2_selection} as m_table"
-    ).scalar()
-
+    n_samples, _ = get_row_count(engine, ref1)
+    m_samples, _ = get_row_count(engine, ref2)
     return d_statistic, n_samples, m_samples

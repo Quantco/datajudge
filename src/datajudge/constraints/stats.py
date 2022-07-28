@@ -1,9 +1,8 @@
 import math
 import warnings
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 import sqlalchemy as sa
-from sqlalchemy.sql import Selectable
 
 from .. import db_access
 from ..db_access import DataReference
@@ -71,13 +70,15 @@ class KolmogorovSmirnov2Sample(Constraint):
     @staticmethod
     def calculate_statistic(
         engine,
-        table1_def: Tuple[Union[Selectable, str], str],
-        table2_def: Tuple[Union[Selectable, str], str],
+        ref1: DataReference,
+        ref2: DataReference,
     ) -> Tuple[float, Optional[float], int, int]:
 
         # retrieve test statistic d, as well as sample sizes m and n
         d_statistic, n_samples, m_samples = db_access.get_ks_2sample(
-            engine, table1=table1_def, table2=table2_def
+            engine,
+            ref1,
+            ref2,
         )
 
         # calculate approximate p-value
@@ -90,13 +91,11 @@ class KolmogorovSmirnov2Sample(Constraint):
     def test(self, engine: sa.engine.Engine) -> TestResult:
 
         # get query selections and column names for target columns
-        selection1 = self.ref.data_source.get_clause(engine)
-        column1 = self.ref.get_column(engine)
-        selection2 = self.ref2.data_source.get_clause(engine)
-        column2 = self.ref2.get_column(engine)
 
         d_statistic, p_value, n_samples, m_samples = self.calculate_statistic(
-            engine, (selection1, column1), (selection2, column2)
+            engine,
+            self.ref,
+            self.ref2,
         )
 
         # calculate test acceptance
