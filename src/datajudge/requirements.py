@@ -346,7 +346,8 @@ class WithinRequirement(Requirement):
 
         Use string format: min_value="'20121230'".
 
-        For valid column_type values, see get_format_from_column_type in constraints/base.py..
+        For valid ``column_type`` values, see`` get_format_from_column_type`` in
+        constraints/base.py.
 
         If ``use_lower_bound_reference``, the min of the first table has to be
         greater or equal to ``min_value``.
@@ -375,7 +376,8 @@ class WithinRequirement(Requirement):
 
         Use string format: max_value="'20121230'".
 
-        For valid column_type values, see get_format_from_column_type in constraints/base.py..
+        For valid ``column_type`` values, see ``get_format_from_column_type`` in
+        constraints/base.py..
 
         If ``use_upper_bound_reference``, the max of the first table has to be
         smaller or equal to ``max_value``.
@@ -475,23 +477,25 @@ class WithinRequirement(Requirement):
         """Express that several date range rows do not overlap in two date dimensions.
 
         The table under inspection must consist of at least one but up to many key columns,
-        identifying an entity. Per date dimension, a start_column and an end_column should
-        be provided.
+        identifying an entity. Per date dimension, a ``start_column`` and an
+        ``end_column`` should be provided.
 
-        For a given row in this table, start_column1 and end_column1 indicate a date range.
-        Moreoever, for that same row, start_column2 and end_column2 indicate a date range.
-        These date ranges are expected to represent different date 'dimensions'. Example:
-        A row indicates a forecasted value used in production. start_column1 and end_column1
-        represent the timespan that was forecasted, e.g. the weather from next Saturday to
-        next Sunday. end_column1 and end_column2 might indicate the timespan when this
-        forceast was used, e.g. from the previous Monday to Wednesday.
+        For a given row in this table, ``start_column1`` and ``end_column1``
+        indicate a date range. Moreoever, for that same row, ``start_column2``
+        and ``end_column2`` indicate a date range.
+        These date ranges are expected to represent different date 'dimensions'.
+        Example: A row indicates a forecasted value used in production. ``start_column1``
+        and ``end_column1`` represent the timespan that was forecasted, e.g. the
+        weather from next Saturday to next Sunday. ``end_column1`` and ``end_column2``
+        might indicate the timespan when this forceast was used, e.g. from the
+        previous Monday to Wednesday.
 
-        Neither of those columns should contain NULL values. Also it should hold that for
-        a given row, the value of end_column is strictly greater than the value of
-        start_column.
+        Neither of those columns should contain ``NULL`` values. Also it should
+        hold that for a given row, the value of ``end_column`` is strictly greater
+        than the value of ``start_column``.
 
         Note that the values of ``start_column1`` and ``start_column2`` are expected to be
-        includedin each date range. By default, the values of ``end_column1`` and
+        included in each date range. By default, the values of ``end_column1`` and
         ``end_column2`` are expected to be included as well - this can however be changed
         by setting ``end_included`` to ``False``.
 
@@ -544,23 +548,23 @@ class WithinRequirement(Requirement):
         Express that date range rows have no gap in-between them.
 
         The table under inspection must consist of at least one but up to many key columns,
-        identifying an entity. Additionally, a start_column and an end_column, indicating
-        start and end dates, should be provided.
+        identifying an entity. Additionally, a ``start_column`` and an ``end_column``,
+        indicating start and end dates, should be provided.
 
-        Neither of those columns should contain NULL values. Also, it should hold that for
-        a given row, the value of end_column is strictly greater than the value of
-        start_column.
+        Neither of those columns should contain ``NULL`` values. Also, it should hold that
+        for a given row, the value of ``end_column`` is strictly greater than the value of
+        ``start_column``.
 
         Note that the value of ``start_column`` is expected to be included in each date range.
         By default, the value of ``end_column`` is expected to be included as well - this can
         however be changed by setting ``end_included`` to ``False``.
 
-        A 'key' is a fixed set of values in key_columns and represents an entity of
+        A 'key' is a fixed set of values in ``key_columns`` and represents an entity of
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
         several rows. Thereby, a key will often come with several date ranges.
 
-        If key_columns is ``None`` or ``[]``, all columns of the table will be considered as
-        composing the key.
+        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        considered as composing the key.
 
         In order to express a tolerance for some violations of this gap property, use the
         ``max_relative_n_violations`` parameter. The latter expresses for what fraction
@@ -983,7 +987,7 @@ class BetweenRequirement(Requirement):
         """Check if the data's unique values in given columns are equal.
 
         The ``UniquesEquality`` constraint asserts if the values contained in a column
-        of a DataSource``'s columns, are strictly the ones of another ``DataSource``'s
+        of a ``DataSource``'s columns, are strictly the ones of another ``DataSource``'s
         columns.
 
         See the ``Uniques`` class for further parameter details on ``map_func`` and
@@ -1286,17 +1290,17 @@ class BetweenRequirement(Requirement):
     ):
         """Match tables in matching_columns, compare for equality in comparison_columns.
 
-        This constraint is similar to the nature of the RowEquality
+        This constraint is similar to the nature of the ``RowEquality``
         constraint. Just as the latter, this constraint divides the
         cardinality of an intersection by the cardinality of a union.
-        The difference lies in how the set are created. While RowEquality
+        The difference lies in how the set are created. While ``RowEquality``
         considers all rows of both tables, indexed in columns,
-        RowMatchingEquality considers only rows in both tables having values
-        in matching_columns present in both tables. At most max_missing_fraction
+        ``RowMatchingEquality`` considers only rows in both tables having values
+        in ``matching_columns`` present in both tables. At most ``max_missing_fraction``
         of such rows can be missing in the intersection.
 
         Alternatively, this can be thought of as counting mismatches in
-        comparison_columns after performing an inner join on matching_columns.
+        ``comparison_columns`` after performing an inner join on ``matching_columns``.
         """
         ref = DataReference(self.data_source, None, condition1)
         ref2 = DataReference(self.data_source2, None, condition2)
