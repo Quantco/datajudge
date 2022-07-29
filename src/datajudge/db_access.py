@@ -904,6 +904,33 @@ def get_column_array_agg(
     return result, selections
 
 
+def _get_cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str):
+    col = ref.get_column(engine)
+    selection = ref.get_selection(engine)
+
+    # Step 1: Calculate the CDF over the value column.
+    cdf_selection = sa.select(
+        [
+            selection.selected_columns[col].label(value_label),
+            sa.func.cume_dist().over(order_by=col).label(cdf_label),
+        ]
+    ).subquery()
+
+    # Step 2: Aggregate rows s.t. every value occurs only once.
+    grouped_cdf_selection = (
+        sa.select(
+            [
+                cdf_selection.c[value_label],
+                sa.func.max(cdf_selection.c[cdf_label]).label(cdf_label),
+            ]
+        )
+        .group_by(cdf_selection.c[value_label])
+        .subquery()
+    )
+
+    return grouped_cdf_selection
+
+
 def get_ks_2sample(
     engine: sa.engine.Engine,
     ref1: DataReference,
@@ -912,85 +939,86 @@ def get_ks_2sample(
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
-    # For mssql: "tempdb.dbo".table_name -> tempdb.dbo.table_name
-    col1 = ref1.get_column(engine)
-    col2 = ref2.get_column(engine)
+    cdf_label = "cdf"
+    value_label = "val"
+    cdf_selection1 = _get_cdf_selection(engine, ref1, cdf_label, value_label)
+    cdf_selection2 = _get_cdf_selection(engine, ref2, cdf_label, value_label)
 
-    selection1 = ref1.get_selection(engine)
-    selection2 = ref2.get_selection(engine)
+    cdf_label1 = cdf_label + "1"
+    cdf_label2 = cdf_label + "2"
 
-    # Step 1: Calculate the CDF over the value column
-    s1 = sa.select(
-        [
-            selection1.selected_columns[col1].label("val"),
-            sa.func.cume_dist().over(order_by=col1).label("cdf"),
-        ]
-    ).subquery()
-    s2 = sa.select(
-        [
-            selection2.selected_columns[col2].label("val"),
-            sa.func.cume_dist().over(order_by=col2).label("cdf"),
-        ]
-    ).subquery()
-
-    # Step 2: Remove unnecessary values, s.t. we have (x, cdf(x)) rows only
-    t1 = (
-        sa.select([s1.c["val"], sa.func.max(s1.c["cdf"]).label("cdf")])
-        .group_by(s1.c["val"])
-        .subquery()
-    )
-    t2 = (
-        sa.select([s2.c["val"], sa.func.max(s2.c["cdf"]).label("cdf")])
-        .group_by(s2.c["val"])
-        .subquery()
-    )
-
-    # Step 3: combine the cdfs
+    # Step 3: Combine the cdfs.
     join = (
         sa.select(
-            sa.func.coalesce(t1.c["val"], t2.c["val"]).label("v"),
-            t1.c["cdf"].label("cdf1"),
-            t2.c["cdf"].label("cdf2"),
+            sa.func.coalesce(
+                cdf_selection1.c[value_label], cdf_selection2.c[value_label]
+            ).label(value_label),
+            cdf_selection1.c[cdf_label].label(cdf_label1),
+            cdf_selection2.c[cdf_label].label(cdf_label2),
         )
-        .select_from(t1.join(t2, t1.c["val"] == t2.c["val"], isouter=True, full=True))
+        .select_from(
+            cdf_selection1.join(
+                cdf_selection2,
+                cdf_selection1.c[value_label] == cdf_selection2.c[value_label],
+                isouter=True,
+                full=True,
+            )
+        )
         .subquery()
     )
 
-    # Step 4: Create a grouper id based on the value count; this is just a helper for forward-filling
-    grouped_cdf = sa.select(
+    group_label1 = "_grp1"
+    group_label2 = "_grp2"
+
+    def _cdf_count(table, value_label, cdf_label, group_label):
+        return (
+            sa.func.count(table.c[cdf_label])
+            .over(order_by=table.c[value_label])
+            .label(group_label)
+        )
+
+    # Step 4: Create a grouper id based on the value count; this is just a helper for forward-filling.
+    pooled_cdf = sa.select(
         [
-            join.c["v"],
-            sa.func.count(join.c["cdf1"]).over(order_by=join.c["v"]).label("_grp1"),
-            join.c["cdf1"],
-            sa.func.count(join.c["cdf2"]).over(order_by=join.c["v"]).label("_grp2"),
-            join.c["cdf2"],
+            join.c[value_label],
+            _cdf_count(join, value_label, cdf_label1, group_label1),
+            join.c[cdf_label1],
+            _cdf_count(join, value_label, cdf_label2, group_label2),
+            join.c[cdf_label2],
         ]
     ).subquery()
 
-    # Step 5: Forward-Filling: Select first non-null value per group (defined in the prev. step)
-    filled_cdf = sa.select(
-        [
-            grouped_cdf.c["v"],
-            sa.func.first_value(grouped_cdf.c["cdf1"])
-            .over(partition_by=grouped_cdf.c["_grp1"], order_by=grouped_cdf.c["v"])
-            .label("cdf1_filled"),
-            sa.func.first_value(grouped_cdf.c["cdf2"])
-            .over(partition_by=grouped_cdf.c["_grp2"], order_by=grouped_cdf.c["v"])
-            .label("cdf2_filled"),
-        ]
-    ).subquery()
+    def _forward_filled_cdf_column(table, cdf_label, value_label, group_label):
+        return (
+            # Step 6: Replace NULL values at the beginning with 0 to enable computation of difference.
+            sa.func.coalesce(
+                (
+                    # Step 5: Forward-Filling: Select first non-NULL value per group (defined in the prev. step).
+                    sa.func.first_value(table.c[cdf_label]).over(
+                        partition_by=table.c[group_label], order_by=table.c[value_label]
+                    )
+                ),
+                0,
+            ).label(cdf_label)
+        )
 
-    # Step 6: Replace NULL values (at the beginning) with 0 to calculate difference
     replaced_nulls = sa.select(
         [
-            sa.func.coalesce(filled_cdf.c["cdf1_filled"], 0).label("cdf1"),
-            sa.func.coalesce(filled_cdf.c["cdf2_filled"], 0).label("cdf2"),
+            pooled_cdf.c[value_label],
+            _forward_filled_cdf_column(
+                pooled_cdf, cdf_label1, value_label, group_label1
+            ),
+            _forward_filled_cdf_column(
+                pooled_cdf, cdf_label2, value_label, group_label2
+            ),
         ]
     ).subquery()
 
-    # Step 7: Calculate final statistic as max. distance
+    # Step 7: Calculate final statistic: maximal distance.
     final_selection = sa.select(
-        sa.func.max(sa.func.abs(replaced_nulls.c["cdf1"] - replaced_nulls.c["cdf2"]))
+        sa.func.max(
+            sa.func.abs(replaced_nulls.c[cdf_label1] - replaced_nulls.c[cdf_label2])
+        )
     )
 
     with engine.connect() as connection:
