@@ -1,6 +1,6 @@
 import math
 import warnings
-from typing import Optional, Tuple
+from typing import Optional
 
 import sqlalchemy as sa
 
@@ -73,50 +73,63 @@ class KolmogorovSmirnov2Sample(Constraint):
         engine,
         ref1: DataReference,
         ref2: DataReference,
-    ) -> Tuple[float, Optional[float], int, int]:
+    ) -> tuple[float, Optional[float], int, int, list]:
 
         # retrieve test statistic d, as well as sample sizes m and n
-        d_statistic = db_access.get_ks_2sample(
+        d_statistic, ks_selections = db_access.get_ks_2sample(
             engine,
             ref1,
             ref2,
         )
 
-        n_samples, _ = db_access.get_row_count(engine, ref1)
-        m_samples, _ = db_access.get_row_count(engine, ref2)
+        n_samples, n_selections = db_access.get_row_count(engine, ref1)
+        m_samples, m_selections = db_access.get_row_count(engine, ref2)
 
         # calculate approximate p-value
         p_value = KolmogorovSmirnov2Sample.approximate_p_value(
             d_statistic, n_samples, m_samples
         )
 
-        return d_statistic, p_value, n_samples, m_samples
+        selections = n_selections + m_selections + ks_selections
+        return d_statistic, p_value, n_samples, m_samples, selections
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-
-        # get query selections and column names for target columns
-
-        d_statistic, p_value, n_samples, m_samples = self.calculate_statistic(
+        (
+            d_statistic,
+            p_value,
+            n_samples,
+            m_samples,
+            selections,
+        ) = self.calculate_statistic(
             engine,
             self.ref,
             self.ref2,
         )
-
-        # calculate test acceptance
         result = self.check_acceptance(
             d_statistic, n_samples, m_samples, self.significance_level
         )
 
         assertion_text = (
             f"Null hypothesis (H0) for the 2-sample Kolmogorov-Smirnov test was rejected, i.e., "
-            f"the two samples ({self.ref.get_string()} and {self.target_prefix})"
-            f" do not originate from the same distribution."
+            f"the two samples ({self.ref.get_string()} and {self.target_prefix}) "
+            f"do not originate from the same distribution. "
             f"The test results are d={d_statistic}"
         )
         if p_value is not None:
-            assertion_text += f"and {p_value=}"
+            assertion_text += f" and {p_value=}"
+        assertion_text += "."
+
+        if selections:
+            queries = [
+                str(selection.compile(engine, compile_kwargs={"literal_binds": True}))
+                for selection in selections
+            ]
 
         if not result:
-            return TestResult.failure(assertion_text)
+            return TestResult.failure(
+                assertion_text,
+                self.get_description(),
+                queries,
+            )
 
         return TestResult.success()

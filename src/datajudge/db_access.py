@@ -935,7 +935,7 @@ def get_ks_2sample(
     engine: sa.engine.Engine,
     ref1: DataReference,
     ref2: DataReference,
-) -> float:
+):
     """
     Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
     """
@@ -1024,7 +1024,7 @@ def get_ks_2sample(
     with engine.connect() as connection:
         d_statistic = connection.execute(final_selection).scalar()
 
-    return d_statistic
+    return d_statistic, [final_selection]
 
 
 def get_regex_violations(engine, ref, aggregated, regex, n_counterexamples):

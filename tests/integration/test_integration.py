@@ -2032,6 +2032,7 @@ def test_ks_2sample_implementation(engine, random_normal_table, configuration):
         p_value,
         n_samples,
         m_samples,
+        _,
     ) = KolmogorovSmirnov2Sample.calculate_statistic(engine, ref, ref2)
 
     assert (
