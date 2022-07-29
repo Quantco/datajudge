@@ -25,7 +25,7 @@ def test_cross_cdf_selection(engine, cross_cdf_table1, cross_cdf_table2):
         (5, 1, 4 / 5),
         (8, 1, 1),
     ]
-    assert result == expected_result
+    assert sorted(result) == expected_result
 
 
 @pytest.mark.parametrize(
