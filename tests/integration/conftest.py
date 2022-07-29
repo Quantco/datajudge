@@ -715,6 +715,28 @@ def capitalization_table(engine, metadata):
     return TEST_DB_NAME, SCHEMA, table_name, uppercase_column, lowercase_column
 
 
+@pytest.fixture(scope="module")
+def cross_cdf_table1(engine, metadata):
+    table_name = "cross_cdf_table1"
+    col_name = "col_int"
+    columns = [sa.Column(col_name, sa.Integer())]
+    col_values = [1, 1, 3, 2]
+    data = [{col_name: col_value} for col_value in col_values]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
+def cross_cdf_table2(engine, metadata):
+    table_name = "cross_cdf_table2"
+    col_name = "col_int"
+    columns = [sa.Column(col_name, sa.Integer())]
+    col_values = [3, 5, 4, 5, 8]
+    data = [{col_name: col_value} for col_value in col_values]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
 def pytest_addoption(parser):
     parser.addoption(
         "--backend",

@@ -1016,7 +1016,7 @@ def _cross_cdf_selection(
                 indexed_cross_cdf, cdf_label2, value_label, group_label2
             ),
         ]
-    ).subquery()
+    )
     return filled_cross_cdf, cdf_label1, cdf_label2
 
 
@@ -1030,9 +1030,11 @@ def get_ks_2sample(
     """
     cdf_label = "cdf"
     value_label = "val"
-    filled_cross_cdf, cdf_label1, cdf_label2 = _cross_cdf_selection(
+    filled_cross_cdf_selection, cdf_label1, cdf_label2 = _cross_cdf_selection(
         engine, ref1, ref2, cdf_label, value_label
     )
+
+    filled_cross_cdf = filled_cross_cdf_selection.subquery()
 
     # Step 7: Calculate final statistic: maximal distance.
     final_selection = sa.select(
