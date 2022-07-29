@@ -1890,10 +1890,6 @@ def test_groupby_aggregation_within_with_failures(
     assert operation(test_result.outcome), test_result.failure_message
 
 
-def test_diff_average_between():
-    return
-
-
 @pytest.mark.parametrize(
     "data",
     [

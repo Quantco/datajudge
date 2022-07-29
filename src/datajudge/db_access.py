@@ -904,7 +904,7 @@ def get_column_array_agg(
     return result, selections
 
 
-def _get_cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str):
+def _cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str):
     col = ref.get_column(engine)
     selection = ref.get_selection(engine).subquery()
 
@@ -931,24 +931,29 @@ def _get_cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: 
     return grouped_cdf_selection
 
 
-def get_ks_2sample(
-    engine: sa.engine.Engine,
-    ref1: DataReference,
-    ref2: DataReference,
+def _cross_cdf_selection(
+    engine, ref1: DataReference, ref2: DataReference, cdf_label: str, value_label: str
 ):
-    """
-    Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
-    """
-    cdf_label = "cdf"
-    value_label = "val"
-    cdf_selection1 = _get_cdf_selection(engine, ref1, cdf_label, value_label)
-    cdf_selection2 = _get_cdf_selection(engine, ref2, cdf_label, value_label)
+    """Create a cross cumulative distribution function selection given two samples.
 
+    Concretely, both ``DataReference``s are expected to have specified a single relevant column.
+    This function will generate a selection with rows of the kind ``(value, cdf1(value), cdf2(value))``,
+    where ``cdf1`` is the cumulative distribution function of ``ref1`` and ``cdf2`` of ``ref2``.
+
+    E.g. if ``ref`` is a reference to a table's column with values ``[1, 1, 3, 2]``, and ``ref2`` is
+    a reference to a table's column with values ``[2, 5, 4]``, executing the returned selection should
+    yield a table of the following kind: ``[(1, .5, 0), (2, .75, 1/3), (3, 1 ,1/3), (4, 1, 2/3), (5, 1, 1)]``.
+    """
     cdf_label1 = cdf_label + "1"
     cdf_label2 = cdf_label + "2"
+    group_label1 = "_grp1"
+    group_label2 = "_grp2"
+
+    cdf_selection1 = _cdf_selection(engine, ref1, cdf_label, value_label)
+    cdf_selection2 = _cdf_selection(engine, ref2, cdf_label, value_label)
 
     # Step 3: Combine the cdfs.
-    join = (
+    cross_cdf = (
         sa.select(
             sa.func.coalesce(
                 cdf_selection1.c[value_label], cdf_selection2.c[value_label]
@@ -967,10 +972,7 @@ def get_ks_2sample(
         .subquery()
     )
 
-    group_label1 = "_grp1"
-    group_label2 = "_grp2"
-
-    def _cdf_count(table, value_label, cdf_label, group_label):
+    def _cdf_index_column(table, value_label, cdf_label, group_label):
         return (
             sa.func.count(table.c[cdf_label])
             .over(order_by=table.c[value_label])
@@ -978,13 +980,15 @@ def get_ks_2sample(
         )
 
     # Step 4: Create a grouper id based on the value count; this is just a helper for forward-filling.
-    pooled_cdf = sa.select(
+    # In other words, we point rows to their most recent present value - per sample. This is necessary
+    # Due to the nature of the full outer join.
+    indexed_cross_cdf = sa.select(
         [
-            join.c[value_label],
-            _cdf_count(join, value_label, cdf_label1, group_label1),
-            join.c[cdf_label1],
-            _cdf_count(join, value_label, cdf_label2, group_label2),
-            join.c[cdf_label2],
+            cross_cdf.c[value_label],
+            _cdf_index_column(cross_cdf, value_label, cdf_label1, group_label1),
+            cross_cdf.c[cdf_label1],
+            _cdf_index_column(cross_cdf, value_label, cdf_label2, group_label2),
+            cross_cdf.c[cdf_label2],
         ]
     ).subquery()
 
@@ -1002,22 +1006,38 @@ def get_ks_2sample(
             ).label(cdf_label)
         )
 
-    replaced_nulls = sa.select(
+    filled_cross_cdf = sa.select(
         [
-            pooled_cdf.c[value_label],
+            indexed_cross_cdf.c[value_label],
             _forward_filled_cdf_column(
-                pooled_cdf, cdf_label1, value_label, group_label1
+                indexed_cross_cdf, cdf_label1, value_label, group_label1
             ),
             _forward_filled_cdf_column(
-                pooled_cdf, cdf_label2, value_label, group_label2
+                indexed_cross_cdf, cdf_label2, value_label, group_label2
             ),
         ]
     ).subquery()
+    return filled_cross_cdf, cdf_label1, cdf_label2
+
+
+def get_ks_2sample(
+    engine: sa.engine.Engine,
+    ref1: DataReference,
+    ref2: DataReference,
+):
+    """
+    Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
+    """
+    cdf_label = "cdf"
+    value_label = "val"
+    filled_cross_cdf, cdf_label1, cdf_label2 = _cross_cdf_selection(
+        engine, ref1, ref2, cdf_label, value_label
+    )
 
     # Step 7: Calculate final statistic: maximal distance.
     final_selection = sa.select(
         sa.func.max(
-            sa.func.abs(replaced_nulls.c[cdf_label1] - replaced_nulls.c[cdf_label2])
+            sa.func.abs(filled_cross_cdf.c[cdf_label1] - filled_cross_cdf.c[cdf_label2])
         )
     )
 
