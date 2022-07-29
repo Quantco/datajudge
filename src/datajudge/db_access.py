@@ -906,12 +906,12 @@ def get_column_array_agg(
 
 def _get_cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str):
     col = ref.get_column(engine)
-    selection = ref.get_selection(engine)
+    selection = ref.get_selection(engine).subquery()
 
     # Step 1: Calculate the CDF over the value column.
     cdf_selection = sa.select(
         [
-            selection.selected_columns[col].label(value_label),
+            selection.c[col].label(value_label),
             sa.func.cume_dist().over(order_by=col).label(cdf_label),
         ]
     ).subquery()

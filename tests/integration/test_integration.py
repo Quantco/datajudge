@@ -1902,8 +1902,8 @@ def test_diff_average_between():
             identity,
             "col_int",
             "col_int",
-            Condition("col_int >= 3"),
-            Condition("col_int >= 3"),
+            Condition(raw_string="col_int >= 3"),
+            Condition(raw_string="col_int >= 3"),
             1.0,
         ),
     ],
@@ -1925,15 +1925,20 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
     assert operation(test_result.outcome), test_result.failure_message
 
 
-# TODO: Enable this test once the bug is fixed.
-@pytest.mark.skip(reason="This is a known bug and unintended behaviour.")
 @pytest.mark.parametrize(
     "data",
     [
-        (negation, "col_int", "col_int", None, Condition("col_int >= 10"), 1.0),
+        (
+            negation,
+            "col_int",
+            "col_int",
+            None,
+            Condition(raw_string="col_int >= 10"),
+            1.0,
+        ),
     ],
 )
-def test_ks_2sample_constraint_perfect_between_different_condition(
+def test_ks_2sample_constraint_perfect_between_different_conditions(
     engine, int_table1, data
 ):
     """

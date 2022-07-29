@@ -63,9 +63,10 @@ class KolmogorovSmirnov2Sample(Constraint):
         def c(alpha: float):
             return math.sqrt(-math.log(alpha / 2.0 + 1e-10) * 0.5)
 
-        return d_statistic <= c(accepted_level) * math.sqrt(
+        threshold = c(accepted_level) * math.sqrt(
             (n_samples + m_samples) / (n_samples * m_samples)
         )
+        return d_statistic <= threshold
 
     @staticmethod
     def calculate_statistic(
