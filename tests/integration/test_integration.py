@@ -1926,35 +1926,40 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
 
 
 @pytest.mark.parametrize(
-    "data",
+    "condition1, condition2",
     [
         (
-            negation,
-            "col_int",
-            "col_int",
             None,
             Condition(raw_string="col_int >= 10"),
-            1.0,
+        ),
+        (
+            Condition(raw_string="col_int >= 10"),
+            None,
+        ),
+        (
+            Condition(raw_string="col_int >= 10"),
+            Condition(raw_string="col_int >= 3"),
         ),
     ],
 )
 def test_ks_2sample_constraint_perfect_between_different_conditions(
-    engine, int_table1, data
+    engine, int_table1, condition1, condition2
 ):
     """
-    Test Kolmogorov-Smirnov for the same column -> p-value should be perfect 1.0.
+    Test Kolmogorov-Smirnov for the same column but different conditions.
+    As a consequence, since the data is distinct, the tests are expected
+    to fail for a very high significance level.
     """
-    (operation, col_1, col_2, condition1, condition2, significance_level) = data
     req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table1)
     req.add_ks_2sample_constraint(
-        column1=col_1,
-        column2=col_2,
+        column1="col_int",
+        column2="col_int",
         condition1=condition1,
         condition2=condition2,
-        significance_level=significance_level,
+        significance_level=1.0,
     )
     test_result = req[0].test(engine)
-    assert operation(test_result.outcome), test_result.failure_message
+    assert negation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
