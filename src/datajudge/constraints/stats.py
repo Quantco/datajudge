@@ -1,6 +1,6 @@
 import math
 import warnings
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import sqlalchemy as sa
 
@@ -73,7 +73,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         engine,
         ref1: DataReference,
         ref2: DataReference,
-    ) -> tuple[float, Optional[float], int, int, list]:
+    ) -> Tuple[float, Optional[float], int, int, List]:
 
         # retrieve test statistic d, as well as sample sizes m and n
         d_statistic, ks_selections = db_access.get_ks_2sample(
