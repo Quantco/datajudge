@@ -1037,7 +1037,10 @@ def get_ks_2sample(
     ref2: DataReference,
 ):
     """
-    Runs the query for the two-sample Kolmogorov-Smirnov test and returns the test statistic d.
+    Run the query for the two-sample Kolmogorov-Smirnov test and return the test statistic d.
+
+    For a raw-sql version of this query, please see this PR:
+    https://github.com/Quantco/datajudge/pull/28/
     """
     cdf_label = "cdf"
     value_label = "val"
