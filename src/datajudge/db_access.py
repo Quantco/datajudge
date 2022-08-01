@@ -905,6 +905,12 @@ def get_column_array_agg(
 
 
 def _cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str):
+    """Create an empirical cumulative distribution function values.
+
+    Concretely, create a selection with values from ``value_label`` as well as
+    the empirical cumulative didistribution function values, labeled as
+    ``cdf_label``.
+    """
     col = ref.get_column(engine)
     selection = ref.get_selection(engine).subquery()
 
@@ -927,7 +933,6 @@ def _cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str)
         .group_by(cdf_selection.c[value_label])
         .subquery()
     )
-
     return grouped_cdf_selection
 
 
