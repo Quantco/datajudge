@@ -3,15 +3,7 @@ import functools
 import pytest
 
 import datajudge.requirements as requirements
-from datajudge.constraints.stats import KolmogorovSmirnov2Sample
-from datajudge.db_access import (
-    Condition,
-    DataReference,
-    TableDataSource,
-    is_mssql,
-    is_postgresql,
-    is_snowflake,
-)
+from datajudge.db_access import Condition, is_mssql, is_postgresql, is_snowflake
 
 
 def skip_if_mssql(engine):
@@ -1890,10 +1882,6 @@ def test_groupby_aggregation_within_with_failures(
     assert operation(test_result.outcome), test_result.failure_message
 
 
-def test_diff_average_between():
-    return
-
-
 @pytest.mark.parametrize(
     "data",
     [
@@ -1902,8 +1890,8 @@ def test_diff_average_between():
             identity,
             "col_int",
             "col_int",
-            Condition("col_int >= 3"),
-            Condition("col_int >= 3"),
+            Condition(raw_string="col_int >= 3"),
+            Condition(raw_string="col_int >= 3"),
             1.0,
         ),
     ],
@@ -1925,31 +1913,41 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
     assert operation(test_result.outcome), test_result.failure_message
 
 
-# TODO: Enable this test once the bug is fixed.
-@pytest.mark.skip(reason="This is a known bug and unintended behaviour.")
 @pytest.mark.parametrize(
-    "data",
+    "condition1, condition2",
     [
-        (negation, "col_int", "col_int", None, Condition("col_int >= 10"), 1.0),
+        (
+            None,
+            Condition(raw_string="col_int >= 10"),
+        ),
+        (
+            Condition(raw_string="col_int >= 10"),
+            None,
+        ),
+        (
+            Condition(raw_string="col_int >= 10"),
+            Condition(raw_string="col_int >= 3"),
+        ),
     ],
 )
-def test_ks_2sample_constraint_perfect_between_different_condition(
-    engine, int_table1, data
+def test_ks_2sample_constraint_perfect_between_different_conditions(
+    engine, int_table1, condition1, condition2
 ):
     """
-    Test Kolmogorov-Smirnov for the same column -> p-value should be perfect 1.0.
+    Test Kolmogorov-Smirnov for the same column but different conditions.
+    As a consequence, since the data is distinct, the tests are expected
+    to fail for a very high significance level.
     """
-    (operation, col_1, col_2, condition1, condition2, significance_level) = data
     req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table1)
     req.add_ks_2sample_constraint(
-        column1=col_1,
-        column2=col_2,
+        column1="col_int",
+        column2="col_int",
         condition1=condition1,
         condition2=condition2,
-        significance_level=significance_level,
+        significance_level=1.0,
     )
     test_result = req[0].test(engine)
-    assert operation(test_result.outcome), test_result.failure_message
+    assert negation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
@@ -1999,36 +1997,3 @@ def test_ks_2sample_random(engine, random_normal_table, configuration):
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-
-
-@pytest.mark.parametrize(
-    "configuration",
-    [  # these values were calculated using scipy.stats.ks_2samp on scipy=1.8.1
-        ("value_0_1", "value_0_1", 0.0, 1.0),
-        ("value_0_1", "value_005_1", 0.0294, 0.00035221594346540835),
-        ("value_0_1", "value_02_1", 0.0829, 2.6408848561586672e-30),
-        ("value_0_1", "value_1_1", 0.3924, 0.0),
-    ],
-)
-def test_ks_2sample_implementation(engine, random_normal_table, configuration):
-    col_1, col_2, expected_d, expected_p = configuration
-    database, schema, table = random_normal_table
-    tds = TableDataSource(database, table, schema)
-    ref = DataReference(tds, columns=[col_1])
-    ref2 = DataReference(tds, columns=[col_2])
-
-    (
-        d_statistic,
-        p_value,
-        n_samples,
-        m_samples,
-    ) = KolmogorovSmirnov2Sample.calculate_statistic(engine, ref, ref2)
-
-    assert (
-        abs(d_statistic - expected_d) <= 1e-10
-    ), f"The test statistic does not match: {expected_d} vs {d_statistic}"
-
-    # 1e-05 should cover common p_values; if scipy is installed, a very accurate p_value is automatically calculated
-    assert (
-        abs(p_value - expected_p) <= 1e-05
-    ), f"The approx. p-value does not match: {expected_p} vs {p_value}"
