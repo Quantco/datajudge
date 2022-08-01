@@ -288,7 +288,13 @@ class DataReference:
                 f"Trying to access column of DataReference "
                 f"{self.get_string()} yet none is given."
             )
-        return self.get_columns(engine)[0]
+        columns = self.get_columns(engine)
+        if len(columns) > 1:
+            raise ValueError(
+                "DataReference was expected to only have a single column but had multiple: "
+                f"{columns}"
+            )
+        return columns[0]
 
     def get_columns(self, engine):
         """Fetch all relevant columns of a DataReference."""
