@@ -24,3 +24,4 @@ dependencies:
   - flit-core
   - flit
   - pytest-cov
+  - sphinx-autodoc-typehints

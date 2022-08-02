@@ -91,28 +91,28 @@ class WithinRequirement(Requirement):
 
     @classmethod
     def from_raw_query(cls, query: str, name: str, columns: List[str] = None):
-        """Create a `WithinRequirement` based on a raw query string.
+        """Create a ``WithinRequirement`` based on a raw query string.
 
-        The `query` parameter can be passed any query string returning rows, e.g.
-        `"SELECT * FROM myschema.mytable LIMIT 1337"` or
-        `"SELECT id, name FROM table1 UNION SELECT id, name FROM table2"`.
+        The ``query`` parameter can be passed any query string returning rows, e.g.
+        ``"SELECT * FROM myschema.mytable LIMIT 1337"`` or
+        ``"SELECT id, name FROM table1 UNION SELECT id, name FROM table2"``.
 
-        The `name` will be used to represent this query in error messages.
+        The ``name`` will be used to represent this query in error messages.
 
         If constraints rely on specific columns, these should be provided here via
-        `columns`, e.g. `["id", "name"]`.
+        ``columns``, e.g. ``["id", "name"]``.
         """
         return cls(data_source=RawQueryDataSource(query, name, columns=columns))
 
     @classmethod
     def from_expression(cls, expression: sa.sql.expression.FromClause, name: str):
-        """Create a `WithinRequirement` based on a sqlalchemy expression.
+        """Create a ``WithinRequirement`` based on a sqlalchemy expression.
 
-        Any sqlalchemy object implementing the `alias` method can be passed as an
-        argument for the `expression` parameter. This could, e.g. be an
-        `sqlalchemy.Table` object or the result of a `sqlalchemy.select` call.
+        Any sqlalchemy object implementing the ``alias`` method can be passed as an
+        argument for the ``expression`` parameter. This could, e.g. be an
+        ``sqlalchemy.Table`` object or the result of a ``sqlalchemy.select`` call.
 
-        The `name` will be used to represent this expression in error messages.
+        The ``name`` will be used to represent this expression in error messages.
         """
         return cls(data_source=ExpressionDataSource(expression, name))
 
@@ -183,12 +183,12 @@ class WithinRequirement(Requirement):
     ):
         """Check if the data's unique values are equal to a given set of values.
 
-        The `UniquesEquality` constraint asserts if the values contained in a column
-        of a `DataSource` are strictly the ones of a reference set of expected values,
-        specified via the `uniques` parameter.
+        The ``UniquesEquality`` constraint asserts if the values contained in a column
+        of a ``DataSource`` are strictly the ones of a reference set of expected values,
+        specified via the ``uniques`` parameter.
 
-        See the `Uniques` class for further parameter details on `map_func` and
-        `reduce_func`.
+        See the ``Uniques`` class for further parameter details on ``map_func`` and
+        ``reduce_func``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -209,21 +209,21 @@ class WithinRequirement(Requirement):
     ):
         """Check if unique values of columns are contained in the reference data.
 
-        The `UniquesSuperset` constraint asserts that reference set of expected values,
-        specified via `uniques`, is contained in given columns of a `DataSource`.
+        The ``UniquesSuperset`` constraint asserts that reference set of expected values,
+        specified via ``uniques``, is contained in given columns of a ``DataSource``.
 
         Null values in the column are ignored. To assert the non-existence of them use
-        the `NullAbsence` constraint via the `add_null_absence_constraint` helper method
-        for `WithinRequirement`.
+        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        for ``WithinRequirement``.
 
-        `max_relative_violations` indicates what fraction of unique values of the given
-        `DataSource` are not represented in the reference set of unique values. Please
-        note that `UniquesSubset` and `UniquesSuperset` are not symmetrical in this regard.
+        ``max_relative_violations`` indicates what fraction of unique values of the given
+        ``DataSource`` are not represented in the reference set of unique values. Please
+        note that ``UniquesSubset`` and ``UniquesSuperset`` are not symmetrical in this regard.
 
         One use of this constraint is to test for consistency in columns with expected
         categorical values.
 
-        See `Uniques` for further details on `map_func` and `reduce_func`.
+        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -248,19 +248,19 @@ class WithinRequirement(Requirement):
     ):
         """Check if the data's unique values are contained in a given set of values.
 
-        The `UniquesSubset` constraint asserts if the values contained in a column of
-        a `DataSource` are part of a reference set of expected values, specified via
-        `uniques`.
+        The ``UniquesSubset`` constraint asserts if the values contained in a column of
+        a ``DataSource`` are part of a reference set of expected values, specified via
+        ``uniques``.
 
         Null values in the column are ignored. To assert the non-existence of them use
-        the `NullAbsence` constraint via the `add_null_absence_constraint` helper method
-        for `WithinRequirement`.
+        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        for ``WithinRequirement``.
 
-        `max_relative_violations` indicates what fraction of rows of the given table
+        ``max_relative_violations`` indicates what fraction of rows of the given table
         may have values not included in the reference set of unique values. Please note
-        that `UniquesSubset` and `UniquesSuperset` are not symmetrical in this regard.
+        that ``UniquesSubset`` and ``UniquesSuperset`` are not symmetrical in this regard.
 
-        See `Uniques` for further details on `map_func` and `reduce_func`.
+        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -346,12 +346,13 @@ class WithinRequirement(Requirement):
 
         Use string format: min_value="'20121230'".
 
-        For valid column_type values, see get_format_from_column_type in constraints/base.py..
+        For valid ``column_type`` values, see`` get_format_from_column_type`` in
+        constraints/base.py.
 
-        If `use_lower_bound_reference`, the min of the first table has to be
-        greater or equal to `min_value`.
-        If not `use_upper_bound_reference`, the min of the first table has to
-        be smaller or equal to `min_value`.
+        If ``use_lower_bound_reference``, the min of the first table has to be
+        greater or equal to ``min_value``.
+        If not ``use_upper_bound_reference``, the min of the first table has to
+        be smaller or equal to ``min_value``.
         """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -375,12 +376,13 @@ class WithinRequirement(Requirement):
 
         Use string format: max_value="'20121230'".
 
-        For valid column_type values, see get_format_from_column_type in constraints/base.py..
+        For valid ``column_type`` values, see ``get_format_from_column_type`` in
+        constraints/base.py..
 
-        If `use_upper_bound_reference`, the max of the first table has to be
-        smaller or equal to `max_value`.
-        If not `use_upper_bound_reference`, the max of the first table has to
-        be greater or equal to `max_value`.
+        If ``use_upper_bound_reference``, the max of the first table has to be
+        smaller or equal to ``max_value``.
+        If not ``use_upper_bound_reference``, the max of the first table has to
+        be greater or equal to ``max_value``.
         """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -417,30 +419,30 @@ class WithinRequirement(Requirement):
     ):
         """Constraint expressing that several date range rows may not overlap.
 
-        The `DataSource` under inspection must consist of at least one but up
-        to many `key_columns`, identifying an entity, a `start_column` and an
-        `end_column`.
+        The ``DataSource`` under inspection must consist of at least one but up
+        to many ``key_columns``, identifying an entity, a ``start_column`` and an
+        ``end_column``.
 
-        For a given row in this `DataSource`, `start_column` and `end_column` indicate a
+        For a given row in this ``DataSource``, ``start_column`` and ``end_column`` indicate a
         date range. Neither of those columns should contain NULL values. Also, it
-        should hold that for a given row, the value of `end_column` is strictly greater
-        than the value of `start_column`.
+        should hold that for a given row, the value of ``end_column`` is strictly greater
+        than the value of ``start_column``.
 
-        Note that the value of `start_column` is expected to be included in each date
-        range. By default, the value of `end_column` is expected to be included as well -
-        this can however be changed by setting `end_included` to `False`.
+        Note that the value of ``start_column`` is expected to be included in each date
+        range. By default, the value of ``end_column`` is expected to be included as well -
+        this can however be changed by setting ``end_included`` to ``False``.
 
-        A 'key' is a fixed set of values in `key_columns` and represents an entity of
+        A 'key' is a fixed set of values in ``key_columns`` and represents an entity of
         interest. A priori, a key is not a primary key, i.e., a key can have and often
         has several rows. Thereby, a key will often come with several date ranges.
 
         Often, you might want the date ranges for a given key not to overlap.
 
-        If `key_columns` is `None` or `[]`, all columns of the table will be considered
+        If ``key_columns`` is ``None`` or ``[]``, all columns of the table will be considered
         as composing the key.
 
         In order to express a tolerance for some violations of this non-overlapping
-        property, use the `max_relative_n_violations` parameter. The latter expresses for
+        property, use the ``max_relative_n_violations`` parameter. The latter expresses for
         what fraction of all key values, at least one overlap may exist.
 
         For illustrative examples of this constraint, please refer to its test cases.
@@ -475,25 +477,27 @@ class WithinRequirement(Requirement):
         """Express that several date range rows do not overlap in two date dimensions.
 
         The table under inspection must consist of at least one but up to many key columns,
-        identifying an entity. Per date dimension, a start_column and an end_column should
-        be provided.
+        identifying an entity. Per date dimension, a ``start_column`` and an
+        ``end_column`` should be provided.
 
-        For a given row in this table, start_column1 and end_column1 indicate a date range.
-        Moreoever, for that same row, start_column2 and end_column2 indicate a date range.
-        These date ranges are expected to represent different date 'dimensions'. Example:
-        A row indicates a forecasted value used in production. start_column1 and end_column1
-        represent the timespan that was forecasted, e.g. the weather from next Saturday to
-        next Sunday. end_column1 and end_column2 might indicate the timespan when this
-        forceast was used, e.g. from the previous Monday to Wednesday.
+        For a given row in this table, ``start_column1`` and ``end_column1``
+        indicate a date range. Moreoever, for that same row, ``start_column2``
+        and ``end_column2`` indicate a date range.
+        These date ranges are expected to represent different date 'dimensions'.
+        Example: A row indicates a forecasted value used in production. ``start_column1``
+        and ``end_column1`` represent the timespan that was forecasted, e.g. the
+        weather from next Saturday to next Sunday. ``end_column1`` and ``end_column2``
+        might indicate the timespan when this forceast was used, e.g. from the
+        previous Monday to Wednesday.
 
-        Neither of those columns should contain NULL values. Also it should hold that for
-        a given row, the value of end_column is strictly greater than the value of
-        start_column.
+        Neither of those columns should contain ``NULL`` values. Also it should
+        hold that for a given row, the value of ``end_column`` is strictly greater
+        than the value of ``start_column``.
 
-        Note that the values of `start_column1` and `start_column2` are expected to be
-        includedin each date range. By default, the values of `end_column1` and
-        `end_column2` are expected to be included as well - this can however be changed
-        by setting `end_included` to `False`.
+        Note that the values of ``start_column1`` and ``start_column2`` are expected to be
+        included in each date range. By default, the values of ``end_column1`` and
+        ``end_column2`` are expected to be included as well - this can however be changed
+        by setting ``end_included`` to ``False``.
 
         A 'key' is a fixed set of values in key_columns and represents an entity of
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
@@ -501,11 +505,11 @@ class WithinRequirement(Requirement):
 
         Often, you might want the date ranges for a given key not to overlap.
 
-        If key_columns is `None` or `[]`, all columns of the table will be considered as
+        If key_columns is ``None`` or ``[]``, all columns of the table will be considered as
         composing the key.
 
         In order to express a tolerance for some violations of this non-overlapping property,
-        use the `max_relative_n_violations` parameter. The latter expresses for what fraction
+        use the ``max_relative_n_violations`` parameter. The latter expresses for what fraction
         of all key_values, at least one overlap may exist.
 
         For illustrative examples of this constraint, please refer to its test cases.
@@ -544,26 +548,26 @@ class WithinRequirement(Requirement):
         Express that date range rows have no gap in-between them.
 
         The table under inspection must consist of at least one but up to many key columns,
-        identifying an entity. Additionally, a start_column and an end_column, indicating
-        start and end dates, should be provided.
+        identifying an entity. Additionally, a ``start_column`` and an ``end_column``,
+        indicating start and end dates, should be provided.
 
-        Neither of those columns should contain NULL values. Also, it should hold that for
-        a given row, the value of end_column is strictly greater than the value of
-        start_column.
+        Neither of those columns should contain ``NULL`` values. Also, it should hold that
+        for a given row, the value of ``end_column`` is strictly greater than the value of
+        ``start_column``.
 
-        Note that the value of `start_column` is expected to be included in each date range.
-        By default, the value of `end_column` is expected to be included as well - this can
-        however be changed by setting `end_included` to `False`.
+        Note that the value of ``start_column`` is expected to be included in each date range.
+        By default, the value of ``end_column`` is expected to be included as well - this can
+        however be changed by setting ``end_included`` to ``False``.
 
-        A 'key' is a fixed set of values in key_columns and represents an entity of
+        A 'key' is a fixed set of values in ``key_columns`` and represents an entity of
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
         several rows. Thereby, a key will often come with several date ranges.
 
-        If key_columns is `None` or `[]`, all columns of the table will be considered as
-        composing the key.
+        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        considered as composing the key.
 
         In order to express a tolerance for some violations of this gap property, use the
-        `max_relative_n_violations` parameter. The latter expresses for what fraction
+        ``max_relative_n_violations`` parameter. The latter expresses for what fraction
         of all key_values, at least one gap may exist.
 
         For illustrative examples of this constraint, please refer to its test cases.
@@ -688,14 +692,14 @@ class WithinRequirement(Requirement):
     ):
         """Chek whether array aggregate corresponds to an integer range.
 
-        The `DataSource` is grouped by `columns`. Sql's `array_agg` function is then
-        applied to the `aggregate_column`.
+        The ``DataSource`` is grouped by ``columns``. Sql's ``array_agg`` function is then
+        applied to the ``aggregate_column``.
 
-        Since we expect `aggregate_column` to be a numeric column, this leads to
+        Since we expect ``aggregate_column`` to be a numeric column, this leads to
         a multiset of aggregated values. These values should correspond to the integers
-        ranging from `start_value` to the cardinality of the multiset.
+        ranging from ``start_value`` to the cardinality of the multiset.
 
-        In order to allow for slight deviations from this pattern, `tolerance` expresses
+        In order to allow for slight deviations from this pattern, ``tolerance`` expresses
         the fraction of all grouped-by rows, which may be incomplete ranges.
         """
 
@@ -765,17 +769,17 @@ class BetweenRequirement(Requirement):
         date_column: Optional[str] = None,
         date_column2: Optional[str] = None,
     ):
-        """Create a `BetweenRequirement` based on raw query strings.
+        """Create a ``BetweenRequirement`` based on raw query strings.
 
-        The `query1` and `query2` parameters can be passed any query string returning
-        rows, e.g. `"SELECT * FROM myschema.mytable LIMIT 1337"` or
-        `"SELECT id, name FROM table1 UNION SELECT id, name FROM table2"`.
+        The ``query1`` and ``query2`` parameters can be passed any query string returning
+        rows, e.g. ``"SELECT * FROM myschema.mytable LIMIT 1337"`` or
+        ``"SELECT id, name FROM table1 UNION SELECT id, name FROM table2"``.
 
-        `name1` and `name2` will be used to represent the queries in error messages,
+        ``name1`` and ``name2`` will be used to represent the queries in error messages,
         respectively.
 
         If constraints rely on specific columns, these should be provided here via
-        `columns1` and `columns2` respectively.
+        ``columns1`` and ``columns2`` respectively.
         """
         return cls(
             data_source=RawQueryDataSource(query1, name1, columns=columns1),
@@ -794,14 +798,14 @@ class BetweenRequirement(Requirement):
         date_column: Optional[str] = None,
         date_column2: Optional[str] = None,
     ):
-        """Create a `BetwenTableRequirement` based on sqlalchemy expressions.
+        """Create a ``BetwenTableRequirement`` based on sqlalchemy expressions.
 
-        Any sqlalchemy object implementing the `alias` method can be passed as an
-        argument for the `expression1` and `expression2` parameters. This could,
-        e.g. be a `sqlalchemy.Table` object or the result of a `sqlalchemy.select`
+        Any sqlalchemy object implementing the ``alias`` method can be passed as an
+        argument for the ``expression1`` and ``expression2`` parameters. This could,
+        e.g. be a ``sqlalchemy.Table`` object or the result of a ``sqlalchemy.select``
         invokation.
 
-        `name1` and `name2` will be used to represent the expressions in error messages,
+        ``name1`` and ``name2`` will be used to represent the expressions in error messages,
         respectively.
         """
         return cls(
@@ -982,12 +986,12 @@ class BetweenRequirement(Requirement):
     ):
         """Check if the data's unique values in given columns are equal.
 
-        The `UniquesEquality` constraint asserts if the values contained in a column
-        of a DataSource`'s columns, are strictly the ones of another `DataSource`'s
+        The ``UniquesEquality`` constraint asserts if the values contained in a column
+        of a ``DataSource``'s columns, are strictly the ones of another ``DataSource``'s
         columns.
 
-        See the `Uniques` class for further parameter details on `map_func` and
-        `reduce_func`.
+        See the ``Uniques`` class for further parameter details on ``map_func`` and
+        ``reduce_func``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1010,22 +1014,22 @@ class BetweenRequirement(Requirement):
     ):
         """Check if unique values of columns are contained in the reference data.
 
-        The `UniquesSuperset` constraint asserts that reference set of expected values,
-        derived from the unique values in given columns of the reference `DataSource`,
-        is contained in given columns of a `DataSource`.
+        The ``UniquesSuperset`` constraint asserts that reference set of expected values,
+        derived from the unique values in given columns of the reference ``DataSource``,
+        is contained in given columns of a ``DataSource``.
 
         Null values in the column are ignored. To assert the non-existence of them use
-        the `NullAbsence` constraint via the `add_null_absence_constraint` helper method
-        for `WithinRequirement`.
+        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        for ``WithinRequirement``.
 
-        `max_relative_violations` indicates what fraction of unique values of the given
-        `DataSource` are not represented in the reference set of unique values. Please
-        note that `UniquesSubset` and `UniquesSuperset` are not symmetrical in this regard.
+        ``max_relative_violations`` indicates what fraction of unique values of the given
+        ``DataSource`` are not represented in the reference set of unique values. Please
+        note that ``UniquesSubset`` and ``UniquesSuperset`` are not symmetrical in this regard.
 
         One use of this constraint is to test for consistency in columns with expected
         categorical values.
 
-        See `Uniques` for further details on `map_func` and `reduce_func`.
+        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1052,19 +1056,19 @@ class BetweenRequirement(Requirement):
     ):
         """Check if the given columns's unique values in are contained in reference data.
 
-        The `UniquesSubset` constraint asserts if the values contained in given column of
-        a `DataSource` are part of the unique values of given columns of another
-        `DataSource`.
+        The ``UniquesSubset`` constraint asserts if the values contained in given column of
+        a ``DataSource`` are part of the unique values of given columns of another
+        ``DataSource``.
 
         Null values in the column are ignored. To assert the non-existence of them use
-        the `NullAbsence` constraint via the `add_null_absence_constraint` helper method
-        for `WithinRequirement`.
+        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        for ``WithinRequirement``.
 
-        `max_relative_violations` indicates what fraction of rows of the given table
+        ``max_relative_violations`` indicates what fraction of rows of the given table
         may have values not included in the reference set of unique values. Please note
-        that `UniquesSubset` and `UniquesSuperset` are not symmetrical in this regard.
+        that ``UniquesSubset`` and ``UniquesSuperset`` are not symmetrical in this regard.
 
-        See `Uniques` for further details on `map_func` and `reduce_func`.
+        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1123,9 +1127,9 @@ class BetweenRequirement(Requirement):
 
         For valid column_type values, see get_format_from_column_type in constraints/base.py..
 
-        If `use_lower_bound_reference`, the min of the first table has to be
+        If ``use_lower_bound_reference``, the min of the first table has to be
         greater or equal to the min of the second table.
-        If not `use_upper_bound_reference`, the min of the first table has to
+        If not ``use_upper_bound_reference``, the min of the first table has to
         be smaller or equal to the min of the second table.
         """
         ref = DataReference(self.data_source, [column1], condition1)
@@ -1154,9 +1158,9 @@ class BetweenRequirement(Requirement):
 
         For valid column_type values, see get_format_from_column_type in constraints/base.py.
 
-        If `use_upper_bound_reference`, the max of the first table has to be
+        If ``use_upper_bound_reference``, the max of the first table has to be
         smaller or equal to the max of the second table.
-        If not `use_upper_bound_reference`, the max of the first table has to
+        If not ``use_upper_bound_reference``, the max of the first table has to
         be greater or equal to the max of the second table.
         """
         ref = DataReference(self.data_source, [column1], condition1)
@@ -1286,17 +1290,17 @@ class BetweenRequirement(Requirement):
     ):
         """Match tables in matching_columns, compare for equality in comparison_columns.
 
-        This constraint is similar to the nature of the RowEquality
+        This constraint is similar to the nature of the ``RowEquality``
         constraint. Just as the latter, this constraint divides the
         cardinality of an intersection by the cardinality of a union.
-        The difference lies in how the set are created. While RowEquality
+        The difference lies in how the set are created. While ``RowEquality``
         considers all rows of both tables, indexed in columns,
-        RowMatchingEquality considers only rows in both tables having values
-        in matching_columns present in both tables. At most max_missing_fraction
+        ``RowMatchingEquality`` considers only rows in both tables having values
+        in ``matching_columns`` present in both tables. At most ``max_missing_fraction``
         of such rows can be missing in the intersection.
 
         Alternatively, this can be thought of as counting mismatches in
-        comparison_columns after performing an inner join on matching_columns.
+        ``comparison_columns`` after performing an inner join on ``matching_columns``.
         """
         ref = DataReference(self.data_source, None, condition1)
         ref2 = DataReference(self.data_source2, None, condition2)
@@ -1334,7 +1338,7 @@ class BetweenRequirement(Requirement):
 
         if significance_level <= 0.0 or significance_level > 1.0:
             raise ValueError(
-                "The requested significance level has to be in `(0.0, 1.0]`. Default is 0.05."
+                "The requested significance level has to be in ``(0.0, 1.0]``. Default is 0.05."
             )
 
         ref = DataReference(self.data_source, [column1], condition=condition1)

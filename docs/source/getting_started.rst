@@ -12,7 +12,7 @@ Glossary
 - A ``Requirement`` captures all ``Constraint`` s between two given ``DataSource`` s or all ``Constraint`` s within a single ``DataSource``. If a ``Requirement`` refers links to two ``DataSource`` s, it is a ``BetweenRequirement``. If a ``Requirement`` merely refers to a single ``DataSource``, it is a ``WithinRequirement``.
 
 - Conceptually, a 'specification' captures all ``Requirement`` s against a database. In practice that means it is usually a separate python file which:
-  
+
   - gathers all relevant ``Requirement`` s
   - turns these ``Requirement`` s' ``Constraint`` s into individual tests
   - can be 'tested' by pytest
@@ -72,7 +72,9 @@ expresses by how much the number of rows must at least grow from the first ``Dat
 this growth limitation is expressed relative to the number of rows of the first ``DataSource``.
 
 Generally, such relative limitations can be defined in two ways:
+
 - manually, based on domain knowledge (e.g. 'at least 5% growth')
+  
 - automatically, based on date ranges
 
 The former would translate to
