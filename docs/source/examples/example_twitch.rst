@@ -1,101 +1,304 @@
 Example: Dumps of Twitch data
-=======
+=============================
+
+This example is based on data capturing statistics and properties of popular Twitch channels.
+The original data set can be found on `kaggle <https://www.kaggle.com/datasets/aayushmishra1512/twitchdata>`_. For the sake of this tutorial, we slightly process it and provide two version of it. You can either recreate this by executing this `processing <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_upload.py>`_ yourself on the original data or download our processed files (`version 0 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version0.csv>`_ and `version 1 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version1.csv>`_) right away.
+
+The aforementioned script also populates two tables in a postgres database, in this fashion:
+
+.. code-block:: python
+
+    connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
+    engine = sa.create_engine(connection_string)
+    df_v1.to_sql("twitch_v1", engine, schema="public", if_exists="replace")
+    df_v0.to_sql("twitch_v0", engine, schema="public", if_exists="replace")
+
+
+Once the tables are in a data set, one can actually write a ``Datajudge``
+specification against them. To give you an idea of the data, this is what
+a sample of it looks like:
+
+.. list-table:: A sample of the data
+   :header-rows: 1
+
+   * - channel
+     - watch_time
+     - stream_time
+     - peak_viewers
+     - average_viewers
+     - followers
+     - followers_gained
+     - views_gained
+     - partnered
+     - mature
+     - language
+   * - xQcOW
+     - 6196161750
+     - 215250
+     - 222720
+     - 27716
+     - 3246298
+     - 1734810
+     - 93036735
+     - True
+     - False
+     - English
+   * - summit1g
+     - 6091677300
+     - 211845
+     - 310998
+     - 25610
+     - 5310163
+     - 1374810
+     - 89705964
+     - True
+     - False
+     - English
+   * - Gaules
+     - 5644590915
+     - 515280
+     - 387315
+     - 10976
+     - 1767635
+     - 1023779
+     - 102611607
+     - True
+     - True
+     - Portuguese
+   * - ESL_CSGO
+     - 3970318140
+     - 517740
+     - 300575
+     - 7714
+     - 3944850
+     - 703986
+     - 106546942
+     - True
+     - False
+     - English
+
+
+Now let's write an actual specification, expressing our expectations against the data.
+First, we need to make sure a connection to databse can be established at test execution
+time. How this is done exactly depends on how you set up your databse. When using our
+default setup with running ``./start_postgres.sh``, this would look as follows:
 
 .. code-block:: python
 
     import os
-
     import pytest
     import sqlalchemy as sa
-
-    from datajudge import BetweenRequirement, Condition, WithinRequirement
-    from datajudge.pytest_integration import collect_data_tests
 
 
     @pytest.fixture(scope="module")
     def datajudge_engine():
-		address = os.environ.get("DB_ADDR", "localhost")
-   connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
-   return sa.create_engine(connection_string)
+        address = os.environ.get("DB_ADDR", "localhost")
+        connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
+        return sa.create_engine(connection_string)
+
+Once a way to connect to database is defined, we want to declare our data sources and
+express exoectations against them. In this
+example we have two tables in the same database - one table per version of the Twitch data.
+Here, a version refers to a temporal notion. E.g. version 0 might stem from end of March and version 1 from end of April.
+
+Yet, let's start with a very simple example only using version 1. We want to use our
+domain knowledge that values of the ``language`` column should only contain letters
+and have a length strictly larger than 0.
 
 
-   # Postgres' default database.
-   db_name = "tempdb"
-   # Postgres' default schema.
-   schema_name = "public"
+.. code-block:: python
 
-   # 1. Sanity check on new version based on domain knowledge.
-   within_requirement = WithinRequirement.from_table(
-   table_name="twitch_v1",
-   schema_name=schema_name,
-   db_name=db_name,
-   )
-   within_requirement.add_varchar_regex_constraint(
-   column="language",
-   regex="^[a-zA-Z]+$",
-   )
-
-   # 2. Sanity check between old version and new version of the data.
-   between_requirement_version = BetweenRequirement.from_tables(
-   db_name1=db_name,
-   db_name2=db_name,
-   schema_name1=schema_name,
-   schema_name2=schema_name,
-   table_name1="twitch_v0",
-   table_name2="twitch_v1",
-   )
-   between_requirement_version.add_column_subset_constraint()
-   between_requirement_version.add_column_superset_constraint()
-   columns = ["channel", "partnered", "mature"]
-   between_requirement_version.add_row_subset_constraint(
-   columns1=columns, columns2=columns, constant_max_missing_fraction=0
-   )
-   between_requirement_version.add_row_matching_equality_constraint(
-   matching_columns1=["channel"],
-   matching_columns2=["channel"],
-   comparison_columns1=["language"],
-   comparison_columns2=["language"],
-   max_missing_fraction=0,
-   )
-
-   between_requirement_version.add_ks_2sample_constraint(
-   column1="average_viewers",
-   column2="average_viewers",
-   significance_level=0.05,
-   )
-   between_requirement_version.add_uniques_equality_constraint(
-   columns1=["language"],
-   columns2=["language"],
-   )
-
-   between_requirement_version.add_numeric_min_constraint(
-   column1="followers",
-   column2="followers",
-   condition2=Condition(raw_string="followers_gained<0"),
-   )
-
-   # 3. Sanity check between different columns of the new version.
-   between_requirement_columns = BetweenRequirement.from_tables(
-   db_name1=db_name,
-   db_name2=db_name,
-   schema_name1=schema_name,
-   schema_name2=schema_name,
-   table_name1="twitch_v1",
-   table_name2="twitch_v1",
-   )
-
-   between_requirement_columns.add_numeric_mean_constraint(
-   column1="average_viewers",
-   column2="average_viewers",
-   condition1=None,
-   condition2=Condition(raw_string="mature IS TRUE"),
-   max_absolute_deviation=0.1,
-   )
+    from datajudge import WithinRequirement
 
 
-   requirements = [
-   within_requirement,
-   between_requirement_version,
-   between_requirement_columns,
-   ]
-   test_func = collect_data_tests(requirements)
+    # Postgres' default database.
+    db_name = "tempdb"
+    # Postgres' default schema.
+    schema_name = "public"
+
+    within_requirement = WithinRequirement.from_table(
+        table_name="twitch_v1",
+        schema_name=schema_name,
+	db_name=db_name,
+    )
+    within_requirement.add_varchar_regex_constraint(
+	column="language",
+	regex="^[a-zA-Z]+$",
+    )
+
+
+Done! Now onto comparisons between the table representing the approved version 0 of the
+data and the to be assessed version 1 of the data.
+
+.. code-block:: python
+
+    from datajudge import BetweenRequirement, Condition
+
+    between_requirement_version = BetweenRequirement.from_tables(
+	db_name1=db_name,
+	db_name2=db_name,
+	schema_name1=schema_name,
+	schema_name2=schema_name,
+	table_name1="twitch_v0",
+	table_name2="twitch_v1",
+    )
+    between_requirement_version.add_column_subset_constraint()
+    between_requirement_version.add_column_superset_constraint()
+    columns = ["channel", "partnered", "mature"]
+    between_requirement_version.add_row_subset_constraint(
+	columns1=columns, columns2=columns, constant_max_missing_fraction=0
+    )
+    between_requirement_version.add_row_matching_equality_constraint(
+	matching_columns1=["channel"],
+	matching_columns2=["channel"],
+	comparison_columns1=["language"],
+	comparison_columns2=["language"],
+	max_missing_fraction=0,
+    )
+
+    between_requirement_version.add_ks_2sample_constraint(
+	column1="average_viewers",
+	column2="average_viewers",
+	significance_level=0.05,
+    )
+    between_requirement_version.add_uniques_equality_constraint(
+	columns1=["language"],
+	columns2=["language"],
+    )
+
+    between_requirement_version.add_numeric_min_constraint(
+	column1="followers",
+	column2="followers",
+	condition2=Condition(raw_string="followers_gained<0"),
+    )
+
+
+Now having compared the 'same kind of data' between version 0 and version 1,
+we may as well compare 'different kind of data' within version 1, as a means of
+a sanity check.
+
+.. code-block:: python
+
+    between_requirement_columns = BetweenRequirement.from_tables(
+	db_name1=db_name,
+	db_name2=db_name,
+	schema_name1=schema_name,
+	schema_name2=schema_name,
+	table_name1="twitch_v1",
+	table_name2="twitch_v1",
+    )
+
+    between_requirement_columns.add_numeric_mean_constraint(
+	column1="average_viewers",
+	column2="average_viewers",
+	condition1=None,
+	condition2=Condition(raw_string="mature IS TRUE"),
+	max_absolute_deviation=0.1,
+    )
+
+
+Lastly, we need to collect all of our requirements in a list and make sure
+``ptyest`` can find them by calling ``collect_data_tests``.
+
+
+.. code-block:: python
+
+    from datajudge.pytest_integration import collect_data_tests
+    requirements = [
+	within_requirement,
+	between_requirement_version,
+	between_requirement_columns,
+    ]
+    test_func = collect_data_tests(requirements)
+
+If we then test these expectations against the data by running ``$ pytest specification.py`` -- where ``specification.py`` contains all of the code outlined before -- we see that the new version of the data is not quite on par with what we'd expect:
+
+.. code-block:: console
+
+   pytest twitch_specification.py      (datajudge)
+   ======================================= test session starts ========================================
+   platform darwin -- Python 3.10.5, pytest-7.1.2, pluggy-1.0.0
+   rootdir: /Users/kevin/Code/datajudge/docs/source/examples
+   plugins: html-3.1.1, cov-3.0.0, metadata-2.0.2
+   collected 9 items
+
+   twitch_specification.py F....FFFF                                                            [100%]
+
+   ============================================= FAILURES =============================================
+   _________________________ test_func[VarCharRegex::tempdb.public.twitch_v1] _________________________
+
+   constraint = <datajudge.constraints.varchar.VarCharRegex object at 0x108084880>
+   datajudge_engine = Engine(postgresql://datajudge:***@localhost:5432/datajudge)
+
+   @pytest.mark.parametrize(
+   "constraint", all_constraints, ids=Constraint.get_description
+   )
+   def test_constraint(constraint, datajudge_engine):
+   test_result = constraint.test(datajudge_engine)
+   >       assert test_result.outcome, test_result.failure_message
+   E       AssertionError: tempdb.public.twitch_v1's column(s) 'language' breaks regex '^[a-zA-Z]+$' in 0.045454545454545456 > 0.0 of the cases. In absolute terms, 1 of the 22 samples violated the regex. Some counterexamples consist of the following: ['Sw3d1zh'].
+
+   /usr/local/Caskroom/miniconda/base/envs/datajudge/lib/python3.10/site-packages/datajudge/pytest_integration.py:25: AssertionError
+   _____________ test_func[KolmogorovSmirnov2Sample::public.twitch_v0 | public.twitch_v1] _____________
+
+   constraint = <datajudge.constraints.stats.KolmogorovSmirnov2Sample object at 0x108087ca0>
+   datajudge_engine = Engine(postgresql://datajudge:***@localhost:5432/datajudge)
+
+   @pytest.mark.parametrize(
+   "constraint", all_constraints, ids=Constraint.get_description
+   )
+   def test_constraint(constraint, datajudge_engine):
+   test_result = constraint.test(datajudge_engine)
+   >       assert test_result.outcome, test_result.failure_message
+   E       AssertionError: Null hypothesis (H0) for the 2-sample Kolmogorov-Smirnov test was rejected, i.e., the two samples (tempdb.public.twitch_v0's column(s) 'average_viewers' and tempdb.public.twitch_v1's column(s) 'average_viewers''s ) do not originate from the same distribution. The test results are d=0.152764705882353 and p_value=8.093137091858472e-10.
+
+   /usr/local/Caskroom/miniconda/base/envs/datajudge/lib/python3.10/site-packages/datajudge/pytest_integration.py:25: AssertionError
+   _________________ test_func[UniquesEquality::public.twitch_v0 | public.twitch_v1] __________________
+
+   constraint = <datajudge.constraints.uniques.UniquesEquality object at 0x108087e20>
+   datajudge_engine = Engine(postgresql://datajudge:***@localhost:5432/datajudge)
+
+   @pytest.mark.parametrize(
+   "constraint", all_constraints, ids=Constraint.get_description
+   )
+   def test_constraint(constraint, datajudge_engine):
+   test_result = constraint.test(datajudge_engine)
+   >       assert test_result.outcome, test_result.failure_message
+   E       AssertionError: tempdb.public.twitch_v0's column(s) 'language' doesn't have the element(s) '{'Sw3d1zh'}' when compared with the reference values.
+
+   /usr/local/Caskroom/miniconda/base/envs/datajudge/lib/python3.10/site-packages/datajudge/pytest_integration.py:25: AssertionError
+   ____________________ test_func[NumericMin::public.twitch_v0 | public.twitch_v1] ____________________
+
+   constraint = <datajudge.constraints.numeric.NumericMin object at 0x1080878e0>
+   datajudge_engine = Engine(postgresql://datajudge:***@localhost:5432/datajudge)
+
+   @pytest.mark.parametrize(
+   "constraint", all_constraints, ids=Constraint.get_description
+   )
+   def test_constraint(constraint, datajudge_engine):
+   test_result = constraint.test(datajudge_engine)
+   >       assert test_result.outcome, test_result.failure_message
+   E       AssertionError: tempdb.public.twitch_v0's column(s) 'followers' has min 3660 instead of tempdb.public.twitch_v1's column(s) 'followers''s 128598.0 . Condition on second table: WHERE followers_gained<0;
+
+   /usr/local/Caskroom/miniconda/base/envs/datajudge/lib/python3.10/site-packages/datajudge/pytest_integration.py:25: AssertionError
+   ___________________ test_func[NumericMean::public.twitch_v1 | public.twitch_v1] ____________________
+
+   constraint = <datajudge.constraints.numeric.NumericMean object at 0x108085a80>
+   datajudge_engine = Engine(postgresql://datajudge:***@localhost:5432/datajudge)
+
+   @pytest.mark.parametrize(
+   "constraint", all_constraints, ids=Constraint.get_description
+   )
+   def test_constraint(constraint, datajudge_engine):
+   test_result = constraint.test(datajudge_engine)
+   >       assert test_result.outcome, test_result.failure_message
+   E       AssertionError: tempdb.public.twitch_v1's column(s) 'average_viewers' has mean 4970.2188235294117647, deviating more than 0.1 from tempdb.public.twitch_v1's column(s) 'average_viewers''s  3567.6584158415841584. Condition on second table: WHERE mature IS TRUE;
+
+   /usr/local/Caskroom/miniconda/base/envs/datajudge/lib/python3.10/site-packages/datajudge/pytest_integration.py:25: AssertionError
+   ===================================== short test summary info ======================================
+   FAILED twitch_specification.py::test_func[VarCharRegex::tempdb.public.twitch_v1] - AssertionError...
+   FAILED twitch_specification.py::test_func[KolmogorovSmirnov2Sample::public.twitch_v0 | public.twitch_v1]
+   FAILED twitch_specification.py::test_func[UniquesEquality::public.twitch_v0 | public.twitch_v1]
+   FAILED twitch_specification.py::test_func[NumericMin::public.twitch_v0 | public.twitch_v1] - Asse...
+   FAILED twitch_specification.py::test_func[NumericMean::public.twitch_v1 | public.twitch_v1] - Ass...
+   =================================== 5 failed, 4 passed in 1.80s ====================================
