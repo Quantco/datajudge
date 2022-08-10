@@ -4,7 +4,7 @@ Example: Dumps of Twitch data
 This example is based on data capturing statistics and properties of popular Twitch channels.
 The original data set can be found on `kaggle <https://www.kaggle.com/datasets/aayushmishra1512/twitchdata>`_. For the sake of this tutorial, we slightly process it and provide two version of it. You can either recreate this by executing this `processing <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_upload.py>`_ yourself on the original data or download our processed files (`version 0 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version0.csv>`_ and `version 1 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version1.csv>`_) right away.
 
-The aforementioned script also populates two tables in a postgres database, in this fashion:
+The aforementioned script also populates two tables in a Postgres database, in this fashion:
 
 .. code-block:: python
 
@@ -79,8 +79,8 @@ a sample of it looks like:
 
 
 Now let's write an actual specification, expressing our expectations against the data.
-First, we need to make sure a connection to databse can be established at test execution
-time. How this is done exactly depends on how you set up your databse. When using our
+First, we need to make sure a connection to database can be established at test execution
+time. How this is done exactly depends on how you set up your database. When using our
 default setup with running ``./start_postgres.sh``, this would look as follows:
 
 .. code-block:: python
@@ -97,7 +97,7 @@ default setup with running ``./start_postgres.sh``, this would look as follows:
         return sa.create_engine(connection_string)
 
 Once a way to connect to database is defined, we want to declare our data sources and
-express exoectations against them. In this
+express expectations against them. In this
 example we have two tables in the same database - one table per version of the Twitch data.
 Here, a version refers to a temporal notion. E.g. version 0 might stem from end of March and version 1 from end of April.
 
@@ -166,16 +166,12 @@ data and the to be assessed version 1 of the data.
 	columns2=["language"],
     )
 
-    between_requirement_version.add_numeric_min_constraint(
-	column1="followers",
-	column2="followers",
-	condition2=Condition(raw_string="followers_gained<0"),
-    )
-
 
 Now having compared the 'same kind of data' between version 0 and version 1,
 we may as well compare 'different kind of data' within version 1, as a means of
-a sanity check.
+a sanity check. This sanity check consists of checking that whether the mean
+``average_viewer`` value of mature channels should deviate at most 10% from
+the overall mean.
 
 .. code-block:: python
 
@@ -198,7 +194,7 @@ a sanity check.
 
 
 Lastly, we need to collect all of our requirements in a list and make sure
-``ptyest`` can find them by calling ``collect_data_tests``.
+``pytest`` can find them by calling ``collect_data_tests``.
 
 
 .. code-block:: python
@@ -220,9 +216,9 @@ If we then test these expectations against the data by running ``$ pytest specif
    platform darwin -- Python 3.10.5, pytest-7.1.2, pluggy-1.0.0
    rootdir: /Users/kevin/Code/datajudge/docs/source/examples
    plugins: html-3.1.1, cov-3.0.0, metadata-2.0.2
-   collected 9 items
+   collected 8 items
 
-   twitch_specification.py F....FFFF                                                            [100%]
+   twitch_specification.py F....FFF                                                             [100%]
 
    ============================================= FAILURES =============================================
    _________________________ test_func[VarCharRegex::tempdb.public.twitch_v1] _________________________
@@ -267,20 +263,6 @@ If we then test these expectations against the data by running ``$ pytest specif
    E       AssertionError: tempdb.public.twitch_v0's column(s) 'language' doesn't have the element(s) '{'Sw3d1zh'}' when compared with the reference values.
 
    /usr/local/Caskroom/miniconda/base/envs/datajudge/lib/python3.10/site-packages/datajudge/pytest_integration.py:25: AssertionError
-   ____________________ test_func[NumericMin::public.twitch_v0 | public.twitch_v1] ____________________
-
-   constraint = <datajudge.constraints.numeric.NumericMin object at 0x1080878e0>
-   datajudge_engine = Engine(postgresql://datajudge:***@localhost:5432/datajudge)
-
-   @pytest.mark.parametrize(
-   "constraint", all_constraints, ids=Constraint.get_description
-   )
-   def test_constraint(constraint, datajudge_engine):
-   test_result = constraint.test(datajudge_engine)
-   >       assert test_result.outcome, test_result.failure_message
-   E       AssertionError: tempdb.public.twitch_v0's column(s) 'followers' has min 3660 instead of tempdb.public.twitch_v1's column(s) 'followers''s 128598.0 . Condition on second table: WHERE followers_gained<0;
-
-   /usr/local/Caskroom/miniconda/base/envs/datajudge/lib/python3.10/site-packages/datajudge/pytest_integration.py:25: AssertionError
    ___________________ test_func[NumericMean::public.twitch_v1 | public.twitch_v1] ____________________
 
    constraint = <datajudge.constraints.numeric.NumericMean object at 0x108085a80>
@@ -299,6 +281,12 @@ If we then test these expectations against the data by running ``$ pytest specif
    FAILED twitch_specification.py::test_func[VarCharRegex::tempdb.public.twitch_v1] - AssertionError...
    FAILED twitch_specification.py::test_func[KolmogorovSmirnov2Sample::public.twitch_v0 | public.twitch_v1]
    FAILED twitch_specification.py::test_func[UniquesEquality::public.twitch_v0 | public.twitch_v1]
-   FAILED twitch_specification.py::test_func[NumericMin::public.twitch_v0 | public.twitch_v1] - Asse...
    FAILED twitch_specification.py::test_func[NumericMean::public.twitch_v1 | public.twitch_v1] - Ass...
-   =================================== 5 failed, 4 passed in 1.80s ====================================
+   =================================== 4 failed, 4 passed in 1.80s ====================================
+
+So we see that we might not want to trust version 1 of the data as is. What exactly do we learn from the error
+messages?
+
+1. The column ``language`` now has a row with value ``'Sw3d1zh'``. This break two of our constraints. The ``VarCharRegex`` constraint compared the columns' values to a regular expression. The ``UniquesEquality`` constraint expected the unique values of the ``language`` column to not have changed between version 0 and version 1.
+2. The failing ``KolmogorovSminrnov`` constraint tells us that we cannot assume the ``average_viewers`` column to follow the same distribution in both version 0 and version 1.
+3. The mean value of ``average_viewers`` of mature channels is substantially - more than our 10% tolerance - lower than the global mean.
