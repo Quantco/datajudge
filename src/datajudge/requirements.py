@@ -1216,10 +1216,11 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
     ):
-        """At most max_missing_fraction of rows in T1 and T2 are absent in either.
+        """At most ``max_missing_fraction`` of rows in T1 and T2 are absent in either.
 
-        I.e. (|T1 - T2| + |T2 - T1|) / |T1 U T2| <= max_missing_fraction.
-        Rows from T1 are indexed in columns1, rows from T2 are indexed in columns2.
+        In other words,
+        :math:`\\frac{|T1 - T2| + |T2 - T1|}{|T1 \\cup T2|} \\leq` ``max_missing_fraction``.
+        Rows from T1 are indexed in ``columns1``, rows from T2 are indexed in ``columns2``.
         """
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
@@ -1236,13 +1237,14 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
     ):
-        """At most max_missing_fraction of rows in T1 are not in T2.
+        """At most ``max_missing_fraction`` of rows in T1 are not in T2.
 
-        I.e. |T1-T2|/|T1| <= max_missing_fraction.
-        Rows from T1 are indexed in columns1, rows from T2 are indexed in columns2.
+        In other words,
+        :math:`\\frac{|T1-T2|}{|T1|} \\leq` ``max_missing_fraction``.
+        Rows from T1 are indexed in columns1, rows from T2 are indexed in ``columns2``.
 
-        In particular, the operation |T1-T2| relies on a sql EXCEPT statement. In
-        constrast to EXCEPT ALL, this should lead to a set subtraction instead of
+        In particular, the operation ``|T1-T2|`` relies on a sql ``EXCEPT`` statement. In
+        constrast to ``EXCEPT ALL``, this should lead to a set subtraction instead of
         a multiset subtraction. In other words, duplicates in T1 are treated as
         single occurrences.
         """
@@ -1264,10 +1266,12 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
     ):
-        """At most max_missing_fraction of rows in T2 are not in T1.
+        """At most ``max_missing_fraction`` of rows in T2 are not in T1.
 
-        I.e. |T2-T1|/|T2| <= max_missing_fraction.
-        Rows from T1 are indexed in columns1, rows from T2 are indexed in columns2.
+        In other words,
+        :math:`\\frac{|T2-T1|}{|T2|} \\leq` ``max_missing_fraction``.
+        Rows from T1 are indexed in ``columns1``, rows from T2 are indexed in
+        ``columns2``.
         """
         max_missing_fraction_getter = self.get_deviation_getter(
             constant_max_missing_fraction, date_range_loss_fraction
