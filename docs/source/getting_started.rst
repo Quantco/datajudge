@@ -38,9 +38,9 @@ This file will represent a specification.
 
 
     # TODO: Insert Requirement objects to list.
-    test = []
+    requirements = []
 
-    requirements_constraint = collect_data_tests(requirements)
+    test_constraints = collect_data_tests(requirements)
 
 This file will eventually lead as an input to pytest. More on that in the section 'Testing a specification'.
 
