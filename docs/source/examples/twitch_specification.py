@@ -19,16 +19,19 @@ db_name = "tempdb"
 # Postgres' default schema.
 schema_name = "public"
 
+
 # 1. Sanity check on new version based on domain knowledge.
 within_requirement = WithinRequirement.from_table(
-    table_name="twitch_v1",
+    table_name="twitch_v2",
     schema_name=schema_name,
     db_name=db_name,
 )
+
 within_requirement.add_varchar_regex_constraint(
     column="language",
     regex="^[a-zA-Z]+$",
 )
+
 
 # 2. Sanity check between old version and new version of the data.
 between_requirement_version = BetweenRequirement.from_tables(
@@ -36,9 +39,10 @@ between_requirement_version = BetweenRequirement.from_tables(
     db_name2=db_name,
     schema_name1=schema_name,
     schema_name2=schema_name,
-    table_name1="twitch_v0",
-    table_name2="twitch_v1",
+    table_name1="twitch_v1",
+    table_name2="twitch_v2",
 )
+
 between_requirement_version.add_column_subset_constraint()
 between_requirement_version.add_column_superset_constraint()
 columns = ["channel", "partnered", "mature"]
@@ -52,7 +56,6 @@ between_requirement_version.add_row_matching_equality_constraint(
     comparison_columns2=["language"],
     max_missing_fraction=0,
 )
-
 between_requirement_version.add_ks_2sample_constraint(
     column1="average_viewers",
     column2="average_viewers",
@@ -63,11 +66,6 @@ between_requirement_version.add_uniques_equality_constraint(
     columns2=["language"],
 )
 
-between_requirement_version.add_numeric_min_constraint(
-    column1="followers",
-    column2="followers",
-    condition2=Condition(raw_string="followers_gained<0"),
-)
 
 # 3. Sanity check between different columns of the new version.
 between_requirement_columns = BetweenRequirement.from_tables(
@@ -75,8 +73,8 @@ between_requirement_columns = BetweenRequirement.from_tables(
     db_name2=db_name,
     schema_name1=schema_name,
     schema_name2=schema_name,
-    table_name1="twitch_v1",
-    table_name2="twitch_v1",
+    table_name1="twitch_v2",
+    table_name2="twitch_v2",
 )
 
 between_requirement_columns.add_numeric_mean_constraint(
@@ -87,6 +85,8 @@ between_requirement_columns.add_numeric_mean_constraint(
     max_absolute_deviation=0.1,
 )
 
+
+# 4. Collect all requirements and make them discoverable by pytest.
 
 requirements = [
     within_requirement,
