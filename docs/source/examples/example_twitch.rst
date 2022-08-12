@@ -37,7 +37,7 @@ The script above also populates two tables in a Postgres database. This resemble
     df_v1.to_sql("twitch_v1", engine, schema="public", if_exists="replace")
 
 
-Once the tables are stored in a database, we can actually write a ``Datajudge``
+Once the tables are stored in a database, we can actually write a ``datajudge``
 specification against them. But first, we'll have a look at what the data roughly
 looks like by investigating a random sample of four rows:
 
