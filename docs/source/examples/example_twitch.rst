@@ -3,7 +3,7 @@ Example: Dumps of Twitch data
 
 This example is based on data capturing statistics and properties of popular Twitch channels.
 The setup is such that we have two data sets 'of the same kind' but from different points in time.
-In other words, a 'version' of the data set represents to a temporal notion.
+In other words, a 'version' of the data set represents a temporal notion.
 For example, version 1 might stem from end of March and version 2 from end of April.
 Moreover, we will assume that the first, version 1, has been vetted and approved with the
 help of manual investigation and domain knowledge. The second data set, version 2, has just been
