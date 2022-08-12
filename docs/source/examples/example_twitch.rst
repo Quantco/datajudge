@@ -10,6 +10,15 @@ help of manual investigation and domain knowledge. The second data set, version 
 made available. We would like to use it but can't be sure of its validity just yet. As a consequence
 we would like to assess the quality of the data in version 2.
 
+In order to have a database Postgres instance to begin with, it might be useful to use our
+`script <https://github.com/Quantco/datajudge/blob/main/start_postgres.sh>`_, spinning up
+a dockerized Postgres database:
+
+.. code-block:: console
+
+  $ ./start_postgres.sh
+
+
 The original data set can be found on `kaggle <https://www.kaggle.com/datasets/aayushmishra1512/twitchdata>`_.
 For the sake of this tutorial, we slightly process it and provide two version of it.
 One can either recreate this by executing this `processing <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_upload.py>`_
@@ -97,8 +106,7 @@ being assembled at different points in time, merely their rows shows differ.
 Now let's write an actual specification, expressing our expectations against the data.
 First, we need to make sure a connection to database can be established at test execution
 time. How this is done exactly depends on how you set up your database. When using our
-default setup with running `$ ./start_postgres.sh <https://github.com/Quantco/datajudge/blob/main/start_postgres.sh>`_,
-this would look as follows:
+default setup with running, this would look as follows:
 
 .. code-block:: python
 
@@ -306,8 +314,10 @@ not quite on par with what we'd expect:
    FAILED twitch_specification.py::test_func[NumericMean::public.twitch_v2 | public.twitch_v2] - Ass...
    =================================== 4 failed, 4 passed in 1.80s ====================================
 
-So we see that we might not want to trust version 2 of the data as is. What exactly do we
-learn from the error messages?
+Hence we see that we might not want to blindly trust version 2 of the data as is. Rather, we might need
+to investigate what is wrong with the data, what this has been caused by and how to fix it.
+
+Concretely, what exactly do we learn from the error messages?
 
 * The column ``language`` now has a row with value ``'Sw3d1zh'``. This break two of our
   constraints. The ``VarCharRegex`` constraint compared the columns' values to a regular
