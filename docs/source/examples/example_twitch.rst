@@ -3,6 +3,7 @@ Example: Dumps of Twitch data
 
 This example is based on data capturing statistics and properties of popular Twitch channels.
 The setup is such that we have two data sets 'of the same kind' but from different points in time.
+
 In other words, a 'version' of the data set represents a temporal notion.
 For example, version 1 might stem from end of March and version 2 from end of April.
 Moreover, we will assume that the first, version 1, has been vetted and approved with the
@@ -20,7 +21,7 @@ a dockerized Postgres database:
 
 
 The original data set can be found on `kaggle <https://www.kaggle.com/datasets/aayushmishra1512/twitchdata>`_.
-For the sake of this tutorial, we slightly process it and provide two version of it.
+For the sake of this tutorial, we slightly process it and provide two versions of it.
 One can either recreate this by executing this `processing <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_upload.py>`_
 oneself on the original data or download our processed files (`version 1 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version1.csv>`_
 and `version 2 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version2.csv>`_) right away.
@@ -104,7 +105,7 @@ being assembled at different points in time, merely their rows shows differ.
 
 
 Now let's write an actual specification, expressing our expectations against the data.
-First, we need to make sure a connection to database can be established at test execution
+First, we need to make sure a connection to the database can be established at test execution
 time. How this is done exactly depends on how you set up your database. When using our
 default setup with running, this would look as follows:
 
@@ -194,7 +195,7 @@ data and the to be assessed version 2 of the data.
 
 Now having compared the 'same kind of data' between version 1 and version 2,
 we may as well compare 'different kind of data' within version 2, as a means of
-a sanity check. This sanity check consists of checking that whether the mean
+a sanity check. This sanity check consists of checking whether the mean
 ``average_viewer`` value of mature channels should deviate at most 10% from
 the overall mean.
 
