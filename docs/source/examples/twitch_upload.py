@@ -6,7 +6,7 @@ import sqlalchemy as sa
 
 SEED = 1337
 
-# Data obtaines from
+# Data obtained from
 # https://www.kaggle.com/datasets/aayushmishra1512/twitchdata
 df = pd.read_csv("twitchdata.csv")
 df.columns = df.columns.str.lower()

@@ -16,7 +16,7 @@ One can either recreate this by executing this `processing <https://github.com/Q
 oneself on the original data or download our processed files (`version 1 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version1.csv>`_
 and `version 2 <https://github.com/Quantco/datajudge/tree/main/docs/source/examples/twitch_version2.csv>`_) right away.
 
-The aforementioned script also populates two tables in a Postgres database. This resembles the following:
+The script above also populates two tables in a Postgres database. This resembles the following:
 
 .. code-block:: python
 
@@ -113,13 +113,13 @@ this would look as follows:
         connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
         return sa.create_engine(connection_string)
 
-Once a way to connect to database is defined, we want to declare our data sources and
-express expectations against them. In this example we have two tables in the same database -
+Once a way to connect to the database is defined, we want to declare our data sources and
+express expectations against them. In this example, we have two tables in the same database -
 one table per version of the Twitch data.
 
 
-Yet, let's start with a very simple example only using version 2. We want to use our
-domain knowledge that values of the ``language`` column should only contain letters
+Yet, let's start with a straightforward example only using version 2. We want to use our
+domain knowledge that constrains the values of the ``language`` column only to contain letters
 and have a length strictly larger than 0.
 
 
