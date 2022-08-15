@@ -86,14 +86,15 @@ As an example, we will run 4 tests on this table:
         db_name="example", schema_name=None, table_name="companies"
     )
 
-    # Constraint 1.: Does the table "companies" contain a column named "name"?
+    # Constraint 1: Does the table "companies" contain a column named "name"?
     companies_req.add_column_existence_constraint(columns=["name"])
 
-    # Constraint 2.: Does the table "companies" contain at least 1 entry with the name "QuantCo"?
+    # Constraint 2: Does the table "companies" contain at least 1 entry with the name "QuantCo"?
     condition = Condition(raw_string="name = 'QuantCo'")
     companies_req.add_n_rows_min_constraint(n_rows_min=1, condition=condition)
 
-    # Constraint 3.: Does the column "num_employees" of the "companies" table have all positive values?
+    # Constraint 3: Does the column "num_employees" of the "companies" table have all
+    # positive values?
     companies_req.add_numeric_min_constraint(column="num_employees", min_value=1)
 
     # We create a new Requirement, this time between different tables.
@@ -108,7 +109,8 @@ As an example, we will run 4 tests on this table:
         table_name2="companies_archive",
     )
 
-    # Constraint 4.: Does the column "name" of the table "companies" contain at least all the values of the corresponding column in "companies_archive"?
+    # Constraint 4: Does the column "name" of the table "companies" contain at least all
+    # the values of the corresponding column in "companies_archive"?
     companies_between_req.add_row_superset_constraint(
         columns1=['name'], columns2=['name'], constant_max_missing_fraction=0
     )

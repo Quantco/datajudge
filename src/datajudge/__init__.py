@@ -1,4 +1,4 @@
-"""`Datajudge` allows to assess  whether data from database complies with reference
+"""datajudge allows to assess  whether data from database complies with reference
 information."""
 
 
