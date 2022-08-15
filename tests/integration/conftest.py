@@ -52,8 +52,9 @@ def metadata():
 
 
 def _handle_table(engine, metadata, table_name, columns, data):
-    engine.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
     with engine.connect() as conn:
+        if sa.inspect(conn).has_table(table_name, schema=SCHEMA):
+            return
         table = sa.Table(table_name, metadata, *columns, schema=SCHEMA)
         table.create(conn)
         conn.execute(table.insert().values(), data)
