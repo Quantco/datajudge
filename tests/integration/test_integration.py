@@ -1262,10 +1262,7 @@ def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
     (operation, regex, condition) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
     if computation_in_db:
-        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
-        # Once we remove or update the pinned version, we can enable this test
-        # for snowflake.
-        if is_mssql(engine) or is_snowflake(engine):
+        if is_mssql(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             column="col_varchar",
