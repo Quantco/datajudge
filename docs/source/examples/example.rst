@@ -131,7 +131,7 @@ As an example, we will run 4 tests on this table:
     test_constraint = collect_data_tests(requirements)
 
 
-Saving this file as ``specification.py`` and calling ``pytest specification.py -v``
+Saving this file as ``specification.py`` and running ``$ pytest specification.py``
 will verify that all constaints are satisfied. The output you see in the terminal
 should be similar to this:
 

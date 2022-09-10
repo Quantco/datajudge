@@ -119,8 +119,7 @@ you can run
 
    pytest your_specification.py --html=your_report.html
 
-As the testing relies on `pytest <https://docs.pytest.org/en/latest/>`_, all of `pytest`'s features can be
-used. More on this in section TODO INSERT.
+As the testing relies on `pytest <https://docs.pytest.org/en/latest/>`_, all of `pytest`'s features can be used. More on this in the article on :doc:`testing <testing>`.
 
 
 Test information
@@ -131,7 +130,7 @@ When calling a ``Constraint``'s ``test`` method, a ``TestResult`` is returned. T
 as well as the underlying database queries.
 
 Depending on the use case at hand, it might make sense to rely on this information for logging or data investigation
-purposes.
+purposes. Again, more on this in the article on :doc:`testing <testing>`.
 
 
 Alternative DataSources
