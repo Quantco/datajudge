@@ -1,5 +1,5 @@
-Example
-=======
+Example: Company data
+=====================
 
 
 To get started, we will create a sample database using sqlite that contains a list of companies.
