@@ -1,5 +1,5 @@
 Welcome to datajudges's documentation!
-===================================
+======================================
 
 ``datajudge`` allows for assessing whether data from database complies with reference information.
 
@@ -16,6 +16,7 @@ Contents
 
    installation
    Getting Started <getting_started.rst>
+   testing
    motivation
    Examples <examples/examples.rst>
    development

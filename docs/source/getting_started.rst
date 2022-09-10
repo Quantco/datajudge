@@ -120,7 +120,7 @@ you can run
    pytest your_specification.py --html=your_report.html
 
 As the testing relies on `pytest <https://docs.pytest.org/en/latest/>`_, all of `pytest`'s features can be
-used, e.g. early stopping with `-x` or sub-selecting specific tests with `-k`.
+used. More on this in section TODO INSERT.
 
 
 Test information
