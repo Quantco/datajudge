@@ -109,10 +109,16 @@ Once that is taken care of, one can adapt one's specification as follows:
   :caption: ``specification.py``
 
   def get_basic_requirements() -> List[Requirement]:
-      ...
+      # Create relevant Requirement objects and respective Constraints.
+      # ...
+
+      return requirements
 
   def get_advanced_requirements() -> List[Requirement]:
-      ...
+      # Create relevant Requirement objects and respective Constraints.
+      # ...
+
+      return requirements
 
   def get_basic_constraints() -> List[Constraint]:
       return [constraint for requirement in get_basic_requirements() for constraint in requirement]
@@ -196,9 +202,9 @@ dependent on these parameters:
       between_requirement = BetweenRequirement.from_tables(
           db_name1=params["old_db"],
 	  db_name2=params["new_db"],
-	  ...
+	  # ...
       )
-      ...
+      # ...
       return requirements
 
 
