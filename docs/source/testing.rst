@@ -77,16 +77,18 @@ For that matter we'll add a bit of pytest magic to the respective ``conftest.py`
 
   def pytest_generate_tests(metafunc):
       if "basic_constraint" in metafunc.fixturenames:
-           metafunc.parametrize(
-	       "basic_constraint",
-               metafunc.module.get_basic_constraints(),
-               ids=metafunc.module.idfn,
-	   )
+          metafunc.parametrize(
+              "basic_constraint",
+              # Find these functions in specification.py.
+              metafunc.module.get_basic_constraints(),
+              ids=metafunc.module.idfn,
+	  )
       if "constraint" in metafunc.fixturenames:
           metafunc.parametrize(
-	      "constraint",
-	      metafunc.module.get_all_constraints(),
-	      ids=metafunc.module.idfn,
+              "constraint",
+              # Find these functions in specification.py.
+              metafunc.module.get_all_constraints(),
+              ids=metafunc.module.idfn,
           )
 
 
@@ -126,6 +128,11 @@ Once that is taken care of, one can adapt one's specification as follows:
   def get_all_constraints() -> List[Constraint]:
       all_requirements = get_basic_requirements() + get_advanced_requirements()
       return [constraint for requirement in all_requirements for constraint in requirement]
+
+  # Function used in conftest.py.
+  # Given a constraint, returns an identifier used to refer to it as a test.
+  def idfn(constraint):
+      return constraint.get_description()
 
   @pytest.mark.basic
   def test_basic_constraint(basic_constraint: Constraint, datajudge_engine):
