@@ -159,21 +159,19 @@ to only test the basic ``Requirement`` s or
 to test all ``Requirement`` s.
 
 
-Parametrization
----------------
+Using parameters in a specification
+-----------------------------------
 
 A given specification might rely on identifiers such as database names or
-table names. Moreover it might be that, e.g. when iterating from one generation
-of the data to another, these identifiers change. All the while the expectations
-towards how the data relates to another might remain.
+table names. Moreover it might be that, e.g. when iterating from one version
+of the data to another, these names change.
 
-In other words, it could be that the logic of the specification should remain
-unchanged while its pointers to data might change. One might simply rely on
-hard-coded references to data. Yet, one might just as well parametrize such
-pointers or identifiers.
+In other words, it could be that the logic should remain unchanged while pointers
+to data might change. Therefore, one might just as well consider
+those pointers or identifiers as parameters of the specification.
 
-For the sake of concreteness, we will assume here that we wish to parametrize
-two identifiers:
+For the sake of concreteness, we will assume here that we wish frame two
+identifiers as parameters:
 
 * ``new_db``: the name of the 'new database'
 * ``old_db``: the name of the 'old database'
@@ -214,16 +212,13 @@ dependent on these parameters:
       # ...
       return requirements
 
-
   def get_constraints(params):
       return [
 	  constraint for requirement in get_requirements(params) for constraint in requirement
       ]
 
-
   def idfn(constraint):
       return constraint.get_description()
-
 
   def test_constraint(constraint, datajudge_engine):
       test_result = constraint.test(datajudge_engine)
