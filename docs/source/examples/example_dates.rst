@@ -1,10 +1,16 @@
 Example: Dates
 ==============
 
-In this example we will assume a table containing prices for a given product.
-Importantly, these prices are valid for a certain date range only. Here we
-assume that the price is indicated in the ``price`` column, the date from which it
-is valid - the date itself included - in ``date_from`` and the the until when
+This example concerns itself with expressing constraints against data revolving
+around dates. While constraints between table with respect to dates exist,
+we will only illustrate constraints on a single table and reference values. As
+a consequence, we will only use ``WithinRequirement``, in contrast to
+``BetweenRequirement``.
+
+Concretely, we will assume a table containing prices for a given product.
+Importantly, these prices are valid for a certain date range only. More precisely,
+we assume that the price is indicated in the ``price`` column, the date from which
+it is valid - the date itself included - in ``date_from`` and the the until when
 it is valid - the date itself included - in the ``date_to`` column.
 
 Such a table might look as follows:
@@ -138,4 +144,15 @@ Assuming that such a table exists in database, we can write a specification agai
     # up these tests.
     test_constraint = collect_data_tests(requirements)
 
+Pleas note that the ``DateNoOverlap`` and ``DateNoGap`` constraints also exist
+in a slightly different form: ``DateNoOverlap2d`` and ``DateNoGap2d``.
+As the names suggest, these can operate in 'two date dimensions'.
+It could for instance be, that a table has four date columns, representing two
+ranges in distinct dimensions, respectively:
+* ``date_from``: Date from when a price is valid
+* ``date_to``: Date until when a price is valid
+* ``date_definition_from``: Date when a price definition was inserted
+* ``date_definition_to``: Date until when a price definition was used
 
+Analogously to the unidimensional scenario illustrated here, one might care
+for certain constraints in two dimensions.
