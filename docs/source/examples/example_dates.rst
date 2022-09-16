@@ -148,6 +148,7 @@ in a slightly different form: ``DateNoOverlap2d`` and ``DateNoGap2d``.
 As the names suggest, these can operate in 'two date dimensions'.
 It could for instance be, that a table has four date columns, representing two
 ranges in distinct dimensions, respectively:
+
 * ``date_from``: Date from when a price is valid
 * ``date_to``: Date until when a price is valid
 * ``date_definition_from``: Date when a price definition was inserted
