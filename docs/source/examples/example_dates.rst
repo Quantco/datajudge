@@ -35,7 +35,8 @@ Such a table might look as follows:
      - 22/01/16
      - 22/01/31
 
-Given this table, we would like to ensure that 6 constraints are satisfied:
+Given this table, we would like to ensure - for the sake of illustrational purposes -
+that 6 constraints are satisfied:
 
 1. All values from column ``date_from`` should be in January 2022.
 2. All values from column ``date_to`` should be in January 2022.
