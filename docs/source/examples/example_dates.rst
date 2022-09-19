@@ -1,32 +1,37 @@
 Example: Dates
 ==============
 
-This example concerns itself with expressing ``Constraint`` s against data revolving
-around dates. While date ``Constraint`` s between tables exist, we will only illustrate
-``Constraint`` s on a single table and reference values here. As a consequence, we will
+This example concerns itself with expressing ``Constraint``s against data revolving
+around dates. While date ``Constraint``s between tables exist, we will only illustrate
+``Constraint``s on a single table and reference values here. As a consequence, we will
 only use ``WithinRequirement``, as opposed to ``BetweenRequirement``.
 
-Concretely, we will assume a table containing prices for a given product.
+Concretely, we will assume a table containing prices for a given product of id 1.
 Importantly, these prices are valid for a certain date range only. More precisely,
-we assume that the price is indicated in the ``price`` column, the date from which
-it is valid - the date itself included - in ``date_from`` and the the until when
-it is valid - the date itself included - in the ``date_to`` column.
+we assume that the price for a product - identified via the ``preduct_id`` column
+- is indicated in the ``price`` column, the date from which it is valid - the date
+itself included - in ``date_from`` and the the until when it is valid - the date
+itself included - in the ``date_to`` column.
 
 Such a table might look as follows:
 
 .. list-table:: prices
    :header-rows: 1
 
-   * - price
+   * - product_id
+     - price
      - date_from
      - date_to
-   * - 13.99
+   * - 1
+     - 13.99
      - 22/01/01
      - 22/01/10
-   * - 14.5
+   * - 1
+     - 14.5
      - 22/01/11
      - 22/01/17
-   * - 13.37
+   * - 1
+     - 13.37
      - 22/01/16
      - 22/01/31
 
@@ -37,9 +42,9 @@ Given this table, we would like to ensure that 6 constraints are satisfied:
 3. The minimum value in column ``date_from`` should be the first of January 2022.
 4. The maximum value in column ``date_to`` should be the 31st of January 2022.
 5. There is no gap between ``date_from`` and ``date_to``. In other words, every date
-   of January can be assigned to at least one row.
+   of January has to be assigned to at least one row for a given product.
 6. There is no overlap between ``date_from`` and ``date_to``. In other words, every
-   date of January can be assigned to at most one row.
+   date of January has to be assigned to at most one row for a given product.
 
 
 Assuming that such a table exists in database, we can write a specification against it.
@@ -106,11 +111,13 @@ Assuming that such a table exists in database, we can write a specification agai
 
     # Constraint 5:
     # There is no gap between date_from and date_to. In other words, every date
-    # of January can be assigned to at least one row.
+    # of January has to be assigned to at least one row for a given product.
     prices_req.add_date_no_gap_constraint(
         start_column="date_from",
 	end_column="date_to",
-	key_columns=["price"],
+	# We don't want a gap of price date ranges for a given product.
+	# For different products, we allow arbitrary date gaps.
+	key_columns=["product_id"],
 	# As indicated in prose, date_from and date_to are included in ranges.
 	end_included=True,
 	# Again, we don't expect any violations of our constraint.
@@ -118,12 +125,14 @@ Assuming that such a table exists in database, we can write a specification agai
     )
 
     # Constraint 6:
-    # There is no overlap between ``date_from`` and ``date_to``. In other words,
-    # every date of January can be assigned to at most one row.
+    # There is no overlap between date_from and date_to. In other words, every
+    # of January has to be assigned to at most one row for a given product.
     princes_req.add_date_no_overlap_constraint(
         start_column="date_from",
 	end_column="date_to",
-	key_columns=["price"],
+	# We want no overlap of price date ranges for a given product.
+	# For different products, we allow arbitrary date overlaps.
+	key_columns=["product_id"],
 	# As indicated in prose, date_from and date_to are included in ranges.
 	end_included=True,
 	# Again, we don't expect any violations of our constraint.
