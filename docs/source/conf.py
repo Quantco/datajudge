@@ -19,6 +19,13 @@ extensions = [
 apidoc_module_dir = "../../src/datajudge"
 apidoc_output_dir = "api"
 apidoc_separate_modules = True
+apidoc_excluded_paths = [
+    "../../src/datajudge/db_access.py",
+    "../../src/datajudge/constraints",
+    # Requirements should be part of the exposed API documentation.
+    # Yet, they are already exposed via the top-level module.
+    "../../src/datajudge/requirements.py",
+]
 apidoc_extra_args = ["--implicit-namespaces"]
 
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
