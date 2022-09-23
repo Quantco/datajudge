@@ -5,6 +5,10 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        PYTHON_VERSION: ['3.8', '3.9', '3.10']
     steps:
       - uses: actions/checkout@v3
         with:
@@ -33,7 +37,7 @@ jobs:
 
   upload_pypi:
     name: Upload to PyPI
-    needs: [build_sdist, upload_testpypi]
+    needs: [build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
