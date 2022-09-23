@@ -21,28 +21,15 @@ jobs:
 
       - name: Build
         shell: bash -l {0}
+        # It seems as though flit publish expects a .pypirc file as compared to
+        # only a token passed as an argment.
+        # See https://flit.pypa.io/en/latest/cmdline.html#flit-publish
         run: |
           flit build --format sdist
 
       - uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz
-
-  upload_testpypi:
-    name: Upload to TestPyPI
-    needs: [build_sdist]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: artifact
-          path: dist
-
-      - uses: pypa/gh-action-pypi-publish@v1.5.1
-        with:
-          user: __token__
-          password: ${{ secrets.TESTPYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
 
   upload_pypi:
     name: Upload to PyPI
