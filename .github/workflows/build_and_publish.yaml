@@ -5,6 +5,10 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        PYTHON_VERSION: ['3.8']
     steps:
       - uses: actions/checkout@v3
         with:
@@ -12,7 +16,7 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.8'
+          python-version: ${{ matrix.PYTHON_VERSION }}
           miniforge-variant: Mambaforge
           miniforge-version: 4.11.0-2
           use-mamba: true
