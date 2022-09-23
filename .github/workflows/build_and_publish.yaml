@@ -25,7 +25,9 @@ jobs:
           activate-environment: datajudge
 
       - name: Build
-        run: flit build --format sdist
+        shell: bash -l {0}
+        run: |
+          flit build --format sdist
 
       - uses: actions/upload-artifact@v3
         with:
