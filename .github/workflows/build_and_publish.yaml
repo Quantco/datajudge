@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      matrix:
-        PYTHON_VERSION: ['3.8']
+      #matrix:
+      #  PYTHON_VERSION: ['3.8']
     steps:
       - uses: actions/checkout@v3
         with:
@@ -16,7 +16,7 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: ${{ matrix.PYTHON_VERSION }}
+          # python-version: ${{ matrix.PYTHON_VERSION }}
           miniforge-variant: Mambaforge
           miniforge-version: 4.11.0-2
           use-mamba: true
@@ -26,14 +26,14 @@ jobs:
       - name: Build
         shell: bash -l {0}
         # It seems as though flit publish expects a .pypirc file as compared to
-        # only a token passed as an argment.
+        # only a token passed as an argument.
         # See https://flit.pypa.io/en/latest/cmdline.html#flit-publish
         run: |
-          flit build --format sdist
+          flit build
 
       - uses: actions/upload-artifact@v3
         with:
-          path: dist/*.tar.gz
+          path: dist/*
 
   upload_pypi:
     name: Upload to PyPI
