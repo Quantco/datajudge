@@ -2,13 +2,11 @@ name: Build and upload to PyPI
 on: [push]
 
 jobs:
-  build_sdist:
+  build_dist:
     name: Build source distribution
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
-      #matrix:
-      #  PYTHON_VERSION: ['3.8']
     steps:
       - uses: actions/checkout@v3
         with:
@@ -16,7 +14,6 @@ jobs:
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          # python-version: ${{ matrix.PYTHON_VERSION }}
           miniforge-variant: Mambaforge
           miniforge-version: 4.11.0-2
           use-mamba: true
@@ -37,7 +34,7 @@ jobs:
 
   upload_pypi:
     name: Upload to PyPI
-    needs: [build_sdist]
+    needs: [build_dist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
