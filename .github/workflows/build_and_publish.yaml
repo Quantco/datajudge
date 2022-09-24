@@ -2,8 +2,8 @@ name: Build and upload to PyPI
 on: [push]
 
 jobs:
-  build_dist:
-    name: Build source distribution
+  build_artifacts:
+    name: Build artifacts
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -34,7 +34,7 @@ jobs:
 
   upload_pypi:
     name: Upload to PyPI
-    needs: [build_dist]
+    needs: [build_artifacts]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
