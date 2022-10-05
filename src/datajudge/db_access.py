@@ -383,7 +383,7 @@ def get_date_growth_rate(engine, ref, ref2, date_column, date_column2):
     date_span2, selections2 = get_date_span(engine, ref2, date_column2)
     if date_span2 == 0:
         raise ValueError("Reference date span is not allowed to be zero.")
-    return date_span / date_span2 - 1, [*selections, *selections]
+    return date_span / date_span2 - 1, [*selections, *selections2]
 
 
 def get_date_overlaps_nd(
@@ -786,7 +786,9 @@ def get_column_type(engine, ref):
         if column_type == "DECIMAL(38, 0)":
             column_type = "integer"
         return column_type, None
-    column_type = [str(column.type).split(" ")[0] for column in table.columns][0]
+    column_type = [
+        str(column.type).split(" ", maxsplit=1)[0] for column in table.columns
+    ][0]
     return column_type, None
 
 
