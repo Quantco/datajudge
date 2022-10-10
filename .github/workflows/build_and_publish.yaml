@@ -1,0 +1,49 @@
+name: Build and upload to PyPI
+on: [push]
+
+jobs:
+  build_artifacts:
+    name: Build artifacts
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+
+      - name: Build
+        shell: bash -l {0}
+        # It seems as though flit publish expects a .pypirc file as compared to
+        # only a token passed as an argument.
+        # See https://flit.pypa.io/en/latest/cmdline.html#flit-publish
+        run: |
+          flit build
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*
+
+  upload_pypi:
+    name: Upload to PyPI
+    needs: [build_artifacts]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+
+      - uses: pypa/gh-action-pypi-publish@v1.5.1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
