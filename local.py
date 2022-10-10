@@ -62,7 +62,7 @@ table_secret = sa.Table("companies_secret", metadata, autoload_with=engine_jim)
 
 with engine_jim.connect() as con:
     try:
-        result2 = con.execute("SELECT stupid FROM companies").fetchall()
+        result2 = con.execute("SELECT * FROM companies").first()
     except sa.exc.ProgrammingError as error:
         if "psycopg2.errors.InsufficientPrivilege" in str(error):
             print("missing privilege")
