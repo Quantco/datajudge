@@ -68,3 +68,19 @@ with engine_jim.connect() as con:
             print("missing privilege")
         else:
             raise error
+
+
+with engine.connect() as con:
+    result = con.execute(
+        "SELECT table_name, grantee, privilege_type FROM information_schema.table_privileges WHERE grantee = 'jim'"
+    ).fetchall()
+print(result)
+
+# This outputs:
+# [('companies', 'jim', 'INSERT'),
+#  ('companies', 'jim', 'SELECT'),
+#  ('companies', 'jim', 'UPDATE'),
+#  ('companies', 'jim', 'DELETE'),
+#  ('companies', 'jim', 'TRUNCATE'),
+#  ('companies', 'jim', 'REFERENCES'),
+#  ('companies', 'jim', 'TRIGGER')]
