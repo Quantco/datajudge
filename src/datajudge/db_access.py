@@ -24,6 +24,10 @@ def is_snowflake(engine: sa.engine.Engine) -> bool:
     return engine.name == "snowflake"
 
 
+def is_bigquery(engine: sa.engine.Engine) -> bool:
+    return engine.name == "bigquery"
+
+
 def get_table_columns(table, column_names):
     return [table.c[column_name] for column_name in column_names]
 
