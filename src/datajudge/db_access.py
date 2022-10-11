@@ -1,4 +1,5 @@
 from __future__ import annotations
+from sqlalchemy.sql.expression import CompoundSelect
 
 import functools
 import json
@@ -10,6 +11,7 @@ from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import FromClause
+from sqlalchemy.sql import selectable
 
 
 def is_mssql(engine: sa.engine.Engine) -> bool:
@@ -30,6 +32,36 @@ def is_bigquery(engine: sa.engine.Engine) -> bool:
 
 def get_table_columns(table, column_names):
     return [table.c[column_name] for column_name in column_names]
+
+
+def apply_patches(engine: sa.engine.Engine):
+    """
+    Apply patches to e.g. specific dialect not implemented by sqlalchemy
+    """
+
+    if is_bigquery(engine):
+        # Patch for the EXCEPT operator (see BigQuery set operators
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
+        # This is implemented in the same way as for sqlalchemy-bigquery, see
+        # https://github.com/googleapis/python-bigquery-sqlalchemy/blob/f1889443bd4d680550387b9bb14daeea8eb792d4/sqlalchemy_bigquery/base.py#L187
+        compound_keywords_extensions = {
+            selectable.CompoundSelect.EXCEPT: "EXCEPT DISTINCT",
+            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL"
+        }
+        engine.dialect.statement_compiler.compound_keywords.update(
+            compound_keywords_extensions)
+
+        # Patch for the INTERSECT operator (see BigQuery set operators
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
+        # This might cause some problems (see discussion in
+        # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/388) but doesn't seem
+        # to be an issue here.
+        compound_keywords_extensions = {
+            selectable.CompoundSelect.INTERSECT: "INTERSECT DISTINCT",
+            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL"
+        }
+        engine.dialect.statement_compiler.compound_keywords.update(
+            compound_keywords_extensions)
 
 
 @overload
