@@ -674,6 +674,12 @@ def random_normal_table(engine, metadata):
     """
     Table with normally distributed values of varying means and sd 1.
     """
+
+    if is_bigquery(engine):
+        # It takes too long to insert the table into BigQuery,
+        # test using this fixture must be disabled for BigQuery
+        return None, None, None
+
     table_name = "random_normal_table"
     columns = [
         sa.Column("value_0_1", sa.Float()),

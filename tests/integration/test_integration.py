@@ -1993,6 +1993,10 @@ def test_ks_2sample_constraint_wrong_between(
     ],
 )
 def test_ks_2sample_random(engine, random_normal_table, configuration):
+
+    if is_bigquery(engine):
+        pytest.skip("It takes too long to insert the table into BigQuery")
+
     (operation, col_1, col_2, min_p_value) = configuration
     req = requirements.BetweenRequirement.from_tables(
         *random_normal_table, *random_normal_table
