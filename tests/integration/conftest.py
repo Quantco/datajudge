@@ -7,7 +7,7 @@ import urllib.parse
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import is_mssql, is_bigquery, apply_patches
+from datajudge.db_access import apply_patches, is_bigquery, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -34,7 +34,7 @@ def get_engine(backend) -> sa.engine.Engine:
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
         connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
     elif "bigquery" in backend:
-        gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = f"bigquery://{gcp_project}"
 
     engine = sa.create_engine(connection_string, echo=True)
@@ -762,6 +762,7 @@ def pytest_addoption(parser):
         "--backend",
         choices=(("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery")),
         help="which database backend to use to run the integration tests",
+        default="bigquery",
     )
 
 

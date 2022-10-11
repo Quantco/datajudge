@@ -3,7 +3,13 @@ import functools
 import pytest
 
 import datajudge.requirements as requirements
-from datajudge.db_access import Condition, is_bigquery, is_mssql, is_postgresql, is_snowflake
+from datajudge.db_access import (
+    Condition,
+    is_bigquery,
+    is_mssql,
+    is_postgresql,
+    is_snowflake,
+)
 
 
 def skip_if_mssql(engine):
@@ -1396,7 +1402,7 @@ def test_varchar_regex_counterexample(
         # in values. We can therefore assume that commas indicate seperation
         # between counterexamples.
         assert (
-            len(failure_message[location + len(marker):].split(","))
+            len(failure_message[location + len(marker) :].split(","))
             == n_received_counterexamples
         )
 

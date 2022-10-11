@@ -1,5 +1,4 @@
 from __future__ import annotations
-from sqlalchemy.sql.expression import CompoundSelect
 
 import functools
 import json
@@ -10,8 +9,8 @@ from dataclasses import dataclass
 from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
-from sqlalchemy.sql.expression import FromClause
 from sqlalchemy.sql import selectable
+from sqlalchemy.sql.expression import FromClause
 
 
 def is_mssql(engine: sa.engine.Engine) -> bool:
@@ -46,10 +45,11 @@ def apply_patches(engine: sa.engine.Engine):
         # https://github.com/googleapis/python-bigquery-sqlalchemy/blob/f1889443bd4d680550387b9bb14daeea8eb792d4/sqlalchemy_bigquery/base.py#L187
         compound_keywords_extensions = {
             selectable.CompoundSelect.EXCEPT: "EXCEPT DISTINCT",
-            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL"
+            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL",
         }
         engine.dialect.statement_compiler.compound_keywords.update(
-            compound_keywords_extensions)
+            compound_keywords_extensions
+        )
 
         # Patch for the INTERSECT operator (see BigQuery set operators
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
@@ -58,10 +58,11 @@ def apply_patches(engine: sa.engine.Engine):
         # to be an issue here.
         compound_keywords_extensions = {
             selectable.CompoundSelect.INTERSECT: "INTERSECT DISTINCT",
-            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL"
+            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL",
         }
         engine.dialect.statement_compiler.compound_keywords.update(
-            compound_keywords_extensions)
+            compound_keywords_extensions
+        )
 
 
 @overload
@@ -586,17 +587,13 @@ def get_date_gaps(
 
     start_rank_column = (
         sa.func.row_number()
-        .over(
-            order_by=[raw_start_table.c[col] for col in [start_column] + key_columns]
-        )
+        .over(order_by=[raw_start_table.c[col] for col in [start_column] + key_columns])
         .label("start_rank")
     )
 
     end_rank_column = (
         sa.func.row_number()
-        .over(
-            order_by=[raw_end_table.c[col] for col in [end_column] + key_columns]
-        )
+        .over(order_by=[raw_end_table.c[col] for col in [end_column] + key_columns])
         .label("end_rank")
     )
 
@@ -629,9 +626,7 @@ def get_date_gaps(
         # in date_diff must be greater than the second date (end_table)
         gap_condition = (
             sa.func.date_diff(
-                start_table.c[start_column],
-                end_table.c[end_column],
-                sa.text("DAY")
+                start_table.c[start_column], end_table.c[end_column], sa.text("DAY")
             )
             > legitimate_gap_size
         )
@@ -784,7 +779,7 @@ def get_uniques(
         return row[0]
 
     def _tuple_accessor(row):
-        return row[0: len(columns)]
+        return row[0 : len(columns)]
 
     unique_from_row = _tuple_accessor
 
