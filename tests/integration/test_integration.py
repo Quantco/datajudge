@@ -3,7 +3,7 @@ import functools
 import pytest
 
 import datajudge.requirements as requirements
-from datajudge.db_access import Condition, is_mssql, is_postgresql, is_snowflake
+from datajudge.db_access import Condition, is_bigquery, is_mssql, is_postgresql, is_snowflake
 
 
 def skip_if_mssql(engine):
@@ -1262,7 +1262,8 @@ def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
     (operation, regex, condition) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
     if computation_in_db:
-        if is_mssql(engine):
+        # bigquery dialect does not support regular expressions (sqlalchemy-bigquery 1.4.4)
+        if is_mssql(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             column="col_varchar",
@@ -1316,7 +1317,8 @@ def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, 
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
-        if is_mssql(engine) or is_snowflake(engine):
+        # The feature is not supported in sqlalchemy-bigquery 1.4.4
+        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1360,7 +1362,8 @@ def test_varchar_regex_counterexample(
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
-        if is_mssql(engine) or is_snowflake(engine):
+        # The feature is not supported in sqlalchemy-bigquery 1.4.4
+        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1408,7 +1411,8 @@ def test_varchar_regex_counterexample_invalid(
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
-        if is_mssql(engine) or is_snowflake(engine):
+        # The feature is not supported in sqlalchemy-bigquery 1.4.4
+        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1434,7 +1438,7 @@ def test_varchar_regex_counterexample_invalid(
 def test_backend_dependent_condition(engine, mix_table1):
     if is_mssql(engine):
         condition = Condition(raw_string="DATALENGTH(col_varchar) = 3")
-    elif is_postgresql(engine) or is_snowflake(engine):
+    elif is_postgresql(engine) or is_snowflake(engine) or is_bigquery(engine):
         condition = Condition(raw_string="LENGTH(col_varchar) = 3")
     else:
         raise NotImplementedError(f"Unexpected backend: {engine.name}")
