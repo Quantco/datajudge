@@ -1626,9 +1626,10 @@ def test_uniqueness_within(engine, mix_table2, data):
         max_absolute_n_duplicates,
     ) = data
     # For an unknown reason, the condition `Condition(raw_string="col_int % 2 = 0")`
-    # is not correctly compiled when dealing with snowflake.
+    # is not correctly compiled when dealing with snowflake or bigquery.
+    # Use the mod function instead
     if (
-        is_snowflake(engine)
+        (is_snowflake(engine) or is_bigquery(engine))
         and condition is not None
         and condition.raw_string is not None
         and "% 2 = 0" in condition.raw_string
