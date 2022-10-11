@@ -1594,6 +1594,9 @@ def test_column_superset_between(engine, get_fixture, data):
     ],
 )
 def test_primary_key_definition_within(engine, pk_table, data):
+    if is_bigquery(engine):
+        pytest.skip("No primary key concept in BigQuery")
+
     (operation, columns) = data
     req = requirements.WithinRequirement.from_table(*pk_table)
     req.add_primary_key_definition_constraint(columns)
