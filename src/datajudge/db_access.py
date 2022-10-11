@@ -397,6 +397,16 @@ def get_date_span(engine, ref, date_column_name):
                 )
             ]
         )
+    elif is_bigquery(engine):
+        selection = sa.select(
+            [
+                sa.func.date_diff(
+                    sa.func.max(column),
+                    sa.func.min(column),
+                    sa.literal_column("DAY"),
+                )
+            ]
+        )
     else:
         raise NotImplementedError(
             "Date spans not yet implemented for this sql dialect."
@@ -610,6 +620,18 @@ def get_date_gaps(
                 sa.text("day"),
                 end_table.c[end_column],
                 start_table.c[start_column],
+            )
+            > legitimate_gap_size
+        )
+    elif is_bigquery(engine):
+        # see https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_diff
+        # Note that to have a gap (positive date_diff), the first date (start table)
+        # in date_diff must be greater than the second date (end_table)
+        gap_condition = (
+            sa.func.date_diff(
+                start_table.c[start_column],
+                end_table.c[end_column],
+                sa.text("DAY")
             )
             > legitimate_gap_size
         )
