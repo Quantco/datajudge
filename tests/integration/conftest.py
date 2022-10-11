@@ -7,7 +7,7 @@ import urllib.parse
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import is_mssql
+from datajudge.db_access import is_mssql, is_bigquery, apply_patches
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -33,15 +33,21 @@ def get_engine(backend) -> sa.engine.Engine:
         password = os.environ.get("SNOWFLAKE_PASSWORD")
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
         connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
+    elif "bigquery" in backend:
+        gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        connection_string = f"bigquery://{gcp_project}"
 
-    return sa.create_engine(connection_string)
+    engine = sa.create_engine(connection_string, echo=True)
+    apply_patches(engine)
+
+    return engine
 
 
 @pytest.fixture(scope="module")
 def engine(backend):
     engine = get_engine(backend)
     with engine.connect() as conn:
-        if engine.name == "postgresql":
+        if engine.name == "postgresql" or engine.name == "bigquery":
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
     return engine
 
@@ -741,7 +747,7 @@ def cross_cdf_table2(engine, metadata):
 def pytest_addoption(parser):
     parser.addoption(
         "--backend",
-        choices=(("mssql", "mssql-freetds", "postgres", "snowflake")),
+        choices=(("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery")),
         help="which database backend to use to run the integration tests",
     )
 
