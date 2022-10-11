@@ -707,12 +707,19 @@ def capitalization_table(engine, metadata):
     lowercase_column = "num_employees"
     # Create and populate table with raw strings as to ensure
     # the columns are actually created with capitalization.
-    str_datatype = "VARCHAR(20)" if is_mssql(engine) else "TEXT"
+    primary_key = "PRIMARY KEY"
+    if is_mssql(engine):
+        str_datatype = "VARCHAR(20)"
+    elif is_bigquery(engine):
+        str_datatype = "STRING"
+        primary_key = ""  # there is no primary key in BigQuery
+    else:
+        str_datatype = "TEXT"
     with engine.connect() as connection:
         connection.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
         connection.execute(
             f"CREATE TABLE {SCHEMA}.{table_name} "
-            "(id INTEGER PRIMARY KEY, "
+            f"(id INTEGER {primary_key}, "
             f"{uppercase_column} {str_datatype}, {lowercase_column} INTEGER)"
         )
         connection.execute(
