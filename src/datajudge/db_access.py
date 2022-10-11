@@ -784,7 +784,7 @@ def get_uniques(
         return row[0]
 
     def _tuple_accessor(row):
-        return row[0 : len(columns)]
+        return row[0: len(columns)]
 
     unique_from_row = _tuple_accessor
 

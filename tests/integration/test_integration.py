@@ -1396,7 +1396,7 @@ def test_varchar_regex_counterexample(
         # in values. We can therefore assume that commas indicate seperation
         # between counterexamples.
         assert (
-            len(failure_message[location + len(marker) :].split(","))
+            len(failure_message[location + len(marker):].split(","))
             == n_received_counterexamples
         )
 
