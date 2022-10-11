@@ -7,6 +7,7 @@ from datajudge.db_access import (
     ExpressionDataSource,
     RawQueryDataSource,
     get_column_names,
+    is_bigquery,
 )
 
 
@@ -21,8 +22,14 @@ def negation(boolean_value):
 def test_custom_data_source_from_query(engine, int_table1, int_table2):
     _, schema_name1, table_name1 = int_table1
     _, schema_name2, table_name2 = int_table2
+    union = "UNION"
+    if is_bigquery(engine):
+        # Bigquery only knows about UNION DISTINCT and UNION ALL
+        # The UNION statement in postgres is equivalent to UNION DISTINCT
+        union = "UNION DISTINCT"
+    
     query = (
-        f"SELECT * FROM {schema_name1}.{table_name1} UNION "
+        f"SELECT * FROM {schema_name1}.{table_name1} {union} "
         f"SELECT * FROM {schema_name2}.{table_name2}"
     )
     data_source = RawQueryDataSource(query, "string query")
