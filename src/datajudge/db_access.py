@@ -587,7 +587,7 @@ def get_date_gaps(
     start_rank_column = (
         sa.func.row_number()
         .over(
-            order_by=raw_start_table.c[start_column],
+            order_by=[raw_start_table.c[col] for col in [start_column] + key_columns]
         )
         .label("start_rank")
     )
@@ -595,7 +595,7 @@ def get_date_gaps(
     end_rank_column = (
         sa.func.row_number()
         .over(
-            order_by=raw_end_table.c[end_column],
+            order_by=[raw_end_table.c[col] for col in [end_column] + key_columns]
         )
         .label("end_rank")
     )
