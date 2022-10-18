@@ -761,7 +761,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--backend",
         choices=(("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery")),
-        help="which database backend to use to run the integration tests"
+        help="which database backend to use to run the integration tests",
     )
 
 

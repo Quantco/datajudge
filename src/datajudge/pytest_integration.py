@@ -3,8 +3,8 @@ from typing import Iterable
 import pytest
 
 from .constraints.base import Constraint
-from .requirements import Requirement
 from .db_access import apply_patches
+from .requirements import Requirement
 
 
 def collect_data_tests(requirements: Iterable[Requirement]):
