@@ -47,7 +47,7 @@ def get_engine(backend) -> sa.engine.Engine:
 def engine(backend):
     engine = get_engine(backend)
     with engine.connect() as conn:
-        if engine.name == "postgresql" or engine.name == "bigquery":
+        if engine.name in ("postgresql", "bigquery"):
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
     return engine
 
@@ -761,8 +761,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--backend",
         choices=(("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery")),
-        help="which database backend to use to run the integration tests",
-        default="bigquery",
+        help="which database backend to use to run the integration tests"
     )
 
 

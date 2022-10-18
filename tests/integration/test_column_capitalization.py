@@ -15,7 +15,7 @@ def test_column_existence(
         pytest.skip("Mssql interface expects exact capitalization.")
     if is_bigquery(engine) and use_uppercase_column != use_uppercase_query:
         pytest.skip("BigQuery interface expects exact capitalization.")
-    if is_postgresql(engine) and True:
+    if is_postgresql(engine):
         pytest.skip("Postgres interface always expects lower-cased columns.")
     (
         db_name,
