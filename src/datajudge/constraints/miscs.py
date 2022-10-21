@@ -53,7 +53,7 @@ class Uniqueness(Constraint):
         ref: DataReference,
         max_duplicate_fraction: float = 0,
         max_absolute_n_duplicates: int = 0,
-        infer_pk_columns=False
+        infer_pk_columns=False,
     ):
         if max_duplicate_fraction != 0 and max_absolute_n_duplicates != 0:
             raise ValueError(
@@ -72,10 +72,12 @@ class Uniqueness(Constraint):
         super().__init__(ref, ref_value=ref_value)
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        
+
         # only check for primary keys when actually defined
         # otherwise default back to searching the whole table
-        if self.infer_pk_columns and (columns := db_access.get_primary_keys(engine, self.ref)[0]):
+        if self.infer_pk_columns and (
+            columns := db_access.get_primary_keys(engine, self.ref)[0]
+        ):
             self.ref.columns = columns
 
         unique_count, unique_selections = db_access.get_unique_count(engine, self.ref)
