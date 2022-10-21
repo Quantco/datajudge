@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Callable, Sequence, final, overload
 
 import sqlalchemy as sa
+from sqlalchemy.sql import selectable
 from sqlalchemy.sql.expression import FromClause
 
 
@@ -24,8 +25,44 @@ def is_snowflake(engine: sa.engine.Engine) -> bool:
     return engine.name == "snowflake"
 
 
+def is_bigquery(engine: sa.engine.Engine) -> bool:
+    return engine.name == "bigquery"
+
+
 def get_table_columns(table, column_names):
     return [table.c[column_name] for column_name in column_names]
+
+
+def apply_patches(engine: sa.engine.Engine):
+    """
+    Apply patches to e.g. specific dialect not implemented by sqlalchemy
+    """
+
+    if is_bigquery(engine):
+        # Patch for the EXCEPT operator (see BigQuery set operators
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
+        # This is implemented in the same way as for sqlalchemy-bigquery, see
+        # https://github.com/googleapis/python-bigquery-sqlalchemy/blob/f1889443bd4d680550387b9bb14daeea8eb792d4/sqlalchemy_bigquery/base.py#L187
+        compound_keywords_extensions = {
+            selectable.CompoundSelect.EXCEPT: "EXCEPT DISTINCT",
+            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL",
+        }
+        engine.dialect.statement_compiler.compound_keywords.update(
+            compound_keywords_extensions
+        )
+
+        # Patch for the INTERSECT operator (see BigQuery set operators
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
+        # This might cause some problems (see discussion in
+        # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/388) but doesn't seem
+        # to be an issue here.
+        compound_keywords_extensions = {
+            selectable.CompoundSelect.INTERSECT: "INTERSECT DISTINCT",
+            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL",
+        }
+        engine.dialect.statement_compiler.compound_keywords.update(
+            compound_keywords_extensions
+        )
 
 
 @overload
@@ -361,6 +398,16 @@ def get_date_span(engine, ref, date_column_name):
                 )
             ]
         )
+    elif is_bigquery(engine):
+        selection = sa.select(
+            [
+                sa.func.date_diff(
+                    sa.func.max(column),
+                    sa.func.min(column),
+                    sa.literal_column("DAY"),
+                )
+            ]
+        )
     else:
         raise NotImplementedError(
             "Date spans not yet implemented for this sql dialect."
@@ -540,17 +587,13 @@ def get_date_gaps(
 
     start_rank_column = (
         sa.func.row_number()
-        .over(
-            order_by=raw_start_table.c[start_column],
-        )
+        .over(order_by=[raw_start_table.c[col] for col in [start_column] + key_columns])
         .label("start_rank")
     )
 
     end_rank_column = (
         sa.func.row_number()
-        .over(
-            order_by=raw_end_table.c[end_column],
-        )
+        .over(order_by=[raw_end_table.c[col] for col in [end_column] + key_columns])
         .label("end_rank")
     )
 
@@ -574,6 +617,16 @@ def get_date_gaps(
                 sa.text("day"),
                 end_table.c[end_column],
                 start_table.c[start_column],
+            )
+            > legitimate_gap_size
+        )
+    elif is_bigquery(engine):
+        # see https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_diff
+        # Note that to have a gap (positive date_diff), the first date (start table)
+        # in date_diff must be greater than the second date (end_table)
+        gap_condition = (
+            sa.func.date_diff(
+                start_table.c[start_column], end_table.c[end_column], sa.text("DAY")
             )
             > legitimate_gap_size
         )

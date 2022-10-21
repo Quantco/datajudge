@@ -3,6 +3,7 @@ from typing import Iterable
 import pytest
 
 from .constraints.base import Constraint
+from .db_access import apply_patches
 from .requirements import Requirement
 
 
@@ -21,6 +22,8 @@ def collect_data_tests(requirements: Iterable[Requirement]):
         "constraint", all_constraints, ids=Constraint.get_description
     )
     def test_constraint(constraint, datajudge_engine):
+        # apply patches that fix sqlalchemy issues
+        apply_patches(datajudge_engine)
         test_result = constraint.test(datajudge_engine)
         assert test_result.outcome, test_result.failure_message
 
