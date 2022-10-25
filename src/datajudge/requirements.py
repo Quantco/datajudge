@@ -145,6 +145,8 @@ class WithinRequirement(Requirement):
         to (1 - max_duplicate_fraction) the number of rows.
 
         If infer_pk_columns is True, columns will be retrieved from the primary keys.
+        When columns=None and infer_pk_columns=False, the fallback is validating that all
+        rows in a table are unique.
         """
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
