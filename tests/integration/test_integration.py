@@ -1638,20 +1638,24 @@ def test_uniqueness_within(engine, mix_table2, data):
 @pytest.mark.parametrize(
     "data",
     [
-        (identity, None, "mix_table2_pk"),
-        (identity, [], "mix_table2_pk"),
-        (identity, ["col_date"], "mix_table2_pk"),
-        (negation, None, "mix_table2_pk_negate"),
+        (identity, ["col_int"], None, "mix_table2_pk"),
+        (identity, ["col_int"], [], "mix_table2_pk"),
+        (identity, ["col_int"], ["col_date"], "mix_table2_pk"),
+        (negation, ["col_date"], None, "mix_table2_pk_negate"),
     ],
 )
 def test_uniqueness_within_infer_pk(engine, data, request):
     # We purposefully select a non-unique column ["col_date"] to validate
     # that the reference columns are overwritten.
-    operation, columns, table_def = data
+    operation, target_columns, selection_columns, table_def = data
     table = request.getfixturevalue(table_def)
     req = requirements.WithinRequirement.from_table(*table)
-    req.add_uniqueness_constraint(columns=columns, infer_pk_columns=True)
+    req.add_uniqueness_constraint(columns=selection_columns, infer_pk_columns=True)
     test_result = req[0].test(engine)
+    # additional test: the PK columns are inferred during test time, i.e. we can check here if they were inferred correctly
+    assert (
+        req[0].ref.columns == target_columns
+    ), f"Incorrect columns were retrieved from table. {req[0].ref.columns} != {target_columns}"
     assert operation(test_result.outcome), test_result.failure_message
 
 
