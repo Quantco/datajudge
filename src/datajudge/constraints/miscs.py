@@ -1,3 +1,4 @@
+import warnings
 from typing import List, Optional, Set, Tuple
 
 import sqlalchemy as sa
@@ -76,9 +77,14 @@ class Uniqueness(Constraint):
         # only check for primary keys when actually defined
         # otherwise default back to searching the whole table
         if self.infer_pk_columns and (
-            columns := db_access.get_primary_keys(engine, self.ref)[0]
+            pk_columns := db_access.get_primary_keys(engine, self.ref)[0]
         ):
-            self.ref.columns = columns
+            self.ref.columns = pk_columns
+            if not pk_columns:  # there were no primary keys found
+                warnings.warn(
+                    f"""No primary keys found in {self.ref.get_string()}.
+                    Uniqueness will be tested for all columns."""
+                )
 
         unique_count, unique_selections = db_access.get_unique_count(engine, self.ref)
         row_count, row_selections = db_access.get_row_count(engine, self.ref)
