@@ -3,7 +3,13 @@ import functools
 import pytest
 
 import datajudge.requirements as requirements
-from datajudge.db_access import Condition, is_mssql, is_postgresql, is_snowflake
+from datajudge.db_access import (
+    Condition,
+    is_bigquery,
+    is_mssql,
+    is_postgresql,
+    is_snowflake,
+)
 
 
 def skip_if_mssql(engine):
@@ -1262,7 +1268,8 @@ def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
     (operation, regex, condition) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
     if computation_in_db:
-        if is_mssql(engine):
+        # bigquery dialect does not support regular expressions (sqlalchemy-bigquery 1.4.4)
+        if is_mssql(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             column="col_varchar",
@@ -1316,7 +1323,8 @@ def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, 
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
-        if is_mssql(engine) or is_snowflake(engine):
+        # The feature is not supported in sqlalchemy-bigquery 1.4.4
+        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1360,7 +1368,8 @@ def test_varchar_regex_counterexample(
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
-        if is_mssql(engine) or is_snowflake(engine):
+        # The feature is not supported in sqlalchemy-bigquery 1.4.4
+        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1408,7 +1417,8 @@ def test_varchar_regex_counterexample_invalid(
         # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
         # Once we remove or update the pinned version, we can enable this test
         # for snowflake.
-        if is_mssql(engine) or is_snowflake(engine):
+        # The feature is not supported in sqlalchemy-bigquery 1.4.4
+        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1434,7 +1444,7 @@ def test_varchar_regex_counterexample_invalid(
 def test_backend_dependent_condition(engine, mix_table1):
     if is_mssql(engine):
         condition = Condition(raw_string="DATALENGTH(col_varchar) = 3")
-    elif is_postgresql(engine) or is_snowflake(engine):
+    elif is_postgresql(engine) or is_snowflake(engine) or is_bigquery(engine):
         condition = Condition(raw_string="LENGTH(col_varchar) = 3")
     else:
         raise NotImplementedError(f"Unexpected backend: {engine.name}")
@@ -1590,6 +1600,9 @@ def test_column_superset_between(engine, get_fixture, data):
     ],
 )
 def test_primary_key_definition_within(engine, pk_table, data):
+    if is_bigquery(engine):
+        pytest.skip("No primary key concept in BigQuery")
+
     (operation, columns) = data
     req = requirements.WithinRequirement.from_table(*pk_table)
     req.add_primary_key_definition_constraint(columns)
@@ -1619,9 +1632,10 @@ def test_uniqueness_within(engine, mix_table2, data):
         max_absolute_n_duplicates,
     ) = data
     # For an unknown reason, the condition `Condition(raw_string="col_int % 2 = 0")`
-    # is not correctly compiled when dealing with snowflake.
+    # is not correctly compiled when dealing with snowflake or bigquery.
+    # Use the mod function instead
     if (
-        is_snowflake(engine)
+        (is_snowflake(engine) or is_bigquery(engine))
         and condition is not None
         and condition.raw_string is not None
         and "% 2 = 0" in condition.raw_string
@@ -2009,6 +2023,10 @@ def test_ks_2sample_constraint_wrong_between(
     ],
 )
 def test_ks_2sample_random(engine, random_normal_table, configuration):
+
+    if is_bigquery(engine):
+        pytest.skip("It takes too long to insert the table into BigQuery")
+
     (operation, col_1, col_2, min_p_value) = configuration
     req = requirements.BetweenRequirement.from_tables(
         *random_normal_table, *random_normal_table
