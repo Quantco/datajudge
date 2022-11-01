@@ -14,7 +14,7 @@ Changelog
 
 - Implemented specification of number of counterexamples in :meth:`~datajudge.WithinRequirement.add_varchar_regex_constraint`.
 - Implemented in-database regex matching for some dialects via ``computation_in_db`` parameter in :meth:`~datajudge.WithinRequirement.add_varchar_regex_constraint`.
-
+- Implemented an option ``infer_pk`` to automatically retrieve and check primary key constraints as part of the `datajudge.WithinRequirement.add_uniqueness_constraint`.
 
 **Bug fix:**
 
