@@ -9,8 +9,6 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
       - name: Install Python 3.8
         uses: actions/setup-python@v4
         with:
