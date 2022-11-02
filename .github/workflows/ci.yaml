@@ -1,5 +1,16 @@
 name: CI
-on: [push, pull_request]
+on:
+  # We would like to trigger for CI for any pull request action -
+  # both from QuantCo's branches as well as forks.
+  pull_request:
+  # In addition to pull requests, we want to run CI for pushes
+  # to the main branches and tags.
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+
 
 jobs:
 
@@ -28,7 +39,7 @@ jobs:
         PYTHON_VERSION: ['3.8', '3.9', '3.10']
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
       - uses: conda-incubator/setup-miniconda@v2
