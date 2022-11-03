@@ -1,6 +1,6 @@
 import abc
 from itertools import zip_longest
-from typing import Callable, Collection, Dict, List, Optional, Set, Tuple
+from typing import Callable, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import sqlalchemy as sa
 
@@ -23,7 +23,7 @@ def _is_subset(values1: Collection[T], values2: Collection[T]) -> Tuple[bool, Se
 
 def _subset_violation_counts(
     values1: Collection[T], counts: List[int], values2: Collection[T]
-) -> Tuple[bool, Dict[T, int]]:
+) -> Tuple[bool, Dict[Union[T, int], int]]:
     """Count frequencies of elements from values1 not in values2."""
     remainder = {
         value: count
