@@ -1,0 +1,47 @@
+name: pre-commit autoupdate
+on:
+ workflow_dispatch:
+ schedule:
+   - cron: "0 6 4 * *"
+
+defaults:
+  run:
+    shell:
+      bash -el {0}
+
+jobs:
+  check_update:
+    name: Check if newer version exists
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        # We need to checkout with SSH here to have actions run on the PR.
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Set up Conda env
+        uses: mamba-org/provision-with-micromamba@a319a818023c3a5a448a60bd72e0c633408fbccc
+        with:
+          environment-file: false
+          environment-name: pre-commit
+          extra-specs: |
+            -c
+            conda-forge
+            pre-commit
+            mamba
+      - name: Update pre-commit hooks and run
+        id: versions
+        env:
+          PRE_COMMIT_USE_MAMBA: 1
+        run: |
+          pre-commit autoupdate
+          pre-commit run -a || true
+      - uses: peter-evans/create-pull-request@923ad837f191474af6b1721408744feb989a4c27
+        with:
+          commit-message: "Auto-update pre-commit hooks"
+          title: "Auto-update pre-commit hooks"
+          body: |
+            New versions of the used pre-commit hooks were detected.
+            This PR updates them to the latest and already ran `pre-commit run -a` for you to fix any changes in formatting.
+          branch: pre-commit-autoupdate
+          delete-branch: true
