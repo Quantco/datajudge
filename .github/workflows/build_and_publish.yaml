@@ -1,6 +1,6 @@
 name: Build and upload to PyPI
 on:
-  pull request:
+  pull_request:
   push:
     branches:
       - 'main'
