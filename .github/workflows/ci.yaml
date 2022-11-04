@@ -192,3 +192,38 @@ jobs:
         with:
           file: ./coverage.xml
 
+  linux-integration_tests-bigquery:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8' ]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=bigquery tests/integration
+        # env:
+        #   SNOWFLAKE_USER: DATAJUDGE
+        #   SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        #   SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
