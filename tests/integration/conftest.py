@@ -34,8 +34,8 @@ def get_engine(backend) -> sa.engine.Engine:
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
         connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
     elif "bigquery" in backend:
-        gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
-        connection_string = f"bigquery://{gcp_project}"
+        # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
+        connection_string = "bigquery://"
 
     engine = sa.create_engine(connection_string, echo=True)
     apply_patches(engine)
