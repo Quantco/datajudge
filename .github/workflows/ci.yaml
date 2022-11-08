@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'pre-commit-autoupdate'
     tags:
       - 'v*'
 

@@ -1593,6 +1593,24 @@ def test_column_superset_between(engine, get_fixture, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (identity, "mix_table1", "mix_table2", "col_varchar", "col_varchar"),
+        (identity, "mix_table1", "mix_table2", "col_int", "col_int"),
+        (identity, "mix_table1", "mix_table2", "col_date", "col_date"),
+        (negation, "mix_table1", "mix_table2", "col_varchar", "col_int"),
+    ],
+)
+def test_column_type_between(engine, get_fixture, data):
+    (operation, table_name1, table_name2, column1, column2) = data
+    table1 = get_fixture(table_name1)
+    table2 = get_fixture(table_name2)
+    req = requirements.BetweenRequirement.from_tables(*table1, *table2)
+    req.add_column_type_constraint(column1=column1, column2=column2)
+    assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (identity, ["col_int1", "col_int2"]),
         (identity, ["col_int2", "col_int1"]),
         (negation, ["col_int1"]),

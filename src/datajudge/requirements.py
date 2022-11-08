@@ -160,7 +160,9 @@ class WithinRequirement(Requirement):
 
     def add_column_type_constraint(self, column: str, column_type: str):
         ref = DataReference(self.data_source, [column])
-        self._constraints.append(column_constraints.ColumnType(ref, column_type))
+        self._constraints.append(
+            column_constraints.ColumnType(ref, column_type=column_type)
+        )
 
     def add_null_absence_constraint(self, column: str, condition: Condition = None):
         ref = DataReference(self.data_source, [column], condition)
@@ -1212,6 +1214,11 @@ class BetweenRequirement(Requirement):
         self._constraints.append(
             column_constraints.ColumnSuperset(self.ref, ref2=self.ref2)
         )
+
+    def add_column_type_constraint(self, column1: str, column2: str):
+        ref1 = DataReference(self.data_source, [column1])
+        ref2 = DataReference(self.data_source2, [column2])
+        self._constraints.append(column_constraints.ColumnType(ref1, ref2=ref2))
 
     def add_row_equality_constraint(
         self,
