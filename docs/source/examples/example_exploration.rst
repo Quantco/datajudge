@@ -20,7 +20,7 @@ Put differently, a test typically revolves around a binary outcome while an expl
 usually doesn't.
 
 In the following we will attempt to illustrate possible usages of datajudge for
-exploration by walking through two simple examples.
+exploration by looking at three simple examples.
 
 These examples rely on some insight about how most datajudge ``Constraint`` s work under
 the hood. Importantly, ``Constraint`` s typically come with
@@ -29,27 +29,28 @@ the hood. Importantly, ``Constraint`` s typically come with
   ``DataReference``
 * a ``get_factual_value`` method: this is typically a wrapper around ``retrieve`` for the
   first ``DataReference`` of the given ``Requirement`` / ``Constraint``
-* a ``get_target_value`` method: this is either a wrapper around ``retrieve`` for the second
-  ``DataRefence`` in the case
-  of a ``BetweenRequirement`` or an echoing of the ``Constraint`` s key reference value in
-  the case of a ``WithinRequirement``
+* a ``get_target_value`` method: this is either a wrapper around ``retrieve`` for the
+  second ``DataRefence`` in the case of a ``BetweenRequirement`` or an echoing of the
+  ``Constraint`` s key reference value in the case of a ``WithinRequirement``
 
-Moreover, as is the case when using datajudge for testing purposes, these approaches rely on
-a sqlalchemy engine. The latter is the gateway to the database at hand.
+Moreover, as is the case when using datajudge for testing purposes, these approaches rely
+on a `sqlalchemy engine <https://docs.sqlalchemy.org/en/14/core/connections.html>`_. The
+latter is the gateway to the database at hand.
 
 Example 1: Comparing numbers of rows
 ------------------------------------
 
-Assume we have two tables in the same database called ``table1`` and ``table2``. Now we would
-like to compare their numbers of rows. As a first step, we would like to retrieve the
-respective numbers of rows. For that matter we create a ``BetweenTableRequirement`` including
-both tables and add a ``NRowsEquality`` ``Constraint`` onto it.
+Assume we have two tables in the same database called ``table1`` and ``table2``. Now we
+would like to compare their numbers of rows. Naturally, we would like to retrieve
+the respective numbers of rows before we can compare them. For this purpose we create
+a ``BetweenTableRequirement`` referring to both tables and add a ``NRowsEquality``
+``Constraint`` onto it.
 
 
 .. code-block:: python
 
     import sqlalchemy as sa
-    from datajudge import BetweenRequirement, Condition
+    from datajudge import BetweenRequirement
 
     engine = sa.create_engine(your_connection_string)
     req = BetweenRequirement.from_tables(
@@ -61,12 +62,17 @@ both tables and add a ``NRowsEquality`` ``Constraint`` onto it.
         "table2",
     )
     req.add_n_rows_equality_constraint()
-    n_rows1 = req.get_factual_value(engine)
-    n_rows2 = req.get_target_value(engine)
+    n_rows1 = req[0].get_factual_value(engine)
+    n_rows2 = req[0].get_target_value(engine)
 
 
-Once retrieved, we can compare them as we wish by e.g. computing the absolute and relative
-growth (or loss) from ``table1`` to ``table2``:
+Note that here, we access the first (and only) ``Constraint`` that has been added to the
+``BetweenRequirement`` by writing ``req[0]``. ``Requirements`` are are sequences of
+``Constraint`` s, after all.
+
+Once the numbers of rows are retrieved, we can compare them as we wish. For instance, we
+could compute the absolute and relative growth (or loss) of numbers of rows from
+``table1`` to ``table2``:
 
 .. code-block:: python
 
@@ -80,11 +86,12 @@ this in our next example.
 Example 2: Investigating unique values
 --------------------------------------
 
-In this example we will suppose that there is a table called "table" which has several
-columns. Two of its columns are called ``col_int`` and ``col_varchar``. We are now interested
-in the unique values in these two columns combined. Put differently, we are wondering:
+In this example we will suppose that there is a table called ``table`` consisting of
+several columns. Two of its columns are supposed to be called ``col_int`` and
+``col_varchar``. We are now interested in the unique values in these two columns combined.
+Put differently, we are wondering:
 
-    Which pairs of values in ``col_int`` and ``col_varchar`` have we encountered?
+    Which unique pairs of values in ``col_int`` and ``col_varchar`` have we encountered?
 
 To add to the mix, we will moreover only be interested in tuples in which ``col_int`` has a
 value of larger than 10.
@@ -105,17 +112,19 @@ a single table this time, we will create a ``WithinRequirement``.
 	schema_name,
 	"table",
     )
+
     condition = Condition(raw_string="col_int >= 10")
+
     req.add_uniques_equality_constraint(
         columns=["col_int", "col_varchar"],
-	uniques=["hello world"], # This is really just a placeholder.
+	uniques=[], # This is really just a placeholder.
         condition=condition,
     )
-    constraint = req[0]
-    uniques = constraint.get_factual_value(engine)
+    uniques = req[0].get_factual_value(engine)
 
 
-If one was to investigate this ``uniques`` variable further, one could, e.g. see the following:
+If one was to investigate this ``uniques`` variable further, one could, e.g. see the
+following:
 
 
 .. code-block:: python
@@ -123,21 +132,20 @@ If one was to investigate this ``uniques`` variable further, one could, e.g. see
     ([(10, 'hi10'), (11, 'hi11'), (12, 'hi12'), (13, 'hi13'), (14, 'hi14'), (15, 'hi15'), (16, 'hi16'), (17, 'hi17'), (18, 'hi18'), (19, 'hi19')], [1, 100, 12, 1, 7, 8, 1, 1, 1337, 1])
 
 
-This makes more sense when we investigate the underlying ``retrieve`` method of the
-``UniquesEquality`` ``Constraint``: the first value of our tuple corresponds to the list
-of unique pairs in columns ``col_int`` and ``col_varchar``. The second value of our tuple
+This becomes easier to parse when inspecting the underlying ``retrieve`` method of the
+``UniquesEquality`` ``Constraint``: the first value of the tuple corresponds to the list
+of unique pairs in columns ``col_int`` and ``col_varchar``. The second value of the tuple
 are the respective counts thereof.
 
-If now we were curious and would like to use the SQL queries under the hood to manually
-customize the query, we could do that, too. In order to do so, we can use the fact that
-``retrieve`` methods typically both return an actual result or value as well as the
-sqlalchemy selections that led to it. We can use this selection and compile it to a
-standard, textual SQL query.
+Moreoever, one could manually customize the underlying SQL query. In order to do so, one
+can use the fact that ``retrieve`` methods typically return an actual result or value
+as well as the sqlalchemy selections that led to said result or value. We can use these
+selections and compile them to a standard, textual SQL query:
 
 
 .. code-block:: python
 
-    values, selections = constraint.retrieve(engine, constraint.ref)
+    values, selections = req[0].retrieve(engine, constraint.ref)
     print(str(selections[0].compile(engine, compile_kwargs={"literal_binds": True}))
 
 
@@ -163,17 +171,19 @@ In the case from above, this would return the following query:
 Example 3: Comparing column structure
 =====================================
 
-While we often care about values tuples of given columns, i.e. rows, it can provide
-meaningful insight to compare the column structure of two tables. In particular, we
-might want to compare whether columns are subset of another.
+While we often care about value tuples of given columns, i.e. rows, it can also provide
+meaningful insights to compare the column structure of two tables. In particular, we
+might want to compare whether columns of one table are a subset or superset of another
+table.
 
-In order to do so, we will again assume that there are two tables called ``table1``
-and ``table2``, irrespective of prior examples.
+In order to illustrate such an example, we will again assume that there are two tables
+called ``table1`` and ``table2``, irrespective of prior examples.
 
-We can now create a ``BetweenRequirement`` for these two and use the ``ColumnSubset``
-``Constraint``. As before, we will rely on the ``get_factual_value`` to retrieve
-the values of interest for the first table passed to the ``BetweenRequirement``
-and ``get_target_value`` for the second table passed to the ``BetweenRequirement``.
+We can now create a ``BetweenRequirement`` for these two tables and use the
+``ColumnSubset`` ``Constraint``. As before, we will rely on the ``get_factual_value``
+method to retrieve the values of interest for the first table passed to the
+``BetweenRequirement`` and the ``get_target_value`` method for the second table passed
+to the ``BetweenRequirement``.
 
 .. code-block:: python
 
