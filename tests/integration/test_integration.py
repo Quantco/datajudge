@@ -244,7 +244,7 @@ def test_n_rows_max_loss_between(engine, int_table2, int_table1, data):
                 reduction_operator="and",
             ),
         ),
-        (negation, ["col_int", "col_varchar"], 41, None),
+        (negation, ["col_int", "col_rchar"], 41, None),
         (negation, None, 41, None),
         (identity, ["col_int", "col_varchar"], 42, None),
         (identity, None, 42, None),
@@ -1587,6 +1587,24 @@ def test_column_superset_between(engine, get_fixture, data):
     table2 = get_fixture(table_name2)
     req = requirements.BetweenRequirement.from_tables(*table1, *table2)
     req.add_column_superset_constraint()
+    assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, "mix_table1", "mix_table2", "col_varchar", "col_varchar"),
+        (identity, "mix_table1", "mix_table2", "col_int", "col_int"),
+        (identity, "mix_table1", "mix_table2", "col_date", "col_date"),
+        (negation, "mix_table1", "mix_table2", "col_varchar", "col_int"),
+    ],
+)
+def test_column_type_between(engine, get_fixture, data):
+    (operation, table_name1, table_name2, column1, column2) = data
+    table1 = get_fixture(table_name1)
+    table2 = get_fixture(table_name2)
+    req = requirements.BetweenRequirement.from_tables(*table1, *table2)
+    req.add_column_type_constraint(column1=column1, column2=column2)
     assert operation(req[0].test(engine).outcome)
 
 

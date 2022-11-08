@@ -7,6 +7,14 @@
 Changelog
 =========
 
+
+1.3.0 - 2022.xx.xx
+------------------
+
+**New features**
+
+- Implement :meth:`~datajudge.BetweenRequirement.add_column_type_constraint`. Previously, only the ``WithinRequirement`` method existed.
+
 1.2.0 - 2022.10.21
 ------------------
 
