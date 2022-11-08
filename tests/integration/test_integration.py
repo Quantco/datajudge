@@ -244,7 +244,7 @@ def test_n_rows_max_loss_between(engine, int_table2, int_table1, data):
                 reduction_operator="and",
             ),
         ),
-        (negation, ["col_int", "col_rchar"], 41, None),
+        (negation, ["col_int", "col_varchar"], 41, None),
         (negation, None, 41, None),
         (identity, ["col_int", "col_varchar"], 42, None),
         (identity, None, 42, None),
