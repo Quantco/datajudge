@@ -49,10 +49,10 @@ both tables and add a ``NRowsEquality`` ``Constraint`` onto it.
 .. code-block:: python
 
     import sqlalchemy as sa
-    from datajudge import requirements, Condition
+    from datajudge import BetweenRequirement, Condition
 
     engine = sa.create_engine(your_connection_string)
-    req = requirements.BetweenRequirement.from_tables(
+    req = BetweenRequirement.from_tables(
         db_name,
         schema_name,
         "table1",
@@ -96,7 +96,7 @@ a single table this time, we will create a ``WithinRequirement``.
 .. code-block:: python
 
     import sqlalchemy as sa
-    from datajudge import requirements, Condition
+    from datajudge import WithinRequirement, Condition
 
     engine = sa.create_engine(your_connection_string)
 
@@ -158,3 +158,57 @@ In the case from above, this would return the following query:
 	    tempdb.dbo.table WITH (NOLOCK)
         WHERE col_int >= 10) AS anon_1
     GROUP BY anon_1.col_int, anon_1.col_varchar
+
+
+Example 3: Comparing column structure
+=====================================
+
+While we often care about values tuples of given columns, i.e. rows, it can provide
+meaningful insight to compare the column structure of two tables. In particular, we
+might want to compare whether columns are subset of another.
+
+In order to do so, we will again assume that there are two tables called ``table1``
+and ``table2``, irrespective of prior examples.
+
+We can now create a ``BetweenRequirement`` for these two and use the ``ColumnSubset``
+``Constraint``. As before, we will rely on the ``get_factual_value`` to retrieve
+the values of interest for the first table passed to the ``BetweenRequirement``
+and ``get_target_value`` for the second table passed to the ``BetweenRequirement``.
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+    from datajudge import BetweenRequirement
+
+    engine = sa.create_engine(your_connection_string)
+
+    req = BetweenRequirement.from_tables(
+        db_name,
+        schema_name,
+        "table1",
+        db_name,
+        schema_name,
+        "table2",
+    )
+
+    req.add_column_subset_constraint()
+
+    columns1 = req[0].get_factual_value(engine)
+    columns2 = req[0].get_target_value(engine)
+
+    print(f"Columns present in both: {set(v1) & set(v2)}")
+    print(f"Columns present in only table1: {set(v1) - set(v2)}")
+    print(f"Columns present in only table2: {set(v2) - set(v1)}")
+
+
+This could, for instance result in the following printout:
+
+.. code-block:: python
+
+    Columns present in both: {'col_varchar'}
+    Columns present in only table1: set()
+    Columns present in only table2: {'col_int', 'col_date'}
+
+
+
+
