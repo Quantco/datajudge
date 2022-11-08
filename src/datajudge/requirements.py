@@ -130,10 +130,11 @@ class WithinRequirement(Requirement):
 
     def add_uniqueness_constraint(
         self,
-        columns: List[str],
+        columns: List[str] = None,
         max_duplicate_fraction: float = 0,
         condition: Condition = None,
         max_absolute_n_duplicates: int = 0,
+        infer_pk_columns=False,
     ):
         """Columns should uniquely identify row.
 
@@ -143,6 +144,9 @@ class WithinRequirement(Requirement):
         suggests that the number of uniques from said colums is larger or equal
         to (1 - max_duplicate_fraction) the number of rows.
 
+        If infer_pk_columns is True, columns will be retrieved from the primary keys.
+        When columns=None and infer_pk_columns=False, the fallback is validating that all
+        rows in a table are unique.
         """
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
@@ -150,6 +154,7 @@ class WithinRequirement(Requirement):
                 ref,
                 max_duplicate_fraction=max_duplicate_fraction,
                 max_absolute_n_duplicates=max_absolute_n_duplicates,
+                infer_pk_columns=infer_pk_columns,
             )
         )
 

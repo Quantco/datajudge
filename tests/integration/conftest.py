@@ -137,6 +137,26 @@ def mix_table2(engine, metadata):
 
 
 @pytest.fixture(scope="module")
+def mix_table2_pk(engine, metadata):
+    table_name = "mix_table2_pk"
+    columns = [
+        sa.Column("col_int", sa.Integer(), primary_key=True),
+        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_date", sa.DateTime()),
+    ]
+    data = [
+        {
+            "col_int": i,
+            "col_varchar": f"hi{i}",
+            "col_date": datetime.datetime(2016, 1, i // 2),
+        }
+        for i in range(2, 20)
+    ]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
 def date_table1(engine, metadata):
     table_name = "date_table1"
     columns = [
