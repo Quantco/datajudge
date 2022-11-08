@@ -174,7 +174,8 @@ Example 3: Comparing column structure
 While we often care about value tuples of given columns, i.e. rows, it can also provide
 meaningful insights to compare the column structure of two tables. In particular, we
 might want to compare whether columns of one table are a subset or superset of another
-table.
+table. Moreover, for columns present in both tables, we'd like to learn about their
+respective types.
 
 In order to illustrate such an example, we will again assume that there are two tables
 called ``table1`` and ``table2``, irrespective of prior examples.
@@ -215,10 +216,30 @@ This could, for instance result in the following printout:
 
 .. code-block::
 
-    Columns present in both: {'col_varchar'}
+    Columns present in both: {'col_varchar', 'col_int'}
     Columns present in only table1: set()
-    Columns present in only table2: {'col_int', 'col_date'}
+    Columns present in only table2: {'col_date'}
 
 
+Now, we can investigate the types of the columns present in both tables:
+
+
+.. code-block:: python
+
+    for column in set(v1) & set(v2):
+        req.add_column_type_constraint(column1=column, column2=column)
+	type1 = req[0].get_factual_value(engine)
+	type2 = req[0].get_target_value(engine)
+	print(f"Column '{column}' has type '{type1}' in table1 and type '{type2}' in table2.")
+
+
+Depending on the underlying database management system and data, the output of this
+could for instance be:
+
+
+.. code-block::
+
+   Column 'col_varchar' has type 'varchar' in table1 and type 'varchar' in table2.
+   Column 'col_int' has type 'integer' in table1 and type 'integer' in table2.
 
 
