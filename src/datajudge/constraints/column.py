@@ -69,8 +69,12 @@ class ColumnSuperset(Column):
 
 
 class ColumnType(Constraint):
-    def __init__(self, ref: DataReference, column_type: str):
-        super().__init__(ref, ref_value=column_type.lower())
+    def __init__(
+        self, ref: DataReference, *, ref2: DataReference = None, column_type: str = None
+    ):
+        if column_type:
+            column_type = column_type.lower()
+        super().__init__(ref, ref2=ref2, ref_value=column_type)
         self.column_type = column_type
 
     def retrieve(
