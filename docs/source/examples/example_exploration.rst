@@ -169,7 +169,7 @@ In the case from above, this would return the following query:
 
 
 Example 3: Comparing column structure
-=====================================
+-------------------------------------
 
 While we often care about value tuples of given columns, i.e. rows, it can also provide
 meaningful insights to compare the column structure of two tables. In particular, we
@@ -213,7 +213,7 @@ to the ``BetweenRequirement``.
 
 This could, for instance result in the following printout:
 
-.. code-block:: python
+.. code-block::
 
     Columns present in both: {'col_varchar'}
     Columns present in only table1: set()
