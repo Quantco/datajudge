@@ -68,6 +68,7 @@ class Uniques(Constraint, abc.ABC):
     def __init__(
         self,
         ref: DataReference,
+        name: str = None,
         *,
         ref2: DataReference = None,
         uniques: Collection = None,
@@ -77,7 +78,7 @@ class Uniques(Constraint, abc.ABC):
     ):
         ref_value: Optional[Tuple[Collection, List]]
         ref_value = (uniques, []) if uniques else None
-        super().__init__(ref, ref2=ref2, ref_value=ref_value)
+        super().__init__(ref, ref2=ref2, ref_value=ref_value, name=name)
         self.local_func = map_func
         self.global_func = reduce_func
         self.max_relative_violations = max_relative_violations
@@ -101,10 +102,10 @@ class Uniques(Constraint, abc.ABC):
 
 
 class UniquesEquality(Uniques):
-    def __init__(self, args, **kwargs):
+    def __init__(self, args, name: str = None, **kwargs):
         if kwargs.get("max_relative_violations"):
             raise RuntimeError("Some useful message")
-        super().__init__(args, **kwargs)
+        super().__init__(args, name=name, **kwargs)
 
     def compare(
         self,
@@ -198,9 +199,14 @@ class UniquesSuperset(Uniques):
 
 class NUniques(Constraint, abc.ABC):
     def __init__(
-        self, ref: DataReference, *, ref2: DataReference = None, n_uniques: int = None
+        self,
+        ref: DataReference,
+        *,
+        ref2: DataReference = None,
+        n_uniques: int = None,
+        name: str = None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=n_uniques)
+        super().__init__(ref, ref2=ref2, ref_value=n_uniques, name=name)
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -228,8 +234,9 @@ class NUniquesMaxLoss(NUniques):
         ref: DataReference,
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
+        name: str = None,
     ):
-        super().__init__(ref, ref2=ref2)
+        super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_loss_getter = max_relative_loss_getter
 
     def compare(
@@ -260,8 +267,9 @@ class NUniquesMaxGain(NUniques):
         ref: DataReference,
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
+        name: str = None,
     ):
-        super().__init__(ref, ref2=ref2)
+        super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_gain_getter = max_relative_gain_getter
 
     def compare(

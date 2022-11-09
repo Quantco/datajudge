@@ -11,11 +11,12 @@ class NumericMin(Constraint):
     def __init__(
         self,
         ref: DataReference,
+        name: str = None,
         *,
         ref2: DataReference = None,
         min_value: float = None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=min_value)
+        super().__init__(ref, ref2=ref2, ref_value=min_value, name=name)
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -43,6 +44,7 @@ class NumericMax(Constraint):
     def __init__(
         self,
         ref: DataReference,
+        name: str = None,
         *,
         ref2: DataReference = None,
         max_value: float = None,
@@ -51,6 +53,7 @@ class NumericMax(Constraint):
             ref,
             ref2=ref2,
             ref_value=max_value,
+            name=name,
         )
 
     def retrieve(
@@ -82,8 +85,9 @@ class NumericBetween(Constraint):
         min_fraction: float,
         lower_bound: float,
         upper_bound: float,
+        name: str = None,
     ):
-        super().__init__(ref, ref_value=min_fraction)
+        super().__init__(ref, ref_value=min_fraction, name=name)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
@@ -117,6 +121,7 @@ class NumericMean(Constraint):
         self,
         ref: DataReference,
         max_absolute_deviation: float,
+        name: str = None,
         *,
         ref2: DataReference = None,
         mean_value: float = None,
@@ -125,6 +130,7 @@ class NumericMean(Constraint):
             ref,
             ref2=ref2,
             ref_value=mean_value,
+            name=name,
         )
         self.max_absolute_deviation = max_absolute_deviation
 

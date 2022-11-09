@@ -9,8 +9,10 @@ from .base import Constraint, OptionalSelections, TestResult, ToleranceGetter
 
 
 class NRows(Constraint, abc.ABC):
-    def __init__(self, ref, *, ref2: DataReference = None, n_rows: int = None):
-        super().__init__(ref, ref2=ref2, ref_value=n_rows)
+    def __init__(
+        self, ref, *, ref2: DataReference = None, n_rows: int = None, name: str = None
+    ):
+        super().__init__(ref, ref2=ref2, ref_value=n_rows, name=name)
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -70,8 +72,9 @@ class NRowsMaxLoss(NRows):
         ref: DataReference,
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
+        name: str = None,
     ):
-        super().__init__(ref, ref2=ref2)
+        super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_loss_getter = max_relative_loss_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
@@ -100,8 +103,9 @@ class NRowsMaxGain(NRows):
         ref: DataReference,
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
+        name: str = None,
     ):
-        super().__init__(ref, ref2=ref2)
+        super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_gain_getter = max_relative_gain_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
@@ -130,8 +134,9 @@ class NRowsMinGain(NRows):
         ref: DataReference,
         ref2: DataReference,
         min_relative_gain_getter: ToleranceGetter,
+        name: str = None,
     ):
-        super().__init__(ref, ref2=ref2)
+        super().__init__(ref, ref2=ref2, name=name)
         self.min_relative_gain_getter = min_relative_gain_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
