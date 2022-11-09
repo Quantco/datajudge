@@ -13,13 +13,7 @@ Changelog
 **New features**
 
 - Implement :meth:`~datajudge.BetweenRequirement.add_column_type_constraint`. Previously, only the ``WithinRequirement`` method existed.
-
-1.2.1 - 2022.11.??
-------------------
-
-**New features**
-
-- Implemented an option ``infer_pk`` to automatically retrieve and check primary key constraints as part of the `datajudge.WithinRequirement.add_uniqueness_constraint`.
+- Implemented an option ``infer_pk`` to automatically retrieve and primary key definition as part of :meth:`datajudge.WithinRequirement.add_uniqueness_constraint`.
 
 
 1.2.0 - 2022.10.21
