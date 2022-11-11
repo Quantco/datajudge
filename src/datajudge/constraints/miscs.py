@@ -9,8 +9,8 @@ from .base import Constraint, OptionalSelections, TestResult, format_sample
 
 
 class PrimaryKeyDefinition(Constraint):
-    def __init__(self, ref, primary_keys: List[str]):
-        super().__init__(ref, ref_value=set(primary_keys))
+    def __init__(self, ref, primary_keys: List[str], name: str = None):
+        super().__init__(ref, ref_value=set(primary_keys), name=name)
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -55,6 +55,7 @@ class Uniqueness(Constraint):
         max_duplicate_fraction: float = 0,
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns=False,
+        name: str = None,
     ):
         if max_duplicate_fraction != 0 and max_absolute_n_duplicates != 0:
             raise ValueError(
@@ -70,7 +71,7 @@ class Uniqueness(Constraint):
             ref_value = ("relative", 0)
 
         self.infer_pk_columns = infer_pk_columns
-        super().__init__(ref, ref_value=ref_value)
+        super().__init__(ref, ref_value=ref_value, name=name)
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
 
@@ -115,10 +116,10 @@ class Uniqueness(Constraint):
 
 
 class NullAbsence(Constraint):
-    def __init__(self, ref: DataReference):
+    def __init__(self, ref: DataReference, name: str = None):
         # This is arguably hacky. Passing this pointless string ensures that
         # None-checks fail.
-        super().__init__(ref, ref_value="NoNull")
+        super().__init__(ref, ref_value="NoNull", name=name)
 
     def test(self, engine: sa.engine) -> TestResult:
         assertion_message = f"{self.ref.get_string()} contains NULLS."
