@@ -18,7 +18,7 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - freetds
-  - snowflake-sqlalchemy
+  - snowflake-sqlalchemy>=1.4.0
   - sqlalchemy-bigquery
   - flit-core
   - flit
