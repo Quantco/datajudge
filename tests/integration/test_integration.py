@@ -1320,11 +1320,8 @@ def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, 
     (operation, condition, aggregated, tolerance) = data
     req = requirements.WithinRequirement.from_table(*varchar_table_real)
     if computation_in_db:
-        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
-        # Once we remove or update the pinned version, we can enable this test
-        # for snowflake.
         # The feature is not supported in sqlalchemy-bigquery 1.4.4
-        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
+        if is_mssql(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1365,11 +1362,8 @@ def test_varchar_regex_counterexample(
 ):
     req = requirements.WithinRequirement.from_table(*varchar_table_real)
     if computation_in_db:
-        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
-        # Once we remove or update the pinned version, we can enable this test
-        # for snowflake.
         # The feature is not supported in sqlalchemy-bigquery 1.4.4
-        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
+        if is_mssql(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
