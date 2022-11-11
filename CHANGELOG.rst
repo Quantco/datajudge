@@ -14,6 +14,7 @@ Changelog
 
 - Implement :meth:`~datajudge.BetweenRequirement.add_column_type_constraint`. Previously, only the ``WithinRequirement`` method existed.
 - Implemented an option ``infer_pk`` to automatically retrieve and primary key definition as part of :meth:`datajudge.WithinRequirement.add_uniqueness_constraint`.
+- Added a ``name`` parameter to all ``add_x_constraint`` methods of ``WithinRequirement`` and ``BetweenRequirement``. This will give pytest test a custom name.
 
 
 1.2.0 - 2022.10.21
