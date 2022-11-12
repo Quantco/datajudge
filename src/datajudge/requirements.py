@@ -136,7 +136,7 @@ class WithinRequirement(Requirement):
         max_duplicate_fraction: float = 0,
         condition: Condition = None,
         max_absolute_n_duplicates: int = 0,
-        infer_pk_columns=False,
+        infer_pk_columns: bool = False,
         name: str = None,
     ):
         """Columns should uniquely identify row.

@@ -54,7 +54,7 @@ class Uniqueness(Constraint):
         ref: DataReference,
         max_duplicate_fraction: float = 0,
         max_absolute_n_duplicates: int = 0,
-        infer_pk_columns=False,
+        infer_pk_columns: bool = False,
         name: str = None,
     ):
         if max_duplicate_fraction != 0 and max_absolute_n_duplicates != 0:
