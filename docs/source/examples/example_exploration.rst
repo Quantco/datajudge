@@ -207,9 +207,9 @@ to the ``BetweenRequirement``.
     columns1 = req[0].get_factual_value(engine)
     columns2 = req[0].get_target_value(engine)
 
-    print(f"Columns present in both: {set(v1) & set(v2)}")
-    print(f"Columns present in only table1: {set(v1) - set(v2)}")
-    print(f"Columns present in only table2: {set(v2) - set(v1)}")
+    print(f"Columns present in both: {set(columns1) & set(columns2)}")
+    print(f"Columns present in only table1: {set(columns1) - set(columns2)}")
+    print(f"Columns present in only table2: {set(columns2) - set(columns1)}")
 
 
 This could, for instance result in the following printout:
@@ -226,7 +226,7 @@ Now, we can investigate the types of the columns present in both tables:
 
 .. code-block:: python
 
-    for column in set(v1) & set(v2):
+    for column in set(columns1) & set(columns2):
         req.add_column_type_constraint(column1=column, column2=column)
 	type1 = req[0].get_factual_value(engine)
 	type2 = req[0].get_target_value(engine)
