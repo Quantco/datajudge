@@ -7,6 +7,7 @@ dependencies:
   - pytest
   - pytest-cov
   - pytest-html
+  - pytest-xdist
   - make
   - numpydoc
   - scipy
@@ -22,5 +23,4 @@ dependencies:
   - sqlalchemy-bigquery
   - flit-core
   - flit
-  - pytest-cov
   - sphinx-autodoc-typehints
