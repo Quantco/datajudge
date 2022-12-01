@@ -78,7 +78,6 @@ def int_table1(engine, metadata):
 @pytest.fixture(scope="module")
 def int_table2(engine, metadata):
     table_name = "int_table2"
-    engine.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
     columns = [sa.Column("col_int", sa.Integer())]
     data = [{"col_int": i} for i in range(2, 20)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -88,7 +87,6 @@ def int_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def int_square_table(engine, metadata):
     table_name = "int_square_table"
-    engine.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
     columns = [sa.Column("col_int", sa.Integer())]
     data = [{"col_int": i**2} for i in range(1, 20)]
     _handle_table(engine, metadata, table_name, columns, data)
