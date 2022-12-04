@@ -89,11 +89,14 @@ class Constraint(abc.ABC):
     value. If `ref_value` is already provided, usually no further mapping needs to be taken care of.
     """
 
-    def __init__(self, ref: DataReference, *, ref2=None, ref_value: Any = None):
+    def __init__(
+        self, ref: DataReference, *, ref2=None, ref_value: Any = None, name: str = None
+    ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref
         self.ref2 = ref2
         self.ref_value = ref_value
+        self.name = name
         self.factual_selections: OptionalSelections = None
         self.target_selections: OptionalSelections = None
         self.factual_queries: Optional[List[str]] = None
@@ -130,6 +133,8 @@ class Constraint(abc.ABC):
         return target_value
 
     def get_description(self) -> str:
+        if self.name is not None:
+            return self.name
         if self.ref2 is None:
             data_source_string = str(self.ref.data_source)
         else:

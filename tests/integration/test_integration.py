@@ -1320,11 +1320,8 @@ def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, 
     (operation, condition, aggregated, tolerance) = data
     req = requirements.WithinRequirement.from_table(*varchar_table_real)
     if computation_in_db:
-        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
-        # Once we remove or update the pinned version, we can enable this test
-        # for snowflake.
         # The feature is not supported in sqlalchemy-bigquery 1.4.4
-        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
+        if is_mssql(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1365,11 +1362,8 @@ def test_varchar_regex_counterexample(
 ):
     req = requirements.WithinRequirement.from_table(*varchar_table_real)
     if computation_in_db:
-        # TODO: This feature is available in snowflake-sqlalchemy 1.4.0.
-        # Once we remove or update the pinned version, we can enable this test
-        # for snowflake.
         # The feature is not supported in sqlalchemy-bigquery 1.4.4
-        if is_mssql(engine) or is_snowflake(engine) or is_bigquery(engine):
+        if is_mssql(engine) or is_bigquery(engine):
             pytest.skip("Functionality not supported by given dialect.")
         req.add_varchar_regex_constraint_db(
             "col_varchar",
@@ -1593,6 +1587,24 @@ def test_column_superset_between(engine, get_fixture, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (identity, "mix_table1", "mix_table2", "col_varchar", "col_varchar"),
+        (identity, "mix_table1", "mix_table2", "col_int", "col_int"),
+        (identity, "mix_table1", "mix_table2", "col_date", "col_date"),
+        (negation, "mix_table1", "mix_table2", "col_varchar", "col_int"),
+    ],
+)
+def test_column_type_between(engine, get_fixture, data):
+    (operation, table_name1, table_name2, column1, column2) = data
+    table1 = get_fixture(table_name1)
+    table2 = get_fixture(table_name2)
+    req = requirements.BetweenRequirement.from_tables(*table1, *table2)
+    req.add_column_type_constraint(column1=column1, column2=column2)
+    assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (identity, ["col_int1", "col_int2"]),
         (identity, ["col_int2", "col_int1"]),
         (negation, ["col_int1"]),
@@ -1646,6 +1658,28 @@ def test_uniqueness_within(engine, mix_table2, data):
         columns, max_duplicate_fraction, condition, max_absolute_n_duplicates
     )
     test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, ["col_int"], None),
+        (identity, ["col_int"], []),
+        (identity, ["col_int"], ["col_date"]),
+    ],
+)
+def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
+    # We purposefully select a non-unique column ["col_date"] to validate
+    # that the reference columns are overwritten.
+    operation, target_columns, selection_columns = data
+    req = requirements.WithinRequirement.from_table(*mix_table2_pk)
+    req.add_uniqueness_constraint(columns=selection_columns, infer_pk_columns=True)
+    test_result = req[0].test(engine)
+    # additional test: the PK columns are inferred during test time, i.e. we can check here if they were inferred correctly
+    assert (
+        req[0].ref.columns == target_columns
+    ), f"Incorrect columns were retrieved from table. {req[0].ref.columns} != {target_columns}"
     assert operation(test_result.outcome), test_result.failure_message
 
 

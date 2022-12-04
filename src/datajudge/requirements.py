@@ -116,24 +116,28 @@ class WithinRequirement(Requirement):
         """
         return cls(data_source=ExpressionDataSource(expression, name))
 
-    def add_column_existence_constraint(self, columns: List[str]):
+    def add_column_existence_constraint(self, columns: List[str], name: str = None):
         # Note that columns are not meant to be part of the reference.
         ref = DataReference(self.data_source)
         self._constraints.append(column_constraints.ColumnExistence(ref, columns))
 
-    def add_primary_key_definition_constraint(self, primary_keys: List[str]):
+    def add_primary_key_definition_constraint(
+        self, primary_keys: List[str], name: str = None
+    ):
         """Primary keys of exactly equal to given column names in the database."""
         ref = DataReference(self.data_source)
         self._constraints.append(
-            miscs_constraints.PrimaryKeyDefinition(ref, primary_keys)
+            miscs_constraints.PrimaryKeyDefinition(ref, primary_keys, name=name)
         )
 
     def add_uniqueness_constraint(
         self,
-        columns: List[str],
+        columns: List[str] = None,
         max_duplicate_fraction: float = 0,
         condition: Condition = None,
         max_absolute_n_duplicates: int = 0,
+        infer_pk_columns: bool = False,
+        name: str = None,
     ):
         """Columns should uniquely identify row.
 
@@ -143,6 +147,9 @@ class WithinRequirement(Requirement):
         suggests that the number of uniques from said colums is larger or equal
         to (1 - max_duplicate_fraction) the number of rows.
 
+        If infer_pk_columns is True, columns will be retrieved from the primary keys.
+        When columns=None and infer_pk_columns=False, the fallback is validating that all
+        rows in a table are unique.
         """
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
@@ -150,28 +157,48 @@ class WithinRequirement(Requirement):
                 ref,
                 max_duplicate_fraction=max_duplicate_fraction,
                 max_absolute_n_duplicates=max_absolute_n_duplicates,
+                infer_pk_columns=infer_pk_columns,
+                name=name,
             )
         )
 
-    def add_column_type_constraint(self, column: str, column_type: str):
+    def add_column_type_constraint(
+        self, column: str, column_type: str, name: str = None
+    ):
         ref = DataReference(self.data_source, [column])
-        self._constraints.append(column_constraints.ColumnType(ref, column_type))
+        self._constraints.append(
+            column_constraints.ColumnType(ref, column_type=column_type, name=name)
+        )
 
-    def add_null_absence_constraint(self, column: str, condition: Condition = None):
+    def add_null_absence_constraint(
+        self, column: str, condition: Condition = None, name: str = None
+    ):
         ref = DataReference(self.data_source, [column], condition)
-        self._constraints.append(miscs_constraints.NullAbsence(ref))
+        self._constraints.append(miscs_constraints.NullAbsence(ref, name=name))
 
-    def add_n_rows_equality_constraint(self, n_rows: int, condition: Condition = None):
+    def add_n_rows_equality_constraint(
+        self, n_rows: int, condition: Condition = None, name: str = None
+    ):
         ref = DataReference(self.data_source, None, condition)
-        self._constraints.append(nrows_constraints.NRowsEquality(ref, n_rows=n_rows))
+        self._constraints.append(
+            nrows_constraints.NRowsEquality(ref, n_rows=n_rows, name=name)
+        )
 
-    def add_n_rows_min_constraint(self, n_rows_min: int, condition: Condition = None):
+    def add_n_rows_min_constraint(
+        self, n_rows_min: int, condition: Condition = None, name: str = None
+    ):
         ref = DataReference(self.data_source, None, condition)
-        self._constraints.append(nrows_constraints.NRowsMin(ref, n_rows=n_rows_min))
+        self._constraints.append(
+            nrows_constraints.NRowsMin(ref, n_rows=n_rows_min, name=name)
+        )
 
-    def add_n_rows_max_constraint(self, n_rows_max: int, condition: Condition = None):
+    def add_n_rows_max_constraint(
+        self, n_rows_max: int, condition: Condition = None, name: str = None
+    ):
         ref = DataReference(self.data_source, None, condition)
-        self._constraints.append(nrows_constraints.NRowsMax(ref, n_rows=n_rows_max))
+        self._constraints.append(
+            nrows_constraints.NRowsMax(ref, n_rows=n_rows_max, name=name)
+        )
 
     def add_uniques_equality_constraint(
         self,
@@ -180,6 +207,7 @@ class WithinRequirement(Requirement):
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
+        name: str = None,
     ):
         """Check if the data's unique values are equal to a given set of values.
 
@@ -194,7 +222,11 @@ class WithinRequirement(Requirement):
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
             uniques_constraints.UniquesEquality(
-                ref, uniques=uniques, map_func=map_func, reduce_func=reduce_func
+                ref,
+                uniques=uniques,
+                map_func=map_func,
+                reduce_func=reduce_func,
+                name=name,
             )
         )
 
@@ -206,6 +238,7 @@ class WithinRequirement(Requirement):
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
+        name: str = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -234,6 +267,7 @@ class WithinRequirement(Requirement):
                 max_relative_violations=max_relative_violations,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                name=name,
             )
         )
 
@@ -245,6 +279,7 @@ class WithinRequirement(Requirement):
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
+        name: str = None,
     ):
         """Check if the data's unique values are contained in a given set of values.
 
@@ -271,6 +306,7 @@ class WithinRequirement(Requirement):
                 max_relative_violations=max_relative_violations,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                name=name,
             )
         )
 
@@ -279,10 +315,11 @@ class WithinRequirement(Requirement):
         columns: Optional[List[str]],
         n_uniques: int,
         condition: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
-            uniques_constraints.NUniquesEquality(ref, n_uniques=n_uniques)
+            uniques_constraints.NUniquesEquality(ref, n_uniques=n_uniques, name=name)
         )
 
     def add_numeric_min_constraint(
@@ -295,12 +332,16 @@ class WithinRequirement(Requirement):
         )
 
     def add_numeric_max_constraint(
-        self, column: str, max_value: float, condition: Condition = None
+        self,
+        column: str,
+        max_value: float,
+        condition: Condition = None,
+        name: str = None,
     ):
         """All values in column are less or equal max_value."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            numeric_constraints.NumericMax(ref, max_value=max_value)
+            numeric_constraints.NumericMax(ref, max_value=max_value, name=name)
         )
 
     def add_numeric_between_constraint(
@@ -310,12 +351,17 @@ class WithinRequirement(Requirement):
         upper_bound: float,
         min_fraction: float,
         condition: Condition = None,
+        name: str = None,
     ):
         """At least min_fraction of column's values are >= lower_bound and <= upper_bound."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericBetween(
-                ref, min_fraction, lower_bound, upper_bound
+                ref,
+                min_fraction,
+                lower_bound,
+                upper_bound,
+                name=name,
             )
         )
 
@@ -325,12 +371,16 @@ class WithinRequirement(Requirement):
         mean_value: float,
         max_absolute_deviation: float,
         condition: Condition = None,
+        name: str = None,
     ):
         """Assert the mean of the column deviates at most max_deviation from mean_value."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericMean(
-                ref, max_absolute_deviation, mean_value=mean_value
+                ref,
+                max_absolute_deviation,
+                mean_value=mean_value,
+                name=name,
             )
         )
 
@@ -341,6 +391,7 @@ class WithinRequirement(Requirement):
         use_lower_bound_reference: bool = True,
         column_type: str = "date",
         condition: Condition = None,
+        name: str = None,
     ):
         """Ensure all dates to be superior than min_value.
 
@@ -361,6 +412,7 @@ class WithinRequirement(Requirement):
                 min_value=min_value,
                 use_lower_bound_reference=use_lower_bound_reference,
                 column_type=column_type,
+                name=name,
             )
         )
 
@@ -371,6 +423,7 @@ class WithinRequirement(Requirement):
         use_upper_bound_reference: bool = True,
         column_type: str = "date",
         condition: Condition = None,
+        name: str = None,
     ):
         """Ensure all dates to be superior than max_value.
 
@@ -391,6 +444,7 @@ class WithinRequirement(Requirement):
                 max_value=max_value,
                 use_upper_bound_reference=use_upper_bound_reference,
                 column_type=column_type,
+                name=name,
             )
         )
 
@@ -401,6 +455,7 @@ class WithinRequirement(Requirement):
         upper_bound: str,
         min_fraction: float,
         condition: Condition = None,
+        name: str = None,
     ):
         """Use string format: lower_bound="'20121230'"."""
         ref = DataReference(self.data_source, [column], condition)
@@ -416,6 +471,7 @@ class WithinRequirement(Requirement):
         end_included: bool = True,
         max_relative_n_violations: float = 0,
         condition: Condition = None,
+        name: str = None,
     ):
         """Constraint expressing that several date range rows may not overlap.
 
@@ -460,6 +516,7 @@ class WithinRequirement(Requirement):
                 end_columns=[end_column],
                 end_included=end_included,
                 max_relative_n_violations=max_relative_n_violations,
+                name=name,
             )
         )
 
@@ -473,6 +530,7 @@ class WithinRequirement(Requirement):
         end_included: bool = True,
         max_relative_n_violations: float = 0,
         condition: Condition = None,
+        name: str = None,
     ):
         """Express that several date range rows do not overlap in two date dimensions.
 
@@ -532,6 +590,7 @@ class WithinRequirement(Requirement):
                 end_columns=[end_column1, end_column2],
                 end_included=end_included,
                 max_relative_n_violations=max_relative_n_violations,
+                name=name,
             )
         )
 
@@ -543,6 +602,7 @@ class WithinRequirement(Requirement):
         end_included: bool = True,
         max_relative_n_violations: float = 0,
         condition: Condition = None,
+        name: str = None,
     ):
         """
         Express that date range rows have no gap in-between them.
@@ -584,6 +644,7 @@ class WithinRequirement(Requirement):
                 end_columns=[end_column],
                 max_relative_n_violations=max_relative_n_violations,
                 end_included=end_included,
+                name=name,
             )
         )
 
@@ -592,6 +653,7 @@ class WithinRequirement(Requirement):
         column: str,
         regex: str,
         condition: Condition = None,
+        name: str = None,
         allow_none: bool = False,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
@@ -625,6 +687,7 @@ class WithinRequirement(Requirement):
                 relative_tolerance=relative_tolerance,
                 aggregated=aggregated,
                 n_counterexamples=n_counterexamples,
+                name=name,
             )
         )
 
@@ -633,6 +696,7 @@ class WithinRequirement(Requirement):
         column: str,
         regex: str,
         condition: Condition = None,
+        name: str = None,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
@@ -663,23 +727,32 @@ class WithinRequirement(Requirement):
                 relative_tolerance=relative_tolerance,
                 aggregated=aggregated,
                 n_counterexamples=n_counterexamples,
+                name=name,
             )
         )
 
     def add_varchar_min_length_constraint(
-        self, column: str, min_length: int, condition: Condition = None
+        self,
+        column: str,
+        min_length: int,
+        condition: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            varchar_constraints.VarCharMinLength(ref, min_length=min_length)
+            varchar_constraints.VarCharMinLength(ref, min_length=min_length, name=name)
         )
 
     def add_varchar_max_length_constraint(
-        self, column: str, max_length: int, condition: Condition = None
+        self,
+        column: str,
+        max_length: int,
+        condition: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            varchar_constraints.VarCharMaxLength(ref, max_length=max_length)
+            varchar_constraints.VarCharMaxLength(ref, max_length=max_length, name=name)
         )
 
     def add_groupby_aggregation_constraint(
@@ -689,6 +762,7 @@ class WithinRequirement(Requirement):
         start_value: int,
         tolerance: float = 0,
         condition: Condition = None,
+        name: str = None,
     ):
         """Chek whether array aggregate corresponds to an integer range.
 
@@ -710,6 +784,7 @@ class WithinRequirement(Requirement):
                 aggregation_column=aggregation_column,
                 tolerance=tolerance,
                 start_value=start_value,
+                name=name,
             )
         )
 
@@ -837,11 +912,16 @@ class BetweenRequirement(Requirement):
         )
 
     def add_n_rows_equality_constraint(
-        self, condition1: Condition = None, condition2: Condition = None
+        self,
+        condition1: Condition = None,
+        condition2: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, condition=condition1)
         ref2 = DataReference(self.data_source2, condition=condition2)
-        self._constraints.append(nrows_constraints.NRowsEquality(ref, ref2=ref2))
+        self._constraints.append(
+            nrows_constraints.NRowsEquality(ref, ref2=ref2, name=name)
+        )
 
     def add_n_rows_max_gain_constraint(
         self,
@@ -849,6 +929,7 @@ class BetweenRequirement(Requirement):
         date_range_gain_deviation: Optional[float] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """#rows from first table <= #rows from second table * (1 + max_growth).
 
@@ -860,7 +941,9 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, condition=condition1)
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
-            nrows_constraints.NRowsMaxGain(ref, ref2, max_relative_gain_getter)
+            nrows_constraints.NRowsMaxGain(
+                ref, ref2, max_relative_gain_getter, name=name
+            )
         )
 
     def add_n_rows_min_gain_constraint(
@@ -869,6 +952,7 @@ class BetweenRequirement(Requirement):
         date_range_gain_deviation: Optional[float] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """#rows from first table  >= #rows from second table * (1 + min_growth).
 
@@ -880,7 +964,9 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, condition=condition1)
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
-            nrows_constraints.NRowsMinGain(ref, ref2, min_relative_gain_getter)
+            nrows_constraints.NRowsMinGain(
+                ref, ref2, min_relative_gain_getter, name=name
+            )
         )
 
     def add_n_rows_max_loss_constraint(
@@ -889,6 +975,7 @@ class BetweenRequirement(Requirement):
         date_range_loss_deviation: Optional[float] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """#rows from first table >= #rows from second table * (1 - max_loss).
 
@@ -900,7 +987,9 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, condition=condition1)
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
-            nrows_constraints.NRowsMaxLoss(ref, ref2, max_relative_loss_getter)
+            nrows_constraints.NRowsMaxLoss(
+                ref, ref2, max_relative_loss_getter, name=name
+            )
         )
 
     def add_n_uniques_equality_constraint(
@@ -909,10 +998,13 @@ class BetweenRequirement(Requirement):
         columns2: Optional[List[str]],
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
-        self._constraints.append(uniques_constraints.NUniquesEquality(ref, ref2=ref2))
+        self._constraints.append(
+            uniques_constraints.NUniquesEquality(ref, ref2=ref2, name=name)
+        )
 
     def add_n_uniques_max_gain_constraint(
         self,
@@ -922,6 +1014,7 @@ class BetweenRequirement(Requirement):
         date_range_gain_deviation: Optional[float] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """#uniques or first table <= #uniques of second table* (1 + max_growth).
 
@@ -936,7 +1029,12 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
-            uniques_constraints.NUniquesMaxGain(ref, ref2, max_relative_gain_getter)
+            uniques_constraints.NUniquesMaxGain(
+                ref,
+                ref2,
+                max_relative_gain_getter,
+                name=name,
+            )
         )
 
     def add_n_uniques_max_loss_constraint(
@@ -947,6 +1045,7 @@ class BetweenRequirement(Requirement):
         date_range_loss_deviation: Optional[float] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """#uniques in first table <= #uniques in second table * (1 - max_loss).
 
@@ -961,7 +1060,9 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
-            uniques_constraints.NUniquesMaxLoss(ref, ref2, max_relative_loss_getter)
+            uniques_constraints.NUniquesMaxLoss(
+                ref, ref2, max_relative_loss_getter, name=name
+            )
         )
 
     def add_numeric_min_constraint(
@@ -970,10 +1071,13 @@ class BetweenRequirement(Requirement):
         column2: str,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
-        self._constraints.append(numeric_constraints.NumericMin(ref, ref2=ref2))
+        self._constraints.append(
+            numeric_constraints.NumericMin(ref, ref2=ref2, name=name)
+        )
 
     def add_uniques_equality_constraint(
         self,
@@ -983,6 +1087,7 @@ class BetweenRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """Check if the data's unique values in given columns are equal.
 
@@ -998,7 +1103,11 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
             uniques_constraints.UniquesEquality(
-                ref, ref2=ref2, map_func=map_func, reduce_func=reduce_func
+                ref,
+                ref2=ref2,
+                map_func=map_func,
+                reduce_func=reduce_func,
+                name=name,
             )
         )
 
@@ -1011,6 +1120,7 @@ class BetweenRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -1041,6 +1151,7 @@ class BetweenRequirement(Requirement):
                 max_relative_violations=max_relative_violations,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                name=name,
             )
         )
 
@@ -1053,6 +1164,7 @@ class BetweenRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """Check if the given columns's unique values in are contained in reference data.
 
@@ -1080,6 +1192,7 @@ class BetweenRequirement(Requirement):
                 max_relative_violations=max_relative_violations,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                name=name,
             )
         )
 
@@ -1089,10 +1202,13 @@ class BetweenRequirement(Requirement):
         column2: str,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
-        self._constraints.append(numeric_constraints.NumericMax(ref, ref2=ref2))
+        self._constraints.append(
+            numeric_constraints.NumericMax(ref, ref2=ref2, name=name)
+        )
 
     def add_numeric_mean_constraint(
         self,
@@ -1101,6 +1217,7 @@ class BetweenRequirement(Requirement):
         max_absolute_deviation: float,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
@@ -1109,6 +1226,7 @@ class BetweenRequirement(Requirement):
                 ref,
                 max_absolute_deviation,
                 ref2=ref2,
+                name=name,
             )
         )
 
@@ -1120,6 +1238,7 @@ class BetweenRequirement(Requirement):
         column_type: str = "date",
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """Ensure date min of first table is greater or equal date min of second table.
 
@@ -1140,6 +1259,7 @@ class BetweenRequirement(Requirement):
                 ref2=ref2,
                 use_lower_bound_reference=use_lower_bound_reference,
                 column_type=column_type,
+                name=name,
             )
         )
 
@@ -1151,6 +1271,7 @@ class BetweenRequirement(Requirement):
         column_type: str = "date",
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """Compare date max of first table to date max of second table.
 
@@ -1171,6 +1292,7 @@ class BetweenRequirement(Requirement):
                 ref2=ref2,
                 use_upper_bound_reference=use_upper_bound_reference,
                 column_type=column_type,
+                name=name,
             )
         )
 
@@ -1180,10 +1302,13 @@ class BetweenRequirement(Requirement):
         column2: str,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
-        self._constraints.append(varchar_constraints.VarCharMinLength(ref, ref2=ref2))
+        self._constraints.append(
+            varchar_constraints.VarCharMinLength(ref, ref2=ref2, name=name)
+        )
 
     def add_varchar_max_length_constraint(
         self,
@@ -1191,21 +1316,31 @@ class BetweenRequirement(Requirement):
         column2: str,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
-        self._constraints.append(varchar_constraints.VarCharMaxLength(ref, ref2=ref2))
-
-    def add_column_subset_constraint(self):
-        """Columns of first table are subset of second table."""
         self._constraints.append(
-            column_constraints.ColumnSubset(self.ref, ref2=self.ref2)
+            varchar_constraints.VarCharMaxLength(ref, ref2=ref2, name=name)
         )
 
-    def add_column_superset_constraint(self):
+    def add_column_subset_constraint(self, name: str = None):
+        """Columns of first table are subset of second table."""
+        self._constraints.append(
+            column_constraints.ColumnSubset(self.ref, ref2=self.ref2, name=name)
+        )
+
+    def add_column_superset_constraint(self, name: str = None):
         """Columns of first table are superset of columns of second table."""
         self._constraints.append(
-            column_constraints.ColumnSuperset(self.ref, ref2=self.ref2)
+            column_constraints.ColumnSuperset(self.ref, ref2=self.ref2, name=name)
+        )
+
+    def add_column_type_constraint(self, column1: str, column2: str, name: str = None):
+        ref1 = DataReference(self.data_source, [column1])
+        ref2 = DataReference(self.data_source2, [column2])
+        self._constraints.append(
+            column_constraints.ColumnType(ref1, ref2=ref2, name=name)
         )
 
     def add_row_equality_constraint(
@@ -1215,6 +1350,7 @@ class BetweenRequirement(Requirement):
         max_missing_fraction: float,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """At most ``max_missing_fraction`` of rows in T1 and T2 are absent in either.
 
@@ -1225,7 +1361,9 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
-            row_constraints.RowEquality(ref, ref2, lambda engine: max_missing_fraction)
+            row_constraints.RowEquality(
+                ref, ref2, lambda engine: max_missing_fraction, name=name
+            )
         )
 
     def add_row_subset_constraint(
@@ -1236,6 +1374,7 @@ class BetweenRequirement(Requirement):
         date_range_loss_fraction: Optional[float] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """At most ``max_missing_fraction`` of rows in T1 are not in T2.
 
@@ -1254,7 +1393,7 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
-            row_constraints.RowSubset(ref, ref2, max_missing_fraction_getter)
+            row_constraints.RowSubset(ref, ref2, max_missing_fraction_getter, name=name)
         )
 
     def add_row_superset_constraint(
@@ -1265,6 +1404,7 @@ class BetweenRequirement(Requirement):
         date_range_loss_fraction: Optional[float] = None,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """At most ``max_missing_fraction`` of rows in T2 are not in T1.
 
@@ -1279,7 +1419,9 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
-            row_constraints.RowSuperset(ref, ref2, max_missing_fraction_getter)
+            row_constraints.RowSuperset(
+                ref, ref2, max_missing_fraction_getter, name=name
+            )
         )
 
     def add_row_matching_equality_constraint(
@@ -1291,6 +1433,7 @@ class BetweenRequirement(Requirement):
         max_missing_fraction: float,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
     ):
         """Match tables in matching_columns, compare for equality in comparison_columns.
 
@@ -1317,6 +1460,7 @@ class BetweenRequirement(Requirement):
                 comparison_columns1,
                 comparison_columns2,
                 lambda engine: max_missing_fraction,
+                name=name,
             )
         )
 
@@ -1326,6 +1470,7 @@ class BetweenRequirement(Requirement):
         column2: str,
         condition1: Condition = None,
         condition2: Condition = None,
+        name: str = None,
         significance_level: float = 0.05,
     ):
         """
@@ -1348,5 +1493,7 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, [column1], condition=condition1)
         ref2 = DataReference(self.data_source2, [column2], condition=condition2)
         self._constraints.append(
-            stats_constraints.KolmogorovSmirnov2Sample(ref, ref2, significance_level)
+            stats_constraints.KolmogorovSmirnov2Sample(
+                ref, ref2, significance_level, name=name
+            )
         )

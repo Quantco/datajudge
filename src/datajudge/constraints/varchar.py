@@ -17,8 +17,9 @@ class VarCharRegexDb(Constraint):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
+        name: str = None,
     ):
-        super().__init__(ref, ref_value=relative_tolerance)
+        super().__init__(ref, ref_value=relative_tolerance, name=name)
         self.regex = regex
         self.aggregated = aggregated
         self.n_counterexamples = n_counterexamples
@@ -81,8 +82,9 @@ class VarCharRegex(Constraint):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
+        name: str = None,
     ):
-        super().__init__(ref, ref_value=regex)
+        super().__init__(ref, ref_value=regex, name=name)
         self.allow_none = allow_none
         self.relative_tolerance = relative_tolerance
         self.aggregated = aggregated
@@ -143,11 +145,19 @@ class VarCharRegex(Constraint):
 
 
 class VarCharMinLength(Constraint):
-    def __init__(self, ref, *, ref2: DataReference = None, min_length: int = None):
+    def __init__(
+        self,
+        ref,
+        *,
+        ref2: DataReference = None,
+        min_length: int = None,
+        name: str = None,
+    ):
         super().__init__(
             ref,
             ref2=ref2,
             ref_value=min_length,
+            name=name,
         )
 
     def retrieve(
@@ -174,12 +184,18 @@ class VarCharMinLength(Constraint):
 
 class VarCharMaxLength(Constraint):
     def __init__(
-        self, ref: DataReference, *, ref2: DataReference = None, max_length: int = None
+        self,
+        ref: DataReference,
+        *,
+        ref2: DataReference = None,
+        max_length: int = None,
+        name: str = None,
     ):
         super().__init__(
             ref,
             ref2=ref2,
             ref_value=max_length,
+            name=name,
         )
 
     def retrieve(

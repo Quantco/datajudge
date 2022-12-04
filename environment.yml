@@ -7,6 +7,7 @@ dependencies:
   - pytest
   - pytest-cov
   - pytest-html
+  - pytest-xdist
   - make
   - numpydoc
   - scipy
@@ -18,9 +19,8 @@ dependencies:
   - sqlalchemy
   - psycopg2
   - freetds
-  - snowflake-sqlalchemy
+  - snowflake-sqlalchemy>=1.4.0
   - sqlalchemy-bigquery
   - flit-core
   - flit
-  - pytest-cov
   - sphinx-autodoc-typehints

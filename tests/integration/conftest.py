@@ -34,8 +34,8 @@ def get_engine(backend) -> sa.engine.Engine:
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
         connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
     elif "bigquery" in backend:
-        gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
-        connection_string = f"bigquery://{gcp_project}"
+        # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
+        connection_string = "bigquery://"
 
     engine = sa.create_engine(connection_string, echo=True)
     apply_patches(engine)
@@ -78,7 +78,6 @@ def int_table1(engine, metadata):
 @pytest.fixture(scope="module")
 def int_table2(engine, metadata):
     table_name = "int_table2"
-    engine.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
     columns = [sa.Column("col_int", sa.Integer())]
     data = [{"col_int": i} for i in range(2, 20)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -88,7 +87,6 @@ def int_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def int_square_table(engine, metadata):
     table_name = "int_square_table"
-    engine.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
     columns = [sa.Column("col_int", sa.Integer())]
     data = [{"col_int": i**2} for i in range(1, 20)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -132,6 +130,26 @@ def mix_table2(engine, metadata):
         for i in range(2, 20)
     ]
     data[5]["col_varchar"] = "ho"
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
+def mix_table2_pk(engine, metadata):
+    table_name = "mix_table2_pk"
+    columns = [
+        sa.Column("col_int", sa.Integer(), primary_key=True),
+        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_date", sa.DateTime()),
+    ]
+    data = [
+        {
+            "col_int": i,
+            "col_varchar": f"hi{i}",
+            "col_date": datetime.datetime(2016, 1, i // 2),
+        }
+        for i in range(2, 20)
+    ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
 
