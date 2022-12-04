@@ -52,3 +52,8 @@ line_length = 88
 known_first_party = "datajudge"
 skip_glob = '\.eggs/*,\.git/*,\.venv/*,build/*,dist/*'
 default_section = 'THIRDPARTY'
+
+[tool.mypy]
+# Temporary fix.
+no_implicit_optional = false
+allow_empty_bodies = true
