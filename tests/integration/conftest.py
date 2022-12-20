@@ -6,6 +6,7 @@ import urllib.parse
 
 import pytest
 import sqlalchemy as sa
+from impala.dbapi import connect
 
 from datajudge.db_access import apply_patches, is_bigquery, is_mssql
 
@@ -15,6 +16,20 @@ SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
 
 def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
+
+    if backend == "impala":
+        host = "localhost"
+        port = 21050
+
+        def conn_creator():
+            return connect(
+                host=host,
+                port=port,
+                database="default",
+            )
+
+        return sa.create_engine("impala://", creator=conn_creator)
+
     if backend == "postgres":
         connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
     elif "mssql" in backend:
@@ -47,7 +62,7 @@ def get_engine(backend) -> sa.engine.Engine:
 def engine(backend):
     engine = get_engine(backend)
     with engine.connect() as conn:
-        if engine.name in ("postgresql", "bigquery"):
+        if engine.name in ("postgresql", "bigquery", "impala"):
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
     return engine
 
@@ -778,7 +793,9 @@ def cross_cdf_table2(engine, metadata):
 def pytest_addoption(parser):
     parser.addoption(
         "--backend",
-        choices=(("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery")),
+        choices=(
+            ("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery", "impala")
+        ),
         help="which database backend to use to run the integration tests",
     )
 
