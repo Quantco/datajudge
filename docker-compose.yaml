@@ -1,3 +1,5 @@
+# Taken from
+# https://github.com/ibis-project/ibis/blob/master/docker-compose.yml
 version: "3.4"
 services:
   impala:
@@ -60,4 +62,3 @@ services:
       - impala
 networks:
   impala:
-  clickhouse:
