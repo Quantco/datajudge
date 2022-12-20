@@ -58,26 +58,6 @@ services:
       - 8050:8050
     networks:
       - impala
-  postgres:
-    user: postgres
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ibis_testing
-      POSTGRES_USER: postgres
-    build: ./docker/postgres
-    healthcheck:
-      interval: 10s
-      retries: 3
-      test:
-        - CMD
-        - pg_isready
-      timeout: 5s
-    ports:
-      - 5432:5432
-    networks:
-      - postgres
-
 networks:
   impala:
   clickhouse:
-  postgres:
