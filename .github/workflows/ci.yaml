@@ -244,6 +244,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
       - name: Fetch full git history
         run: git fetch --prune --unshallow
       - uses: conda-incubator/setup-miniconda@v2
