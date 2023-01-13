@@ -62,7 +62,6 @@ def get_engine(backend) -> sa.engine.Engine:
 def engine(backend):
     engine = get_engine(backend)
     with engine.connect() as conn:
-        conn.execute("CREATE DATABASE IF NOT EXISTS cooldbz")
         if engine.name in ("postgresql", "bigquery", "impala"):
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
     return engine
