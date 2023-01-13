@@ -18,13 +18,11 @@ def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
 
     if backend == "impala":
-        host = "localhost"
-        port = 21050
 
         def conn_creator():
             return connect(
-                host=host,
-                port=port,
+                host=address,
+                port=21050,
                 database="default",
             )
 
