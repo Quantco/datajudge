@@ -1,7 +1,7 @@
 import pytest
 
 import datajudge
-from datajudge.db_access import DataReference, TableDataSource, is_bigquery
+from datajudge.db_access import DataReference, TableDataSource, is_bigquery, is_impala
 
 
 def test_cross_cdf_selection(engine, cross_cdf_table1, cross_cdf_table2):
@@ -39,7 +39,7 @@ def test_cross_cdf_selection(engine, cross_cdf_table1, cross_cdf_table2):
 )
 def test_ks_2sample_calculate_statistic(engine, random_normal_table, configuration):
 
-    if is_bigquery(engine):
+    if is_bigquery(engine) or is_impala(engine):
         pytest.skip("It takes too long to insert the table into BigQuery")
 
     col_1, col_2, expected_d, expected_p = configuration
