@@ -54,7 +54,7 @@ jobs:
           environment-file: environment.yml
           activate-environment: datajudge
       - name: Set up container
-        run: docker-compose up -d
+        run: docker-compose up -d --wait
       - name: Run Integration Tests
         shell: bash -l {0}
         run: |
