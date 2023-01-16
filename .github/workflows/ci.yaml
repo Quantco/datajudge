@@ -54,7 +54,11 @@ jobs:
           environment-file: environment.yml
           activate-environment: datajudge
       - name: Set up container
-        run: docker-compose up -d --wait
+        run: docker-compose up -d --wait running
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3.13
+        with:
+          limit-access-to-actor: true
       - name: Run Integration Tests
         shell: bash -l {0}
         run: |
