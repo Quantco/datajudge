@@ -59,7 +59,7 @@ jobs:
         shell: bash -l {0}
         run: |
           flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_column_capitalization.py -n auto
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_column_capitalization.py
       - name: Generate code coverage report
         uses: codecov/codecov-action@v3.1.1
         with:
@@ -97,7 +97,7 @@ jobs:
         shell: bash -l {0}
         run: |
           flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_data_source.py -n auto
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_data_source.py
       - name: Generate code coverage report
         uses: codecov/codecov-action@v3.1.1
         with:
