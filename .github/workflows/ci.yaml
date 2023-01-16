@@ -56,7 +56,7 @@ jobs:
       - name: Set up container
         run: docker-compose up -d
       - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+        uses: mxschmitt/action-tmate@v3.13
         with:
           limit-access-to-actor: true
       - name: Run Integration Tests
