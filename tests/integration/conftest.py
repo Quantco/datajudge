@@ -759,7 +759,7 @@ def capitalization_table(engine, metadata):
     with engine.connect() as connection:
         connection.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
         connection.execute(
-            f"CREATE TABLE IF NOT EXISTS {SCHEMA}.{table_name} "
+            f"CREATE TABLE {SCHEMA}.{table_name} "
             f"(id INTEGER {primary_key}, "
             f"{uppercase_column} {str_datatype}, {lowercase_column} INTEGER)"
         )
