@@ -706,7 +706,7 @@ def random_normal_table(engine, metadata):
     Table with normally distributed values of varying means and sd 1.
     """
 
-    if is_bigquery(engine):
+    if is_bigquery(engine) or is_impala(engine):
         # It takes too long to insert the table into BigQuery,
         # test using this fixture must be disabled for BigQuery
         return None, None, None

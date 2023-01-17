@@ -416,8 +416,8 @@ def get_date_span(engine, ref, date_column_name):
         selection = sa.select(
             [
                 sa.func.datediff(
-                    sa.func.to_date(sa.func.max(column)),
                     sa.func.to_date(sa.func.min(column)),
+                    sa.func.to_date(sa.func.max(column)),
                 )
             ]
         )
@@ -636,8 +636,8 @@ def get_date_gaps(
     elif is_impala(engine):
         gap_condition = (
             sa.func.datediff(
-                sa.func.to_date(end_table.c[end_column]),
                 sa.func.to_date(start_table.c[start_column]),
+                sa.func.to_date(end_table.c[end_column]),
             )
             > legitimate_gap_size
         )
