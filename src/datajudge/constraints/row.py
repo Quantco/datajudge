@@ -177,7 +177,7 @@ class RowMatchingEquality(Row):
         )
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        missing_fraction, selections = db_access.get_row_mismatch(
+        missing_fraction, n_rows_match, selections = db_access.get_row_mismatch(
             engine, self.ref, self.ref2, self.match_and_compare
         )
         self.factual_selections = selections
@@ -187,10 +187,10 @@ class RowMatchingEquality(Row):
             return TestResult.success()
         assertion_message = (
             f"{missing_fraction} > "
-            f"{max_missing_fraction} of rows matched "
-            f"between {self.ref.get_string()} and "
+            f"{max_missing_fraction} of the rows differ "
+            f"on a match of {n_rows_match} rows between {self.ref.get_string()} and "
             f"{self.ref2.get_string()}. "
-            f"{self.condition_string}."
+            f"{self.condition_string}"
             f"{self.match_and_compare} "
         )
         return TestResult.failure(assertion_message)

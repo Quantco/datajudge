@@ -1926,7 +1926,8 @@ def test_row_matching_equality(engine, row_match_table1, row_match_table2, data)
         condition1=condition1,
         condition2=condition2,
     )
-    assert operation(req[0].test(engine).outcome)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize("key", [("some_id",), ("some_id", "extra_id")])

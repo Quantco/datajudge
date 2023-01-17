@@ -924,11 +924,15 @@ def get_row_mismatch(engine, ref, ref2, match_and_compare):
 
     avg_match_column = sa.func.avg(sa.case([(compare, 0.0)], else_=1.0))
 
-    selection = sa.select([avg_match_column]).select_from(
+    selection_difference = sa.select([avg_match_column]).select_from(
         subselection1.join(subselection2, match)
     )
-    result = engine.connect().execute(selection).scalar()
-    return result, [selection]
+    selection_n_rows = sa.select(sa.func.count()).select_from(
+        subselection1.join(subselection2, match)
+    )
+    result_mismatch = engine.connect().execute(selection_difference).scalar()
+    result_n_rows = engine.connect().execute(selection_n_rows).scalar()
+    return result_mismatch, result_n_rows, [selection_difference, selection_n_rows]
 
 
 def get_duplicate_sample(engine, ref):
