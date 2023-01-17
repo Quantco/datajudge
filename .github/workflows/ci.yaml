@@ -28,6 +28,206 @@ jobs:
       - name: Run pre-commit checks
         uses: pre-commit/action@v3.0.0
 
+  linux:
+    name: "Linux - unit tests - Python ${{ matrix.PYTHON_VERSION }}"
+    runs-on: ubuntu-latest
+    env:
+      CI: True
+    strategy:
+      fail-fast: true
+      matrix:
+        PYTHON_VERSION: ['3.8', '3.9', '3.10']
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Run Unit Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append tests/unit
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-sqlserver:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - mssql"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: ['3.8', '3.9', '3.10']
+    services:
+      DB:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: datajudge-123
+        ports:
+          - 1433:1433
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
+      - name: Install msodbcsql17 driver
+        shell: bash -l {0}
+        run: |
+          wget https://packages.microsoft.com/ubuntu/20.04/prod/pool/main/m/msodbcsql17/msodbcsql17_17.9.1.1-1_amd64.deb
+          ACCEPT_EULA=Y sudo apt install ./msodbcsql17_17.9.1.1-1_amd64.deb --allow-downgrades
+      - name: Wait for SQL Server
+        timeout-minutes: 1
+        run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=mssql tests/integration
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-postgres:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }}"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
+        POSTGRES_VERSION: [ '11', 'latest' ]
+    services:
+      DB:
+        image: postgres:${{ matrix.POSTGRES_VERSION }}
+        env:
+          POSTGRES_USER: datajudge
+          POSTGRES_PASSWORD: datajudge
+          POSTGRES_DB: datajudge
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=postgres tests/integration
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-snowflake:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Snowflake"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8' ]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest -n auto --cov=datajudge --cov-report=xml --cov-append --backend=snowflake tests/integration
+        env:
+          SNOWFLAKE_USER: DATAJUDGE
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-bigquery:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8' ]
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d'
+        with:
+          credentials_json: '${{ secrets.GCP_KEY }}'
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest -n auto --cov=datajudge --cov-report=xml --cov-append --backend=bigquery tests/integration
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
   linux-integration_tests-impala-column-pt1:
     name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt1"
     runs-on: ubuntu-20.04
