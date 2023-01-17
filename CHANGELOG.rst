@@ -17,6 +17,10 @@ Changelog
 - Added a ``name`` parameter to all ``add_x_constraint`` methods of ``WithinRequirement`` and ``BetweenRequirement``. This will give pytest test a custom name.
 - Added preliminary support for Impala.
 
+**Other changes**
+
+- Improve assertion error for :meth:`~datajudge.WithinRequirement.add_row_matching_equality_constraint`.
+
 
 1.2.0 - 2022.10.21
 ------------------
