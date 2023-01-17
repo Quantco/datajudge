@@ -124,7 +124,10 @@ class WithinRequirement(Requirement):
     def add_primary_key_definition_constraint(
         self, primary_keys: List[str], name: str = None
     ):
-        """Primary keys of exactly equal to given column names in the database."""
+        """Check that the primary key constraints in the database are exactly equal to the given column names.
+
+        Note that this doesn't actually check that the primary key values are unique across the table.
+        """
         ref = DataReference(self.data_source)
         self._constraints.append(
             miscs_constraints.PrimaryKeyDefinition(ref, primary_keys, name=name)
