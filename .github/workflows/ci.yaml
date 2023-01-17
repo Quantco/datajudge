@@ -334,7 +334,7 @@ jobs:
         shell: bash -l {0}
         run: |
           flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k rows
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k row
       - name: Generate code coverage report
         uses: codecov/codecov-action@v3.1.1
         with:

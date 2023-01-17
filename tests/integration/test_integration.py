@@ -1762,7 +1762,7 @@ def test_column_type_within(engine, mix_table1, data):
 )
 def test_row_equality_between(engine, mix_table1, mix_table2, data):
     if is_impala(engine):
-        pytest.skip()
+        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (operation, columns, max_missing_fraction, condition1, condition2) = data
     req = requirements.BetweenRequirement.from_tables(*mix_table1, *mix_table2)
     req.add_row_equality_constraint(
@@ -1805,7 +1805,7 @@ def test_row_equality_between(engine, mix_table1, mix_table2, data):
 )
 def test_row_subset_between(engine, mix_table1, mix_table2, data):
     if is_impala(engine):
-        pytest.skip()
+        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (
         operation,
         columns,
@@ -1859,7 +1859,7 @@ def test_row_subset_between(engine, mix_table1, mix_table2, data):
 )
 def test_row_superset_between(engine, mix_table2, mix_table1, data):
     if is_impala(engine):
-        pytest.skip()
+        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (
         operation,
         columns,
@@ -1904,7 +1904,7 @@ def test_row_superset_between(engine, mix_table2, mix_table1, data):
 )
 def test_row_matching_equality(engine, row_match_table1, row_match_table2, data):
     if is_impala(engine):
-        pytest.skip()
+        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (
         operation,
         matching_columns,

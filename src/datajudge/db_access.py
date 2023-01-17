@@ -416,8 +416,8 @@ def get_date_span(engine, ref, date_column_name):
         selection = sa.select(
             [
                 sa.func.datediff(
-                    sa.func.to_date(sa.func.min(column)),
                     sa.func.to_date(sa.func.max(column)),
+                    sa.func.to_date(sa.func.min(column)),
                 )
             ]
         )
