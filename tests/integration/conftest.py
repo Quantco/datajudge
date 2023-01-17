@@ -6,8 +6,9 @@ import urllib.parse
 
 import pytest
 import sqlalchemy as sa
+from impala.dbapi import connect
 
-from datajudge.db_access import apply_patches, is_bigquery, is_mssql
+from datajudge.db_access import apply_patches, is_bigquery, is_impala, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -15,6 +16,18 @@ SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
 
 def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
+
+    if backend == "impala":
+
+        def conn_creator():
+            return connect(
+                host=address,
+                port=21050,
+                database="default",
+            )
+
+        return sa.create_engine("impala://", creator=conn_creator)
+
     if backend == "postgres":
         connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
     elif "mssql" in backend:
@@ -47,7 +60,7 @@ def get_engine(backend) -> sa.engine.Engine:
 def engine(backend):
     engine = get_engine(backend)
     with engine.connect() as conn:
-        if engine.name in ("postgresql", "bigquery"):
+        if engine.name in ("postgresql", "bigquery", "impala"):
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
     return engine
 
@@ -693,7 +706,7 @@ def random_normal_table(engine, metadata):
     Table with normally distributed values of varying means and sd 1.
     """
 
-    if is_bigquery(engine):
+    if is_bigquery(engine) or is_impala(engine):
         # It takes too long to insert the table into BigQuery,
         # test using this fixture must be disabled for BigQuery
         return None, None, None
@@ -737,6 +750,10 @@ def capitalization_table(engine, metadata):
     elif is_bigquery(engine):
         str_datatype = "STRING"
         primary_key = ""  # there is no primary key in BigQuery
+    elif is_impala(engine):
+        str_datatype = "STRING"
+        # Impala supports primary keys but uses a different grammar.
+        primary_key = ""
     else:
         str_datatype = "TEXT"
     with engine.connect() as connection:
@@ -778,7 +795,9 @@ def cross_cdf_table2(engine, metadata):
 def pytest_addoption(parser):
     parser.addoption(
         "--backend",
-        choices=(("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery")),
+        choices=(
+            ("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery", "impala")
+        ),
         help="which database backend to use to run the integration tests",
     )
 

@@ -1,0 +1,64 @@
+# Taken from
+# https://github.com/ibis-project/ibis/blob/master/docker-compose.yml
+version: "3.4"
+services:
+  impala:
+    depends_on:
+      - impala-postgres
+      - kudu
+    environment:
+      PGPASSWORD: postgres
+    healthcheck:
+      interval: 30s
+      retries: 20
+      test:
+        - CMD-SHELL
+        - nc -z 127.0.0.1 21050 && nc -z 127.0.0.1 50070
+      timeout: 10s
+    hostname: localhost
+    image: ibisproject/impala:latest
+    ports:
+      - 21050:21050
+    networks:
+      - impala
+  impala-postgres:
+    user: postgres
+    hostname: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      interval: 10s
+      retries: 3
+      test:
+        - CMD
+        - pg_isready
+      timeout: 5s
+    image: postgres:13.9-alpine
+    networks:
+      - impala
+  kudu:
+    cap_add:
+      - SYS_TIME
+    depends_on:
+      - kudu-tserver
+    environment:
+      KUDU_MASTER: "true"
+    image: ibisproject/kudu:latest
+    ports:
+      - 7051:7051
+      - 8051:8051
+    networks:
+      - impala
+  kudu-tserver:
+    cap_add:
+      - SYS_TIME
+    environment:
+      KUDU_MASTER: "false"
+    image: ibisproject/kudu:latest
+    ports:
+      - 7050:7050
+      - 8050:8050
+    networks:
+      - impala
+networks:
+  impala:

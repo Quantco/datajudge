@@ -15,6 +15,8 @@ class PrimaryKeyDefinition(Constraint):
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> Tuple[Set[str], OptionalSelections]:
+        if db_access.is_impala(engine):
+            raise NotImplementedError("Primary key retrieval does not work for Impala.")
         values, selections = db_access.get_primary_keys(engine, self.ref)
         return set(values), selections
 
@@ -74,6 +76,9 @@ class Uniqueness(Constraint):
         super().__init__(ref, ref_value=ref_value, name=name)
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
+
+        if self.infer_pk_columns and db_access.is_bigquery(engine):
+            raise NotImplementedError("No primary key concept in BigQuery")
 
         # only check for primary keys when actually defined
         # otherwise default back to searching the whole table
