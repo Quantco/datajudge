@@ -28,7 +28,6 @@ jobs:
       - name: Run pre-commit checks
         uses: pre-commit/action@v3.0.0
 
-
   linux:
     name: "Linux - unit tests - Python ${{ matrix.PYTHON_VERSION }}"
     runs-on: ubuntu-latest
@@ -224,6 +223,268 @@ jobs:
         run: |
           flit install -s
           pytest -n auto --cov=datajudge --cov-report=xml --cov-append --backend=bigquery tests/integration
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-impala-column-pt1:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt1"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8']
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_column_capitalization.py
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+
+  linux-integration_tests-impala-column-pt2:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt2"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8']
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_data_source.py
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-impala-column-pt3:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt3"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8']
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k row
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+
+  linux-integration_tests-impala-column-pt4:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt4"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8']
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k uniques
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-impala-column-pt5:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt5"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8']
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k date
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+  linux-integration_tests-impala-column-pt6:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt6"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8']
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k varchar
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          file: ./coverage.xml
+
+
+  linux-integration_tests-impala-column-pt7:
+    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt7"
+    runs-on: ubuntu-20.04
+    env:
+      CI: True
+    strategy:
+      fail-fast: false
+      matrix:
+        PYTHON_VERSION: [ '3.8']
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Fetch full git history
+        run: git fetch --prune --unshallow
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.PYTHON_VERSION }}
+          miniforge-variant: Mambaforge
+          miniforge-version: 4.11.0-2
+          use-mamba: true
+          environment-file: environment.yml
+          activate-environment: datajudge
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Run Integration Tests
+        shell: bash -l {0}
+        run: |
+          flit install -s
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k numeric
       - name: Generate code coverage report
         uses: codecov/codecov-action@v3.1.1
         with:

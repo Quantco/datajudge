@@ -15,6 +15,8 @@ class PrimaryKeyDefinition(Constraint):
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> Tuple[Set[str], OptionalSelections]:
+        if db_access.is_impala(engine):
+            raise NotImplementedError("Primary key retrieval does not work for Impala.")
         values, selections = db_access.get_primary_keys(engine, self.ref)
         return set(values), selections
 
