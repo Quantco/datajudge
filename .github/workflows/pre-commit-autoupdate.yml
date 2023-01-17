@@ -1,6 +1,5 @@
 name: pre-commit autoupdate
 on:
- push:
  workflow_dispatch:
  schedule:
    - cron: "0 6 4 * *"
