@@ -1670,6 +1670,8 @@ def test_uniqueness_within(engine, mix_table2, data):
     ],
 )
 def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
+    if is_bigquery(engine):
+        pytest.skip("No primary key concept in BigQuery")
     # We purposefully select a non-unique column ["col_date"] to validate
     # that the reference columns are overwritten.
     operation, target_columns, selection_columns = data

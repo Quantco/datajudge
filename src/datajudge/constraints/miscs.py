@@ -75,6 +75,9 @@ class Uniqueness(Constraint):
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
 
+        if self.infer_pk_columns and db_access.is_bigquery(engine):
+            raise NotImplementedError("No primary key concept in BigQuery")
+
         # only check for primary keys when actually defined
         # otherwise default back to searching the whole table
         if self.infer_pk_columns and (
