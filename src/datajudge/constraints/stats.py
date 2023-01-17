@@ -11,10 +11,14 @@ from .base import Constraint, TestResult
 
 class KolmogorovSmirnov2Sample(Constraint):
     def __init__(
-        self, ref: DataReference, ref2: DataReference, significance_level: float = 0.05
+        self,
+        ref: DataReference,
+        ref2: DataReference,
+        significance_level: float = 0.05,
+        name: str = None,
     ):
         self.significance_level = significance_level
-        super().__init__(ref, ref2=ref2)
+        super().__init__(ref, ref2=ref2, name=name)
 
     @staticmethod
     def approximate_p_value(

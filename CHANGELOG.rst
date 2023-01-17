@@ -7,14 +7,24 @@
 Changelog
 =========
 
-1.2.0 - 2022.xx.xx
+1.3.0 - 2022.xx.xx
+------------------
+
+**New features**
+
+- Implement :meth:`~datajudge.BetweenRequirement.add_column_type_constraint`. Previously, only the ``WithinRequirement`` method existed.
+- Implemented an option ``infer_pk`` to automatically retrieve and primary key definition as part of :meth:`datajudge.WithinRequirement.add_uniqueness_constraint`.
+- Added a ``name`` parameter to all ``add_x_constraint`` methods of ``WithinRequirement`` and ``BetweenRequirement``. This will give pytest test a custom name.
+
+
+1.2.0 - 2022.10.21
 ------------------
 
 **New features**
 
 - Implemented specification of number of counterexamples in :meth:`~datajudge.WithinRequirement.add_varchar_regex_constraint`.
 - Implemented in-database regex matching for some dialects via ``computation_in_db`` parameter in :meth:`~datajudge.WithinRequirement.add_varchar_regex_constraint`.
-
+- Added support for BigQuery backends.
 
 **Bug fix:**
 

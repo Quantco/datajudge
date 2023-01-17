@@ -7,7 +7,7 @@ import urllib.parse
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import is_mssql
+from datajudge.db_access import apply_patches, is_bigquery, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -33,15 +33,21 @@ def get_engine(backend) -> sa.engine.Engine:
         password = os.environ.get("SNOWFLAKE_PASSWORD")
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
         connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
+    elif "bigquery" in backend:
+        # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
+        connection_string = "bigquery://"
 
-    return sa.create_engine(connection_string)
+    engine = sa.create_engine(connection_string, echo=True)
+    apply_patches(engine)
+
+    return engine
 
 
 @pytest.fixture(scope="module")
 def engine(backend):
     engine = get_engine(backend)
     with engine.connect() as conn:
-        if engine.name == "postgresql":
+        if engine.name in ("postgresql", "bigquery"):
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
     return engine
 
@@ -72,7 +78,6 @@ def int_table1(engine, metadata):
 @pytest.fixture(scope="module")
 def int_table2(engine, metadata):
     table_name = "int_table2"
-    engine.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
     columns = [sa.Column("col_int", sa.Integer())]
     data = [{"col_int": i} for i in range(2, 20)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -82,7 +87,6 @@ def int_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def int_square_table(engine, metadata):
     table_name = "int_square_table"
-    engine.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
     columns = [sa.Column("col_int", sa.Integer())]
     data = [{"col_int": i**2} for i in range(1, 20)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -126,6 +130,26 @@ def mix_table2(engine, metadata):
         for i in range(2, 20)
     ]
     data[5]["col_varchar"] = "ho"
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
+def mix_table2_pk(engine, metadata):
+    table_name = "mix_table2_pk"
+    columns = [
+        sa.Column("col_int", sa.Integer(), primary_key=True),
+        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_date", sa.DateTime()),
+    ]
+    data = [
+        {
+            "col_int": i,
+            "col_varchar": f"hi{i}",
+            "col_date": datetime.datetime(2016, 1, i // 2),
+        }
+        for i in range(2, 20)
+    ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
 
@@ -668,6 +692,12 @@ def random_normal_table(engine, metadata):
     """
     Table with normally distributed values of varying means and sd 1.
     """
+
+    if is_bigquery(engine):
+        # It takes too long to insert the table into BigQuery,
+        # test using this fixture must be disabled for BigQuery
+        return None, None, None
+
     table_name = "random_normal_table"
     columns = [
         sa.Column("value_0_1", sa.Float()),
@@ -701,12 +731,19 @@ def capitalization_table(engine, metadata):
     lowercase_column = "num_employees"
     # Create and populate table with raw strings as to ensure
     # the columns are actually created with capitalization.
-    str_datatype = "VARCHAR(20)" if is_mssql(engine) else "TEXT"
+    primary_key = "PRIMARY KEY"
+    if is_mssql(engine):
+        str_datatype = "VARCHAR(20)"
+    elif is_bigquery(engine):
+        str_datatype = "STRING"
+        primary_key = ""  # there is no primary key in BigQuery
+    else:
+        str_datatype = "TEXT"
     with engine.connect() as connection:
         connection.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
         connection.execute(
             f"CREATE TABLE {SCHEMA}.{table_name} "
-            "(id INTEGER PRIMARY KEY, "
+            f"(id INTEGER {primary_key}, "
             f"{uppercase_column} {str_datatype}, {lowercase_column} INTEGER)"
         )
         connection.execute(
@@ -741,7 +778,7 @@ def cross_cdf_table2(engine, metadata):
 def pytest_addoption(parser):
     parser.addoption(
         "--backend",
-        choices=(("mssql", "mssql-freetds", "postgres", "snowflake")),
+        choices=(("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery")),
         help="which database backend to use to run the integration tests",
     )
 
