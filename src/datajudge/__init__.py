@@ -19,4 +19,4 @@ __all__ = [
 try:
     __version__ = pkg_resources.get_distribution(__name__).version
 except Exception:
-    __version__ = "1.2.0"
+    __version__ = "1.3.0"
