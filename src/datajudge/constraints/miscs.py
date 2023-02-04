@@ -76,7 +76,6 @@ class Uniqueness(Constraint):
         super().__init__(ref, ref_value=ref_value, name=name)
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-
         if self.infer_pk_columns and db_access.is_bigquery(engine):
             raise NotImplementedError("No primary key concept in BigQuery")
 
