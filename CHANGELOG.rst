@@ -7,7 +7,15 @@
 Changelog
 =========
 
-1.3.0 - 2022.xx.xx
+1.4.0 - 2022.02.24
+------------------
+
+**New features**
+
+- Add partial and experimental support for db2 as a backend.
+
+
+1.3.0 - 2022.01.17
 ------------------
 
 **New features**

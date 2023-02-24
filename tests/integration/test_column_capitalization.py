@@ -1,7 +1,7 @@
 import pytest
 
 from datajudge import Condition, WithinRequirement
-from datajudge.db_access import is_bigquery, is_impala, is_mssql, is_postgresql
+from datajudge.db_access import is_bigquery, is_db2, is_impala, is_mssql, is_postgresql
 
 # These tests
 
@@ -21,6 +21,10 @@ def test_column_existence(
         )
     if is_postgresql(engine):
         pytest.skip("Postgres interface always expects lower-cased columns.")
+    if is_db2(engine) and use_uppercase_query:
+        pytest.skip(
+            "Db2 interface transforms writes to lower-case, expects lower-case reads."
+        )
     (
         db_name,
         schema_name,

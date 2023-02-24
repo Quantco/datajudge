@@ -25,3 +25,5 @@ dependencies:
   - flit
   - sphinx-autodoc-typehints
   - impyla
+  - ibm_db
+  - ibm_db_sa

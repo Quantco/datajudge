@@ -8,7 +8,7 @@ import pytest
 import sqlalchemy as sa
 from impala.dbapi import connect
 
-from datajudge.db_access import apply_patches, is_bigquery, is_impala, is_mssql
+from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_impala, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -30,6 +30,8 @@ def get_engine(backend) -> sa.engine.Engine:
 
     if backend == "postgres":
         connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
+    if backend == "db2":
+        connection_string = f"db2+ibm_db://db2inst1:password@{address}:50000/testdb"
     elif "mssql" in backend:
         connection_string = (
             f"mssql+pyodbc://sa:datajudge-123@{address}:1433/{TEST_DB_NAME}"
@@ -54,6 +56,12 @@ def get_engine(backend) -> sa.engine.Engine:
     apply_patches(engine)
 
     return engine
+
+
+def _string_column(engine):
+    if is_db2(engine):
+        return sa.String(40)
+    return sa.String()
 
 
 @pytest.fixture(scope="module")
@@ -111,7 +119,7 @@ def mix_table1(engine, metadata):
     table_name = "mix_table1"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
         sa.Column("col_date", sa.DateTime()),
     ]
     data = [
@@ -131,7 +139,7 @@ def mix_table2(engine, metadata):
     table_name = "mix_table2"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
         sa.Column("col_date", sa.DateTime()),
     ]
     data = [
@@ -152,7 +160,7 @@ def mix_table2_pk(engine, metadata):
     table_name = "mix_table2_pk"
     columns = [
         sa.Column("col_int", sa.Integer(), primary_key=True),
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
         sa.Column("col_date", sa.DateTime()),
     ]
     data = [
@@ -477,7 +485,7 @@ def unique_table1(engine, metadata):
     table_name = "unique_table1"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(60)]
     data += [
@@ -493,7 +501,7 @@ def unique_table2(engine, metadata):
     table_name = "unique_table2"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(40)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -503,7 +511,7 @@ def unique_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
-    columns = [sa.Column("nested_varchar", sa.String())]
+    columns = [sa.Column("nested_varchar", _string_column(engine))]
     data = [
         {"nested_varchar": "ABC#1,"},
         {"nested_varchar": "ABC#1,DEF#2,"},
@@ -517,7 +525,7 @@ def nested_table(engine, metadata):
 def varchar_table1(engine, metadata):
     table_name = "varchar_table1"
     columns = [
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(1, 10)]
     data.append({"col_varchar": None})
@@ -529,7 +537,7 @@ def varchar_table1(engine, metadata):
 def varchar_table2(engine, metadata):
     table_name = "varchar_table2"
     columns = [
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(2, 11)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -540,7 +548,7 @@ def varchar_table2(engine, metadata):
 def varchar_table_real(engine, metadata):
     table_name = "varchar_table_real"
     columns = [
-        sa.Column("col_varchar", sa.String()),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [
         {"col_varchar": val}
@@ -754,6 +762,10 @@ def capitalization_table(engine, metadata):
         str_datatype = "STRING"
         # Impala supports primary keys but uses a different grammar.
         primary_key = ""
+    elif is_db2(engine):
+        str_datatype = "VARCHAR(20)"
+        # Primary key needs to be non-nullable.
+        primary_key = ""
     else:
         str_datatype = "TEXT"
     with engine.connect() as connection:
@@ -796,7 +808,15 @@ def pytest_addoption(parser):
     parser.addoption(
         "--backend",
         choices=(
-            ("mssql", "mssql-freetds", "postgres", "snowflake", "bigquery", "impala")
+            (
+                "mssql",
+                "mssql-freetds",
+                "postgres",
+                "snowflake",
+                "bigquery",
+                "impala",
+                "db2",
+            )
         ),
         help="which database backend to use to run the integration tests",
     )
