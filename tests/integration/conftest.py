@@ -58,6 +58,12 @@ def get_engine(backend) -> sa.engine.Engine:
     return engine
 
 
+def _string_column(engine):
+    if is_db2(engine):
+        return sa.String(40)
+    return sa.String()
+
+
 @pytest.fixture(scope="module")
 def engine(backend):
     engine = get_engine(backend)
@@ -113,7 +119,7 @@ def mix_table1(engine, metadata):
     table_name = "mix_table1"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
         sa.Column("col_date", sa.DateTime()),
     ]
     data = [
@@ -133,7 +139,7 @@ def mix_table2(engine, metadata):
     table_name = "mix_table2"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
         sa.Column("col_date", sa.DateTime()),
     ]
     data = [
@@ -154,7 +160,7 @@ def mix_table2_pk(engine, metadata):
     table_name = "mix_table2_pk"
     columns = [
         sa.Column("col_int", sa.Integer(), primary_key=True),
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
         sa.Column("col_date", sa.DateTime()),
     ]
     data = [
@@ -479,7 +485,7 @@ def unique_table1(engine, metadata):
     table_name = "unique_table1"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(60)]
     data += [
@@ -495,7 +501,7 @@ def unique_table2(engine, metadata):
     table_name = "unique_table2"
     columns = [
         sa.Column("col_int", sa.Integer()),
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(40)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -505,7 +511,7 @@ def unique_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
-    columns = [sa.Column("nested_varchar", sa.String(40))]
+    columns = [sa.Column("nested_varchar", _string_column(engine))]
     data = [
         {"nested_varchar": "ABC#1,"},
         {"nested_varchar": "ABC#1,DEF#2,"},
@@ -519,7 +525,7 @@ def nested_table(engine, metadata):
 def varchar_table1(engine, metadata):
     table_name = "varchar_table1"
     columns = [
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(1, 10)]
     data.append({"col_varchar": None})
@@ -531,7 +537,7 @@ def varchar_table1(engine, metadata):
 def varchar_table2(engine, metadata):
     table_name = "varchar_table2"
     columns = [
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(2, 11)]
     _handle_table(engine, metadata, table_name, columns, data)
@@ -542,7 +548,7 @@ def varchar_table2(engine, metadata):
 def varchar_table_real(engine, metadata):
     table_name = "varchar_table_real"
     columns = [
-        sa.Column("col_varchar", sa.String(40)),
+        sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [
         {"col_varchar": val}
