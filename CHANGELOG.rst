@@ -12,7 +12,7 @@ Changelog
 
 **New features**
 
-- Add experimental support for db2 as a backend.
+- Add partial and experimental support for db2 as a backend.
 
 
 1.3.0 - 2022.01.17
