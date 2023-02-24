@@ -8,7 +8,7 @@ import pytest
 import sqlalchemy as sa
 from impala.dbapi import connect
 
-from datajudge.db_access import apply_patches, is_bigquery, is_impala, is_mssql
+from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_impala, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -755,6 +755,10 @@ def capitalization_table(engine, metadata):
     elif is_impala(engine):
         str_datatype = "STRING"
         # Impala supports primary keys but uses a different grammar.
+        primary_key = ""
+    elif is_db2(engine):
+        str_datatype = "VARCHAR(20)"
+        # Primary key needs to be non-nullable.
         primary_key = ""
     else:
         str_datatype = "TEXT"
