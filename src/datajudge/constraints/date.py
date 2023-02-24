@@ -195,7 +195,6 @@ class DateIntervals(Constraint, abc.ABC):
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> Tuple[Tuple[int, int], OptionalSelections]:
-
         keys_ref = DataReference(
             data_source=self.ref.data_source,
             columns=self.key_columns,

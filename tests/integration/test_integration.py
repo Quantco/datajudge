@@ -2105,7 +2105,6 @@ def test_ks_2sample_constraint_wrong_between(
     ],
 )
 def test_ks_2sample_random(engine, random_normal_table, configuration):
-
     if is_bigquery(engine) or is_impala(engine) or is_db2(engine):
         pytest.skip("It takes too long to insert the table.")
 
