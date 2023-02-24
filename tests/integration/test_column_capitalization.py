@@ -22,7 +22,9 @@ def test_column_existence(
     if is_postgresql(engine):
         pytest.skip("Postgres interface always expects lower-cased columns.")
     if is_db2(engine) and use_uppercase_query:
-        pytest.skip()
+        pytest.skip(
+            "Db2 interface transforms writes to lower-case, expects lower-case reads."
+        )
     (
         db_name,
         schema_name,
