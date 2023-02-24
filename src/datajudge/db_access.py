@@ -679,13 +679,12 @@ def get_date_gaps(
     elif is_db2(engine):
         gap_condition = (
             sa.func.days_between(
-                sa.func.max(sa.func.to_date(end_column)),
-                sa.func.min(sa.func.to_date(start_column)),
+                start_table.c[start_column],
+                end_table.c[end_column],
             )
             > legitimate_gap_size
         )
     else:
-        breakpoint()
         raise NotImplementedError(f"Date gaps not yet implemented for {engine.name}.")
 
     join_condition = sa.and_(
