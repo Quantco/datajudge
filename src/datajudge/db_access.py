@@ -33,6 +33,10 @@ def is_impala(engine: sa.engine.Engine) -> bool:
     return engine.name == "impala"
 
 
+def is_db2(engine: sa.engine.Engine) -> bool:
+    return engine.name == "ibm_db_sa"
+
+
 def get_table_columns(table, column_names):
     return [table.c[column_name] for column_name in column_names]
 
@@ -421,6 +425,15 @@ def get_date_span(engine, ref, date_column_name):
                 )
             ]
         )
+    elif is_db2(engine):
+        selection = sa.select(
+            [
+                sa.func.days_between(
+                    sa.func.max(column),
+                    sa.func.min(column),
+                )
+            ]
+        )
     else:
         raise NotImplementedError(
             "Date spans not yet implemented for this sql dialect."
@@ -663,7 +676,16 @@ def get_date_gaps(
             )
             > legitimate_gap_size
         )
+    elif is_db2(engine):
+        gap_condition = (
+            sa.func.days_between(
+                sa.func.max(sa.func.to_date(end_column)),
+                sa.func.min(sa.func.to_date(start_column)),
+            )
+            > legitimate_gap_size
+        )
     else:
+        breakpoint()
         raise NotImplementedError(f"Date gaps not yet implemented for {engine.name}.")
 
     join_condition = sa.and_(
