@@ -38,7 +38,7 @@ class Uniques(Constraint, abc.ABC):
 
     The `Uniques` constraint asserts if the values contained in a column of a `DataSource`
     are part of a reference set of expected values - either externally supplied
-    through parameter `uniques` or obtained from another `DataSoure`.
+    through parameter `uniques` or obtained from another `DataSource`.
 
     Null values in the column are ignored. To assert the non-existence of them use
     the `NullAbsence` constraint via the `add_null_absence_constraint` helper method for

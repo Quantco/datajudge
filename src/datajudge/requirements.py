@@ -147,7 +147,7 @@ class WithinRequirement(Requirement):
         Given a set of columns, satisfy conditions of a primary key, i.e.
         uniqueness of tuples from said columns. This constraint has a tolerance
         for inconsistencies, expressed via max_duplicate_fraction. The latter
-        suggests that the number of uniques from said colums is larger or equal
+        suggests that the number of uniques from said columns is larger or equal
         to (1 - max_duplicate_fraction) the number of rows.
 
         If infer_pk_columns is True, columns will be retrieved from the primary keys.
@@ -663,7 +663,7 @@ class WithinRequirement(Requirement):
         n_counterexamples: int = 5,
     ):
         """
-        Assesses whether the values in a column match a given regular expresion pattern.
+        Assesses whether the values in a column match a given regular expression pattern.
 
         The option ``allow_none`` can be used in cases where the column is defined as
         nullable and contains null values.
@@ -705,7 +705,7 @@ class WithinRequirement(Requirement):
         n_counterexamples: int = 5,
     ):
         """
-        Assesses whether the values in a column match a given regular expresion pattern.
+        Assesses whether the values in a column match a given regular expression pattern.
 
         How the tolerance factor is calculated can be controlled with the ``aggregated``
         flag. When ``True``, the tolerance is calculated using unique values. If not, the
@@ -718,7 +718,7 @@ class WithinRequirement(Requirement):
         When using this method, the regex matching will take place in database, which is
         only supported for Postgres, Sqllite and Snowflake. Note that for this
         feature is only for Snowflake when using sqlalchemy-snowflake >= 1.4.0. As an
-        altenative, ``add_varchar_regex_constraint`` performs the regex matching in memory.
+        alternative, ``add_varchar_regex_constraint`` performs the regex matching in memory.
         This is typically slower and more expensive in terms of memory but available
         on all supported database mamangement systems.
         """
@@ -767,7 +767,7 @@ class WithinRequirement(Requirement):
         condition: Condition = None,
         name: str = None,
     ):
-        """Chek whether array aggregate corresponds to an integer range.
+        """Check whether array aggregate corresponds to an integer range.
 
         The ``DataSource`` is grouped by ``columns``. Sql's ``array_agg`` function is then
         applied to the ``aggregate_column``.
@@ -876,12 +876,12 @@ class BetweenRequirement(Requirement):
         date_column: Optional[str] = None,
         date_column2: Optional[str] = None,
     ):
-        """Create a ``BetwenTableRequirement`` based on sqlalchemy expressions.
+        """Create a ``BetweenTableRequirement`` based on sqlalchemy expressions.
 
         Any sqlalchemy object implementing the ``alias`` method can be passed as an
         argument for the ``expression1`` and ``expression2`` parameters. This could,
         e.g. be a ``sqlalchemy.Table`` object or the result of a ``sqlalchemy.select``
-        invokation.
+        invocation.
 
         ``name1`` and ``name2`` will be used to represent the expressions in error messages,
         respectively.
@@ -1386,7 +1386,7 @@ class BetweenRequirement(Requirement):
         Rows from T1 are indexed in columns1, rows from T2 are indexed in ``columns2``.
 
         In particular, the operation ``|T1-T2|`` relies on a sql ``EXCEPT`` statement. In
-        constrast to ``EXCEPT ALL``, this should lead to a set subtraction instead of
+        contrast to ``EXCEPT ALL``, this should lead to a set subtraction instead of
         a multiset subtraction. In other words, duplicates in T1 are treated as
         single occurrences.
         """

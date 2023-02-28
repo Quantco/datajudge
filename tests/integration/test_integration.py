@@ -1138,7 +1138,7 @@ def test_date_no_overlap_2d_within_several_key_columns(engine, date_table_keys, 
         # No overlap is no overlap
         (identity, 0, Condition(raw_string="id1 = 2"), True),
         (identity, 0, Condition(raw_string="id1 = 2"), False),
-        # Overlap on the treshold
+        # Overlap on the threshold
         (negation, 0, Condition(raw_string="id1 = 6"), True),
         (identity, 0, Condition(raw_string="id1 = 6"), False),
         # Overlap on more than the threshold
@@ -1397,7 +1397,7 @@ def test_varchar_regex_counterexample(
     else:
         assert location != -1
         # In the example of this very fixture, we know that no commas are used
-        # in values. We can therefore assume that commas indicate seperation
+        # in values. We can therefore assume that commas indicate separation
         # between counterexamples.
         assert (
             len(failure_message[location + len(marker) :].split(","))
@@ -1938,7 +1938,7 @@ def test_row_matching_equality(engine, row_match_table1, row_match_table2, data)
 @pytest.mark.parametrize("key", [("some_id",), ("some_id", "extra_id")])
 def test_groupby_aggregation_within(engine, groupby_aggregation_table_correct, key):
     skip_if_mssql(engine)
-    # TODO: This shoud actually work for db2
+    # TODO: This should actually work for db2
     if is_db2(engine):
         pytest.skip()
     if is_impala(engine):
