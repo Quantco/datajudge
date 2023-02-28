@@ -26,3 +26,8 @@ repos:
       - id: pyupgrade-conda
         args:
           - --py38-plus
+  - repo: https://github.com/Quantco/pre-commit-mirrors-typos
+    rev: 1.13.12
+    hooks:
+      - id: typos-conda
+        exclude: "\\.csv$"

@@ -30,7 +30,7 @@ the hood. Importantly, ``Constraint`` s typically come with
 * a ``get_factual_value`` method: this is typically a wrapper around ``retrieve`` for the
   first ``DataReference`` of the given ``Requirement`` / ``Constraint``
 * a ``get_target_value`` method: this is either a wrapper around ``retrieve`` for the
-  second ``DataRefence`` in the case of a ``BetweenRequirement`` or an echoing of the
+  second ``DataReference`` in the case of a ``BetweenRequirement`` or an echoing of the
   ``Constraint`` s key reference value in the case of a ``WithinRequirement``
 
 Moreover, as is the case when using datajudge for testing purposes, these approaches rely

@@ -132,7 +132,7 @@ As an example, we will run 4 tests on this table:
 
 
 Saving this file as ``specification.py`` and running ``$ pytest specification.py``
-will verify that all constaints are satisfied. The output you see in the terminal
+will verify that all constraints are satisfied. The output you see in the terminal
 should be similar to this:
 
 .. code-block::
