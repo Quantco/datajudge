@@ -16,7 +16,7 @@ repos:
       - id: isort-conda
         additional_dependencies: [-c, conda-forge, toml=0.10.2]
   - repo: https://github.com/Quantco/pre-commit-mirrors-mypy
-    rev: "0.991"
+    rev: "1.0.1"
     hooks:
       - id: mypy-conda
         additional_dependencies: [-c, conda-forge, types-setuptools]
@@ -27,7 +27,7 @@ repos:
         args:
           - --py38-plus
   - repo: https://github.com/Quantco/pre-commit-mirrors-typos
-    rev: 1.13.12
+    rev: 1.13.16
     hooks:
       - id: typos-conda
         exclude: "\\.csv$"
