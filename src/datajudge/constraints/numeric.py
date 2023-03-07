@@ -183,7 +183,8 @@ class NumericPercentile(Constraint):
         self.k = k
         if max_absolute_deviation is None and max_relative_deviation is None:
             raise ValueError(
-                "At least one of 'max_absolute_deviation' and 'max_relative_deviation' must be given."
+                "At least one of 'max_absolute_deviation' and 'max_relative_deviation' "
+                "must be given."
             )
 
         self.max_absolute_deviation = max_absolute_deviation
@@ -203,10 +204,24 @@ class NumericPercentile(Constraint):
             self.max_absolute_deviation is not None
             and abs_diff > self.max_absolute_deviation
         ):
-            return False, None
+            assertion_message = (
+                f"{self.k}-th percentile was expected to be {percentile_target} but was "
+                f"{percentile_factual}, resulting in an absolute difference of {abs_diff}."
+                "The maximally allowed absolute deviation would've been "
+                f"{self.max_absolute_deviation}."
+            )
+            return False, assertion_message
         if self.max_relative_deviation is not None:
             if percentile_target == 0:
                 raise ValueError("Cannot compute relative deviation wrt 0.")
-            if abs_diff / abs(percentile_target) > self.max_relative_deviation:
-                return False, None
+            if (
+                rel_diff := abs_diff / abs(percentile_target)
+            ) > self.max_relative_deviation:
+                assertion_message = (
+                    f"{self.k}-th percentile was expected to be {percentile_target} but "
+                    f"was {percentile_factual}, resulting in a relative difference of "
+                    f"{rel_diff}. The maximally allowed relative deviation would've been "
+                    f"{self.max_relative_deviation}."
+                )
+                return False, assertion_message
         return True, None
