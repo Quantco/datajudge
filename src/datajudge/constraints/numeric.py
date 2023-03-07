@@ -178,7 +178,7 @@ class NumericPercentile(Constraint):
             ref_value=expected_percentile,
             name=name,
         )
-        if k < 0 or k > 100:
+        if not (0 <= k <= 100):
             raise ValueError(f"Expected k to be a value between 0 and 100, got {k}.")
         self.k = k
         if max_absolute_deviation is None and max_relative_deviation is None:
