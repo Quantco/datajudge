@@ -399,7 +399,7 @@ class WithinRequirement(Requirement):
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            numeric_constraints.NumericPerenctile(
+            numeric_constraints.NumericPercentile(
                 ref,
                 k=k,
                 expected_percentile=expected_percentile,
@@ -1250,6 +1250,30 @@ class BetweenRequirement(Requirement):
             numeric_constraints.NumericMean(
                 ref,
                 max_absolute_deviation,
+                ref2=ref2,
+                name=name,
+            )
+        )
+
+    def add_numeric_percentile_constraint(
+        self,
+        column1: str,
+        column2: str,
+        k: float,
+        max_absolute_deviation: Optional[float] = None,
+        max_relative_deviation: Optional[float] = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: str = None,
+    ):
+        ref = DataReference(self.data_source, [column1], condition1)
+        ref2 = DataReference(self.data_source2, [column2], condition2)
+        self._constraints.append(
+            numeric_constraints.NumericPercentile(
+                ref,
+                k=k,
+                max_absolute_deviation=max_absolute_deviation,
+                max_relative_deviation=max_relative_deviation,
                 ref2=ref2,
                 name=name,
             )

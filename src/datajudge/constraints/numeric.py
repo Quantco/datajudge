@@ -160,7 +160,7 @@ class NumericMean(Constraint):
         return TestResult(result, assertion_text)
 
 
-class NumericPerenctile(Constraint):
+class NumericPercentile(Constraint):
     def __init__(
         self,
         ref: DataReference,

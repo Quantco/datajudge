@@ -862,6 +862,17 @@ def test_numeric_percentile_within(engine, int_table1):
     req[0].test(engine)
 
 
+def test_numeric_percentile_between(engine, int_table1, int_table2):
+    req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table2)
+    req.add_numeric_percentile_constraint(
+        "col_int",
+        "col_int",
+        k=20,
+        max_absolute_deviation=0.5,
+    )
+    req[0].test(engine)
+
+
 @pytest.mark.parametrize(
     "data",
     [
