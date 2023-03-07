@@ -402,6 +402,9 @@ class WithinRequirement(Requirement):
         The percentile is defined as the value present in ``column`` for which ``k``%
         of the values in ``column`` are less or equal. ``NULL`` values are ignored.
 
+        Hence, if ``k`` is less than the inverse of the number of non-``NULL`` rows,
+        ``None`` is received as the ``k``-th percentile.
+
         ``k`` is expected to be provided in percent. The median, for example, would
         correspond to ``k=50``.
 
@@ -1282,6 +1285,9 @@ class BetweenRequirement(Requirement):
         The percentile is defined as the value present in ``column1``/``column2``
          for which ``k``% of the values in ``column1`` / ``column2`` are less or
          equal. ``NULL`` values are ignored.
+
+        Hence, if ``k`` is less than the inverse of the number of non-``NULL`` rows,
+        ``None`` is received as the ``k``-th percentile.
 
         ``k`` is expected to be provided in percent. The median, for example, would
         correspond to ``k=50``.

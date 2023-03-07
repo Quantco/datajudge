@@ -869,7 +869,6 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
         (identity, 20, 2, 0, 0, Condition(raw_string="col_int <= 11")),
     ],
 )
-# TODO: Add test with NULL values in column.
 def test_numeric_percentile_within(engine, int_table1, data):
     (
         operation,
@@ -890,6 +889,66 @@ def test_numeric_percentile_within(engine, int_table1, data):
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        # With the following condition, we expect the values [0, 0, 1, 1, None].
+        (
+            identity,
+            25,
+            0,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+        (
+            identity,
+            74,
+            0,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+        (
+            identity,
+            75,
+            1,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+        (
+            identity,
+            100,
+            1,
+            0,
+            0,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+    ],
+)
+def test_numeric_percentile_within_null(engine, unique_table1, data):
+    (
+        operation,
+        k,
+        expected_percentile,
+        max_absolute_deviation,
+        max_relative_deviation,
+        condition,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*unique_table1)
+    req.add_numeric_percentile_constraint(
+        column="col_int",
+        k=k,
+        expected_percentile=expected_percentile,
+        max_absolute_deviation=max_absolute_deviation,
+        max_relative_deviation=max_relative_deviation,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert test_result.outcome, test_result.failure_message
 
 
 @pytest.mark.parametrize(

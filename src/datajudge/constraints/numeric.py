@@ -213,6 +213,7 @@ class NumericPercentile(Constraint):
             return False, assertion_message
         if self.max_relative_deviation is not None:
             if percentile_target == 0:
+                breakpoint()
                 raise ValueError("Cannot compute relative deviation wrt 0.")
             if (
                 rel_diff := abs_diff / abs(percentile_target)

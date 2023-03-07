@@ -780,14 +780,17 @@ def get_mean(engine, ref):
 def get_kth_percentile(engine, ref, k):
     column_name = ref.get_column(engine)
     column = ref.get_selection(engine).subquery().c[column_name]
-    # TODO: Exclude NULL?
-    subquery = sa.select(
-        [
-            column,
-            sa.func.row_number().over(order_by=column).label("rownum"),
-            sa.func.count().over(partition_by=None).label("rowcount"),
-        ]
-    ).subquery()
+    subquery = (
+        sa.select(
+            [
+                column,
+                sa.func.row_number().over(order_by=column).label("rownum"),
+                sa.func.count().over(partition_by=None).label("rowcount"),
+            ]
+        )
+        .where(column.is_not(None))
+        .subquery()
+    )
 
     constrained_selection = (
         sa.select(subquery.columns)
