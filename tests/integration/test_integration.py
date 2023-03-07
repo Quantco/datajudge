@@ -891,15 +891,39 @@ def test_numeric_percentile_within(engine, int_table1, data):
     assert operation(test_result.outcome), test_result.failure_message
 
 
-def test_numeric_percentile_between(engine, int_table1, int_table2):
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, 20, 1, None, None, None),
+        (identity, 20, None, 0.25, None, None),
+        (identity, 20, 1, 0.25, None, None),
+        (negation, 20, 0, 0, None, None),
+        (negation, 20, 0.9, None, None, None),
+        (negation, 20, None, 0.20, None, None),
+        (identity, 20, 0, 0, Condition(raw_string="col_int >=2"), None),
+    ],
+)
+def test_numeric_percentile_between(engine, int_table1, int_table2, data):
+    (
+        operation,
+        k,
+        max_absolute_deviation,
+        max_relative_deviation,
+        condition1,
+        condition2,
+    ) = data
     req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table2)
     req.add_numeric_percentile_constraint(
         "col_int",
         "col_int",
-        k=20,
-        max_absolute_deviation=0.5,
+        k=k,
+        max_absolute_deviation=max_absolute_deviation,
+        max_relative_deviation=max_relative_deviation,
+        condition1=condition1,
+        condition2=condition2,
     )
-    req[0].test(engine)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 
 @pytest.mark.parametrize(
