@@ -794,7 +794,9 @@ def get_kth_percentile(engine, ref, k):
         .subquery()
     )
 
-    max_selection = sa.select(sa.func.max(constrained_selection.c["rownum"]))
+    max_selection = sa.select(
+        sa.func.max(constrained_selection.c["rownum"])
+    ).scalar_subquery()
     selection = sa.select(constrained_selection.c[column_name]).where(
         constrained_selection.c["rownum"] == max_selection
     )
