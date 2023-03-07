@@ -778,14 +778,16 @@ def get_mean(engine, ref):
 
 
 def get_kth_percentile(engine, ref, k):
+    row_count = "row_count"
+    row_num = "row_num"
     column_name = ref.get_column(engine)
     column = ref.get_selection(engine).subquery().c[column_name]
     subquery = (
         sa.select(
             [
                 column,
-                sa.func.row_number().over(order_by=column).label("rownum"),
-                sa.func.count().over(partition_by=None).label("rowcount"),
+                sa.func.row_number().over(order_by=column).label(row_num),
+                sa.func.count().over(partition_by=None).label(row_count),
             ]
         )
         .where(column.is_not(None))
@@ -794,15 +796,15 @@ def get_kth_percentile(engine, ref, k):
 
     constrained_selection = (
         sa.select(subquery.columns)
-        .where(subquery.c["rownum"] * 100.0 / subquery.c["rowcount"] <= k)
+        .where(subquery.c[row_num] * 100.0 / subquery.c[row_count] <= k)
         .subquery()
     )
 
     max_selection = sa.select(
-        sa.func.max(constrained_selection.c["rownum"])
+        sa.func.max(constrained_selection.c[row_num])
     ).scalar_subquery()
     selection = sa.select(constrained_selection.c[column_name]).where(
-        constrained_selection.c["rownum"] == max_selection
+        constrained_selection.c[row_num] == max_selection
     )
     result = engine.connect().execute(selection).scalar()
     return result, [selection]
