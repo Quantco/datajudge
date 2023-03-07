@@ -784,7 +784,7 @@ def get_kth_percentile(engine, ref, k):
         [
             column,
             sa.func.row_number().over(order_by=column).label("rownum"),
-            sa.func.count("*").over(partition_by=None).label("rowcount"),
+            sa.func.count().over(partition_by=None).label("rowcount"),
         ]
     ).subquery()
 
