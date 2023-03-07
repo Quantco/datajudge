@@ -178,6 +178,8 @@ class NumericPercentile(Constraint):
             ref_value=expected_percentile,
             name=name,
         )
+        if k < 0 or k > 100:
+            raise ValueError(f"Expected k to be a value between 0 and 100, got {k}.")
         self.k = k
         if max_absolute_deviation is None and max_relative_deviation is None:
             raise ValueError(
@@ -199,10 +201,10 @@ class NumericPercentile(Constraint):
         abs_diff = abs(percentile_factual - percentile_target)
         if (
             self.max_absolute_deviation is not None
-            and abs_diff < self.max_absolute_deviation
+            and abs_diff > self.max_absolute_deviation
         ):
             return False, None
-        if self.max_relative_deviation:
+        if self.max_relative_deviation is not None:
             if percentile_target == 0:
                 raise ValueError("Cannot compute relative deviation wrt 0.")
             if abs_diff / abs(percentile_target) > self.max_relative_deviation:
