@@ -856,6 +856,12 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
     assert operation(test_result.outcome), test_result.failure_message
 
 
+def test_numeric_percentile_within(engine, int_table1):
+    req = requirements.WithinRequirement.from_table(*int_table1)
+    req.add_numeric_percentile_constraint("col_int", 20, 10, 0.5, 0.1)
+    req[0].test(engine)
+
+
 @pytest.mark.parametrize(
     "data",
     [

@@ -158,3 +158,53 @@ class NumericMean(Constraint):
         )
         result = deviation <= self.max_absolute_deviation
         return TestResult(result, assertion_text)
+
+
+class NumericPerenctile(Constraint):
+    def __init__(
+        self,
+        ref: DataReference,
+        k: float,
+        max_absolute_deviation: Optional[float],
+        max_relative_deviation: Optional[float],
+        name: str = None,
+        *,
+        ref2: DataReference = None,
+        expected_percentile: float = None,
+    ):
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=expected_percentile,
+            name=name,
+        )
+        self.k = k
+        if max_absolute_deviation is None and max_relative_deviation is None:
+            raise ValueError(
+                "At least one of 'max_absolute_deviation' and 'max_relative_deviation' must be given."
+            )
+
+        self.max_absolute_deviation = max_absolute_deviation
+        self.max_relative_deviation = max_relative_deviation
+
+    def retrieve(
+        self, engine: sa.engine.Engine, ref: DataReference
+    ) -> Tuple[float, OptionalSelections]:
+        result, selections = db_access.get_kth_percentile(engine, ref, self.k)
+        return result, selections
+
+    def compare(
+        self, percentile_factual: float, percentile_target: float
+    ) -> Tuple[bool, Optional[str]]:
+        abs_diff = abs(percentile_factual - percentile_target)
+        if (
+            self.max_absolute_deviation is not None
+            and abs_diff < self.max_absolute_deviation
+        ):
+            return False, None
+        if self.max_relative_deviation:
+            if percentile_target == 0:
+                raise ValueError("Cannot compute relative deviation wrt 0.")
+            if abs_diff / abs(percentile_target) > self.max_relative_deviation:
+                return False, None
+        return True, None

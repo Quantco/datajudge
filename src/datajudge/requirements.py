@@ -387,6 +387,28 @@ class WithinRequirement(Requirement):
             )
         )
 
+    def add_numeric_percentile_constraint(
+        self,
+        column: str,
+        k: float,
+        expected_percentile: float,
+        max_absolute_deviation: Optional[float] = None,
+        max_relative_deviation: Optional[float] = None,
+        condition: Condition = None,
+        name: str = None,
+    ):
+        ref = DataReference(self.data_source, [column], condition)
+        self._constraints.append(
+            numeric_constraints.NumericPerenctile(
+                ref,
+                k=k,
+                expected_percentile=expected_percentile,
+                max_absolute_deviation=max_absolute_deviation,
+                max_relative_deviation=max_relative_deviation,
+                name=name,
+            )
+        )
+
     def add_date_min_constraint(
         self,
         column: str,
