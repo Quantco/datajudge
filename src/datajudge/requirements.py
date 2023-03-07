@@ -397,6 +397,17 @@ class WithinRequirement(Requirement):
         condition: Condition = None,
         name: str = None,
     ):
+        """Assert that the ``k``-th percentile is approximately ``expected_percentile``.
+
+        The percentile is defined as the value present in ``column`` for which ``k``%
+        of the values in ``column`` are less or equal. ``NULL`` values are ignored.
+
+        ``k`` is expected to be provided in percent. The median, for example, would
+        correspond to ``k=50``.
+
+        At least one of ``max_absolute_deviation`` and ``max_relative_deviation`` must
+        be provided.
+        """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericPercentile(
@@ -1266,6 +1277,18 @@ class BetweenRequirement(Requirement):
         condition2: Optional[Condition] = None,
         name: str = None,
     ):
+        """Assert that the ``k``-th percentile is approximately equal.
+
+        The percentile is defined as the value present in ``column1``/``column2``
+         for which ``k``% of the values in ``column1`` / ``column2`` are less or
+         equal. ``NULL`` values are ignored.
+
+        ``k`` is expected to be provided in percent. The median, for example, would
+        correspond to ``k=50``.
+
+        At least one of ``max_absolute_deviation`` and ``max_relative_deviation`` must
+        be provided.
+        """
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(

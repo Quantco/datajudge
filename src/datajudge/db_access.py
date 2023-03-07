@@ -780,6 +780,7 @@ def get_mean(engine, ref):
 def get_kth_percentile(engine, ref, k):
     column_name = ref.get_column(engine)
     column = ref.get_selection(engine).subquery().c[column_name]
+    # TODO: Exclude NULL?
     subquery = sa.select(
         [
             column,
