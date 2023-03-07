@@ -165,9 +165,9 @@ class NumericPercentile(Constraint):
         self,
         ref: DataReference,
         k: float,
-        max_absolute_deviation: Optional[float],
-        max_relative_deviation: Optional[float],
-        name: str = None,
+        max_absolute_deviation: Optional[float] = None,
+        max_relative_deviation: Optional[float] = None,
+        name: Optional[str] = None,
         *,
         ref2: DataReference = None,
         expected_percentile: float = None,
@@ -213,7 +213,6 @@ class NumericPercentile(Constraint):
             return False, assertion_message
         if self.max_relative_deviation is not None:
             if percentile_target == 0:
-                breakpoint()
                 raise ValueError("Cannot compute relative deviation wrt 0.")
             if (
                 rel_diff := abs_diff / abs(percentile_target)
