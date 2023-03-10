@@ -131,3 +131,31 @@ class NullAbsence(Constraint):
         self.factual_selections = selections
         result = not query_result
         return TestResult(result, assertion_message)
+
+
+class MaxMissingFraction(Constraint):
+    def __init__(
+        self,
+        ref,
+        *,
+        ref2: DataReference = None,
+        max_missing_fraction: float = None,
+        max_relative_deviation: float = 0,
+        name: str = None,
+    ):
+        super().__init__(ref, ref2=ref2, ref_value=max_missing_fraction, name=name)
+        self.max_relative_deviation = max_relative_deviation
+
+    def retrieve(self, engine: sa.engine.Engine, ref: DataReference):
+        return db_access.get_missing_fraction(engine=engine, ref=ref)
+
+    def compare(
+        self, missing_fraction_factual: float, missing_fracion_target: float
+    ) -> Tuple[bool, Optional[str]]:
+        threshold = missing_fracion_target * (1 + self.max_relative_deviation)
+        result = missing_fraction_factual <= threshold
+        assertion_text = (
+            f"{missing_fraction_factual} of {self.ref.get_string()} values are missing "
+            f"while only {threshold} where allowed to be missing."
+        )
+        return result, assertion_text

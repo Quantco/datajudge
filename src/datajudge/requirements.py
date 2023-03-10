@@ -179,6 +179,21 @@ class WithinRequirement(Requirement):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(miscs_constraints.NullAbsence(ref, name=name))
 
+    def add_max_missing_fraction_constraint(
+        self,
+        column: str,
+        max_missing_fraction: float,
+        condition: Condition = None,
+        name: str = None,
+    ):
+        """TODO"""
+        ref = DataReference(self.data_source, [column], condition)
+        self._constraints.append(
+            miscs_constraints.MaxMissingFraction(
+                ref, max_missing_fraction=max_missing_fraction, name=name
+            )
+        )
+
     def add_n_rows_equality_constraint(
         self, n_rows: int, condition: Condition = None, name: str = None
     ):
@@ -1065,6 +1080,26 @@ class BetweenRequirement(Requirement):
         self._constraints.append(
             uniques_constraints.NUniquesMaxLoss(
                 ref, ref2, max_relative_loss_getter, name=name
+            )
+        )
+
+    def add_max_missing_fraction_constraint(
+        self,
+        column1: str,
+        column2: str,
+        max_relative_deviation: float,
+        condition1: Condition = None,
+        condition2: Condition = None,
+        name: str = None,
+    ):
+        """TODO"""
+        ref = DataReference(self.data_source, [column1], condition1)
+        ref2 = DataReference(self.data_source2, [column2], condition2)
+        self._constraints.append(
+            miscs_constraints.MaxMissingFraction(
+                ref,
+                ref2=ref2,
+                max_relative_deviation=max_relative_deviation,
             )
         )
 

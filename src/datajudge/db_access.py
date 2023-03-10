@@ -868,6 +868,24 @@ def contains_null(engine, ref):
     return n_rows > 0, [selection]
 
 
+def get_missing_fraction(engine, ref):
+    selection = ref.get_selection(engine).subquery()
+    n_rows_total_selection = sa.select([sa.func.count()]).select_from(selection)
+    n_rows_missing_selection = (
+        sa.select([sa.func.count()])
+        .select_from(selection)
+        .where(selection.c[ref.get_column(engine)].is_(None))
+    )
+    with engine.connect() as connection:
+        n_rows_total = connection.execute(n_rows_total_selection).scalar()
+        n_rows_missing = connection.execute(n_rows_missing_selection).scalar()
+
+    return (
+        n_rows_missing / n_rows_total,
+        [n_rows_total_selection, n_rows_missing_selection],
+    )
+
+
 def get_column_names(engine, ref):
     table = ref.data_source.get_clause(engine)
     return [column.name for column in table.columns], None
