@@ -144,6 +144,15 @@ class MaxMissingFraction(Constraint):
         name: str = None,
     ):
         super().__init__(ref, ref2=ref2, ref_value=max_missing_fraction, name=name)
+        if max_missing_fraction is not None and not (0 <= max_missing_fraction <= 1):
+            raise ValueError(
+                f"max_missing_fraction was expected to lie within [0, 1] but is "
+                f"{max_missing_fraction}."
+            )
+        if max_relative_deviation < 0:
+            raise ValueError(
+                f"{max_relative_deviation} is negative even though it needs to be positive."
+            )
         self.max_relative_deviation = max_relative_deviation
 
     def retrieve(self, engine: sa.engine.Engine, ref: DataReference):
