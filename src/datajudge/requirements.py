@@ -186,7 +186,10 @@ class WithinRequirement(Requirement):
         condition: Condition = None,
         name: str = None,
     ):
-        """TODO"""
+        """Assert that ``column`` has less than a certain fraction of ``NULL`` values.
+
+        ``max_missing_fraction`` is expected to be greater than 0.
+        """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             miscs_constraints.MaxMissingFraction(
@@ -1092,7 +1095,12 @@ class BetweenRequirement(Requirement):
         condition2: Condition = None,
         name: str = None,
     ):
-        """TODO"""
+        """Assert that the fraction of ``NULL`` values of one is at most that of the other.
+
+        Given that ``column2``\'s underlying data has a fraction of missing data ``q``, the
+        ``max_relative_deviation`` parameter allows ``column1``\'s underlying data to have a
+        fraction of ``(1 + max_relative_deviation) * q`` to be missing.
+        """
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
