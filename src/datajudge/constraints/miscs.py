@@ -165,6 +165,6 @@ class MaxMissingFraction(Constraint):
         result = missing_fraction_factual <= threshold
         assertion_text = (
             f"{missing_fraction_factual} of {self.ref.get_string()} values are missing "
-            f"while only {threshold} where allowed to be missing."
+            f"while only {self.target_prefix}{threshold} were allowed to be missing."
         )
         return result, assertion_text
