@@ -190,7 +190,7 @@ class WithinRequirement(Requirement):
     ):
         """Assert that ``column`` has less than a certain fraction of ``NULL`` values.
 
-        ``max_null_fraction`` is expected to be greater or equal than 0.
+        ``max_null_fraction`` is expected to lie within [0, 1].
         """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
