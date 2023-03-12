@@ -207,7 +207,7 @@ class NumericPercentile(Constraint):
             assertion_message = (
                 f"The {self.k}-th percentile of {self.ref.get_string()} was expected to be "
                 f"{self.target_prefix}{percentile_target} but was "
-                f"{percentile_factual}, resulting in an absolute difference of {abs_diff}."
+                f"{percentile_factual}, resulting in an absolute difference of {abs_diff}. "
                 "The maximally allowed absolute deviation would've been "
                 f"{self.max_absolute_deviation}."
             )
