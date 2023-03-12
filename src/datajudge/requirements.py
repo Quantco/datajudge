@@ -177,7 +177,9 @@ class WithinRequirement(Requirement):
         self, column: str, condition: Condition = None, name: str = None
     ):
         ref = DataReference(self.data_source, [column], condition)
-        self._constraints.append(miscs_constraints.NullAbsence(ref, name=name))
+        self._constraints.append(
+            miscs_constraints.MaxNullFraction(ref, max_null_fraction=0, name=name)
+        )
 
     def add_max_null_fraction_constraint(
         self,

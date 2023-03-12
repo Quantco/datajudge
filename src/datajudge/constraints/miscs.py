@@ -119,20 +119,6 @@ class Uniqueness(Constraint):
         return TestResult.failure(assertion_text)
 
 
-class NullAbsence(Constraint):
-    def __init__(self, ref: DataReference, name: str = None):
-        # This is arguably hacky. Passing this pointless string ensures that
-        # None-checks fail.
-        super().__init__(ref, ref_value="NoNull", name=name)
-
-    def test(self, engine: sa.engine) -> TestResult:
-        assertion_message = f"{self.ref.get_string()} contains NULLS."
-        query_result, selections = db_access.contains_null(engine, self.ref)
-        self.factual_selections = selections
-        result = not query_result
-        return TestResult(result, assertion_message)
-
-
 class MaxNullFraction(Constraint):
     def __init__(
         self,
