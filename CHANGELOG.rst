@@ -7,6 +7,16 @@
 Changelog
 =========
 
+
+1.5.0 - 2022.03.XX
+------------------
+
+**New features**
+
+- Implement :meth:`datajudge.BetweenRequirement.add_max_null_fraction_constraint` and
+  :meth:`datajudge.WithinRequirement.add_max_null_fraction_constraint`.
+
+
 1.4.0 - 2022.02.24
 ------------------
 
