@@ -186,7 +186,14 @@ class NumericPercentile(Constraint):
                 "At least one of 'max_absolute_deviation' and 'max_relative_deviation' "
                 "must be given."
             )
-
+        if max_absolute_deviation is not None and max_absolute_deviation < 0:
+            raise ValueError(
+                f"max_absolute_deviation must be at least 0 but is {max_absolute_deviation}."
+            )
+        if max_relative_deviation is not None and max_relative_deviation < 0:
+            raise ValueError(
+                f"max_relative_deviation must be at least 0 but is {max_relative_deviation}."
+            )
         self.max_absolute_deviation = max_absolute_deviation
         self.max_relative_deviation = max_relative_deviation
 
