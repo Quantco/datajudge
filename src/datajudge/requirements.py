@@ -179,21 +179,21 @@ class WithinRequirement(Requirement):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(miscs_constraints.NullAbsence(ref, name=name))
 
-    def add_max_missing_fraction_constraint(
+    def add_max_null_fraction_constraint(
         self,
         column: str,
-        max_missing_fraction: float,
+        max_null_fraction: float,
         condition: Condition = None,
         name: str = None,
     ):
         """Assert that ``column`` has less than a certain fraction of ``NULL`` values.
 
-        ``max_missing_fraction`` is expected to be greater than 0.
+        ``max_null_fraction`` is expected to be greater or equal than 0.
         """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            miscs_constraints.MaxMissingFraction(
-                ref, max_missing_fraction=max_missing_fraction, name=name
+            miscs_constraints.MaxNullFraction(
+                ref, max_null_fraction=max_null_fraction, name=name
             )
         )
 
@@ -1086,7 +1086,7 @@ class BetweenRequirement(Requirement):
             )
         )
 
-    def add_max_missing_fraction_constraint(
+    def add_max_null_fraction_constraint(
         self,
         column1: str,
         column2: str,
@@ -1097,14 +1097,14 @@ class BetweenRequirement(Requirement):
     ):
         """Assert that the fraction of ``NULL`` values of one is at most that of the other.
 
-        Given that ``column2``\'s underlying data has a fraction of missing data ``q``, the
+        Given that ``column2``\'s underlying data has a fraction ``q`` of ``NULL`` values, the
         ``max_relative_deviation`` parameter allows ``column1``\'s underlying data to have a
-        fraction of ``(1 + max_relative_deviation) * q`` to be missing.
+        fraction ``(1 + max_relative_deviation) * q`` of ``NULL`` values.
         """
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
-            miscs_constraints.MaxMissingFraction(
+            miscs_constraints.MaxNullFraction(
                 ref,
                 ref2=ref2,
                 max_relative_deviation=max_relative_deviation,

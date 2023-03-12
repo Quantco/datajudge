@@ -1719,11 +1719,11 @@ def test_null_absence_within(engine, get_fixture, data):
         (negation, 2 / 63),
     ],
 )
-def test_max_missing_fraction_within(engine, unique_table1, data):
-    (operation, max_missing_fraction) = data
+def test_max_null_fraction_within(engine, unique_table1, data):
+    (operation, max_null_fraction) = data
     req = requirements.WithinRequirement.from_table(*unique_table1)
-    req.add_max_missing_fraction_constraint(
-        column="col_int", max_missing_fraction=max_missing_fraction
+    req.add_max_null_fraction_constraint(
+        column="col_int", max_null_fraction=max_null_fraction
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
@@ -1738,13 +1738,13 @@ def test_max_missing_fraction_within(engine, unique_table1, data):
         (negation, "col_int", "col_varchar", 0.99),
     ],
 )
-def test_max_missing_fraction_between(engine, unique_table1, data):
+def test_max_null_fraction_between(engine, unique_table1, data):
     (operation, column1, column2, max_relative_deviation) = data
     req = requirements.BetweenRequirement.from_tables(
         *unique_table1,
         *unique_table1,
     )
-    req.add_max_missing_fraction_constraint(
+    req.add_max_null_fraction_constraint(
         column1=column1,
         column2=column2,
         max_relative_deviation=max_relative_deviation,

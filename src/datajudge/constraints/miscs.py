@@ -133,21 +133,21 @@ class NullAbsence(Constraint):
         return TestResult(result, assertion_message)
 
 
-class MaxMissingFraction(Constraint):
+class MaxNullFraction(Constraint):
     def __init__(
         self,
         ref,
         *,
         ref2: DataReference = None,
-        max_missing_fraction: float = None,
+        max_null_fraction: float = None,
         max_relative_deviation: float = 0,
         name: str = None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=max_missing_fraction, name=name)
-        if max_missing_fraction is not None and not (0 <= max_missing_fraction <= 1):
+        super().__init__(ref, ref2=ref2, ref_value=max_null_fraction, name=name)
+        if max_null_fraction is not None and not (0 <= max_null_fraction <= 1):
             raise ValueError(
-                f"max_missing_fraction was expected to lie within [0, 1] but is "
-                f"{max_missing_fraction}."
+                f"max_null_fraction was expected to lie within [0, 1] but is "
+                f"{max_null_fraction}."
             )
         if max_relative_deviation < 0:
             raise ValueError(
@@ -164,7 +164,7 @@ class MaxMissingFraction(Constraint):
         threshold = missing_fracion_target * (1 + self.max_relative_deviation)
         result = missing_fraction_factual <= threshold
         assertion_text = (
-            f"{missing_fraction_factual} of {self.ref.get_string()} values are missing "
-            f"while only {self.target_prefix}{threshold} were allowed to be missing."
+            f"{missing_fraction_factual} of {self.ref.get_string()} values are NULL "
+            f"while only {self.target_prefix}{threshold} were allowed to be NULL."
         )
         return result, assertion_text
