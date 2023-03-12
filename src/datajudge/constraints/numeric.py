@@ -205,7 +205,8 @@ class NumericPercentile(Constraint):
             and abs_diff > self.max_absolute_deviation
         ):
             assertion_message = (
-                f"{self.k}-th percentile was expected to be {percentile_target} but was "
+                f"The {self.k}-th percentile of {self.ref.get_string()} was expected to be "
+                f"{self.target_prefix}{percentile_target} but was "
                 f"{percentile_factual}, resulting in an absolute difference of {abs_diff}."
                 "The maximally allowed absolute deviation would've been "
                 f"{self.max_absolute_deviation}."
@@ -218,7 +219,8 @@ class NumericPercentile(Constraint):
                 rel_diff := abs_diff / abs(percentile_target)
             ) > self.max_relative_deviation:
                 assertion_message = (
-                    f"{self.k}-th percentile was expected to be {percentile_target} but "
+                    f"The {self.k}-th percentile of {self.ref.get_string()}  was expected to be "
+                    f"{self.target_prefix}{percentile_target} but "
                     f"was {percentile_factual}, resulting in a relative difference of "
                     f"{rel_diff}. The maximally allowed relative deviation would've been "
                     f"{self.max_relative_deviation}."
