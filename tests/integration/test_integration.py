@@ -872,7 +872,7 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
 def test_numeric_percentile_within(engine, int_table1, data):
     (
         operation,
-        k,
+        percentage,
         expected_percentile,
         max_absolute_deviation,
         max_relative_deviation,
@@ -881,7 +881,7 @@ def test_numeric_percentile_within(engine, int_table1, data):
     req = requirements.WithinRequirement.from_table(*int_table1)
     req.add_numeric_percentile_constraint(
         column="col_int",
-        k=20,
+        percentage=20,
         expected_percentile=expected_percentile,
         max_absolute_deviation=max_absolute_deviation,
         max_relative_deviation=max_relative_deviation,
@@ -932,7 +932,7 @@ def test_numeric_percentile_within(engine, int_table1, data):
 def test_numeric_percentile_within_null(engine, unique_table1, data):
     (
         operation,
-        k,
+        percentage,
         expected_percentile,
         max_absolute_deviation,
         max_relative_deviation,
@@ -941,7 +941,7 @@ def test_numeric_percentile_within_null(engine, unique_table1, data):
     req = requirements.WithinRequirement.from_table(*unique_table1)
     req.add_numeric_percentile_constraint(
         column="col_int",
-        k=k,
+        percentage=percentage,
         expected_percentile=expected_percentile,
         max_absolute_deviation=max_absolute_deviation,
         max_relative_deviation=max_relative_deviation,
@@ -966,7 +966,7 @@ def test_numeric_percentile_within_null(engine, unique_table1, data):
 def test_numeric_percentile_between(engine, int_table1, int_table2, data):
     (
         operation,
-        k,
+        percentage,
         max_absolute_deviation,
         max_relative_deviation,
         condition1,
@@ -976,7 +976,7 @@ def test_numeric_percentile_between(engine, int_table1, int_table2, data):
     req.add_numeric_percentile_constraint(
         "col_int",
         "col_int",
-        k=k,
+        percentage=percentage,
         max_absolute_deviation=max_absolute_deviation,
         max_relative_deviation=max_relative_deviation,
         condition1=condition1,

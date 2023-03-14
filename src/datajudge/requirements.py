@@ -390,23 +390,24 @@ class WithinRequirement(Requirement):
     def add_numeric_percentile_constraint(
         self,
         column: str,
-        k: float,
+        percentage: float,
         expected_percentile: float,
         max_absolute_deviation: Optional[float] = None,
         max_relative_deviation: Optional[float] = None,
         condition: Condition = None,
         name: str = None,
     ):
-        """Assert that the ``k``-th percentile is approximately ``expected_percentile``.
+        """Assert that the ``percentage``-th percentile is approximately ``expected_percentile``.
 
-        The percentile is defined as the value present in ``column`` for which ``k`` %
-        of the values in ``column`` are less or equal. ``NULL`` values are ignored.
+        The percentile is defined as the value present in ``column`` for which
+        ``percentage`` % of the values in ``column`` are less or equal. ``NULL`` values
+        are ignored.
 
-        Hence, if ``k`` is less than the inverse of the number of non-``NULL`` rows,
-        ``None`` is received as the ``k`` -th percentile.
+        Hence, if ``percentage`` is less than the inverse of the number of non-``NULL`` rows,
+        ``None`` is received as the ``percentage`` -th percentile.
 
-        ``k`` is expected to be provided in percent. The median, for example, would
-        correspond to ``k=50``.
+        ``percentage`` is expected to be provided in percent. The median, for example, would
+        correspond to ``percentage=50``.
 
         At least one of ``max_absolute_deviation`` and ``max_relative_deviation`` must
         be provided.
@@ -415,7 +416,7 @@ class WithinRequirement(Requirement):
         self._constraints.append(
             numeric_constraints.NumericPercentile(
                 ref,
-                k=k,
+                percentage=percentage,
                 expected_percentile=expected_percentile,
                 max_absolute_deviation=max_absolute_deviation,
                 max_relative_deviation=max_relative_deviation,
@@ -1273,24 +1274,24 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        k: float,
+        percentage: float,
         max_absolute_deviation: Optional[float] = None,
         max_relative_deviation: Optional[float] = None,
         condition1: Optional[Condition] = None,
         condition2: Optional[Condition] = None,
         name: str = None,
     ):
-        """Assert that the ``k``-th percentile is approximately equal.
+        """Assert that the ``percentage``-th percentile is approximately equal.
 
         The percentile is defined as the value present in ``column1`` / ``column2``
-        for which ``k`` % of the values in ``column1`` / ``column2`` are less or
-        equal. ``NULL`` values are ignored.
+        for which ``percentage`` % of the values in ``column1`` / ``column2`` are
+        less or equal. ``NULL`` values are ignored.
 
-        Hence, if ``k`` is less than the inverse of the number of non-``NULL`` rows,
-        ``None`` is received as the ``k``-th percentile.
+        Hence, if ``percentage`` is less than the inverse of the number of non-``NULL``
+        rows, ``None`` is received as the ``percentage``-th percentile.
 
-        ``k`` is expected to be provided in percent. The median, for example, would
-        correspond to ``k=50``.
+        ``percentage`` is expected to be provided in percent. The median, for example,
+        would correspond to ``percentage=50``.
 
         At least one of ``max_absolute_deviation`` and ``max_relative_deviation`` must
         be provided.
@@ -1300,7 +1301,7 @@ class BetweenRequirement(Requirement):
         self._constraints.append(
             numeric_constraints.NumericPercentile(
                 ref,
-                k=k,
+                percentage=percentage,
                 max_absolute_deviation=max_absolute_deviation,
                 max_relative_deviation=max_relative_deviation,
                 ref2=ref2,

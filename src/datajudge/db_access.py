@@ -777,7 +777,7 @@ def get_mean(engine, ref):
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_kth_percentile(engine, ref, k):
+def get_percentile(engine, ref, percentage):
     row_count = "row_count"
     row_num = "row_num"
     column_name = ref.get_column(engine)
@@ -796,7 +796,7 @@ def get_kth_percentile(engine, ref, k):
 
     constrained_selection = (
         sa.select(subquery.columns)
-        .where(subquery.c[row_num] * 100.0 / subquery.c[row_count] <= k)
+        .where(subquery.c[row_num] * 100.0 / subquery.c[row_count] <= percentage)
         .subquery()
     )
 
