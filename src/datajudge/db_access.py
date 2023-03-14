@@ -889,16 +889,22 @@ def get_unique_count_union(engine, ref, ref2):
     return result, [selection]
 
 
-def contains_null(engine, ref):
-    selection = ref.get_selection(engine)
-    subquery = selection.distinct().alias()
-    selection = (
+def get_missing_fraction(engine, ref):
+    selection = ref.get_selection(engine).subquery()
+    n_rows_total_selection = sa.select([sa.func.count()]).select_from(selection)
+    n_rows_missing_selection = (
         sa.select([sa.func.count()])
-        .select_from(subquery)
-        .where(subquery.c[ref.get_column(engine)].is_(None))
+        .select_from(selection)
+        .where(selection.c[ref.get_column(engine)].is_(None))
     )
-    n_rows = engine.connect().execute(selection).scalar()
-    return n_rows > 0, [selection]
+    with engine.connect() as connection:
+        n_rows_total = connection.execute(n_rows_total_selection).scalar()
+        n_rows_missing = connection.execute(n_rows_missing_selection).scalar()
+
+    return (
+        n_rows_missing / n_rows_total,
+        [n_rows_total_selection, n_rows_missing_selection],
+    )
 
 
 def get_column_names(engine, ref):

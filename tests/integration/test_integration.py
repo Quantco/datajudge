@@ -1845,6 +1845,47 @@ def test_null_absence_within(engine, get_fixture, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (identity, 2 / 62),
+        (negation, 2 / 63),
+    ],
+)
+def test_max_null_fraction_within(engine, unique_table1, data):
+    (operation, max_null_fraction) = data
+    req = requirements.WithinRequirement.from_table(*unique_table1)
+    req.add_max_null_fraction_constraint(
+        column="col_int", max_null_fraction=max_null_fraction
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, "col_int", "col_int", 0),
+        (identity, "col_varchar", "col_int", 0),
+        (identity, "col_int", "col_varchar", 1),
+        (negation, "col_int", "col_varchar", 0.99),
+    ],
+)
+def test_max_null_fraction_between(engine, unique_table1, data):
+    (operation, column1, column2, max_relative_deviation) = data
+    req = requirements.BetweenRequirement.from_tables(
+        *unique_table1,
+        *unique_table1,
+    )
+    req.add_max_null_fraction_constraint(
+        column1=column1,
+        column2=column2,
+        max_relative_deviation=max_relative_deviation,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (identity, "col_varchar", "VARCHAR"),
         (identity, "col_int", "INTEGER"),
         (negation, "col_varchar", "INTEGER"),

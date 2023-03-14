@@ -119,15 +119,38 @@ class Uniqueness(Constraint):
         return TestResult.failure(assertion_text)
 
 
-class NullAbsence(Constraint):
-    def __init__(self, ref: DataReference, name: str = None):
-        # This is arguably hacky. Passing this pointless string ensures that
-        # None-checks fail.
-        super().__init__(ref, ref_value="NoNull", name=name)
+class MaxNullFraction(Constraint):
+    def __init__(
+        self,
+        ref,
+        *,
+        ref2: DataReference = None,
+        max_null_fraction: float = None,
+        max_relative_deviation: float = 0,
+        name: str = None,
+    ):
+        super().__init__(ref, ref2=ref2, ref_value=max_null_fraction, name=name)
+        if max_null_fraction is not None and not (0 <= max_null_fraction <= 1):
+            raise ValueError(
+                f"max_null_fraction was expected to lie within [0, 1] but is "
+                f"{max_null_fraction}."
+            )
+        if max_relative_deviation < 0:
+            raise ValueError(
+                f"{max_relative_deviation} is negative even though it needs to be positive."
+            )
+        self.max_relative_deviation = max_relative_deviation
 
-    def test(self, engine: sa.engine) -> TestResult:
-        assertion_message = f"{self.ref.get_string()} contains NULLS."
-        query_result, selections = db_access.contains_null(engine, self.ref)
-        self.factual_selections = selections
-        result = not query_result
-        return TestResult(result, assertion_message)
+    def retrieve(self, engine: sa.engine.Engine, ref: DataReference):
+        return db_access.get_missing_fraction(engine=engine, ref=ref)
+
+    def compare(
+        self, missing_fraction_factual: float, missing_fracion_target: float
+    ) -> Tuple[bool, Optional[str]]:
+        threshold = missing_fracion_target * (1 + self.max_relative_deviation)
+        result = missing_fraction_factual <= threshold
+        assertion_text = (
+            f"{missing_fraction_factual} of {self.ref.get_string()} values are NULL "
+            f"while only {self.target_prefix}{threshold} were allowed to be NULL."
+        )
+        return result, assertion_text
