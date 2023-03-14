@@ -777,6 +777,39 @@ def get_mean(engine, ref):
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
+def get_percentile(engine, ref, percentage):
+    row_count = "dj_row_count"
+    row_num = "dj_row_num"
+    column_name = ref.get_column(engine)
+    column = ref.get_selection(engine).subquery().c[column_name]
+    subquery = (
+        sa.select(
+            [
+                column,
+                sa.func.row_number().over(order_by=column).label(row_num),
+                sa.func.count().over(partition_by=None).label(row_count),
+            ]
+        )
+        .where(column.is_not(None))
+        .subquery()
+    )
+
+    constrained_selection = (
+        sa.select(subquery.columns)
+        .where(subquery.c[row_num] * 100.0 / subquery.c[row_count] <= percentage)
+        .subquery()
+    )
+
+    max_selection = sa.select(
+        sa.func.max(constrained_selection.c[row_num])
+    ).scalar_subquery()
+    selection = sa.select(constrained_selection.c[column_name]).where(
+        constrained_selection.c[row_num] == max_selection
+    )
+    result = engine.connect().execute(selection).scalar()
+    return result, [selection]
+
+
 def get_min_length(engine, ref):
     def column_operator(column):
         return sa.func.min(sa.func.length(column))
