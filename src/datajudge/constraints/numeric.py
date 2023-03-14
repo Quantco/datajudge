@@ -158,3 +158,81 @@ class NumericMean(Constraint):
         )
         result = deviation <= self.max_absolute_deviation
         return TestResult(result, assertion_text)
+
+
+class NumericPercentile(Constraint):
+    def __init__(
+        self,
+        ref: DataReference,
+        percentage: float,
+        max_absolute_deviation: Optional[float] = None,
+        max_relative_deviation: Optional[float] = None,
+        name: Optional[str] = None,
+        *,
+        ref2: DataReference = None,
+        expected_percentile: float = None,
+    ):
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=expected_percentile,
+            name=name,
+        )
+        if not (0 <= percentage <= 100):
+            raise ValueError(
+                f"Expected percentage to be a value between 0 and 100, got {percentage}."
+            )
+        self.percentage = percentage
+        if max_absolute_deviation is None and max_relative_deviation is None:
+            raise ValueError(
+                "At least one of 'max_absolute_deviation' and 'max_relative_deviation' "
+                "must be given."
+            )
+        if max_absolute_deviation is not None and max_absolute_deviation < 0:
+            raise ValueError(
+                f"max_absolute_deviation must be at least 0 but is {max_absolute_deviation}."
+            )
+        if max_relative_deviation is not None and max_relative_deviation < 0:
+            raise ValueError(
+                f"max_relative_deviation must be at least 0 but is {max_relative_deviation}."
+            )
+        self.max_absolute_deviation = max_absolute_deviation
+        self.max_relative_deviation = max_relative_deviation
+
+    def retrieve(
+        self, engine: sa.engine.Engine, ref: DataReference
+    ) -> Tuple[float, OptionalSelections]:
+        result, selections = db_access.get_percentile(engine, ref, self.percentage)
+        return result, selections
+
+    def compare(
+        self, percentile_factual: float, percentile_target: float
+    ) -> Tuple[bool, Optional[str]]:
+        abs_diff = abs(percentile_factual - percentile_target)
+        if (
+            self.max_absolute_deviation is not None
+            and abs_diff > self.max_absolute_deviation
+        ):
+            assertion_message = (
+                f"The {self.percentage}-th percentile of {self.ref.get_string()} was "
+                f"expected to be {self.target_prefix}{percentile_target} but was "
+                f"{percentile_factual}, resulting in an absolute difference of "
+                f"{abs_diff}. The maximally allowed absolute deviation would've been "
+                f"{self.max_absolute_deviation}."
+            )
+            return False, assertion_message
+        if self.max_relative_deviation is not None:
+            if percentile_target == 0:
+                raise ValueError("Cannot compute relative deviation wrt 0.")
+            if (
+                rel_diff := abs_diff / abs(percentile_target)
+            ) > self.max_relative_deviation:
+                assertion_message = (
+                    f"The {self.percentage}-th percentile of {self.ref.get_string()}  was "
+                    f"expected to be {self.target_prefix}{percentile_target} but "
+                    f"was {percentile_factual}, resulting in a relative difference of "
+                    f"{rel_diff}. The maximally allowed relative deviation would've been "
+                    f"{self.max_relative_deviation}."
+                )
+                return False, assertion_message
+        return True, None

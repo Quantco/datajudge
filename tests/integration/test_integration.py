@@ -859,6 +859,136 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (identity, 20, 3, 0, 0, None),
+        (identity, 20, 2.8, 0.21, None, None),
+        (identity, 20, 2.8, None, 0.1, None),
+        (negation, 20, 2.8, 0, None, None),
+        (negation, 20, 2.8, None, 0, None),
+        (negation, 20, 2.8, 0, 0, None),
+        (negation, 20, 3.2, 0, 0, None),
+        (identity, 20, 2, 0, 0, Condition(raw_string="col_int <= 11")),
+    ],
+)
+def test_numeric_percentile_within(engine, int_table1, data):
+    (
+        operation,
+        percentage,
+        expected_percentile,
+        max_absolute_deviation,
+        max_relative_deviation,
+        condition,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*int_table1)
+    req.add_numeric_percentile_constraint(
+        column="col_int",
+        percentage=20,
+        expected_percentile=expected_percentile,
+        max_absolute_deviation=max_absolute_deviation,
+        max_relative_deviation=max_relative_deviation,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        # With the following condition, we expect the values [0, 0, 1, 1, None].
+        (
+            identity,
+            25,
+            0,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+        (
+            identity,
+            74,
+            0,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+        (
+            identity,
+            75,
+            1,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+        (
+            identity,
+            100,
+            1,
+            0,
+            0,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
+    ],
+)
+def test_numeric_percentile_within_null(engine, unique_table1, data):
+    (
+        operation,
+        percentage,
+        expected_percentile,
+        max_absolute_deviation,
+        max_relative_deviation,
+        condition,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*unique_table1)
+    req.add_numeric_percentile_constraint(
+        column="col_int",
+        percentage=percentage,
+        expected_percentile=expected_percentile,
+        max_absolute_deviation=max_absolute_deviation,
+        max_relative_deviation=max_relative_deviation,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert test_result.outcome, test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, 20, 1, None, None, None),
+        (identity, 20, None, 0.25, None, None),
+        (identity, 20, 1, 0.25, None, None),
+        (negation, 20, 0, 0, None, None),
+        (negation, 20, 0.9, None, None, None),
+        (negation, 20, None, 0.20, None, None),
+        (identity, 20, 0, 0, Condition(raw_string="col_int >=2"), None),
+    ],
+)
+def test_numeric_percentile_between(engine, int_table1, int_table2, data):
+    (
+        operation,
+        percentage,
+        max_absolute_deviation,
+        max_relative_deviation,
+        condition1,
+        condition2,
+    ) = data
+    req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table2)
+    req.add_numeric_percentile_constraint(
+        "col_int",
+        "col_int",
+        percentage=percentage,
+        max_absolute_deviation=max_absolute_deviation,
+        max_relative_deviation=max_relative_deviation,
+        condition1=condition1,
+        condition2=condition2,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (identity, "'2016-01-01'", None, True),
         (negation, "'2016-01-02'", None, True),
         (identity, "'2016-01-01'", None, False),

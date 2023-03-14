@@ -407,6 +407,43 @@ class WithinRequirement(Requirement):
             )
         )
 
+    def add_numeric_percentile_constraint(
+        self,
+        column: str,
+        percentage: float,
+        expected_percentile: float,
+        max_absolute_deviation: Optional[float] = None,
+        max_relative_deviation: Optional[float] = None,
+        condition: Condition = None,
+        name: str = None,
+    ):
+        """Assert that the ``percentage``-th percentile is approximately ``expected_percentile``.
+
+        The percentile is defined as the value present in ``column`` for which
+        ``percentage`` % of the values in ``column`` are less or equal. ``NULL`` values
+        are ignored.
+
+        Hence, if ``percentage`` is less than the inverse of the number of non-``NULL`` rows,
+        ``None`` is received as the ``percentage`` -th percentile.
+
+        ``percentage`` is expected to be provided in percent. The median, for example, would
+        correspond to ``percentage=50``.
+
+        At least one of ``max_absolute_deviation`` and ``max_relative_deviation`` must
+        be provided.
+        """
+        ref = DataReference(self.data_source, [column], condition)
+        self._constraints.append(
+            numeric_constraints.NumericPercentile(
+                ref,
+                percentage=percentage,
+                expected_percentile=expected_percentile,
+                max_absolute_deviation=max_absolute_deviation,
+                max_relative_deviation=max_relative_deviation,
+                name=name,
+            )
+        )
+
     def add_date_min_constraint(
         self,
         column: str,
@@ -1273,6 +1310,45 @@ class BetweenRequirement(Requirement):
             numeric_constraints.NumericMean(
                 ref,
                 max_absolute_deviation,
+                ref2=ref2,
+                name=name,
+            )
+        )
+
+    def add_numeric_percentile_constraint(
+        self,
+        column1: str,
+        column2: str,
+        percentage: float,
+        max_absolute_deviation: Optional[float] = None,
+        max_relative_deviation: Optional[float] = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: str = None,
+    ):
+        """Assert that the ``percentage``-th percentile is approximately equal.
+
+        The percentile is defined as the value present in ``column1`` / ``column2``
+        for which ``percentage`` % of the values in ``column1`` / ``column2`` are
+        less or equal. ``NULL`` values are ignored.
+
+        Hence, if ``percentage`` is less than the inverse of the number of non-``NULL``
+        rows, ``None`` is received as the ``percentage``-th percentile.
+
+        ``percentage`` is expected to be provided in percent. The median, for example,
+        would correspond to ``percentage=50``.
+
+        At least one of ``max_absolute_deviation`` and ``max_relative_deviation`` must
+        be provided.
+        """
+        ref = DataReference(self.data_source, [column1], condition1)
+        ref2 = DataReference(self.data_source2, [column2], condition2)
+        self._constraints.append(
+            numeric_constraints.NumericPercentile(
+                ref,
+                percentage=percentage,
+                max_absolute_deviation=max_absolute_deviation,
+                max_relative_deviation=max_relative_deviation,
                 ref2=ref2,
                 name=name,
             )
