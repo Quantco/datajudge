@@ -778,8 +778,8 @@ def get_mean(engine, ref):
 
 
 def get_percentile(engine, ref, percentage):
-    row_count = "row_count"
-    row_num = "row_num"
+    row_count = "dj_row_count"
+    row_num = "dj_row_num"
     column_name = ref.get_column(engine)
     column = ref.get_selection(engine).subquery().c[column_name]
     subquery = (
