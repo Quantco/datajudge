@@ -34,7 +34,7 @@ def test_custom_data_source_from_query(engine, int_table1, int_table2):
     )
     data_source = RawQueryDataSource(query, "string query")
     derived_clause = data_source.get_clause(engine)
-    derived_selection = sa.select([derived_clause])
+    derived_selection = sa.select(derived_clause)
     with engine.connect() as connection:
         rows = connection.execute(derived_selection).scalars().fetchall()
     assert set(rows) == set(range(1, 20))
@@ -46,13 +46,13 @@ def test_custom_data_source_from_expression(engine, metadata, int_table1, int_ta
     table1 = sa.Table(table_name1, metadata, schema=schema_name1, autoload_with=engine)
     table2 = sa.Table(table_name2, metadata, schema=schema_name2, autoload_with=engine)
     subquery = sa.union(
-        sa.select([table1]).where(table1.c["col_int"] < 10),
-        sa.select([table2]).where(table2.c["col_int"] > 10),
+        sa.select(table1).where(table1.c["col_int"] < 10),
+        sa.select(table2).where(table2.c["col_int"] > 10),
     ).subquery()
-    selection = sa.select([subquery])
+    selection = sa.select(subquery)
     data_source = ExpressionDataSource(selection, "expression")
     derived_clause = data_source.get_clause(engine)
-    derived_selection = sa.select([derived_clause])
+    derived_selection = sa.select(derived_clause)
     with engine.connect() as connection:
         rows = connection.execute(derived_selection).scalars().fetchall()
 
