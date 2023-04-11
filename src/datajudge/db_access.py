@@ -789,7 +789,7 @@ def get_percentile(engine, ref, percentage):
     )
 
     constrained_selection = (
-        sa.select(subquery.columns)
+        sa.select(*subquery.columns)
         .where(subquery.c[row_num] * 100.0 / subquery.c[row_count] <= percentage)
         .subquery()
     )
