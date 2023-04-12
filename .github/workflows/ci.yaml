@@ -139,7 +139,7 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
       - name: Run tests
-        uses: ./.github/actions/pytest
+        uses: .github/actions/pytest
         with:
           backend: postgres
           args: tests/integration
