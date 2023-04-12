@@ -17,9 +17,9 @@ runs:
       run: |
         flit install -s
         if [[ "${{ inputs.backend }}" != "" ]]; then
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=${{ inputs.backend }} ${{ input.args }}
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=${{ inputs.backend }} ${{ inputs.args }}
         else
-          pytest --cov=datajudge --cov-report=xml --cov-append ${{ input.args }}
+          pytest --cov=datajudge --cov-report=xml --cov-append ${{ inputs.args }}
         fi
     - name: Generate code coverage report
       uses: codecov/codecov-action@v3.1.1
