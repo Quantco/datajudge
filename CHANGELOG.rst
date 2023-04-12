@@ -8,6 +8,14 @@ Changelog
 =========
 
 
+1.6.0 - 2022.04.12
+------------------
+
+**Other changes**
+
+- Ensure compatibility with ``sqlalchemy`` >= 2.0.
+
+
 1.5.0 - 2022.03.14
 ------------------
 
@@ -51,7 +59,7 @@ Changelog
 - Implemented in-database regex matching for some dialects via ``computation_in_db`` parameter in :meth:`~datajudge.WithinRequirement.add_varchar_regex_constraint`.
 - Added support for BigQuery backends.
 
-**Bug fix:**
+**Bug fix**
 
 - Snowflake-sqlalchemy version 1.4.0 introduced an unexpected change in behaviour. This problem is resolved by pinning it to the previous version, 1.3.4.
 
