@@ -3,6 +3,7 @@ on:
   # We would like to trigger for CI for any pull request action -
   # both from QuantCo's branches as well as forks.
   pull_request:
+    types: [labeled]
   # In addition to pull requests, we want to run CI for pushes
   # to the main branches and tags.
   push:
@@ -50,17 +51,13 @@ jobs:
           extra-specs: |
             python=${{ matrix.python-version }}
             sqlalchemy=${{ matrix.sa-version }}
-      - name: Run Unit Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append tests/unit
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
+      - name: Run tests
+        uses: ./github/actions/pytest
         with:
-          file: ./coverage.xml
+          args: "tests/integration"
 
   sqlserver:
+    if: contains(github.event.pull_request.labels.*.name, 'sqlserver')
     name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - mssql"
     runs-on: ubuntu-20.04
     env:
@@ -91,6 +88,7 @@ jobs:
           extra-specs: |
             python=${{ matrix.python-version }}
             sqlalchemy=${{ matrix.sa-version }}
+            pyodbc
       # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
       - name: Install msodbcsql17 driver
         shell: bash -l {0}
@@ -100,17 +98,14 @@ jobs:
       - name: Wait for SQL Server
         timeout-minutes: 1
         run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=mssql tests/integration
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
+      - name: Run tests
+        uses: ./github/actions/pytest
         with:
-          file: ./coverage.xml
+          backend: mssql
+          args: "tests/integration"
 
   postgres:
+    if: contains(github.event.pull_request.labels.*.name, 'postgres')
     name: "Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
@@ -143,17 +138,15 @@ jobs:
           extra-specs: |
             python=${{ matrix.python-version }}
             sqlalchemy=${{ matrix.sa-version }}
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=postgres tests/integration
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
+            psycopg2
+      - name: Run tests
+        uses: ./github/actions/pytest
         with:
-          file: ./coverage.xml
+          backend: postgres
+          args: tests/integration
 
   db2:
+    if: contains(github.event.pull_request.labels.*.name, 'db2')
     name: "Python ${{ matrix.PYTHON_VERSION }} - DB2 - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
@@ -191,25 +184,26 @@ jobs:
             sqlalchemy=${{ matrix.sa-version }}
             ibm_db
             ibm_db_sa
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=db2 tests/integration
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
+      - name: Run tests
+        uses: ./github/actions/pytest
         with:
-          file: ./coverage.xml
+          backend: db2
+          args: tests/integration
 
 
   snowflake:
+    if: contains(github.event.pull_request.labels.*.name, 'snowflake')
     name: "Python ${{ matrix.PYTHON_VERSION }} - Snowflake - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_USER: DATAJUDGE
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
     strategy:
       fail-fast: false
       matrix:
         PYTHON_VERSION: [ '3.8' ]
-        SA_VERSION: ["<=2.0"] # TODO: add sqlalchemy in the future here
+        SA_VERSION: ["<=2.0"]
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -224,19 +218,11 @@ jobs:
             python=${{ matrix.python-version }}
             sqlalchemy=${{ matrix.sa-version }}
             snowflake-sqlalchemy
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest -n auto --cov=datajudge --cov-report=xml --cov-append --backend=snowflake tests/integration
-        env:
-          SNOWFLAKE_USER: DATAJUDGE
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
+      - name: Run tests
+        uses: ./github/actions/pytest
         with:
-          file: ./coverage.xml
+          backend: snowflake
+          args: tests/integration
 
   bigquery:
     name: "Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
@@ -266,15 +252,11 @@ jobs:
         uses: 'google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d'
         with:
           credentials_json: '${{ secrets.GCP_KEY }}'
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest -n auto --cov=datajudge --cov-report=xml --cov-append --backend=bigquery tests/integration
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
+      - name: Run tests
+        uses: ./github/actions/pytest
         with:
-          file: ./coverage.xml
+          backend: bigquery
+          args: tests/integration
 
 
   impala-column-pt1:
