@@ -138,8 +138,6 @@ jobs:
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
