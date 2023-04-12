@@ -278,7 +278,7 @@ class RawQueryDataSource(DataSource):
             self.clause = subquery
         else:
             wrapped_query = f"({query_string}) as t"
-            self.clause = sa.select(["*"]).select_from(sa.text(wrapped_query)).alias()
+            self.clause = sa.select("*").select_from(sa.text(wrapped_query)).alias()
 
     def __str__(self) -> str:
         return self.name
@@ -308,10 +308,10 @@ class DataReference:
         clause = self.data_source.get_clause(engine)
         if self.columns:
             selection = sa.select(
-                [clause.c[column_name] for column_name in self.get_columns(engine)]
+                *[clause.c[column_name] for column_name in self.get_columns(engine)]
             )
         else:
-            selection = sa.select([clause])
+            selection = sa.select(clause)
         if self.condition is not None:
             text = str(self.condition)
             if is_snowflake(engine):
@@ -386,7 +386,7 @@ def get_date_span(engine, ref, date_column_name):
     column = subquery.c[date_column_name]
     if is_postgresql(engine):
         selection = sa.select(
-            [
+            *[
                 sa.sql.extract(
                     "day",
                     (
@@ -398,7 +398,7 @@ def get_date_span(engine, ref, date_column_name):
         )
     elif is_mssql(engine) or is_snowflake(engine):
         selection = sa.select(
-            [
+            *[
                 sa.func.datediff(
                     sa.text("day"),
                     sa.func.min(column),
@@ -408,7 +408,7 @@ def get_date_span(engine, ref, date_column_name):
         )
     elif is_bigquery(engine):
         selection = sa.select(
-            [
+            *[
                 sa.func.date_diff(
                     sa.func.max(column),
                     sa.func.min(column),
@@ -418,7 +418,7 @@ def get_date_span(engine, ref, date_column_name):
         )
     elif is_impala(engine):
         selection = sa.select(
-            [
+            *[
                 sa.func.datediff(
                     sa.func.to_date(sa.func.max(column)),
                     sa.func.to_date(sa.func.min(column)),
@@ -427,7 +427,7 @@ def get_date_span(engine, ref, date_column_name):
         )
     elif is_db2(engine):
         selection = sa.select(
-            [
+            *[
                 sa.func.days_between(
                     sa.func.max(column),
                     sa.func.min(column),
@@ -504,17 +504,17 @@ def get_date_overlaps_nd(
 
     join_condition = sa.and_(*key_conditions, violation_condition)
     violation_selection = sa.select(
-        table_key_columns
-        + [
+        *table_key_columns,
+        *[
             table.c[start_column]
             for table in [table1, table2]
             for start_column in start_columns
-        ]
-        + [
+        ],
+        *[
             table.c[end_column]
             for table in [table1, table2]
             for end_column in end_columns
-        ]
+        ],
     ).select_from(table1.join(table2, join_condition))
 
     # Note, Kevin, 21/12/09
@@ -539,7 +539,7 @@ def get_date_overlaps_nd(
         if key_columns
         else violation_subquery.columns
     )
-    violation_subquery = sa.select(keys, group_by=keys).subquery()
+    violation_subquery = sa.select(*keys).group_by(*keys).subquery()
 
     n_violations_selection = sa.select(sa.func.count()).select_from(violation_subquery)
 
@@ -624,13 +624,13 @@ def get_date_gaps(
     )
 
     start_table = (
-        sa.select([*raw_start_table.columns, start_rank_column])
+        sa.select(*raw_start_table.columns, start_rank_column)
         .where(start_not_in_other_interval_condition)
         .subquery()
     )
 
     end_table = (
-        sa.select([*raw_end_table.columns, end_rank_column])
+        sa.select(*raw_end_table.columns, end_rank_column)
         .where(end_not_in_other_interval_condition)
         .subquery()
     )
@@ -697,20 +697,18 @@ def get_date_gaps(
     )
 
     violation_selection = sa.select(
-        [
-            *get_table_columns(start_table, key_columns),
-            start_table.c[start_column],
-            end_table.c[end_column],
-        ]
+        *get_table_columns(start_table, key_columns),
+        start_table.c[start_column],
+        end_table.c[end_column],
     ).select_from(start_table.join(end_table, join_condition))
 
     violation_subquery = violation_selection.subquery()
 
     keys = get_table_columns(violation_subquery, key_columns)
 
-    grouped_violation_subquery = sa.select(keys, group_by=keys).subquery()
+    grouped_violation_subquery = sa.select(*keys).group_by(*keys).subquery()
 
-    n_violations_selection = sa.select([sa.func.count()]).select_from(
+    n_violations_selection = sa.select(sa.func.count()).select_from(
         grouped_violation_subquery
     )
 
@@ -726,9 +724,7 @@ def get_row_count(engine, ref, row_limit: int = None):
     if row_limit:
         subquery = subquery.limit(row_limit)
     subquery = subquery.alias()
-    selection = sa.select([sa.cast(sa.func.count(), sa.BigInteger)]).select_from(
-        subquery
-    )
+    selection = sa.select(sa.cast(sa.func.count(), sa.BigInteger)).select_from(subquery)
     result = engine.connect().execute(selection).scalar()
     return result, [selection]
 
@@ -748,11 +744,11 @@ def get_column(
     column = subquery.c[ref.get_column(engine)]
 
     if not aggregate_operator:
-        selection = sa.select([column])
+        selection = sa.select(column)
         result = engine.connect().execute(selection).scalars().all()
 
     else:
-        selection = sa.select([aggregate_operator(column)])
+        selection = sa.select(aggregate_operator(column))
         result = engine.connect().execute(selection).scalar()
 
     return result, [selection]
@@ -784,18 +780,16 @@ def get_percentile(engine, ref, percentage):
     column = ref.get_selection(engine).subquery().c[column_name]
     subquery = (
         sa.select(
-            [
-                column,
-                sa.func.row_number().over(order_by=column).label(row_num),
-                sa.func.count().over(partition_by=None).label(row_count),
-            ]
+            column,
+            sa.func.row_number().over(order_by=column).label(row_num),
+            sa.func.count().over(partition_by=None).label(row_count),
         )
         .where(column.is_not(None))
         .subquery()
     )
 
     constrained_selection = (
-        sa.select(subquery.columns)
+        sa.select(*subquery.columns)
         .where(subquery.c[row_num] * 100.0 / subquery.c[row_count] <= percentage)
         .subquery()
     )
@@ -850,7 +844,7 @@ def get_uniques(
         return Counter({}), []
     selection = ref.get_selection(engine).alias()
     columns = [selection.c[column_name] for column_name in ref.get_columns(engine)]
-    selection = sa.select([*columns, sa.func.count()], group_by=columns)
+    selection = sa.select(*columns, sa.func.count()).group_by(*columns)
 
     def _scalar_accessor(row):
         return row[0]
@@ -875,7 +869,7 @@ def get_uniques(
 def get_unique_count(engine, ref):
     selection = ref.get_selection(engine)
     subquery = selection.distinct().alias()
-    selection = sa.select([sa.func.count()]).select_from(subquery)
+    selection = sa.select(sa.func.count()).select_from(subquery)
     result = engine.connect().execute(selection).scalar()
     return result, [selection]
 
@@ -884,16 +878,16 @@ def get_unique_count_union(engine, ref, ref2):
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     subquery = sa.sql.union(selection1, selection2).alias().select().distinct().alias()
-    selection = sa.select([sa.func.count()]).select_from(subquery)
+    selection = sa.select(sa.func.count()).select_from(subquery)
     result = engine.connect().execute(selection).scalar()
     return result, [selection]
 
 
 def get_missing_fraction(engine, ref):
     selection = ref.get_selection(engine).subquery()
-    n_rows_total_selection = sa.select([sa.func.count()]).select_from(selection)
+    n_rows_total_selection = sa.select(sa.func.count()).select_from(selection)
     n_rows_missing_selection = (
-        sa.select([sa.func.count()])
+        sa.select(sa.func.count())
         .select_from(selection)
         .where(selection.c[ref.get_column(engine)].is_(None))
     )
@@ -947,7 +941,7 @@ def get_row_difference_count(engine, ref, ref2):
     subquery = (
         sa.sql.except_(selection1, selection2).alias().select().distinct().alias()
     )
-    selection = sa.select([sa.func.count()]).select_from(subquery)
+    selection = sa.select(sa.func.count()).select_from(subquery)
     result = engine.connect().execute(selection).scalar()
     return result, [selection]
 
@@ -982,9 +976,9 @@ def get_row_mismatch(engine, ref, ref2, match_and_compare):
         ]
     )
 
-    avg_match_column = sa.func.avg(sa.case([(compare, 0.0)], else_=1.0))
+    avg_match_column = sa.func.avg(sa.case((compare, 0.0), else_=1.0))
 
-    selection_difference = sa.select([avg_match_column]).select_from(
+    selection_difference = sa.select(avg_match_column).select_from(
         subselection1.join(subselection2, match)
     )
     selection_n_rows = sa.select(sa.func.count()).select_from(
@@ -998,14 +992,14 @@ def get_row_mismatch(engine, ref, ref2, match_and_compare):
 def get_duplicate_sample(engine, ref):
     initial_selection = ref.get_selection(engine).alias()
     aggregate_subquery = (
-        sa.select([initial_selection, sa.func.count().label("n_copies")])
+        sa.select(initial_selection, sa.func.count().label("n_copies"))
         .select_from(initial_selection)
         .group_by(*initial_selection.columns)
         .alias()
     )
     duplicate_selection = (
         sa.select(
-            [
+            *[
                 column
                 for column in aggregate_subquery.columns
                 if column.key != "n_copies"
@@ -1027,8 +1021,8 @@ def column_array_agg_query(
         raise ValueError("There must be a column to group by")
     group_columns = [clause.c[column] for column in ref.get_columns(engine)]
     agg_column = clause.c[aggregation_column]
-    selection = sa.select(
-        [*group_columns, sa.func.array_agg(agg_column)], group_by=[*group_columns]
+    selection = sa.select(*group_columns, sa.func.array_agg(agg_column)).group_by(
+        *group_columns
     )
     return [selection]
 
@@ -1064,19 +1058,15 @@ def _cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str)
 
     # Step 1: Calculate the CDF over the value column.
     cdf_selection = sa.select(
-        [
-            selection.c[col].label(value_label),
-            sa.func.cume_dist().over(order_by=col).label(cdf_label),
-        ]
+        selection.c[col].label(value_label),
+        sa.func.cume_dist().over(order_by=col).label(cdf_label),
     ).subquery()
 
     # Step 2: Aggregate rows s.t. every value occurs only once.
     grouped_cdf_selection = (
         sa.select(
-            [
-                cdf_selection.c[value_label],
-                sa.func.max(cdf_selection.c[cdf_label]).label(cdf_label),
-            ]
+            cdf_selection.c[value_label],
+            sa.func.max(cdf_selection.c[cdf_label]).label(cdf_label),
         )
         .group_by(cdf_selection.c[value_label])
         .subquery()
@@ -1136,13 +1126,11 @@ def _cross_cdf_selection(
     # In other words, we point rows to their most recent present value - per sample. This is necessary
     # Due to the nature of the full outer join.
     indexed_cross_cdf = sa.select(
-        [
-            cross_cdf.c[value_label],
-            _cdf_index_column(cross_cdf, value_label, cdf_label1, group_label1),
-            cross_cdf.c[cdf_label1],
-            _cdf_index_column(cross_cdf, value_label, cdf_label2, group_label2),
-            cross_cdf.c[cdf_label2],
-        ]
+        cross_cdf.c[value_label],
+        _cdf_index_column(cross_cdf, value_label, cdf_label1, group_label1),
+        cross_cdf.c[cdf_label1],
+        _cdf_index_column(cross_cdf, value_label, cdf_label2, group_label2),
+        cross_cdf.c[cdf_label2],
     ).subquery()
 
     def _forward_filled_cdf_column(table, cdf_label, value_label, group_label):
@@ -1160,15 +1148,13 @@ def _cross_cdf_selection(
         )
 
     filled_cross_cdf = sa.select(
-        [
-            indexed_cross_cdf.c[value_label],
-            _forward_filled_cdf_column(
-                indexed_cross_cdf, cdf_label1, value_label, group_label1
-            ),
-            _forward_filled_cdf_column(
-                indexed_cross_cdf, cdf_label2, value_label, group_label2
-            ),
-        ]
+        indexed_cross_cdf.c[value_label],
+        _forward_filled_cdf_column(
+            indexed_cross_cdf, cdf_label1, value_label, group_label1
+        ),
+        _forward_filled_cdf_column(
+            indexed_cross_cdf, cdf_label2, value_label, group_label2
+        ),
     )
     return filled_cross_cdf, cdf_label1, cdf_label2
 
@@ -1219,7 +1205,7 @@ def get_regex_violations(engine, ref, aggregated, regex, n_counterexamples):
         violation_selection = sa.select(subquery.c[column]).where(
             sa.not_(subquery.c[column].regexp_match(regex))
         )
-    n_violations_selection = sa.select([sa.func.count()]).select_from(
+    n_violations_selection = sa.select(sa.func.count()).select_from(
         violation_selection.subquery()
     )
 

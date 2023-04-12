@@ -67,9 +67,9 @@ def _string_column(engine):
 @pytest.fixture(scope="module")
 def engine(backend):
     engine = get_engine(backend)
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         if engine.name in ("postgresql", "bigquery", "impala"):
-            conn.execute(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
+            conn.execute(sa.text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}"))
     return engine
 
 
@@ -79,7 +79,7 @@ def metadata():
 
 
 def _handle_table(engine, metadata, table_name, columns, data):
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         if sa.inspect(conn).has_table(table_name, schema=SCHEMA):
             return
         table = sa.Table(table_name, metadata, *columns, schema=SCHEMA)
@@ -768,16 +768,20 @@ def capitalization_table(engine, metadata):
         primary_key = ""
     else:
         str_datatype = "TEXT"
-    with engine.connect() as connection:
-        connection.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}")
+    with engine.begin() as connection:
+        connection.execute(sa.text(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}"))
         connection.execute(
-            f"CREATE TABLE {SCHEMA}.{table_name} "
-            f"(id INTEGER {primary_key}, "
-            f"{uppercase_column} {str_datatype}, {lowercase_column} INTEGER)"
+            sa.text(
+                f"CREATE TABLE {SCHEMA}.{table_name} "
+                f"(id INTEGER {primary_key}, "
+                f"{uppercase_column} {str_datatype}, {lowercase_column} INTEGER)"
+            )
         )
         connection.execute(
-            f"INSERT INTO {SCHEMA}.{table_name} "
-            f"(id, {uppercase_column}, {lowercase_column}) VALUES (1, 'QuantCo', 100)"
+            sa.text(
+                f"INSERT INTO {SCHEMA}.{table_name} "
+                f"(id, {uppercase_column}, {lowercase_column}) VALUES (1, 'QuantCo', 100)"
+            )
         )
     return TEST_DB_NAME, SCHEMA, table_name, uppercase_column, lowercase_column
 
