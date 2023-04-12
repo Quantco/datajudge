@@ -51,7 +51,7 @@ jobs:
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
       - name: Run tests
-        uses: ./.github/actions/pytest
+        uses: ./.github/actions/pytest/
         with:
           args: "tests/unit"
 
