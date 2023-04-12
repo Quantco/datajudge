@@ -18,6 +18,7 @@ def get_engine(backend) -> sa.engine.Engine:
 
     if backend == "impala":
         from impala.dbapi import connect
+
         def conn_creator():
             return connect(
                 host=address,
