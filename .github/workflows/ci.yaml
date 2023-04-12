@@ -138,11 +138,14 @@ jobs:
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
           backend: postgres
           args: tests/integration
+      
 
   db2:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') }}
