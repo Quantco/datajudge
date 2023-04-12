@@ -49,14 +49,14 @@ jobs:
         with:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy=${{ matrix.SA_VERSION }}
+            sqlalchemy${{ matrix.SA_VERSION }}
       - name: Run tests
         uses: ./github/actions/pytest
         with:
           args: "tests/integration"
 
   sqlserver:
-    if: contains(github.event.pull_request.labels.*.name, 'sqlserver')
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'sqlserver') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - mssql"
     runs-on: ubuntu-20.04
     env:
@@ -86,7 +86,7 @@ jobs:
         with:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy=${{ matrix.SA_VERSION }}
+            sqlalchemy${{ matrix.SA_VERSION }}
             pyodbc
       # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
       - name: Install msodbcsql17 driver
@@ -104,7 +104,7 @@ jobs:
           args: "tests/integration"
 
   postgres:
-    if: contains(github.event.pull_request.labels.*.name, 'postgres')
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
@@ -136,7 +136,7 @@ jobs:
         with:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy=${{ matrix.SA_VERSION }}
+            sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
       - name: Run tests
         uses: ./github/actions/pytest
@@ -145,7 +145,7 @@ jobs:
           args: tests/integration
 
   db2:
-    if: contains(github.event.pull_request.labels.*.name, 'db2')
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - DB2 - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
@@ -180,7 +180,7 @@ jobs:
         with:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy=${{ matrix.SA_VERSION }}
+            sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
       - name: Run tests
@@ -191,7 +191,7 @@ jobs:
 
 
   snowflake:
-    if: contains(github.event.pull_request.labels.*.name, 'snowflake')
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'snowflake') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - Snowflake - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-latest
     env:
@@ -201,7 +201,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [ '3.8' ]
+        PYTHON_VERSION: [ '3.9' ]
         SA_VERSION: ["<=2.0"]
     steps:
       - name: Checkout branch
@@ -215,7 +215,7 @@ jobs:
         with:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy=${{ matrix.SA_VERSION }}
+            sqlalchemy${{ matrix.SA_VERSION }}
             snowflake-sqlalchemy
       - name: Run tests
         uses: ./github/actions/pytest
@@ -224,7 +224,7 @@ jobs:
           args: tests/integration
 
   bigquery:
-    if: contains(github.event.pull_request.labels.*.name, 'bigquery')
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'biquery') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
     runs-on: ubuntu-latest
     strategy:
@@ -259,7 +259,7 @@ jobs:
           args: tests/integration
 
   impala-column:
-    if: contains(github.event.pull_request.labels.*.name, 'impala')
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - Impala - pt1"
     runs-on: ubuntu-20.04
     env:
@@ -283,7 +283,7 @@ jobs:
         with:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy=${{ matrix.SA_VERSION }}
+            sqlalchemy${{ matrix.SA_VERSION }}
             impyla
       - name: Set up container
         run: docker compose up --wait impala
