@@ -48,8 +48,8 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
+            python=${{ matrix.PYTHON_VERSION }}
+            sqlalchemy=${{ matrix.SA_VERSION }}
       - name: Run tests
         uses: ./github/actions/pytest
         with:
@@ -85,8 +85,8 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
+            python=${{ matrix.PYTHON_VERSION }}
+            sqlalchemy=${{ matrix.SA_VERSION }}
             pyodbc
       # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
       - name: Install msodbcsql17 driver
@@ -135,8 +135,8 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
+            python=${{ matrix.PYTHON_VERSION }}
+            sqlalchemy=${{ matrix.SA_VERSION }}
             psycopg2
       - name: Run tests
         uses: ./github/actions/pytest
@@ -179,8 +179,8 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
+            python=${{ matrix.PYTHON_VERSION }}
+            sqlalchemy=${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
       - name: Run tests
@@ -214,8 +214,8 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
+            python=${{ matrix.PYTHON_VERSION }}
+            sqlalchemy=${{ matrix.SA_VERSION }}
             snowflake-sqlalchemy
       - name: Run tests
         uses: ./github/actions/pytest
@@ -224,6 +224,7 @@ jobs:
           args: tests/integration
 
   bigquery:
+    if: contains(github.event.pull_request.labels.*.name, 'bigquery')
     name: "Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
     runs-on: ubuntu-latest
     strategy:
@@ -257,8 +258,8 @@ jobs:
           backend: bigquery
           args: tests/integration
 
-
-  impala-column-pt1:
+  impala-column:
+    if: contains(github.event.pull_request.labels.*.name, 'impala')
     name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - Impala - pt1"
     runs-on: ubuntu-20.04
     env:
@@ -268,6 +269,7 @@ jobs:
       matrix:
         PYTHON_VERSION: [ '3.8']
         SA_VERSION: ["<=2.0", ">=2.0"]
+        PYTEST_ARG: ["tests/integration/test_column_capitalization.py", "tests/integration/test_data_source.py", "tests/integration/test_integration.py -k row", "tests/integration/test_integration.py -k uniques", "tests/integration/test_integration.py -k date", "tests/integration/test_integration.py -k varchar", "tests/integration/test_integration.py -k numeric"]
 
     steps:
       - name: Checkout branch
@@ -280,8 +282,8 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
+            python=${{ matrix.PYTHON_VERSION }}
+            sqlalchemy=${{ matrix.SA_VERSION }}
             impyla
       - name: Set up container
         run: docker compose up --wait impala
@@ -289,232 +291,7 @@ jobs:
         shell: bash -l {0}
         run: |
           flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_column_capitalization.py
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          file: ./coverage.xml
-
-
-  impala-column-pt2:
-    name: "Python ${{ matrix.PYTHON_VERSION }}  - SA ${{ matrix.SA_VERSION }} - Impala - pt2"
-    runs-on: ubuntu-20.04
-    env:
-      CI: True
-    strategy:
-      fail-fast: false
-      matrix:
-        PYTHON_VERSION: [ '3.8']
-        SA_VERSION: ["<=2.0", ">=2.0"]
-
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Fetch full git history
-        run: git fetch --prune --unshallow
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
-            impyla
-      - name: Set up container
-        run: docker compose up --wait impala
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_data_source.py
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          file: ./coverage.xml
-
-  impala-column-pt3:
-    name: "Python ${{ matrix.PYTHON_VERSION }}  - SA ${{ matrix.SA_VERSION }} - Impala - pt3"
-    runs-on: ubuntu-20.04
-    env:
-      CI: True
-    strategy:
-      fail-fast: false
-      matrix:
-        PYTHON_VERSION: [ '3.8']
-        SA_VERSION: ["<=2.0", ">=2.0"]
-
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Fetch full git history
-        run: git fetch --prune --unshallow
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
-            impyla
-      - name: Set up container
-        run: docker compose up --wait impala
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k row
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          file: ./coverage.xml
-
-
-  impala-column-pt4:
-    name: "Python ${{ matrix.PYTHON_VERSION }}  - SA ${{ matrix.SA_VERSION }} - Impala - pt4"
-    runs-on: ubuntu-20.04
-    env:
-      CI: True
-    strategy:
-      fail-fast: false
-      matrix:
-        PYTHON_VERSION: [ '3.8' ]
-        SA_VERSION: ["<=2.0", ">=2.0"]
-
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Fetch full git history
-        run: git fetch --prune --unshallow
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
-            impyla
-      - name: Set up container
-        run: docker compose up --wait impala
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k uniques
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          file: ./coverage.xml
-
-  impala-column-pt5:
-    name: "Python ${{ matrix.PYTHON_VERSION }}  - SA ${{ matrix.SA_VERSION }} - Impala - pt5"
-    runs-on: ubuntu-20.04
-    env:
-      CI: True
-    strategy:
-      fail-fast: false
-      matrix:
-        PYTHON_VERSION: [ '3.8' ]
-        SA_VERSION: ["<=2.0", ">=2.0"]
-
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Fetch full git history
-        run: git fetch --prune --unshallow
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
-            impyla
-      - name: Set up container
-        run: docker compose up --wait impala
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k date
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          file: ./coverage.xml
-
-  impala-column-pt6:
-    name: "Python ${{ matrix.PYTHON_VERSION }}  - SA ${{ matrix.SA_VERSION }} - Impala - pt6"
-    runs-on: ubuntu-20.04
-    env:
-      CI: True
-    strategy:
-      fail-fast: false
-      matrix:
-        PYTHON_VERSION: [ '3.8']
-        SA_VERSION: ["<=2.0", ">=2.0" ]
-
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Fetch full git history
-        run: git fetch --prune --unshallow
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
-            impyla
-      - name: Set up container
-        run: docker compose up --wait impala
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k varchar
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          file: ./coverage.xml
-
-
-  impala-column-pt7:
-    name: "Python ${{ matrix.PYTHON_VERSION }}  - SA ${{ matrix.SA_VERSION }} - Impala - pt7"
-    runs-on: ubuntu-20.04
-    env:
-      CI: True
-    strategy:
-      fail-fast: false
-      matrix:
-        PYTHON_VERSION: [ '3.8' ]
-        SA_VERSION: ["<=2.0", ">=2.0"]
-
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Fetch full git history
-        run: git fetch --prune --unshallow
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          extra-specs: |
-            python=${{ matrix.python-version }}
-            sqlalchemy=${{ matrix.sa-version }}
-            impyla
-      - name: Set up container
-        run: docker compose up --wait impala
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala tests/integration/test_integration.py -k numeric
+          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala ${{ matrix.PYTEST_ARG }}
       - name: Generate code coverage report
         uses: codecov/codecov-action@v3.1.1
         with:
