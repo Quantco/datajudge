@@ -50,8 +50,9 @@ jobs:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
+      - uses: actions/checkout@v3
       - name: Run tests
-        uses: "Quantco/datajudge@${{ github.head_ref }}/.github/actions/pytest"
+        uses: ./.github/actions/pytest
         with:
           args: "tests/unit"
 
