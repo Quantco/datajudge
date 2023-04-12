@@ -50,6 +50,8 @@ jobs:
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
@@ -97,6 +99,8 @@ jobs:
       - name: Wait for SQL Server
         timeout-minutes: 1
         run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
@@ -138,6 +142,8 @@ jobs:
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
@@ -183,6 +189,8 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
@@ -217,6 +225,8 @@ jobs:
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             snowflake-sqlalchemy
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
@@ -252,6 +262,8 @@ jobs:
         uses: 'google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d'
         with:
           credentials_json: '${{ secrets.GCP_KEY }}'
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
@@ -287,12 +299,10 @@ jobs:
             impyla
       - name: Set up container
         run: docker compose up --wait impala
-      - name: Run Integration Tests
-        shell: bash -l {0}
-        run: |
-          flit install -s
-          pytest --cov=datajudge --cov-report=xml --cov-append --backend=impala ${{ matrix.PYTEST_ARG }}
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v3.1.1
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run tests
+        uses: ./.github/actions/pytest
         with:
-          file: ./coverage.xml
+          backend: impala
+          args: ${{ matrix.PYTEST_ARG }}
