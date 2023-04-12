@@ -16,7 +16,7 @@ on:
 jobs:
 
   pre-commit-checks:
-    name: "Linux - pre-commit hooks - Python 3.8"
+    name: "pre-commit hooks - Python 3.8"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
@@ -28,28 +28,28 @@ jobs:
       - name: Run pre-commit checks
         uses: pre-commit/action@v3.0.0
 
-  linux:
-    name: "Linux - unit tests - Python ${{ matrix.PYTHON_VERSION }}"
+  unit-tests:
+    name: "unit tests - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-latest
     env:
       CI: True
     strategy:
       fail-fast: true
       matrix:
-        PYTHON_VERSION: ['3.8', '3.9', '3.10']
+        # PYTHON_VERSION: ['3.8', '3.9', '3.10']
+        PYTHON_VERSION: ['3.10']
+        SA_VERSION: ['<=2.0', '>=2.0']
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup conda
+        uses: mamba-org/provision-with-micromamba@v15
         with:
-          python-version: ${{ matrix.PYTHON_VERSION }}
-          miniforge-variant: Mambaforge
-          miniforge-version: 4.11.0-2
-          use-mamba: true
-          environment-file: environment.yml
-          activate-environment: datajudge
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            sqlalchemy=${{ matrix.sa-version }}
       - name: Run Unit Tests
         shell: bash -l {0}
         run: |
@@ -60,8 +60,8 @@ jobs:
         with:
           file: ./coverage.xml
 
-  linux-integration_tests-sqlserver:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - mssql"
+  sqlserver:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - mssql"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -69,6 +69,7 @@ jobs:
       fail-fast: false
       matrix:
         PYTHON_VERSION: ['3.8', '3.9', '3.10']
+        SA_VERSION: ["<=2.0", ">=2.0"]
     services:
       DB:
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -84,14 +85,13 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Fetch full git history
         run: git fetch --prune --unshallow
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup conda
+        uses: mamba-org/provision-with-micromamba@v15
         with:
-          python-version: ${{ matrix.PYTHON_VERSION }}
-          miniforge-variant: Mambaforge
-          miniforge-version: 4.11.0-2
-          use-mamba: true
-          environment-file: environment.yml
-          activate-environment: datajudge
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            sqlalchemy=${{ matrix.sa-version }}
+            # TODO: add mssql specific requirements here and remove them in the environment.yml
       # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
       - name: Install msodbcsql17 driver
         shell: bash -l {0}
@@ -111,8 +111,8 @@ jobs:
         with:
           file: ./coverage.xml
 
-  linux-integration_tests-postgres:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }}"
+  postgres:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -121,6 +121,7 @@ jobs:
       matrix:
         PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
         POSTGRES_VERSION: [ '11', 'latest' ]
+        SA_VERSION: ["<=2.0", ">=2.0"]
     services:
       DB:
         image: postgres:${{ matrix.POSTGRES_VERSION }}
@@ -137,14 +138,13 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Fetch full git history
         run: git fetch --prune --unshallow
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup conda
+        uses: mamba-org/provision-with-micromamba@v15
         with:
-          python-version: ${{ matrix.PYTHON_VERSION }}
-          miniforge-variant: Mambaforge
-          miniforge-version: 4.11.0-2
-          use-mamba: true
-          environment-file: environment.yml
-          activate-environment: datajudge
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            sqlalchemy=${{ matrix.sa-version }}
+            # TODO: add postgres specific requirements here and remove them in the environment.yml
       - name: Run Integration Tests
         shell: bash -l {0}
         run: |
@@ -155,9 +155,8 @@ jobs:
         with:
           file: ./coverage.xml
 
-
-  linux-integration_tests-db2:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - DB2"
+  db2:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - DB2"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -165,6 +164,7 @@ jobs:
       fail-fast: false
       matrix:
         PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
+        SA_VERSION: ["<=2.0", ">=2.0"]
     services:
       DB:
         image: ibmcom/db2:11.5.5.1
@@ -185,14 +185,14 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Fetch full git history
         run: git fetch --prune --unshallow
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup conda
+        uses: mamba-org/provision-with-micromamba@v15
         with:
-          python-version: ${{ matrix.PYTHON_VERSION }}
-          miniforge-variant: Mambaforge
-          miniforge-version: 4.11.0-2
-          use-mamba: true
-          environment-file: environment.yml
-          activate-environment: datajudge
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            sqlalchemy=${{ matrix.sa-version }}
+            ibm_db
+            ibm_db_sa
       - name: Run Integration Tests
         shell: bash -l {0}
         run: |
@@ -204,13 +204,14 @@ jobs:
           file: ./coverage.xml
 
 
-  linux-integration_tests-snowflake:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Snowflake"
+  snowflake:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Snowflake"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         PYTHON_VERSION: [ '3.8' ]
+        SA_VERSION: ["<=2.0"] # TODO: add sqlalchemy in the future here
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -218,14 +219,13 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Fetch full git history
         run: git fetch --prune --unshallow
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup conda
+        uses: mamba-org/provision-with-micromamba@v15
         with:
-          python-version: ${{ matrix.PYTHON_VERSION }}
-          miniforge-variant: Mambaforge
-          miniforge-version: 4.11.0-2
-          use-mamba: true
-          environment-file: environment.yml
-          activate-environment: datajudge
+          extra-specs: |
+            python=${{ matrix.python-version }}
+            sqlalchemy=${{ matrix.sa-version }}
+            snowflake-sqlalchemy
       - name: Run Integration Tests
         shell: bash -l {0}
         run: |
@@ -240,13 +240,14 @@ jobs:
         with:
           file: ./coverage.xml
 
-  linux-integration_tests-bigquery:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
+  bigquery:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         PYTHON_VERSION: [ '3.8' ]
+        SA_VERSION: ["<=2.0", ">=2.0"]
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -278,8 +279,8 @@ jobs:
           file: ./coverage.xml
 
 
-  linux-integration_tests-impala-column-pt1:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt1"
+  impala-column-pt1:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Impala - pt1"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -316,8 +317,8 @@ jobs:
           file: ./coverage.xml
 
 
-  linux-integration_tests-impala-column-pt2:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt2"
+  impala-column-pt2:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Impala - pt2"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -353,8 +354,8 @@ jobs:
         with:
           file: ./coverage.xml
 
-  linux-integration_tests-impala-column-pt3:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt3"
+  impala-column-pt3:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Impala - pt3"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -391,8 +392,8 @@ jobs:
           file: ./coverage.xml
 
 
-  linux-integration_tests-impala-column-pt4:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt4"
+  impala-column-pt4:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Impala - pt4"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -428,8 +429,8 @@ jobs:
         with:
           file: ./coverage.xml
 
-  linux-integration_tests-impala-column-pt5:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt5"
+  impala-column-pt5:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Impala - pt5"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -465,8 +466,8 @@ jobs:
         with:
           file: ./coverage.xml
 
-  linux-integration_tests-impala-column-pt6:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt6"
+  impala-column-pt6:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Impala - pt6"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -503,8 +504,8 @@ jobs:
           file: ./coverage.xml
 
 
-  linux-integration_tests-impala-column-pt7:
-    name: "Linux - integration tests - Python ${{ matrix.PYTHON_VERSION }} - Impala - pt7"
+  impala-column-pt7:
+    name: "Python ${{ matrix.PYTHON_VERSION }} - Impala - pt7"
     runs-on: ubuntu-20.04
     env:
       CI: True
