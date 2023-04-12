@@ -51,7 +51,7 @@ jobs:
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
       - name: Run tests
-        uses: ./.github/actions/pytest/
+        uses: ".github/actions/pytest/"
         with:
           args: "tests/unit"
 
@@ -98,7 +98,7 @@ jobs:
         timeout-minutes: 1
         run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
       - name: Run tests
-        uses: ./.github/actions/pytest/
+        uses: ".github/actions/pytest/"
         with:
           backend: mssql
           args: "tests/integration"
@@ -139,7 +139,7 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
       - name: Run tests
-        uses: .github/actions/pytest
+        uses: ".github/actions/pytest/"
         with:
           backend: postgres
           args: tests/integration
@@ -185,7 +185,7 @@ jobs:
             ibm_db
             ibm_db_sa
       - name: Run tests
-        uses: ./.github/actions/pytest/
+        uses: ".github/actions/pytest/"
         with:
           backend: db2
           args: tests/integration
@@ -219,7 +219,7 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             snowflake-sqlalchemy
       - name: Run tests
-        uses: ./.github/actions/pytest/
+        uses: ".github/actions/pytest/"
         with:
           backend: snowflake
           args: tests/integration
@@ -254,7 +254,7 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_KEY }}'
       - name: Run tests
-        uses: ./.github/actions/pytest/
+        uses: ".github/actions/pytest/"
         with:
           backend: bigquery
           args: tests/integration
@@ -289,7 +289,7 @@ jobs:
       - name: Set up container
         run: docker compose up --wait impala
       - name: Run tests
-        uses: ./.github/actions/pytest/
+        uses: ".github/actions/pytest/"
         with:
           backend: impala
           args: ${{ matrix.PYTEST_ARG }}
