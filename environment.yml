@@ -1,4 +1,4 @@
-name: datajudge-test
+name: datajudge
 channels:
   - conda-forge
   - nodefaults
