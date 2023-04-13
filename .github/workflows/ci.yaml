@@ -230,7 +230,7 @@ jobs:
           args: tests/integration
 
   bigquery:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'biquery') || contains(github.event.pull_request.labels.*.name, 'ready') }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'bigquery') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
     runs-on: ubuntu-latest
     strategy:
