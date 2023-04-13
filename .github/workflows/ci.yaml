@@ -58,7 +58,7 @@ jobs:
 
   sqlserver:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'sqlserver') || contains(github.event.pull_request.labels.*.name, 'ready') }}
-    name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - mssql"
+    name: "mssql - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -107,7 +107,7 @@ jobs:
 
   postgres:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') }}
-    name: "Python ${{ matrix.PYTHON_VERSION }} - PostgreSQL ${{ matrix.POSTGRES_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "PostgreSQL v${{ matrix.POSTGRES_VERSION }} - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -150,7 +150,7 @@ jobs:
 
   db2:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') }}
-    name: "Python ${{ matrix.PYTHON_VERSION }} - DB2 - SA ${{ matrix.SA_VERSION }}"
+    name: "DB2 - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -197,7 +197,7 @@ jobs:
 
   snowflake:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'snowflake') || contains(github.event.pull_request.labels.*.name, 'ready') }}
-    name: "Python ${{ matrix.PYTHON_VERSION }} - Snowflake - SA ${{ matrix.SA_VERSION }}"
+    name: "Snowflake - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-latest
     env:
       SNOWFLAKE_USER: DATAJUDGE
@@ -231,7 +231,7 @@ jobs:
 
   bigquery:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'bigquery') || contains(github.event.pull_request.labels.*.name, 'ready') }}
-    name: "Python ${{ matrix.PYTHON_VERSION }} - BigQuery"
+    name: "BigQuery - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
