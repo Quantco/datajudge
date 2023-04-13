@@ -47,7 +47,7 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
-          cache-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
@@ -85,7 +85,7 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
-          cache-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
@@ -136,7 +136,7 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
-          cache-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
@@ -182,7 +182,7 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
-          cache-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
@@ -218,7 +218,7 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
-          cache-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
@@ -248,11 +248,11 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
-          cache-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
-            bigquery
+            sqlalchemy-bigquery
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d'
@@ -287,7 +287,7 @@ jobs:
         uses: mamba-org/provision-with-micromamba@v15
         with:
           cache-env: true
-          cache-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
