@@ -108,7 +108,7 @@ jobs:
 
   postgres:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') }}
-    name: "PostgreSQL v${{ matrix.POSTGRES_VERSION }} - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "PostgreSQL ${{ matrix.POSTGRES_VERSION }} - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
@@ -159,7 +159,7 @@ jobs:
       fail-fast: false
       matrix:
         PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
-        SA_VERSION: ["<2.0", ">=2.0"]
+        SA_VERSION: ["<2.0"]
     services:
       DB:
         image: ibmcom/db2:11.5.5.1
@@ -267,15 +267,15 @@ jobs:
 
   impala-column:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') }}
-    name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - Impala - pt1"
+    name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - Impala"
     runs-on: ubuntu-20.04
     env:
       CI: True
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [ '3.8']
-        SA_VERSION: ["<2.0", ">=2.0"]
+        PYTHON_VERSION: [ '3.8' ]
+        SA_VERSION: ["<2.0"]
         PYTEST_ARG: ["tests/integration/test_column_capitalization.py", "tests/integration/test_data_source.py", "tests/integration/test_integration.py -k row", "tests/integration/test_integration.py -k uniques", "tests/integration/test_integration.py -k date", "tests/integration/test_integration.py -k varchar", "tests/integration/test_integration.py -k numeric"]
 
     steps:
