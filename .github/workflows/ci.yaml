@@ -47,6 +47,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-downloads: true
           cache-env: true
           cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
@@ -85,6 +86,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-downloads: true
           cache-env: true
           cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
@@ -136,6 +138,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-downloads: true
           cache-env: true
           cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
@@ -182,6 +185,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-downloads: true
           cache-env: true
           cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
@@ -222,6 +226,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-downloads: true
           cache-env: true
           cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
@@ -252,6 +257,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-downloads: true
           cache-env: true
           cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
@@ -291,6 +297,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/provision-with-micromamba@v15
         with:
+          cache-downloads: true
           cache-env: true
           cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
           extra-specs: |
