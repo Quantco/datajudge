@@ -194,6 +194,8 @@ jobs:
         with:
           backend: db2
           args: tests/integration
+      - name: ssh with tmate
+        uses: mxschmitt/action-tmate@v3
 
 
   snowflake:
