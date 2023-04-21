@@ -189,9 +189,6 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
-      - name: ssh with tmate
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 20
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
