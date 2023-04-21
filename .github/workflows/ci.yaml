@@ -191,7 +191,7 @@ jobs:
             ibm_db_sa
       - name: wait for db2 to boot
         shell: bash
-        run: sleep 2m
+        run: sleep 1m
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
