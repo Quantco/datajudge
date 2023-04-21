@@ -189,13 +189,14 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
+      - name: ssh with tmate
+        uses: mxschmitt/action-tmate@v3
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
           backend: db2
           args: tests/integration
-      - name: ssh with tmate
-        uses: mxschmitt/action-tmate@v3
+      
 
 
   snowflake:
