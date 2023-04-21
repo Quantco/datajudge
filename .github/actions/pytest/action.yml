@@ -15,8 +15,6 @@ runs:
     - name: Run Integration Tests
       shell: bash -l {0}
       run: |
-        source ~/.bash_profile
-        micromamba activate datajudge
         flit install -s
         if [[ "${{ inputs.backend }}" != "" ]]; then
           pytest --cov=datajudge --cov-report=xml --cov-append --backend=${{ inputs.backend }} ${{ inputs.args }}
