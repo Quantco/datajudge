@@ -193,6 +193,11 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
+      - uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
+      - name: Wait for SQL Server
+        timeout-minutes: 1
+        run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
       - name: wait for db2 to boot
         shell: bash
         run: sleep 1m
