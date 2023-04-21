@@ -189,6 +189,9 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
+      - name: wait for db2 to boot
+        shell: bash
+        run: sleep 2m
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
