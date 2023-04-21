@@ -195,12 +195,9 @@ jobs:
             ibm_db_sa
       - uses: mxschmitt/action-tmate@v3
         timeout-minutes: 10
-      - name: Wait for SQL Server
-        timeout-minutes: 1
-        run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
-      - name: wait for db2 to boot
-        shell: bash
-        run: sleep 1m
+      - name: Wait for db2 to load
+        timeout-minutes: 2
+        run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q 'Setup has completed.'; do sleep 5; done
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
