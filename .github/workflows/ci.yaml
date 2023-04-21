@@ -193,8 +193,6 @@ jobs:
             sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
-      - uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 10
       - name: Wait for db2 to load
         timeout-minutes: 2
         run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q 'Setup has completed.'; do sleep 5; done
