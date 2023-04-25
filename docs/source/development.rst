@@ -19,6 +19,8 @@ Unit tests can be run by executing
 
 Integration tests are run against a specific backend at a time. As of now, we provide helper
 scripts to spin up either a Postgres or MSSQL backend.
+Our ``environment.yml`` does not include the necessary dependencies for these backends, so you will need to install them manually.
+
 
 To run integration tests against Postgres, first start a docker container with a Postgres database:
 
@@ -26,7 +28,8 @@ To run integration tests against Postgres, first start a docker container with a
 
    ./start_postgres.sh
 
-Once this is running, you may execute integration tests as follows:
+In your current environment, install the ``psycopg2`` package.
+After this, you may execute integration tests as follows:
 
 ::
 

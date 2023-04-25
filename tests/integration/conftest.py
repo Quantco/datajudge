@@ -6,7 +6,6 @@ import urllib.parse
 
 import pytest
 import sqlalchemy as sa
-from impala.dbapi import connect
 
 from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_impala, is_mssql
 
@@ -18,6 +17,7 @@ def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
 
     if backend == "impala":
+        from impala.dbapi import connect
 
         def conn_creator():
             return connect(
