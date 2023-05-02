@@ -19,7 +19,7 @@ jobs:
         # We need to checkout with SSH here to have actions run on the PR.
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Set up Conda env
+      - name: Set up micromamba environment
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-name: pre-commit

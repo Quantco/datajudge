@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-      - name: Setup conda
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-file: environment.yml
@@ -84,7 +84,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-file: environment.yml
@@ -137,7 +137,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0       
-      - name: Setup conda
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-file: environment.yml
@@ -185,7 +185,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-file: environment.yml
@@ -227,7 +227,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-file: environment.yml
@@ -259,7 +259,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-file: environment.yml
@@ -300,7 +300,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
+      - name: Set up micromamba
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
           environment-file: environment.yml
