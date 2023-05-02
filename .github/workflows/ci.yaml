@@ -44,13 +44,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
-          cache-env: true
-          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          extra-specs: |
+          cache-environment: true
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          create-args: >-
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
       - name: Run tests
@@ -83,13 +84,14 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
-          cache-env: true
-          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          extra-specs: |
+          cache-environment: true
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          create-args: >-
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             pyodbc
@@ -135,13 +137,14 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0       
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
-          cache-env: true
-          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          extra-specs: |
+          cache-environment: true
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          create-args: >-
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
@@ -182,13 +185,14 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
-          cache-env: true
-          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          extra-specs: |
+          cache-environment: true
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          create-args: >-
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
@@ -223,13 +227,14 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
-          cache-env: true
-          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          extra-specs: |
+          cache-environment: true
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          create-args: >-
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             snowflake-sqlalchemy
@@ -254,13 +259,14 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
-          cache-env: true
-          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          extra-specs: |
+          cache-environment: true
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          create-args: >-
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             sqlalchemy-bigquery
@@ -294,13 +300,14 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-      - name: Setup conda
-        uses: mamba-org/provision-with-micromamba@v15
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
-          cache-env: true
-          cache-env-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          extra-specs: |
+          cache-environment: true
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          create-args: >-
             python=${{ matrix.PYTHON_VERSION }}
             sqlalchemy${{ matrix.SA_VERSION }}
             impyla
