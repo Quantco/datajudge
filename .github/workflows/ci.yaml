@@ -47,6 +47,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
           cache-environment: true
           cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
@@ -86,6 +87,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
           cache-environment: true
           cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
@@ -138,6 +140,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
           cache-environment: true
           cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
@@ -185,6 +188,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
           cache-environment: true
           cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
@@ -226,6 +230,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
           cache-environment: true
           cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
@@ -257,6 +262,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
           cache-environment: true
           cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
@@ -297,6 +303,7 @@ jobs:
       - name: Setup conda
         uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
         with:
+          environment-file: environment.yml
           cache-downloads: true
           cache-environment: true
           cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
