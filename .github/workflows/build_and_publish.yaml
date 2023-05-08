@@ -21,7 +21,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/setup-micromamba@63849fa5f38bd7edfb2c4b518206ea9eee3502d1
+      - uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
         with:
           environment-file: environment.yml
 
