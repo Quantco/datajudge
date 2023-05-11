@@ -345,7 +345,7 @@ class WithinRequirement(Requirement):
             uniques_constraints.NUniquesEquality(ref, n_uniques=n_uniques, name=name)
         )
 
-    def add_value_distribution_constraint(
+    def add_categorical_bound_constraint(
         self,
         columns: List[str],
         distribution: Dict[T, Tuple[float, float]],
@@ -357,19 +357,19 @@ class WithinRequirement(Requirement):
         Check if the distribution of unique values in columns falls within the
         specified minimum and maximum bounds.
 
-        The `VariantDistributionConstraint` is added to ensure the distribution of unique values
+        The `CategoricalBoundConstraint` is added to ensure the distribution of unique values
         in the specified columns of a `DataSource` falls within the given minimum and maximum
-        proportions defined in the `distribution` parameter.
+        bounds defined in the `distribution` parameter.
 
         `columns` is a list of column names from the `DataSource` to apply the constraint on.
 
-        `distribution` is a dictionary where keys represent the unique values and the corresponding
+        `distribution` is a dictionary where keys represent unique values and the corresponding
         tuple values represent the minimum and maximum allowed proportions of the respective
         unique value in the columns.
 
-        `default_bounds` A tuple specifying the minimum and maximum allowed proportions for all
+        `default_bounds` is a tuple specifying the minimum and maximum allowed proportions for all
         elements not mentioned in the distribution. By default, it's set to (0, 0), which means
-        all elements not present in distribution will cause a constraint failure.
+        all elements not present in `distribution` will cause a constraint failure.
 
         `condition` is an optional parameter to specify a `Condition` object to filter the data
         before applying the constraint.
@@ -384,7 +384,7 @@ class WithinRequirement(Requirement):
 
         ```
         requirement = WithinRequirement(data_source)
-        requirement.add_value_distribution_constraint(
+        requirement.add_categorical_bound_constraint(
             columns=['column_name'],
             distribution={'A': (0.2, 0.3), 'B': (0.4, 0.6), 'C': (0.1, 0.2)},
             name='custom_name'
@@ -394,7 +394,7 @@ class WithinRequirement(Requirement):
 
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
-            uniques_constraints.VariantDistributionConstraint(
+            uniques_constraints.CategoricalBoundConstraint(
                 ref,
                 distribution=distribution,
                 default_bounds=default_bounds,

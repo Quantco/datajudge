@@ -296,14 +296,16 @@ class NUniquesMaxGain(NUniques):
         return super().test(engine)
 
 
-class VariantDistributionConstraint(Constraint):
+class CategoricalBoundConstraint(Constraint):
     """
-    VariantDistributionConstraint is a class to check if the distribution of values in a column
-    falls within the specified minimum and maximum bounds.
+    `CategoricalBoundConstraint` is a class to check if the share of a specific value
+    in a column falls within the specified minimum and maximum bounds.
     The constraint compares the factual distribution of values in a column of a `DataSource`
-    with the target distribution supplied as a dictionary where keys represent the unique values
-    and the corresponding tuple values represent the minimum and maximum allowed shares of
-    the respective unique value in the column.
+    with the target distribution supplied as a dictionary where keys represent
+    some unique values and the corresponding tuple values represent the minimum and maximum allowed shares of
+    the respective unique value in the column. The additional `default_bounds` parameter specifies
+    the minimum and maximum bounds for all distinct values that are not explicitly outlined
+    in the target distribution dictionary.
 
     The constraint is initialized with a `DataReference` object, the target distribution,
     a minimum and maximum bound for each value not in the given distribution and
@@ -347,8 +349,6 @@ class VariantDistributionConstraint(Constraint):
 
         if violations:
             assertion_text = f"{self.ref.get_string()} contains element(s):\n"
-
-            violations = (factual - max_counts) | (min_counts - factual)
 
             for variant in violations:
                 actual_share = factual[variant] / total

@@ -772,7 +772,7 @@ def test_n_uniques_loss_between(engine, unique_table2, unique_table1, data):
 def test_distribution_within(engine, distribution_table, data):
     (operation, columns, distribution, default_bounds) = data
     req = requirements.WithinRequirement.from_table(*distribution_table)
-    req.add_value_distribution_constraint(columns, distribution, default_bounds)
+    req.add_categorical_bound_constraint(columns, distribution, default_bounds)
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
