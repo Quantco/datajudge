@@ -745,6 +745,35 @@ def test_n_uniques_loss_between(engine, unique_table2, unique_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (identity, ["col_int"], {0: (0.45, 0.55), 1: (0.45, 0.55)}),
+        (negation, ["col_int"], {0: (0.35, 0.55), 1: (0.55, 0.6)}),
+        (negation, ["col_int"], {0: (0.35, 0.55), 1: (0.35, 0.45)}),
+        (
+            identity,
+            ["col_int", "col_varchar"],
+            {(0, "hi0"): (0.45, 0.55), (1, "hi0"): (0.25, 0.3), (1, "hi1"): (0.2, 0.3)},
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            {
+                (0, "hi0"): (0.45, 0.55),
+                (1, "hi0"): (0.25, 0.3),
+            },
+        ),
+    ],
+)
+def test_distribution_within(engine, distribution_table, data):
+    (operation, columns, uniques) = data
+    req = requirements.WithinRequirement.from_table(*distribution_table)
+    req.add_value_distribution_constraint(columns, uniques)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (identity, 1, None),
         (identity, 3, Condition(raw_string="col_int >= 3")),
         (negation, 2, None),

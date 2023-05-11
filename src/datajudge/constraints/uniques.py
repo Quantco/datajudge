@@ -1,5 +1,7 @@
 import abc
+from collections import Counter
 from itertools import zip_longest
+from math import ceil, floor
 from typing import Callable, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import sqlalchemy as sa
@@ -292,3 +294,68 @@ class NUniquesMaxGain(NUniques):
     def test(self, engine: sa.engine.Engine) -> TestResult:
         self.max_relative_gain = self.max_relative_gain_getter(engine)
         return super().test(engine)
+
+
+class VariantDistributionConstraint(Constraint):
+    """
+    VariantDistributionConstraint is a class to check if the distribution of values in a column
+    falls within the specified minimum and maximum bounds.
+    The constraint compares the factual distribution of values in a column of a `DataSource`
+    with the target distribution supplied as a dictionary where keys represent the unique values
+    and the corresponding tuple values represent the minimum and maximum allowed shares of
+    the respective unique value in the column.
+
+    The constraint is initialized with a `DataReference` object, the target distribution, and
+    optionally a name and any additional keyword arguments.
+
+    Example use cases include testing for consistency in columns with expected categorical values
+    or ensuring that the distribution of values in a column adheres to a certain criterion.
+    """
+
+    def __init__(
+        self,
+        ref: DataReference,
+        distribution: Dict[T, Tuple[float, float]],
+        name: Optional[str] = None,
+        **kwargs,
+    ):
+        super().__init__(ref, ref_value=distribution, name=name, **kwargs)
+
+    def retrieve(
+        self, engine: sa.engine.Engine, ref: DataReference
+    ) -> Tuple[Counter, OptionalSelections]:
+        return db_access.get_uniques(engine, ref)
+
+    def compare(
+        self,
+        factual: Counter,
+        target: Dict[T, Tuple[float, float]],
+    ) -> Tuple[bool, Optional[str]]:
+        total = factual.total()
+        min_counts = Counter({k: s[0] * total for k, s in target.items()})
+        max_counts = Counter({k: s[1] * total for k, s in target.items()})
+
+        violations = (factual - max_counts) | (min_counts - factual)
+
+        if violations:
+            assertion_text = f"{self.ref.get_string()} contains element(s):\n"
+
+            violations = (factual - max_counts) | (min_counts - factual)
+
+            for variant in violations:
+                actual_share = factual[variant] / total
+                target_share = target.get(variant, (0, 0))
+                min_required = min_counts[variant]
+                max_required = max_counts[variant]
+
+                assertion_text += (
+                    f"'{variant}' with a share of {actual_share * 100}% "
+                    f"({factual[variant]} out of {total}) "
+                    f"while a share between {target_share[0] * 100}% ({ceil(min_required)}) "
+                    f"and {target_share[1] * 100}% ({floor(max_required)}) "
+                    f"is required\n"
+                )
+
+            assertion_text += f"{self.condition_string}"
+            return False, assertion_text
+        return True, None

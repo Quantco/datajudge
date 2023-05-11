@@ -7,6 +7,13 @@
 Changelog
 =========
 
+1.7.0 - 2023.05.11
+------------------
+
+**New features**
+
+- Implement :meth:`datajudge.WithinRequirement.add_value_distribution_constraint`.
+
 
 1.6.0 - 2022.04.12
 ------------------
