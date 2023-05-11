@@ -349,6 +349,7 @@ class WithinRequirement(Requirement):
         self,
         columns: List[str],
         distribution: Dict[T, Tuple[float, float]],
+        default_bounds: Tuple[float, float] = (0, 0),
         condition: Condition = None,
         name: str = None,
     ):
@@ -365,6 +366,10 @@ class WithinRequirement(Requirement):
         `distribution` is a dictionary where keys represent the unique values and the corresponding
         tuple values represent the minimum and maximum allowed proportions of the respective
         unique value in the columns.
+
+        `default_bounds` A tuple specifying the minimum and maximum allowed proportions for all
+        elements not mentioned in the distribution. By default, it's set to (0, 0), which means
+        all elements not present in distribution will cause a constraint failure.
 
         `condition` is an optional parameter to specify a `Condition` object to filter the data
         before applying the constraint.
@@ -392,6 +397,7 @@ class WithinRequirement(Requirement):
             uniques_constraints.VariantDistributionConstraint(
                 ref,
                 distribution=distribution,
+                default_bounds=default_bounds,
                 name=name,
             )
         )

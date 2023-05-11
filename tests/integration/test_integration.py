@@ -745,13 +745,14 @@ def test_n_uniques_loss_between(engine, unique_table2, unique_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
-        (identity, ["col_int"], {0: (0.45, 0.55), 1: (0.45, 0.55)}),
-        (negation, ["col_int"], {0: (0.35, 0.55), 1: (0.55, 0.6)}),
-        (negation, ["col_int"], {0: (0.35, 0.55), 1: (0.35, 0.45)}),
+        (identity, ["col_int"], {0: (0.45, 0.55), 1: (0.45, 0.55)}, (0, 0)),
+        (negation, ["col_int"], {0: (0.35, 0.55), 1: (0.55, 0.6)}, (0, 0)),
+        (negation, ["col_int"], {0: (0.35, 0.55), 1: (0.35, 0.45)}, (0, 0)),
         (
             identity,
             ["col_int", "col_varchar"],
             {(0, "hi0"): (0.45, 0.55), (1, "hi0"): (0.25, 0.3), (1, "hi1"): (0.2, 0.3)},
+            (0, 0),
         ),
         (
             negation,
@@ -760,13 +761,18 @@ def test_n_uniques_loss_between(engine, unique_table2, unique_table1, data):
                 (0, "hi0"): (0.45, 0.55),
                 (1, "hi0"): (0.25, 0.3),
             },
+            (0, 0),
         ),
+        (identity, ["col_varchar"], {"hi0": (0.65, 0.85), "hi1": (0.1, 0.35)}, (0, 0)),
+        (negation, ["col_varchar"], {"hi0": (0.65, 0.85)}, (0, 0)),
+        (identity, ["col_varchar"], {"hi0": (0.65, 0.85)}, (0, 0.35)),
+        (negation, ["col_varchar"], {}, (0, 0.35)),
     ],
 )
 def test_distribution_within(engine, distribution_table, data):
-    (operation, columns, uniques) = data
+    (operation, columns, distribution, default_bounds) = data
     req = requirements.WithinRequirement.from_table(*distribution_table)
-    req.add_value_distribution_constraint(columns, uniques)
+    req.add_value_distribution_constraint(columns, distribution, default_bounds)
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 

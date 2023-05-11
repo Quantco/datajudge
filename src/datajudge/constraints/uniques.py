@@ -305,7 +305,8 @@ class VariantDistributionConstraint(Constraint):
     and the corresponding tuple values represent the minimum and maximum allowed shares of
     the respective unique value in the column.
 
-    The constraint is initialized with a `DataReference` object, the target distribution, and
+    The constraint is initialized with a `DataReference` object, the target distribution,
+    a minimum and maximum bound for each value not in the given distribution and
     optionally a name and any additional keyword arguments.
 
     Example use cases include testing for consistency in columns with expected categorical values
@@ -316,9 +317,11 @@ class VariantDistributionConstraint(Constraint):
         self,
         ref: DataReference,
         distribution: Dict[T, Tuple[float, float]],
+        default_bounds: Tuple[float, float] = (0, 0),
         name: Optional[str] = None,
         **kwargs,
     ):
+        self.default_bounds = default_bounds
         super().__init__(ref, ref_value=distribution, name=name, **kwargs)
 
     def retrieve(
@@ -332,8 +335,13 @@ class VariantDistributionConstraint(Constraint):
         target: Dict[T, Tuple[float, float]],
     ) -> Tuple[bool, Optional[str]]:
         total = factual.total()
-        min_counts = Counter({k: s[0] * total for k, s in target.items()})
-        max_counts = Counter({k: s[1] * total for k, s in target.items()})
+        all_variants = factual.keys() | target.keys()
+        min_counts = Counter(
+            {k: target.get(k, self.default_bounds)[0] * total for k in all_variants}
+        )
+        max_counts = Counter(
+            {k: target.get(k, self.default_bounds)[1] * total for k in all_variants}
+        )
 
         violations = (factual - max_counts) | (min_counts - factual)
 
@@ -344,7 +352,7 @@ class VariantDistributionConstraint(Constraint):
 
             for variant in violations:
                 actual_share = factual[variant] / total
-                target_share = target.get(variant, (0, 0))
+                target_share = target.get(variant, self.default_bounds)
                 min_required = min_counts[variant]
                 max_required = max_counts[variant]
 
