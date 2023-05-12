@@ -769,10 +769,28 @@ def test_n_uniques_loss_between(engine, unique_table2, unique_table1, data):
         (negation, ["col_varchar"], {}, (0, 0.35)),
     ],
 )
-def test_distribution_within(engine, distribution_table, data):
+def test_categorical_bound_within(engine, distribution_table, data):
     (operation, columns, distribution, default_bounds) = data
     req = requirements.WithinRequirement.from_table(*distribution_table)
     req.add_categorical_bound_constraint(columns, distribution, default_bounds)
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (negation, ["col_int"], {0: (0.40, 0.45), 1: (0.55, 0.60)}, 0),
+        (negation, ["col_int"], {0: (0.40, 0.45), 1: (0.55, 0.60)}, 0.05),
+        (identity, ["col_int"], {0: (0.40, 0.45), 1: (0.55, 0.60)}, 0.125),
+    ],
+)
+def test_categorical_bound_within_relative_violations(engine, distribution_table, data):
+    (operation, columns, distribution, max_relative_violations) = data
+    req = requirements.WithinRequirement.from_table(*distribution_table)
+    req.add_categorical_bound_constraint(
+        columns, distribution, max_relative_violations=max_relative_violations
+    )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 

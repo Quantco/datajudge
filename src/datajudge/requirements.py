@@ -350,6 +350,7 @@ class WithinRequirement(Requirement):
         columns: List[str],
         distribution: Dict[T, Tuple[float, float]],
         default_bounds: Tuple[float, float] = (0, 0),
+        max_relative_violations: float = 0,
         condition: Condition = None,
         name: str = None,
     ):
@@ -361,23 +362,31 @@ class WithinRequirement(Requirement):
         in the specified columns of a `DataSource` falls within the given minimum and maximum
         bounds defined in the `distribution` parameter.
 
-        `columns` is a list of column names from the `DataSource` to apply the constraint on.
+        Parameters
+        ----------
+        columns : List[str]
+            A list of column names from the `DataSource` to apply the constraint on.
+        distribution : Dict[T, Tuple[float, float]]
+            A dictionary where keys represent unique values and the corresponding
+            tuple values represent the minimum and maximum allowed proportions of the respective
+            unique value in the columns.
+        default_bounds : Tuple[float, float], optional, default=(0, 0)
+            A tuple specifying the minimum and maximum allowed proportions for all
+            elements not mentioned in the distribution. By default, it's set to (0, 0), which means
+            all elements not present in `distribution` will cause a constraint failure.
+        max_relative_violations : float, optional, default=0
+            A tolerance threshold (0 to 1) for the proportion of elements in the data that can violate the
+            bound constraints without triggering the constraint violation.
+        condition : Condition, optional
+            An optional parameter to specify a `Condition` object to filter the data
+            before applying the constraint.
+        name : str, optional
+            An optional parameter to provide a custom name for the constraint.
 
-        `distribution` is a dictionary where keys represent unique values and the corresponding
-        tuple values represent the minimum and maximum allowed proportions of the respective
-        unique value in the columns.
-
-        `default_bounds` is a tuple specifying the minimum and maximum allowed proportions for all
-        elements not mentioned in the distribution. By default, it's set to (0, 0), which means
-        all elements not present in `distribution` will cause a constraint failure.
-
-        `condition` is an optional parameter to specify a `Condition` object to filter the data
-        before applying the constraint.
-
-        `name` is an optional parameter to provide a custom name for the constraint.
-
-        Example use cases include testing for consistency in columns with expected categorical
-        values or ensuring that the distribution of values in a column adheres to a certain
+        Example
+        -------
+        This method can be used to test for consistency in columns with expected categorical
+        values or ensure that the distribution of values in a column adheres to a certain
         criterion.
 
         Usage:
@@ -387,6 +396,7 @@ class WithinRequirement(Requirement):
         requirement.add_categorical_bound_constraint(
             columns=['column_name'],
             distribution={'A': (0.2, 0.3), 'B': (0.4, 0.6), 'C': (0.1, 0.2)},
+            max_relative_violations=0.05,
             name='custom_name'
         )
         ```
@@ -398,6 +408,7 @@ class WithinRequirement(Requirement):
                 ref,
                 distribution=distribution,
                 default_bounds=default_bounds,
+                max_relative_violations=max_relative_violations,
                 name=name,
             )
         )

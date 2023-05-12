@@ -298,21 +298,27 @@ class NUniquesMaxGain(NUniques):
 
 class CategoricalBoundConstraint(Constraint):
     """
-    `CategoricalBoundConstraint` is a class to check if the share of a specific value
-    in a column falls within the specified minimum and maximum bounds.
-    The constraint compares the factual distribution of values in a column of a `DataSource`
-    with the target distribution supplied as a dictionary where keys represent
-    some unique values and the corresponding tuple values represent the minimum and maximum allowed shares of
-    the respective unique value in the column. The additional `default_bounds` parameter specifies
-    the minimum and maximum bounds for all distinct values that are not explicitly outlined
-    in the target distribution dictionary.
-
-    The constraint is initialized with a `DataReference` object, the target distribution,
-    a minimum and maximum bound for each value not in the given distribution and
-    optionally a name and any additional keyword arguments.
+    `CategoricalBoundConstraint` is a constraint class that checks if the share of specific values
+    in a column falls within predefined bounds. It compares the actual distribution of values in a
+    `DataSource` column with a target distribution, supplied as a dictionary.
 
     Example use cases include testing for consistency in columns with expected categorical values
     or ensuring that the distribution of values in a column adheres to a certain criterion.
+
+    Parameters
+    ----------
+    ref : DataReference
+        A reference to the column in the data source.
+    distribution : Dict[T, Tuple[float, float]]
+        A dictionary with unique values as keys and tuples of minimum and maximum allowed shares as values.
+    default_bounds : Tuple[float, float], optional, default=(0, 0)
+        A tuple specifying the minimum and maximum bounds for values not explicitly outlined in the target
+        distribution dictionary.
+    name : Optional[str], default=None
+        An optional name for the constraint.
+    max_relative_violations : float, optional, default=0
+        A tolerance threshold (0 to 1) for the proportion of elements in the data that can violate the
+        bound constraints without triggering the constraint violation.
     """
 
     def __init__(
@@ -321,9 +327,11 @@ class CategoricalBoundConstraint(Constraint):
         distribution: Dict[T, Tuple[float, float]],
         default_bounds: Tuple[float, float] = (0, 0),
         name: Optional[str] = None,
+        max_relative_violations: float = 0,
         **kwargs,
     ):
         self.default_bounds = default_bounds
+        self.max_relative_violations = max_relative_violations
         super().__init__(ref, ref_value=distribution, name=name, **kwargs)
 
     def retrieve(
@@ -333,7 +341,7 @@ class CategoricalBoundConstraint(Constraint):
 
     def compare(
         self,
-        factual: Counter,
+        factual: Counter[T],
         target: Dict[T, Tuple[float, float]],
     ) -> Tuple[bool, Optional[str]]:
         total = factual.total()
@@ -345,10 +353,15 @@ class CategoricalBoundConstraint(Constraint):
             {k: target.get(k, self.default_bounds)[1] * total for k in all_variants}
         )
 
-        violations = (factual - max_counts) | (min_counts - factual)
+        violations = (factual - max_counts) + (min_counts - factual)
 
-        if violations:
-            assertion_text = f"{self.ref.get_string()} contains element(s):\n"
+        if (
+            relative_violations := (violations.total() / total)
+        ) > self.max_relative_violations:
+            assertion_text = (
+                f"{self.ref.get_string()} has {relative_violations * 100}% > "
+                f"{self.max_relative_violations * 100}% of element(s) violating the bound constraints:\n"
+            )
 
             for variant in violations:
                 actual_share = factual[variant] / total
