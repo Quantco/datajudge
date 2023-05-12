@@ -481,6 +481,18 @@ def date_table_keys(engine, metadata):
 
 
 @pytest.fixture(scope="module")
+def distribution_table(engine, metadata):
+    table_name = "distribution_table"
+    columns = [
+        sa.Column("col_int", sa.Integer()),
+        sa.Column("col_varchar", _string_column(engine)),
+    ]
+    data = [{"col_int": i // 10, "col_varchar": f"hi{i // 15}"} for i in range(20)]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
 def unique_table1(engine, metadata):
     table_name = "unique_table1"
     columns = [

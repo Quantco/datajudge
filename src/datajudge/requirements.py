@@ -1,6 +1,6 @@
 from abc import ABC
 from collections.abc import MutableSequence
-from typing import Callable, Collection, List, Optional, Sequence, TypeVar
+from typing import Callable, Collection, Dict, List, Optional, Sequence, Tuple, TypeVar
 
 import sqlalchemy as sa
 
@@ -343,6 +343,74 @@ class WithinRequirement(Requirement):
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
             uniques_constraints.NUniquesEquality(ref, n_uniques=n_uniques, name=name)
+        )
+
+    def add_categorical_bound_constraint(
+        self,
+        columns: List[str],
+        distribution: Dict[T, Tuple[float, float]],
+        default_bounds: Tuple[float, float] = (0, 0),
+        max_relative_violations: float = 0,
+        condition: Condition = None,
+        name: str = None,
+    ):
+        """
+        Check if the distribution of unique values in columns falls within the
+        specified minimum and maximum bounds.
+
+        The `CategoricalBoundConstraint` is added to ensure the distribution of unique values
+        in the specified columns of a `DataSource` falls within the given minimum and maximum
+        bounds defined in the `distribution` parameter.
+
+        Parameters
+        ----------
+        columns : List[str]
+            A list of column names from the `DataSource` to apply the constraint on.
+        distribution : Dict[T, Tuple[float, float]]
+            A dictionary where keys represent unique values and the corresponding
+            tuple values represent the minimum and maximum allowed proportions of the respective
+            unique value in the columns.
+        default_bounds : Tuple[float, float], optional, default=(0, 0)
+            A tuple specifying the minimum and maximum allowed proportions for all
+            elements not mentioned in the distribution. By default, it's set to (0, 0), which means
+            all elements not present in `distribution` will cause a constraint failure.
+        max_relative_violations : float, optional, default=0
+            A tolerance threshold (0 to 1) for the proportion of elements in the data that can violate the
+            bound constraints without triggering the constraint violation.
+        condition : Condition, optional
+            An optional parameter to specify a `Condition` object to filter the data
+            before applying the constraint.
+        name : str, optional
+            An optional parameter to provide a custom name for the constraint.
+
+        Example
+        -------
+        This method can be used to test for consistency in columns with expected categorical
+        values or ensure that the distribution of values in a column adheres to a certain
+        criterion.
+
+        Usage:
+
+        ```
+        requirement = WithinRequirement(data_source)
+        requirement.add_categorical_bound_constraint(
+            columns=['column_name'],
+            distribution={'A': (0.2, 0.3), 'B': (0.4, 0.6), 'C': (0.1, 0.2)},
+            max_relative_violations=0.05,
+            name='custom_name'
+        )
+        ```
+        """
+
+        ref = DataReference(self.data_source, columns, condition)
+        self._constraints.append(
+            uniques_constraints.CategoricalBoundConstraint(
+                ref,
+                distribution=distribution,
+                default_bounds=default_bounds,
+                max_relative_violations=max_relative_violations,
+                name=name,
+            )
         )
 
     def add_numeric_min_constraint(

@@ -1,5 +1,7 @@
 import abc
+from collections import Counter
 from itertools import zip_longest
+from math import ceil, floor
 from typing import Callable, Collection, Dict, List, Optional, Set, Tuple, Union
 
 import sqlalchemy as sa
@@ -292,3 +294,89 @@ class NUniquesMaxGain(NUniques):
     def test(self, engine: sa.engine.Engine) -> TestResult:
         self.max_relative_gain = self.max_relative_gain_getter(engine)
         return super().test(engine)
+
+
+class CategoricalBoundConstraint(Constraint):
+    """
+    `CategoricalBoundConstraint` is a constraint class that checks if the share of specific values
+    in a column falls within predefined bounds. It compares the actual distribution of values in a
+    `DataSource` column with a target distribution, supplied as a dictionary.
+
+    Example use cases include testing for consistency in columns with expected categorical values
+    or ensuring that the distribution of values in a column adheres to a certain criterion.
+
+    Parameters
+    ----------
+    ref : DataReference
+        A reference to the column in the data source.
+    distribution : Dict[T, Tuple[float, float]]
+        A dictionary with unique values as keys and tuples of minimum and maximum allowed shares as values.
+    default_bounds : Tuple[float, float], optional, default=(0, 0)
+        A tuple specifying the minimum and maximum bounds for values not explicitly outlined in the target
+        distribution dictionary.
+    name : Optional[str], default=None
+        An optional name for the constraint.
+    max_relative_violations : float, optional, default=0
+        A tolerance threshold (0 to 1) for the proportion of elements in the data that can violate the
+        bound constraints without triggering the constraint violation.
+    """
+
+    def __init__(
+        self,
+        ref: DataReference,
+        distribution: Dict[T, Tuple[float, float]],
+        default_bounds: Tuple[float, float] = (0, 0),
+        name: Optional[str] = None,
+        max_relative_violations: float = 0,
+        **kwargs,
+    ):
+        self.default_bounds = default_bounds
+        self.max_relative_violations = max_relative_violations
+        super().__init__(ref, ref_value=distribution, name=name, **kwargs)
+
+    def retrieve(
+        self, engine: sa.engine.Engine, ref: DataReference
+    ) -> Tuple[Counter, OptionalSelections]:
+        return db_access.get_uniques(engine, ref)
+
+    def compare(
+        self,
+        factual: Counter[T],
+        target: Dict[T, Tuple[float, float]],
+    ) -> Tuple[bool, Optional[str]]:
+        total = factual.total()
+        all_variants = factual.keys() | target.keys()
+        min_counts = Counter(
+            {k: target.get(k, self.default_bounds)[0] * total for k in all_variants}
+        )
+        max_counts = Counter(
+            {k: target.get(k, self.default_bounds)[1] * total for k in all_variants}
+        )
+
+        violations = (factual - max_counts) + (min_counts - factual)
+
+        if (
+            relative_violations := (violations.total() / total)
+        ) > self.max_relative_violations:
+            assertion_text = (
+                f"{self.ref.get_string()} has {relative_violations * 100}% > "
+                f"{self.max_relative_violations * 100}% of element(s) violating the bound constraints:\n"
+            )
+
+            for variant in violations:
+                actual_share = factual[variant] / total
+                target_share = target.get(variant, self.default_bounds)
+                min_required = min_counts[variant]
+                max_required = max_counts[variant]
+
+                assertion_text += (
+                    f"'{variant}' with a share of {actual_share * 100}% "
+                    f"({factual[variant]} out of {total}) "
+                    f"while a share between {target_share[0] * 100}% ({ceil(min_required)}) "
+                    f"and {target_share[1] * 100}% ({floor(max_required)}) "
+                    f"is required\n"
+                )
+
+            assertion_text += f"{self.condition_string}"
+            return False, assertion_text
+        return True, None
