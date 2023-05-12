@@ -344,7 +344,7 @@ class CategoricalBoundConstraint(Constraint):
         factual: Counter[T],
         target: Dict[T, Tuple[float, float]],
     ) -> Tuple[bool, Optional[str]]:
-        # TODO: Use total as soon as we can assume Python 3.10.
+        # TODO: Use total method of Counter as soon as we can assume Python 3.10.
         total = sum(factual.values())
         all_variants = factual.keys() | target.keys()
         min_counts = Counter(
@@ -357,6 +357,7 @@ class CategoricalBoundConstraint(Constraint):
         violations = (factual - max_counts) + (min_counts - factual)
 
         if (
+            # TODO: Use total method of Counter as soon as we can assume Python 3.10.
             relative_violations := (sum(violations.values()) / total)
         ) > self.max_relative_violations:
             assertion_text = (
