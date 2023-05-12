@@ -341,10 +341,11 @@ class CategoricalBoundConstraint(Constraint):
 
     def compare(
         self,
-        factual: Counter[T],
+        factual: Counter,
         target: Dict[T, Tuple[float, float]],
     ) -> Tuple[bool, Optional[str]]:
-        total = factual.total()
+        # TODO: use .total() of Counter as soon as we can assume Python 3.10
+        total = sum(factual.values())
         all_variants = factual.keys() | target.keys()
         min_counts = Counter(
             {k: target.get(k, self.default_bounds)[0] * total for k in all_variants}
@@ -356,7 +357,8 @@ class CategoricalBoundConstraint(Constraint):
         violations = (factual - max_counts) + (min_counts - factual)
 
         if (
-            relative_violations := (violations.total() / total)
+            # TODO: use .total() of Counter as soon as we can assume Python 3.10
+            relative_violations := (sum(violations.values()) / total)
         ) > self.max_relative_violations:
             assertion_text = (
                 f"{self.ref.get_string()} has {relative_violations * 100}% > "
