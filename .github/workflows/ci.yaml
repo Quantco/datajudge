@@ -2,8 +2,8 @@ name: CI
 on:
   # We would like to trigger for CI for any pull request action -
   # both from QuantCo's branches as well as forks.
-  merge_group:
-  
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
   # In addition to pull requests, we want to run CI for pushes
   # to the main branches and tags.
   push:
@@ -15,6 +15,7 @@ on:
 
 
 jobs:
+
   pre-commit-checks:
     name: "pre-commit hooks - Python 3.8"
     runs-on: ubuntu-latest
@@ -110,7 +111,7 @@ jobs:
           args: tests/integration
 
   postgres:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "PostgreSQL ${{ matrix.POSTGRES_VERSION }} - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
@@ -155,7 +156,7 @@ jobs:
       
 
   db2:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "DB2 - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-20.04
     env:
@@ -208,7 +209,7 @@ jobs:
 
 
   snowflake:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'snowflake') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'snowflake') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Snowflake - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-latest
     env:
@@ -244,7 +245,7 @@ jobs:
           args: tests/integration
 
   bigquery:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'bigquery') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'bigquery') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "BigQuery - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
     runs-on: ubuntu-latest
     strategy:
@@ -281,7 +282,7 @@ jobs:
           args: -n auto tests/integration
 
   impala-column:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') }}
     name: "Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }} - Impala"
     runs-on: ubuntu-20.04
     env:
