@@ -45,7 +45,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
+        uses: mamba-org/setup-micromamba@5d5dbebd87f7b9358c403c7a66651fa92b310105
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -85,7 +85,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
+        uses: mamba-org/setup-micromamba@5d5dbebd87f7b9358c403c7a66651fa92b310105
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -138,7 +138,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0       
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
+        uses: mamba-org/setup-micromamba@5d5dbebd87f7b9358c403c7a66651fa92b310105
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -186,7 +186,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
+        uses: mamba-org/setup-micromamba@5d5dbebd87f7b9358c403c7a66651fa92b310105
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -228,7 +228,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
+        uses: mamba-org/setup-micromamba@5d5dbebd87f7b9358c403c7a66651fa92b310105
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -260,7 +260,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
+        uses: mamba-org/setup-micromamba@5d5dbebd87f7b9358c403c7a66651fa92b310105
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -301,7 +301,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@d05808540d968a55ca33c798e0661fb98f533c73
+        uses: mamba-org/setup-micromamba@5d5dbebd87f7b9358c403c7a66651fa92b310105
         with:
           environment-file: environment.yml
           cache-downloads: true
