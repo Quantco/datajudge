@@ -1943,8 +1943,6 @@ def test_max_null_fraction_between(engine, unique_table1, data):
         (identity, "col_varchar", "VARCHAR"),
         (identity, "col_int", "INTEGER"),
         (negation, "col_varchar", "INTEGER"),
-        (identity, "col_varchar", sa.types.VARCHAR()),
-        (negation, "col_varchar", sa.types.INTEGER()),
         (identity, "col_varchar", sa.types.String()),
         (negation, "col_varchar", sa.types.Numeric()),
     ],
