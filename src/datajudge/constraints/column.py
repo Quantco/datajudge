@@ -69,6 +69,17 @@ class ColumnSuperset(Column):
 
 
 class ColumnType(Constraint):
+    """
+    A class used to represent a ColumnType constraint.
+
+    This class enables flexible specification of column types either in string format or using SQLAlchemy's type hierarchy.
+    It checks whether a column's type matches the specified type, allowing for checks against backend-specific types,
+    SQLAlchemy's generic types, or string representations of backend-specific types.
+
+    When using SQLAlchemy's generic types, the comparison is done using `isinstance`, which means that the actual type can also be a subclass of the target type.
+    For more information, see https://docs.sqlalchemy.org/en/20/core/type_basics.html
+    """
+
     def __init__(
         self,
         ref: DataReference,
