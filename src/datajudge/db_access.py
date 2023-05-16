@@ -908,17 +908,7 @@ def get_column_names(engine, ref):
 
 def get_column_type(engine, ref):
     table = ref.get_selection(engine).alias()
-    if is_snowflake(engine):
-        column_type = [str(column.type) for column in table.columns][0]
-        # Integer columns loaded from snowflake database may be referred to as decimal with
-        # 0 scale. More here:
-        # https://docs.snowflake.com/en/sql-reference/data-types-numeric.html#decimal-numeric
-        if column_type == "DECIMAL(38, 0)":
-            column_type = "integer"
-        return column_type, None
-    column_type = [
-        str(column.type).split(" ", maxsplit=1)[0] for column in table.columns
-    ][0]
+    column_type = next(iter(table.columns)).type
     return column_type, None
 
 
