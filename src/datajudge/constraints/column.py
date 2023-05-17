@@ -1,5 +1,5 @@
 import abc
-from typing import List, Tuple
+from typing import List, Optional, Tuple, Union
 
 import sqlalchemy as sa
 
@@ -69,29 +69,48 @@ class ColumnSuperset(Column):
 
 
 class ColumnType(Constraint):
+    """
+    A class used to represent a ColumnType constraint.
+
+    This class enables flexible specification of column types either in string format or using SQLAlchemy's type hierarchy.
+    It checks whether a column's type matches the specified type, allowing for checks against backend-specific types,
+    SQLAlchemy's generic types, or string representations of backend-specific types.
+
+    When using SQLAlchemy's generic types, the comparison is done using `isinstance`, which means that the actual type can also be a subclass of the target type.
+    For more information, see https://docs.sqlalchemy.org/en/20/core/type_basics.html
+    """
+
     def __init__(
         self,
         ref: DataReference,
         *,
-        ref2: DataReference = None,
-        column_type: str = None,
-        name: str = None,
+        ref2: Optional[DataReference] = None,
+        column_type: Optional[Union[str, sa.types.TypeEngine]] = None,
+        name: Optional[str] = None,
     ):
-        if column_type:
-            column_type = column_type.lower()
         super().__init__(ref, ref2=ref2, ref_value=column_type, name=name)
         self.column_type = column_type
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[str, OptionalSelections]:
+    ) -> Tuple[sa.types.TypeEngine, OptionalSelections]:
         result, selections = db_access.get_column_type(engine, ref)
-        return result.lower(), selections
+        return result, selections
 
     def compare(self, column_type_factual, column_type_target) -> Tuple[bool, str]:
         assertion_message = (
             f"{self.ref.get_string()} is {column_type_factual} "
             f"instead of {column_type_target}."
         )
-        result = column_type_factual.startswith(column_type_target)
+
+        if isinstance(column_type_target, sa.types.TypeEngine):
+            result = isinstance(column_type_factual, type(column_type_target))
+        else:
+            column_type = str(column_type_factual).lower()
+            # Integer columns loaded from snowflake database may be referred to as decimal with
+            # 0 scale. More here:
+            # https://docs.snowflake.com/en/sql-reference/data-types-numeric.html#decimal-numeric
+            if column_type == "decimal(38, 0)":
+                column_type = "integer"
+            result = column_type.startswith(column_type_target.lower())
         return result, assertion_message

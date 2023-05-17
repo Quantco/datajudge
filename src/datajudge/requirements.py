@@ -1,6 +1,16 @@
 from abc import ABC
 from collections.abc import MutableSequence
-from typing import Callable, Collection, Dict, List, Optional, Sequence, Tuple, TypeVar
+from typing import (
+    Callable,
+    Collection,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import sqlalchemy as sa
 
@@ -166,8 +176,30 @@ class WithinRequirement(Requirement):
         )
 
     def add_column_type_constraint(
-        self, column: str, column_type: str, name: str = None
+        self,
+        column: str,
+        column_type: Union[str, sa.types.TypeEngine],
+        name: str = None,
     ):
+        """
+        Check if a column type matches the expected column_type.
+
+        The column_type can be provided as a string (backend-specific type name), a backend-specific SQLAlchemy type, or a SQLAlchemy's generic type.
+
+        If SQLAlchemy's generic types are used, the check is performed using `isinstance`, which means that the actual type can also be a subclass of the target type.
+        For more information on SQLAlchemy's generic types, see https://docs.sqlalchemy.org/en/20/core/type_basics.html
+
+        Parameters
+        ----------
+        column : str
+            The name of the column to which the constraint will be applied.
+
+        column_type : Union[str, sa.types.TypeEngine]
+            The expected type of the column. This can be a string, a backend-specific SQLAlchemy type, or a generic SQLAlchemy type.
+
+        name : Optional[str]
+            An optional name for the constraint. If not provided, a name will be generated automatically.
+        """
         ref = DataReference(self.data_source, [column])
         self._constraints.append(
             column_constraints.ColumnType(ref, column_type=column_type, name=name)
@@ -517,7 +549,7 @@ class WithinRequirement(Requirement):
         column: str,
         min_value: str,
         use_lower_bound_reference: bool = True,
-        column_type: str = "date",
+        column_type: Union[str, sa.types.TypeEngine] = "date",
         condition: Condition = None,
         name: str = None,
     ):
@@ -525,8 +557,7 @@ class WithinRequirement(Requirement):
 
         Use string format: min_value="'20121230'".
 
-        For valid ``column_type`` values, see`` get_format_from_column_type`` in
-        constraints/base.py.
+        For more information on ``column_type`` values, see ``add_column_type_constraint``.
 
         If ``use_lower_bound_reference``, the min of the first table has to be
         greater or equal to ``min_value``.
@@ -549,7 +580,7 @@ class WithinRequirement(Requirement):
         column: str,
         max_value: str,
         use_upper_bound_reference: bool = True,
-        column_type: str = "date",
+        column_type: Union[str, sa.types.TypeEngine] = "date",
         condition: Condition = None,
         name: str = None,
     ):
@@ -557,8 +588,7 @@ class WithinRequirement(Requirement):
 
         Use string format: max_value="'20121230'".
 
-        For valid ``column_type`` values, see ``get_format_from_column_type`` in
-        constraints/base.py..
+        For more information on ``column_type`` values, see ``add_column_type_constraint``.
 
         If ``use_upper_bound_reference``, the max of the first table has to be
         smaller or equal to ``max_value``.
@@ -1427,7 +1457,7 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         use_lower_bound_reference: bool = True,
-        column_type: str = "date",
+        column_type: Union[str, sa.types.TypeEngine] = "date",
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1436,7 +1466,7 @@ class BetweenRequirement(Requirement):
 
         The used columns of both tables need to be of the same type.
 
-        For valid column_type values, see get_format_from_column_type in constraints/base.py..
+        For more information on ``column_type`` values, see ``add_column_type_constraint``.
 
         If ``use_lower_bound_reference``, the min of the first table has to be
         greater or equal to the min of the second table.
@@ -1460,7 +1490,7 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         use_upper_bound_reference: bool = True,
-        column_type: str = "date",
+        column_type: Union[str, sa.types.TypeEngine] = "date",
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1469,7 +1499,7 @@ class BetweenRequirement(Requirement):
 
         The used columns of both tables need to be of the same type.
 
-        For valid column_type values, see get_format_from_column_type in constraints/base.py.
+        For more information on ``column_type`` values, see ``add_column_type_constraint``.
 
         If ``use_upper_bound_reference``, the max of the first table has to be
         smaller or equal to the max of the second table.
@@ -1529,6 +1559,7 @@ class BetweenRequirement(Requirement):
         )
 
     def add_column_type_constraint(self, column1: str, column2: str, name: str = None):
+        "Check that the columns have the same type."
         ref1 = DataReference(self.data_source, [column1])
         ref2 = DataReference(self.data_source2, [column2])
         self._constraints.append(
