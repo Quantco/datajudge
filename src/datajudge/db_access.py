@@ -570,13 +570,16 @@ def _not_in_interval_condition(
     )
 
 
-def get_date_gaps(
+def _get_interval_gaps(
     engine: sa.engine.Engine,
     ref: DataReference,
     key_columns: list[str] | None,
     start_column: str,
     end_column: str,
-    end_included: bool,
+    legitimate_gap_size: int,
+    make_gap_condition: Callable[
+        [sa.Engine, sa.Subquery, sa.Subquery, str, str, int], sa.ColumnElement[bool]
+    ],
 ):
     if is_snowflake(engine):
         if key_columns:
@@ -635,8 +638,45 @@ def get_date_gaps(
         .subquery()
     )
 
-    legitimate_gap_size = 1 if end_included else 0
+    gap_condition = make_gap_condition(
+        engine, start_table, end_table, start_column, end_column, legitimate_gap_size
+    )
 
+    join_condition = sa.and_(
+        *[
+            start_table.c[key_column] == end_table.c[key_column]
+            for key_column in key_columns
+        ],
+        start_table.c["start_rank"] == end_table.c["end_rank"] + 1,
+        gap_condition,
+    )
+
+    violation_selection = sa.select(
+        *get_table_columns(start_table, key_columns),
+        start_table.c[start_column],
+        end_table.c[end_column],
+    ).select_from(start_table.join(end_table, join_condition))
+
+    violation_subquery = violation_selection.subquery()
+
+    keys = get_table_columns(violation_subquery, key_columns)
+
+    grouped_violation_subquery = sa.select(*keys).group_by(*keys).subquery()
+
+    n_violations_selection = sa.select(sa.func.count()).select_from(
+        grouped_violation_subquery
+    )
+
+    return violation_selection, n_violations_selection
+
+def _date_gap_condition(
+    engine: sa.engine.Engine,
+    start_table: sa.Subquery,
+    end_table: sa.Subquery,
+    start_column: str,
+    end_column: str,
+    legitimate_gap_size: int,
+) -> sa.ColumnElement[bool]:
     if is_mssql(engine) or is_snowflake(engine):
         gap_condition = (
             sa.func.datediff(
@@ -686,33 +726,56 @@ def get_date_gaps(
         )
     else:
         raise NotImplementedError(f"Date gaps not yet implemented for {engine.name}.")
+    return gap_condition
 
-    join_condition = sa.and_(
-        *[
-            start_table.c[key_column] == end_table.c[key_column]
-            for key_column in key_columns
-        ],
-        start_table.c["start_rank"] == end_table.c["end_rank"] + 1,
-        gap_condition,
+def get_date_gaps(
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    key_columns: list[str] | None,
+    start_column: str,
+    end_column: str,
+    end_included: bool,
+):
+    return _get_interval_gaps(
+        engine,
+        ref,
+        key_columns,
+        start_column,
+        end_column,
+        1 if end_included else 0,
+        _date_gap_condition,
     )
 
-    violation_selection = sa.select(
-        *get_table_columns(start_table, key_columns),
-        start_table.c[start_column],
-        end_table.c[end_column],
-    ).select_from(start_table.join(end_table, join_condition))
-
-    violation_subquery = violation_selection.subquery()
-
-    keys = get_table_columns(violation_subquery, key_columns)
-
-    grouped_violation_subquery = sa.select(*keys).group_by(*keys).subquery()
-
-    n_violations_selection = sa.select(sa.func.count()).select_from(
-        grouped_violation_subquery
+def _integer_gap_condition(
+    _engine: sa.engine.Engine,
+    start_table: sa.Subquery,
+    end_table: sa.Subquery,
+    start_column: str,
+    end_column: str,
+    end_included: bool,
+) -> sa.ColumnElement[bool]:
+    gap_condition = (
+        start_table.c[start_column] - end_table.c[end_column] > (0 if end_included else 1)
     )
+    return gap_condition
 
-    return violation_selection, n_violations_selection
+def get_integer_gaps(
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    key_columns: list[str] | None,
+    start_column: str,
+    end_column: str,
+    legitimate_gap_size: int = 0,
+):
+    return _get_interval_gaps(
+        engine,
+        ref,
+        key_columns,
+        start_column,
+        end_column,
+        legitimate_gap_size,
+        _integer_gap_condition,
+    )
 
 
 def get_row_count(engine, ref, row_limit: int = None):

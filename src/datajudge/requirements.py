@@ -16,6 +16,7 @@ import sqlalchemy as sa
 
 from .constraints import column as column_constraints
 from .constraints import date as date_constraints
+from .constraints import interval as interval_constraints
 from .constraints import groupby as groupby_constraints
 from .constraints import miscs as miscs_constraints
 from .constraints import nrows as nrows_constraints
@@ -796,6 +797,32 @@ class WithinRequirement(Requirement):
         ref = DataReference(self.data_source, relevant_columns, condition)
         self._constraints.append(
             date_constraints.DateNoGap(
+                ref,
+                key_columns=key_columns,
+                start_columns=[start_column],
+                end_columns=[end_column],
+                max_relative_n_violations=max_relative_n_violations,
+                end_included=end_included,
+                name=name,
+            )
+        )
+
+    def add_integer_no_gap_constraint(
+        self,
+        start_column: str,
+        end_column: str,
+        key_columns: Optional[List[str]] = None,
+        end_included: bool = True,
+        max_relative_n_violations: float = 0,
+        condition: Condition = None,
+        name: str = None,
+    ):
+        relevant_columns = (
+            ([start_column, end_column] + key_columns) if key_columns else []
+        )
+        ref = DataReference(self.data_source, relevant_columns, condition)
+        self._constraints.append(
+            interval_constraints.IntegerNoGap(
                 ref,
                 key_columns=key_columns,
                 start_columns=[start_column],

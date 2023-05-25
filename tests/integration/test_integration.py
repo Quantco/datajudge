@@ -1375,6 +1375,28 @@ def test_date_no_gap_within_fixed_key_columns(engine, date_table_gap, data):
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, 0, Condition(raw_string="id1 = 1")),
+        (identity, 0, Condition(raw_string="id1 = 2")),
+        (identity, 0, Condition(raw_string="id1 = 3")),
+        (negation, 0, Condition(raw_string="id1 = 4")),
+        (identity, 0, None),
+    ],
+)
+def test_integer_no_within_fixed_key_columns(engine, integer_table_gap, data):
+    operation, max_relative_n_violations, condition = data
+    req = requirements.WithinRequirement.from_table(*integer_table_gap)
+    req.add_integer_no_gap_constraint(
+        key_columns=["id1"],
+        start_column="range_start",
+        end_column="range_end",
+        max_relative_n_violations=max_relative_n_violations,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
 
 @pytest.mark.parametrize(
     "data",
