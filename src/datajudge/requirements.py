@@ -817,6 +817,36 @@ class WithinRequirement(Requirement):
         condition: Condition = None,
         name: str = None,
     ):
+        """
+        Express that numeric interval rows have no gaps larger than some max value in-between them.
+        The table under inspection must consist of at least one but up to many key columns,
+        identifying an entity. Additionally, a ``start_column`` and an ``end_column``,
+        indicating interval start and end values, should be provided.
+
+        Neither of those columns should contain ``NULL`` values. Also, it should hold that
+        for a given row, the value of ``end_column`` is strictly greater than the value of
+        ``start_column``.
+
+
+        ``legitimate_gap_size`` is the maximum tollerated gap size between two intervals.
+
+        Note that the value of ``start_column`` is expected to be included in each interval.
+        By default, the value of ``end_column`` is expected to be included as well - this can
+        however be changed by setting ``end_included`` to ``False``.
+
+        A 'key' is a fixed set of values in ``key_columns`` and represents an entity of
+        interest. A priori, a key is not a primary key, i.e., a key can have and often has
+        several rows. Thereby, a key will often come with several intervals.
+
+        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        considered as composing the key.
+
+        In order to express a tolerance for some violations of this gap property, use the
+        ``max_relative_n_violations`` parameter. The latter expresses for what fraction
+        of all key_values, at least one gap may exist.
+
+        For illustrative examples of this constraint, please refer to its test cases.
+        """
         relevant_columns = (
             ([start_column, end_column] + key_columns) if key_columns else []
         )
