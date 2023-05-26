@@ -459,7 +459,7 @@ def get_date_growth_rate(engine, ref, ref2, date_column, date_column2):
     return date_span / date_span2 - 1, [*selections, *selections2]
 
 
-def get_date_overlaps_nd(
+def get_interval_overlaps_nd(
     engine: sa.engine.Engine,
     ref: DataReference,
     key_columns: list[str] | None,
@@ -669,6 +669,7 @@ def _get_interval_gaps(
 
     return violation_selection, n_violations_selection
 
+
 def _date_gap_condition(
     engine: sa.engine.Engine,
     start_table: sa.Subquery,
@@ -727,6 +728,8 @@ def _date_gap_condition(
     else:
         raise NotImplementedError(f"Date gaps not yet implemented for {engine.name}.")
     return gap_condition
+
+
 def get_date_gaps(
     engine: sa.engine.Engine,
     ref: DataReference,
@@ -745,6 +748,7 @@ def get_date_gaps(
         _date_gap_condition,
     )
 
+
 def _numeric_gap_condition(
     _engine: sa.engine.Engine,
     start_table: sa.Subquery,
@@ -754,9 +758,10 @@ def _numeric_gap_condition(
     legitimate_gap_size: float,
 ) -> sa.ColumnElement[bool]:
     gap_condition = (
-        (start_table.c[start_column] - end_table.c[end_column]) > legitimate_gap_size
-    )
+        start_table.c[start_column] - end_table.c[end_column]
+    ) > legitimate_gap_size
     return gap_condition
+
 
 def get_numeric_gaps(
     engine: sa.engine.Engine,

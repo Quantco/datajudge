@@ -384,6 +384,75 @@ def date_table_overlap_2d(engine, metadata):
 
 
 @pytest.fixture(scope="module")
+def integer_table_overlap(engine, metadata):
+    table_name = "integer_table_overlap"
+    columns = [
+        sa.Column("id1", sa.Integer()),
+        sa.Column("range_start", sa.Integer()),
+        sa.Column("range_end", sa.Integer()),
+    ]
+    data = []
+    # Trivial case: single entry.
+    data += [
+        {
+            "id1": 1,
+            "range_start": 1,
+            "range_end": 10,
+        }
+    ]
+    # 'Normal case': Multiple entries without overlap.
+    data += [
+        {
+            "id1": 2,
+            "range_start": i * 2,
+            "range_end": i * 2 + 1,
+        }
+        for i in range(1, 5)
+    ]
+    # Multiple entries with non-singleton overlap.
+    data += [
+        {
+            "id1": 3,
+            "range_start": 1,
+            "range_end": 10,
+        },
+        {
+            "id1": 3,
+            "range_start": 7,
+            "range_end": 15,
+        },
+    ]
+    # Multiple entries with singleton overlap.
+    data += [
+        {
+            "id1": 4,
+            "range_start": 1,
+            "range_end": 10,
+        },
+        {
+            "id1": 4,
+            "range_start": 10,
+            "range_end": 15,
+        },
+    ]
+    # Multiple entries with subset relation.
+    data += [
+        {
+            "id1": 5,
+            "range_start": 1,
+            "range_end": 10,
+        },
+        {
+            "id1": 5,
+            "range_start": 4,
+            "range_end": 8,
+        },
+    ]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
 def date_table_gap(engine, metadata):
     table_name = "date_table_gap"
     columns = [
@@ -451,6 +520,7 @@ def date_table_gap(engine, metadata):
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
 
+
 @pytest.fixture(scope="module")
 def integer_table_gap(engine, metadata):
     table_name = "integer_table_gap"
@@ -506,13 +576,14 @@ def integer_table_gap(engine, metadata):
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
 
+
 @pytest.fixture(scope="module")
 def float_table_gap(engine, metadata):
     table_name = "float_table_gap"
     columns = [
         sa.Column("id1", sa.Integer()),
-        sa.Column("range_start", sa.Integer()),
-        sa.Column("range_end", sa.Integer()),
+        sa.Column("range_start", sa.Float()),
+        sa.Column("range_end", sa.Float()),
     ]
     data = []
     # Single entry should not be considered a gap.
@@ -558,8 +629,22 @@ def float_table_gap(engine, metadata):
             "range_end": 10,
         },
     ]
+    # Multiple entries with tolerated gap.
+    data += [
+        {
+            "id1": 5,
+            "range_start": 1,
+            "range_end": 5,
+        },
+        {
+            "id1": 5,
+            "range_start": 5.5,
+            "range_end": 10,
+        },
+    ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
+
 
 @pytest.fixture(scope="module")
 def date_table_keys(engine, metadata):

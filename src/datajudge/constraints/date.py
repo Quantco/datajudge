@@ -171,10 +171,17 @@ class DateNoOverlap(IntervalConstraint):
         name: Optional[str] = None,
     ):
         self.end_included = end_included
-        super().__init__(ref, key_columns, start_columns, end_columns, max_relative_n_violations, name=name)
+        super().__init__(
+            ref,
+            key_columns,
+            start_columns,
+            end_columns,
+            max_relative_n_violations,
+            name=name,
+        )
 
     def select(self, engine: sa.engine.Engine, ref: DataReference):
-        sample_selection, n_violations_selection = db_access.get_date_overlaps_nd(
+        sample_selection, n_violations_selection = db_access.get_interval_overlaps_nd(
             engine,
             ref,
             self.key_columns,
@@ -215,10 +222,17 @@ class DateNoOverlap2d(IntervalConstraint):
         name: Optional[str] = None,
     ):
         self.end_included = end_included
-        super().__init__(ref, key_columns, start_columns, end_columns, max_relative_n_violations, name=name)
+        super().__init__(
+            ref,
+            key_columns,
+            start_columns,
+            end_columns,
+            max_relative_n_violations,
+            name=name,
+        )
 
     def select(self, engine: sa.engine.Engine, ref: DataReference):
-        sample_selection, n_violations_selection = db_access.get_date_overlaps_nd(
+        sample_selection, n_violations_selection = db_access.get_interval_overlaps_nd(
             engine,
             ref,
             self.key_columns,
@@ -256,11 +270,18 @@ class DateNoGap(IntervalConstraint):
         start_columns: List[str],
         end_columns: List[str],
         max_relative_n_violations: float,
-        legitimate_gap_size: bool,
+        legitimate_gap_size: float,
         name: Optional[str] = None,
     ):
         self.legitimate_gap_size = legitimate_gap_size
-        super().__init__(ref, key_columns, start_columns, end_columns, max_relative_n_violations, name=name)
+        super().__init__(
+            ref,
+            key_columns,
+            start_columns,
+            end_columns,
+            max_relative_n_violations,
+            name=name,
+        )
 
     def select(self, engine: sa.engine.Engine, ref: DataReference):
         sample_selection, n_violations_selection = db_access.get_date_gaps(

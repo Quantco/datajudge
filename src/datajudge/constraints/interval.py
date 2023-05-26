@@ -1,9 +1,11 @@
 import abc
 from typing import Any, List, Optional, Tuple
+
+import sqlalchemy as sa
+
 from .. import db_access
 from ..db_access import DataReference
 from .base import Constraint, OptionalSelections, TestResult
-import sqlalchemy as sa
 
 
 class IntervalConstraint(Constraint, abc.ABC):
@@ -58,7 +60,7 @@ class IntervalConstraint(Constraint, abc.ABC):
 
         selections = [*n_keys_selections, sample_selection, n_violations_selection]
         return (n_violation_keys, n_distinct_key_values), selections
-    
+
 
 class NumericNoGap(IntervalConstraint):
     _DIMENSIONS = 1
@@ -74,8 +76,14 @@ class NumericNoGap(IntervalConstraint):
         name: Optional[str] = None,
     ):
         self.legitimate_gap_size = legitimate_gap_size
-        super().__init__(ref, key_columns, start_columns, end_columns, max_relative_n_violations, name=name)
-        
+        super().__init__(
+            ref,
+            key_columns,
+            start_columns,
+            end_columns,
+            max_relative_n_violations,
+            name=name,
+        )
 
     def select(self, engine: sa.engine.Engine, ref: DataReference):
         sample_selection, n_violations_selection = db_access.get_numeric_gaps(
@@ -99,6 +107,57 @@ class NumericNoGap(IntervalConstraint):
             f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
             f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
             f"with a gap in the range in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"E.g. for: {self.sample}."
+        )
+        result = violation_fraction <= self.max_relative_n_violations
+        return result, assertion_text
+
+
+class NumericNoOverlap(IntervalConstraint):
+    _DIMENSIONS = 1
+
+    def __init__(
+        self,
+        ref: DataReference,
+        key_columns: Optional[List[str]],
+        start_columns: List[str],
+        end_columns: List[str],
+        max_relative_n_violations: float,
+        end_included: bool,
+        name: Optional[str] = None,
+    ):
+        self.end_included = end_included
+        super().__init__(
+            ref,
+            key_columns,
+            start_columns,
+            end_columns,
+            max_relative_n_violations,
+            name=name,
+        )
+
+    def select(self, engine: sa.engine.Engine, ref: DataReference):
+        sample_selection, n_violations_selection = db_access.get_interval_overlaps_nd(
+            engine,
+            ref,
+            self.key_columns,
+            start_columns=self.start_columns,
+            end_columns=self.end_columns,
+            end_included=self.end_included,
+        )
+        # TODO: Once get_unique_count also only returns a selection without
+        # executing it, one would want to list this selection here as well.
+        return sample_selection, n_violations_selection
+
+    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+        n_violation_keys, n_distinct_key_values = factual
+        if n_distinct_key_values == 0:
+            return TestResult.success()
+        violation_fraction = n_violation_keys / n_distinct_key_values
+        assertion_text = (
+            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
+            f"with overlapping ranges in {self.start_columns[0]} and {self.end_columns[0]}."
             f"E.g. for: {self.sample}."
         )
         result = violation_fraction <= self.max_relative_n_violations
