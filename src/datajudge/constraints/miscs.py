@@ -1,9 +1,7 @@
 import warnings
-from typing import Any, List, Optional, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 import sqlalchemy as sa
-
-from .base import OptionalSelections
 
 from .. import db_access
 from ..db_access import DataReference
