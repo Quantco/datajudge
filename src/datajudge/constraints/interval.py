@@ -1,8 +1,8 @@
 import abc
 from typing import Any, List, Optional, Tuple
-from datajudge import db_access
-from datajudge.constraints.base import Constraint, OptionalSelections, TestResult
-from datajudge.db_access import DataReference
+from .. import db_access
+from ..db_access import DataReference
+from .base import Constraint, OptionalSelections, TestResult
 import sqlalchemy as sa
 
 
@@ -15,7 +15,6 @@ class IntervalConstraint(Constraint, abc.ABC):
         key_columns: Optional[List[str]],
         start_columns: List[str],
         end_columns: List[str],
-        end_included: bool,
         max_relative_n_violations: float,
         name: str = None,
     ):
@@ -23,7 +22,6 @@ class IntervalConstraint(Constraint, abc.ABC):
         self.key_columns = key_columns
         self.start_columns = start_columns
         self.end_columns = end_columns
-        self.end_included = end_included
         self.max_relative_n_violations = max_relative_n_violations
         self._validate_dimensions()
 
@@ -62,17 +60,31 @@ class IntervalConstraint(Constraint, abc.ABC):
         return (n_violation_keys, n_distinct_key_values), selections
     
 
-class IntegerNoGap(IntervalConstraint):
+class NumericNoGap(IntervalConstraint):
     _DIMENSIONS = 1
 
+    def __init__(
+        self,
+        ref: DataReference,
+        key_columns: Optional[List[str]],
+        start_columns: List[str],
+        end_columns: List[str],
+        max_relative_n_violations: float,
+        legitimate_gap_size: float,
+        name: Optional[str] = None,
+    ):
+        self.legitimate_gap_size = legitimate_gap_size
+        super().__init__(ref, key_columns, start_columns, end_columns, max_relative_n_violations, name=name)
+        
+
     def select(self, engine: sa.engine.Engine, ref: DataReference):
-        sample_selection, n_violations_selection = db_access.get_integer_gaps(
+        sample_selection, n_violations_selection = db_access.get_numeric_gaps(
             engine,
             ref,
             self.key_columns,
             self.start_columns[0],
             self.end_columns[0],
-            self.end_included,
+            self.legitimate_gap_size,
         )
         # TODO: Once get_unique_count also only returns a selection without
         # executing it, one would want to list this selection here as well.

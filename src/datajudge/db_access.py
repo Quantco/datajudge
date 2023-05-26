@@ -485,7 +485,7 @@ def get_date_overlaps_nd(
     key_conditions = (
         [table1.c[key_column] == table2.c[key_column] for key_column in key_columns]
         if key_columns
-        else [True]
+        else [sa.literal(True)]
     )
     table_key_columns = get_table_columns(table1, key_columns) if key_columns else []
 
@@ -576,9 +576,9 @@ def _get_interval_gaps(
     key_columns: list[str] | None,
     start_column: str,
     end_column: str,
-    legitimate_gap_size: int,
+    legitimate_gap_size: float,
     make_gap_condition: Callable[
-        [sa.Engine, sa.Subquery, sa.Subquery, str, str, int], sa.ColumnElement[bool]
+        [sa.Engine, sa.Subquery, sa.Subquery, str, str, float], sa.ColumnElement[bool]
     ],
 ):
     if is_snowflake(engine):
@@ -675,7 +675,7 @@ def _date_gap_condition(
     end_table: sa.Subquery,
     start_column: str,
     end_column: str,
-    legitimate_gap_size: int,
+    legitimate_gap_size: float,
 ) -> sa.ColumnElement[bool]:
     if is_mssql(engine) or is_snowflake(engine):
         gap_condition = (
@@ -727,45 +727,13 @@ def _date_gap_condition(
     else:
         raise NotImplementedError(f"Date gaps not yet implemented for {engine.name}.")
     return gap_condition
-
 def get_date_gaps(
     engine: sa.engine.Engine,
     ref: DataReference,
     key_columns: list[str] | None,
     start_column: str,
     end_column: str,
-    end_included: bool,
-):
-    return _get_interval_gaps(
-        engine,
-        ref,
-        key_columns,
-        start_column,
-        end_column,
-        1 if end_included else 0,
-        _date_gap_condition,
-    )
-
-def _integer_gap_condition(
-    _engine: sa.engine.Engine,
-    start_table: sa.Subquery,
-    end_table: sa.Subquery,
-    start_column: str,
-    end_column: str,
-    end_included: bool,
-) -> sa.ColumnElement[bool]:
-    gap_condition = (
-        start_table.c[start_column] - end_table.c[end_column] > (0 if end_included else 1)
-    )
-    return gap_condition
-
-def get_integer_gaps(
-    engine: sa.engine.Engine,
-    ref: DataReference,
-    key_columns: list[str] | None,
-    start_column: str,
-    end_column: str,
-    legitimate_gap_size: int = 0,
+    legitimate_gap_size: float,
 ):
     return _get_interval_gaps(
         engine,
@@ -774,7 +742,38 @@ def get_integer_gaps(
         start_column,
         end_column,
         legitimate_gap_size,
-        _integer_gap_condition,
+        _date_gap_condition,
+    )
+
+def _numeric_gap_condition(
+    _engine: sa.engine.Engine,
+    start_table: sa.Subquery,
+    end_table: sa.Subquery,
+    start_column: str,
+    end_column: str,
+    legitimate_gap_size: float,
+) -> sa.ColumnElement[bool]:
+    gap_condition = (
+        (start_table.c[start_column] - end_table.c[end_column]) > legitimate_gap_size
+    )
+    return gap_condition
+
+def get_numeric_gaps(
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    key_columns: list[str] | None,
+    start_column: str,
+    end_column: str,
+    legitimate_gap_size: float = 0,
+):
+    return _get_interval_gaps(
+        engine,
+        ref,
+        key_columns,
+        start_column,
+        end_column,
+        legitimate_gap_size,
+        _numeric_gap_condition,
     )
 
 

@@ -802,17 +802,17 @@ class WithinRequirement(Requirement):
                 start_columns=[start_column],
                 end_columns=[end_column],
                 max_relative_n_violations=max_relative_n_violations,
-                end_included=end_included,
+                legitimate_gap_size=1 if end_included else 0,
                 name=name,
             )
         )
 
-    def add_integer_no_gap_constraint(
+    def add_numeric_no_gap_constraint(
         self,
         start_column: str,
         end_column: str,
         key_columns: Optional[List[str]] = None,
-        end_included: bool = True,
+        legitimate_gap_size: float = 0,
         max_relative_n_violations: float = 0,
         condition: Condition = None,
         name: str = None,
@@ -822,13 +822,13 @@ class WithinRequirement(Requirement):
         )
         ref = DataReference(self.data_source, relevant_columns, condition)
         self._constraints.append(
-            interval_constraints.IntegerNoGap(
+            interval_constraints.NumericNoGap(
                 ref,
                 key_columns=key_columns,
                 start_columns=[start_column],
                 end_columns=[end_column],
+                legitimate_gap_size=legitimate_gap_size,
                 max_relative_n_violations=max_relative_n_violations,
-                end_included=end_included,
                 name=name,
             )
         )
