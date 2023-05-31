@@ -17,7 +17,6 @@ import sqlalchemy as sa
 from .constraints import column as column_constraints
 from .constraints import date as date_constraints
 from .constraints import groupby as groupby_constraints
-from .constraints import interval as interval_constraints
 from .constraints import miscs as miscs_constraints
 from .constraints import nrows as nrows_constraints
 from .constraints import numeric as numeric_constraints
@@ -847,7 +846,7 @@ class WithinRequirement(Requirement):
         )
         ref = DataReference(self.data_source, relevant_columns, condition)
         self._constraints.append(
-            interval_constraints.NumericNoGap(
+            numeric_constraints.NumericNoGap(
                 ref,
                 key_columns=key_columns,
                 start_columns=[start_column],
@@ -904,7 +903,7 @@ class WithinRequirement(Requirement):
         )
         ref = DataReference(self.data_source, relevant_columns, condition)
         self._constraints.append(
-            interval_constraints.NumericNoOverlap(
+            numeric_constraints.NumericNoOverlap(
                 ref,
                 key_columns=key_columns,
                 start_columns=[start_column],

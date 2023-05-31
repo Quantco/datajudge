@@ -1,10 +1,11 @@
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
 from .base import Constraint, OptionalSelections, TestResult
+from .interval import NoGapConstraint, NoOverlapConstraint
 
 
 class NumericMin(Constraint):
@@ -236,3 +237,52 @@ class NumericPercentile(Constraint):
                 )
                 return False, assertion_message
         return True, None
+
+
+class NumericNoGap(NoGapConstraint):
+    _DIMENSIONS = 1
+
+    def select(self, engine: sa.engine.Engine, ref: DataReference):
+        sample_selection, n_violations_selection = db_access.get_numeric_gaps(
+            engine,
+            ref,
+            self.key_columns,
+            self.start_columns[0],
+            self.end_columns[0],
+            self.legitimate_gap_size,
+        )
+        # TODO: Once get_unique_count also only returns a selection without
+        # executing it, one would want to list this selection here as well.
+        return sample_selection, n_violations_selection
+
+    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+        n_violation_keys, n_distinct_key_values = factual
+        if n_distinct_key_values == 0:
+            return TestResult.success()
+        violation_fraction = n_violation_keys / n_distinct_key_values
+        assertion_text = (
+            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
+            f"with a gap in the range in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"E.g. for: {self.sample}."
+        )
+        result = violation_fraction <= self.max_relative_n_violations
+        return result, assertion_text
+
+
+class NumericNoOverlap(NoOverlapConstraint):
+    _DIMENSIONS = 1
+
+    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+        n_violation_keys, n_distinct_key_values = factual
+        if n_distinct_key_values == 0:
+            return TestResult.success()
+        violation_fraction = n_violation_keys / n_distinct_key_values
+        assertion_text = (
+            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
+            f"with overlapping ranges in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"E.g. for: {self.sample}."
+        )
+        result = violation_fraction <= self.max_relative_n_violations
+        return result, assertion_text
