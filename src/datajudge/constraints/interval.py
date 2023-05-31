@@ -62,60 +62,7 @@ class IntervalConstraint(Constraint, abc.ABC):
         return (n_violation_keys, n_distinct_key_values), selections
 
 
-class NumericNoGap(IntervalConstraint):
-    _DIMENSIONS = 1
-
-    def __init__(
-        self,
-        ref: DataReference,
-        key_columns: Optional[List[str]],
-        start_columns: List[str],
-        end_columns: List[str],
-        max_relative_n_violations: float,
-        legitimate_gap_size: float,
-        name: Optional[str] = None,
-    ):
-        self.legitimate_gap_size = legitimate_gap_size
-        super().__init__(
-            ref,
-            key_columns,
-            start_columns,
-            end_columns,
-            max_relative_n_violations,
-            name=name,
-        )
-
-    def select(self, engine: sa.engine.Engine, ref: DataReference):
-        sample_selection, n_violations_selection = db_access.get_numeric_gaps(
-            engine,
-            ref,
-            self.key_columns,
-            self.start_columns[0],
-            self.end_columns[0],
-            self.legitimate_gap_size,
-        )
-        # TODO: Once get_unique_count also only returns a selection without
-        # executing it, one would want to list this selection here as well.
-        return sample_selection, n_violations_selection
-
-    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
-        n_violation_keys, n_distinct_key_values = factual
-        if n_distinct_key_values == 0:
-            return TestResult.success()
-        violation_fraction = n_violation_keys / n_distinct_key_values
-        assertion_text = (
-            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
-            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
-            f"with a gap in the range in {self.start_columns[0]} and {self.end_columns[0]}."
-            f"E.g. for: {self.sample}."
-        )
-        result = violation_fraction <= self.max_relative_n_violations
-        return result, assertion_text
-
-
-class NumericNoOverlap(IntervalConstraint):
-    _DIMENSIONS = 1
-
+class NoOverlapConstraint(IntervalConstraint, abc.ABC):
     def __init__(
         self,
         ref: DataReference,
@@ -148,6 +95,75 @@ class NumericNoOverlap(IntervalConstraint):
         # TODO: Once get_unique_count also only returns a selection without
         # executing it, one would want to list this selection here as well.
         return sample_selection, n_violations_selection
+
+    @abc.abstractmethod
+    def compare(self, engine: sa.engine.Engine, ref: DataReference):
+        pass
+
+
+class NoGapConstraint(IntervalConstraint, abc.ABC):
+    def __init__(
+        self,
+        ref: DataReference,
+        key_columns: Optional[List[str]],
+        start_columns: List[str],
+        end_columns: List[str],
+        max_relative_n_violations: float,
+        legitimate_gap_size: float,
+        name: Optional[str] = None,
+    ):
+        self.legitimate_gap_size = legitimate_gap_size
+        super().__init__(
+            ref,
+            key_columns,
+            start_columns,
+            end_columns,
+            max_relative_n_violations,
+            name=name,
+        )
+
+    @abc.abstractmethod
+    def select(self, engine: sa.engine.Engine, ref: DataReference):
+        pass
+
+    @abc.abstractmethod
+    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+        pass
+
+
+class NumericNoGap(NoGapConstraint):
+    _DIMENSIONS = 1
+
+    def select(self, engine: sa.engine.Engine, ref: DataReference):
+        sample_selection, n_violations_selection = db_access.get_numeric_gaps(
+            engine,
+            ref,
+            self.key_columns,
+            self.start_columns[0],
+            self.end_columns[0],
+            self.legitimate_gap_size,
+        )
+        # TODO: Once get_unique_count also only returns a selection without
+        # executing it, one would want to list this selection here as well.
+        return sample_selection, n_violations_selection
+
+    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+        n_violation_keys, n_distinct_key_values = factual
+        if n_distinct_key_values == 0:
+            return TestResult.success()
+        violation_fraction = n_violation_keys / n_distinct_key_values
+        assertion_text = (
+            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
+            f"with a gap in the range in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"E.g. for: {self.sample}."
+        )
+        result = violation_fraction <= self.max_relative_n_violations
+        return result, assertion_text
+
+
+class NumericNoOverlap(NoOverlapConstraint):
+    _DIMENSIONS = 1
 
     def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual

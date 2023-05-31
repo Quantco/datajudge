@@ -1,12 +1,12 @@
 import datetime as dt
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
 from .base import Constraint, OptionalSelections, TestResult
-from .interval import IntervalConstraint
+from .interval import NoGapConstraint, NoOverlapConstraint
 
 INPUT_DATE_FORMAT = "'%Y-%m-%d'"
 
@@ -157,41 +157,8 @@ class DateBetween(Constraint):
         return result, assertion_text
 
 
-class DateNoOverlap(IntervalConstraint):
+class DateNoOverlap(NoOverlapConstraint):
     _DIMENSIONS = 1
-
-    def __init__(
-        self,
-        ref: DataReference,
-        key_columns: Optional[List[str]],
-        start_columns: List[str],
-        end_columns: List[str],
-        max_relative_n_violations: float,
-        end_included: bool,
-        name: Optional[str] = None,
-    ):
-        self.end_included = end_included
-        super().__init__(
-            ref,
-            key_columns,
-            start_columns,
-            end_columns,
-            max_relative_n_violations,
-            name=name,
-        )
-
-    def select(self, engine: sa.engine.Engine, ref: DataReference):
-        sample_selection, n_violations_selection = db_access.get_interval_overlaps_nd(
-            engine,
-            ref,
-            self.key_columns,
-            start_columns=self.start_columns,
-            end_columns=self.end_columns,
-            end_included=self.end_included,
-        )
-        # TODO: Once get_unique_count also only returns a selection without
-        # executing it, one would want to list this selection here as well.
-        return sample_selection, n_violations_selection
 
     def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual
@@ -208,41 +175,8 @@ class DateNoOverlap(IntervalConstraint):
         return result, assertion_text
 
 
-class DateNoOverlap2d(IntervalConstraint):
+class DateNoOverlap2d(NoOverlapConstraint):
     _DIMENSIONS = 2
-
-    def __init__(
-        self,
-        ref: DataReference,
-        key_columns: Optional[List[str]],
-        start_columns: List[str],
-        end_columns: List[str],
-        max_relative_n_violations: float,
-        end_included: bool,
-        name: Optional[str] = None,
-    ):
-        self.end_included = end_included
-        super().__init__(
-            ref,
-            key_columns,
-            start_columns,
-            end_columns,
-            max_relative_n_violations,
-            name=name,
-        )
-
-    def select(self, engine: sa.engine.Engine, ref: DataReference):
-        sample_selection, n_violations_selection = db_access.get_interval_overlaps_nd(
-            engine,
-            ref,
-            self.key_columns,
-            start_columns=self.start_columns,
-            end_columns=self.end_columns,
-            end_included=self.end_included,
-        )
-        # TODO: Once get_unique_count also only returns a selection without
-        # executing it, one would want to list this selection here as well.
-        return sample_selection, n_violations_selection
 
     def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual
@@ -260,28 +194,8 @@ class DateNoOverlap2d(IntervalConstraint):
         return result, assertion_text
 
 
-class DateNoGap(IntervalConstraint):
+class DateNoGap(NoGapConstraint):
     _DIMENSIONS = 1
-
-    def __init__(
-        self,
-        ref: DataReference,
-        key_columns: Optional[List[str]],
-        start_columns: List[str],
-        end_columns: List[str],
-        max_relative_n_violations: float,
-        legitimate_gap_size: float,
-        name: Optional[str] = None,
-    ):
-        self.legitimate_gap_size = legitimate_gap_size
-        super().__init__(
-            ref,
-            key_columns,
-            start_columns,
-            end_columns,
-            max_relative_n_violations,
-            name=name,
-        )
 
     def select(self, engine: sa.engine.Engine, ref: DataReference):
         sample_selection, n_violations_selection = db_access.get_date_gaps(
