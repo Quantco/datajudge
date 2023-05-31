@@ -827,12 +827,7 @@ class WithinRequirement(Requirement):
         for a given row, the value of ``end_column`` is strictly greater than the value of
         ``start_column``.
 
-
         ``legitimate_gap_size`` is the maximum tollerated gap size between two intervals.
-
-        Note that the value of ``start_column`` is expected to be included in each interval.
-        By default, the value of ``end_column`` is expected to be included as well - this can
-        however be changed by setting ``end_included`` to ``False``.
 
         A 'key' is a fixed set of values in ``key_columns`` and represents an entity of
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
