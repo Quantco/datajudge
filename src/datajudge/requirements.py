@@ -801,7 +801,115 @@ class WithinRequirement(Requirement):
                 start_columns=[start_column],
                 end_columns=[end_column],
                 max_relative_n_violations=max_relative_n_violations,
+                legitimate_gap_size=1 if end_included else 0,
+                name=name,
+            )
+        )
+
+    def add_numeric_no_gap_constraint(
+        self,
+        start_column: str,
+        end_column: str,
+        key_columns: Optional[List[str]] = None,
+        legitimate_gap_size: float = 0,
+        max_relative_n_violations: float = 0,
+        condition: Condition = None,
+        name: str = None,
+    ):
+        """
+        Express that numeric interval rows have no gaps larger than some max value in-between them.
+        The table under inspection must consist of at least one but up to many key columns,
+        identifying an entity. Additionally, a ``start_column`` and an ``end_column``,
+        indicating interval start and end values, should be provided.
+
+        Neither of those columns should contain ``NULL`` values. Also, it should hold that
+        for a given row, the value of ``end_column`` is strictly greater than the value of
+        ``start_column``.
+
+        ``legitimate_gap_size`` is the maximum tollerated gap size between two intervals.
+
+        A 'key' is a fixed set of values in ``key_columns`` and represents an entity of
+        interest. A priori, a key is not a primary key, i.e., a key can have and often has
+        several rows. Thereby, a key will often come with several intervals.
+
+        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        considered as composing the key.
+
+        In order to express a tolerance for some violations of this gap property, use the
+        ``max_relative_n_violations`` parameter. The latter expresses for what fraction
+        of all key_values, at least one gap may exist.
+
+        For illustrative examples of this constraint, please refer to its test cases.
+        """
+        relevant_columns = (
+            ([start_column, end_column] + key_columns) if key_columns else []
+        )
+        ref = DataReference(self.data_source, relevant_columns, condition)
+        self._constraints.append(
+            numeric_constraints.NumericNoGap(
+                ref,
+                key_columns=key_columns,
+                start_columns=[start_column],
+                end_columns=[end_column],
+                legitimate_gap_size=legitimate_gap_size,
+                max_relative_n_violations=max_relative_n_violations,
+                name=name,
+            )
+        )
+
+    def add_numeric_no_overlap_constraint(
+        self,
+        start_column: str,
+        end_column: str,
+        key_columns: Optional[List[str]] = None,
+        end_included: bool = True,
+        max_relative_n_violations: float = 0,
+        condition: Condition = None,
+        name: str = None,
+    ):
+        """Constraint expressing that several numeric interval rows may not overlap.
+
+        The ``DataSource`` under inspection must consist of at least one but up
+        to many ``key_columns``, identifying an entity, a ``start_column`` and an
+        ``end_column``.
+
+        For a given row in this ``DataSource``, ``start_column`` and ``end_column`` indicate a
+        numeric interval. Neither of those columns should contain NULL values. Also, it
+        should hold that for a given row, the value of ``end_column`` is strictly greater
+        than the value of ``start_column``.
+
+        Note that the value of ``start_column`` is expected to be included in each interval.
+        By default, the value of ``end_column`` is expected to be included as well -
+        this can however be changed by setting ``end_included`` to ``False``.
+
+        A 'key' is a fixed set of values in ``key_columns`` and represents an entity of
+        interest. A priori, a key is not a primary key, i.e., a key can have and often
+        has several rows. Thereby, a key will often come with several intervals.
+
+        Often, you might want the intervals for a given key not to overlap.
+
+        If ``key_columns`` is ``None`` or ``[]``, all columns of the table will be considered
+        as composing the key.
+
+        In order to express a tolerance for some violations of this non-overlapping
+        property, use the ``max_relative_n_violations`` parameter. The latter expresses for
+        what fraction of all key values, at least one overlap may exist.
+
+        For illustrative examples of this constraint, please refer to its test cases.
+        """
+
+        relevant_columns = [start_column, end_column] + (
+            key_columns if key_columns else []
+        )
+        ref = DataReference(self.data_source, relevant_columns, condition)
+        self._constraints.append(
+            numeric_constraints.NumericNoOverlap(
+                ref,
+                key_columns=key_columns,
+                start_columns=[start_column],
+                end_columns=[end_column],
                 end_included=end_included,
+                max_relative_n_violations=max_relative_n_violations,
                 name=name,
             )
         )

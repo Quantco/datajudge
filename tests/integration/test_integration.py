@@ -1172,6 +1172,36 @@ def test_date_no_overlap_within_varying_key_columns(
 @pytest.mark.parametrize(
     "data",
     [
+        (identity, 0, Condition(raw_string="id1 = 1")),
+        (identity, 0, Condition(raw_string="id1 = 2")),
+        (negation, 0, Condition(raw_string="id1 = 3")),
+        (identity, 1, Condition(raw_string="id1 = 3")),
+        (negation, 0, Condition(raw_string="id1 = 4")),
+        (identity, 1, Condition(raw_string="id1 = 4")),
+        (negation, 0, Condition(raw_string="id1 = 5")),
+        (identity, 1, Condition(raw_string="id1 = 5")),
+    ],
+)
+@pytest.mark.parametrize("key_columns", [["id1"], [], None])
+def test_integer_no_overlap_within_varying_key_columns(
+    engine, integer_table_overlap, data, key_columns
+):
+    operation, max_relative_n_violations, condition = data
+    req = requirements.WithinRequirement.from_table(*integer_table_overlap)
+    req.add_numeric_no_overlap_constraint(
+        key_columns=key_columns,
+        start_column="range_start",
+        end_column="range_end",
+        max_relative_n_violations=max_relative_n_violations,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (negation, 0.59, None),
         (identity, 0.6, None),
         (identity, 0, Condition(raw_string="id1 IN (1, 2)")),
@@ -1370,6 +1400,57 @@ def test_date_no_gap_within_fixed_key_columns(engine, date_table_gap, data):
         start_column="date_start",
         end_column="date_end",
         max_relative_n_violations=max_relative_n_violations,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, 0, Condition(raw_string="id1 = 1")),
+        (identity, 0, Condition(raw_string="id1 = 2")),
+        (identity, 0, Condition(raw_string="id1 = 3")),
+        (negation, 0, Condition(raw_string="id1 = 4")),
+        (identity, 0, None),
+    ],
+)
+def test_integer_no_gap_within_fixed_key_columns(engine, integer_table_gap, data):
+    operation, max_relative_n_violations, condition = data
+    req = requirements.WithinRequirement.from_table(*integer_table_gap)
+    req.add_numeric_no_gap_constraint(
+        key_columns=["id1"],
+        start_column="range_start",
+        end_column="range_end",
+        max_relative_n_violations=max_relative_n_violations,
+        legitimate_gap_size=0,
+        condition=condition,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, 0, Condition(raw_string="id1 = 1")),
+        (identity, 0, Condition(raw_string="id1 = 2")),
+        (identity, 0, Condition(raw_string="id1 = 3")),
+        (negation, 0, Condition(raw_string="id1 = 4")),
+        (negation, 0, Condition(raw_string="id1 = 5")),
+        (identity, 0.6, Condition(raw_string="id1 = 5")),
+    ],
+)
+def test_float_no_gap_within_fixed_key_columns(engine, float_table_gap, data):
+    operation, legitimate_gap_size, condition = data
+    req = requirements.WithinRequirement.from_table(*float_table_gap)
+    req.add_numeric_no_gap_constraint(
+        key_columns=["id1"],
+        start_column="range_start",
+        end_column="range_end",
+        legitimate_gap_size=legitimate_gap_size,
+        max_relative_n_violations=0,
         condition=condition,
     )
     test_result = req[0].test(engine)
