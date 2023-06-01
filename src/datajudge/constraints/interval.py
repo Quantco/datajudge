@@ -8,7 +8,7 @@ from ..db_access import DataReference
 from .base import Constraint, OptionalSelections
 
 
-class IntervalConstraint(Constraint, abc.ABC):
+class IntervalConstraint(Constraint):
     _DIMENSIONS = 0
 
     def __init__(
@@ -62,7 +62,7 @@ class IntervalConstraint(Constraint, abc.ABC):
         return (n_violation_keys, n_distinct_key_values), selections
 
 
-class NoOverlapConstraint(IntervalConstraint, abc.ABC):
+class NoOverlapConstraint(IntervalConstraint):
     def __init__(
         self,
         ref: DataReference,
@@ -101,7 +101,7 @@ class NoOverlapConstraint(IntervalConstraint, abc.ABC):
         pass
 
 
-class NoGapConstraint(IntervalConstraint, abc.ABC):
+class NoGapConstraint(IntervalConstraint):
     def __init__(
         self,
         ref: DataReference,
