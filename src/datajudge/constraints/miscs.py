@@ -132,7 +132,7 @@ class FunctionalDependency(Constraint):
             return TestResult.success()
 
         assertion_text = (
-            f"{self.ref.get_string()} has violations to functional dependency:"
+            f"{self.ref.get_string()} has violations of functional dependence:"
             "\n".join([f"{tuple(violation)}" for violation in violations])
         )
         return TestResult.failure(assertion_text)
