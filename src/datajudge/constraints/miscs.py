@@ -119,6 +119,25 @@ class Uniqueness(Constraint):
         return TestResult.failure(assertion_text)
 
 
+class FunctionalDependency(Constraint):
+    def __init__(self, ref: DataReference, key_columns: List[str], **kwargs):
+        super().__init__(ref, ref_value=object(), **kwargs)
+        self.key_columns = key_columns
+
+    def test(self, engine: sa.engine.Engine) -> TestResult:
+        violations, _ = db_access.get_functional_dependency_violations(
+            engine, self.ref, self.key_columns
+        )
+        if not violations:
+            return TestResult.success()
+
+        assertion_text = (
+            f"{self.ref.get_string()} has violations to functional dependency:"
+            "\n".join([f"{tuple(violation)}" for violation in violations])
+        )
+        return TestResult.failure(assertion_text)
+
+
 class MaxNullFraction(Constraint):
     def __init__(
         self,

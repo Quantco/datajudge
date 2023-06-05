@@ -806,6 +806,27 @@ class WithinRequirement(Requirement):
             )
         )
 
+    def add_functional_dependency_constraint(
+        self,
+        key_columns: List[str],
+        value_columns: List[str],
+        condition: Condition = None,
+        name: str = None,
+    ):
+        """
+        Express that the values of ``value_columns`` are functionally dependent on the values
+        of ``key_columns``.
+        """
+        relevant_columns = key_columns + value_columns
+        ref = DataReference(self.data_source, relevant_columns, condition)
+        self._constraints.append(
+            miscs_constraints.FunctionalDependency(
+                ref,
+                key_columns=key_columns,
+                name=name,
+            )
+        )
+
     def add_numeric_no_gap_constraint(
         self,
         start_column: str,

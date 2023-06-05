@@ -728,6 +728,58 @@ def nested_table(engine, metadata):
 
 
 @pytest.fixture(scope="module")
+def functional_dependency_table(engine, metadata):
+    table_name = "functional_dependency_table"
+
+    # a -> b
+    # c -> b
+    # a -/-> c
+    columns = [
+        sa.Column("a", sa.Integer()),
+        sa.Column("b", sa.Integer()),
+        sa.Column("c", sa.Integer()),
+    ]
+    data = [
+        {"a": 1, "b": 2, "c": 3},
+        {"a": 1, "b": 2, "c": 4},
+        {"a": 2, "b": 3, "c": 5},
+        {"a": 2, "b": 3, "c": 6},
+        {"a": 3, "b": 4, "c": 1},
+        {"a": 3, "b": 4, "c": 2},
+    ]
+
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
+def functional_dependency_table_multi_key(engine, metadata):
+    table_name = "functional_dependency_table_multi_key"
+
+    # ab -> c
+    # ab -/-> d
+    columns = [
+        sa.Column("a", sa.Integer()),
+        sa.Column("b", sa.Integer()),
+        sa.Column("c", sa.Integer()),
+        sa.Column("d", sa.Integer()),
+    ]
+    data = [
+        {"a": 1, "b": 1, "c": 2, "d": 3},
+        {"a": 1, "b": 1, "c": 2, "d": 4},
+        {"a": 1, "b": 2, "c": 3, "d": 5},
+        {"a": 1, "b": 2, "c": 3, "d": 6},
+        {"a": 2, "b": 1, "c": 4, "d": 7},
+        {"a": 2, "b": 1, "c": 4, "d": 8},
+        {"a": 2, "b": 2, "c": 5, "d": 9},
+        {"a": 2, "b": 2, "c": 5, "d": 10},
+    ]
+
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
 def varchar_table1(engine, metadata):
     table_name = "varchar_table1"
     columns = [
