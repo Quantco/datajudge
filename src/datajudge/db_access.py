@@ -795,9 +795,17 @@ def get_functional_dependency_violations(
         sa.select(*key_columns_sa).group_by(*key_columns_sa).having(sa.func.count() > 1)
     ).cte()
 
-    violation_tuples = sa.select(uniques).where(
-        sa.tuple_(*key_columns_sa).in_(violations_stmt)
+    join_condition = sa.and_(
+        *[
+            uniques.c[key_column] == violations_stmt.c[key_column]
+            for key_column in key_columns
+        ]
     )
+
+    violation_tuples = sa.select(uniques).select_from(
+        uniques.join(violations_stmt, join_condition)
+    )
+
     result = engine.connect().execute(violation_tuples).fetchall()
     return result, [violation_tuples]
 
