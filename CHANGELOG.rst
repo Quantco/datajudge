@@ -12,7 +12,7 @@ Changelog
 
 **New features**
 
-- Implement :meth:`datajudge.WithinRequirement.add_value_distribution_constraint`.
+- Implement :meth:`datajudge.WithinRequirement.add_categorical_bound_constraint`.
 - Extended :meth:`datajudge.WithinRequirement.add_column_type_constraint` to support column type specification using string format, backend-specific SQLAlchemy types, and SQLAlchemy's generic types.
 - Implement :meth:`datajudge.WithinRequirement.add_numeric_no_gap_constraint`, :meth:`datajudge.WithinRequirement.add_numeric_no_overlap_constraint`,
 
