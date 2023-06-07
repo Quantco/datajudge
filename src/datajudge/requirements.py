@@ -814,8 +814,14 @@ class WithinRequirement(Requirement):
         name: str = None,
     ):
         """
-        Express that the values of ``value_columns`` are functionally dependent on the values
-        of ``key_columns``.
+        Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
+        This means that for each unique combination of values in the `key_columns`, there is exactly one corresponding combination of values in the `value_columns`.
+
+        The ``add_unique_constraint`` constraint is a special case of this constraint, where the `key_columns` are a primary key,
+        and all other columns are included `value_columns`.
+        This constraint allows for a more general definition of functional dependencies, where the `key_columns` are not necessarily a primary key.
+
+        For more information on functional dependencies, see https://en.wikipedia.org/wiki/Functional_dependency.
         """
         relevant_columns = key_columns + value_columns
         ref = DataReference(self.data_source, relevant_columns, condition)
