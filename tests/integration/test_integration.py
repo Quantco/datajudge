@@ -584,6 +584,47 @@ def test_uniques_subset_between(engine, unique_table1, unique_table2, data):
     assert operation(test_result.outcome), test_result.failure_message
 
 
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, ["a"], ["b"]),
+        (identity, ["c"], ["b"]),
+        (negation, ["a"], ["c"]),
+    ],
+)
+def test_functional_dependency_within(engine, functional_dependency_table, data):
+    (
+        operation,
+        key_columns,
+        value_columns,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*functional_dependency_table)
+    req.add_functional_dependency_constraint(key_columns, value_columns)
+    assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (identity, ["a", "b"], ["c"]),
+        (negation, ["a", "b"], ["d"]),
+    ],
+)
+def test_functional_dependency_within_multi_key(
+    engine, functional_dependency_table_multi_key, data
+):
+    (
+        operation,
+        key_columns,
+        value_columns,
+    ) = data
+    req = requirements.WithinRequirement.from_table(
+        *functional_dependency_table_multi_key
+    )
+    req.add_functional_dependency_constraint(key_columns, value_columns)
+    assert operation(req[0].test(engine).outcome)
+
+
 def _flatten_and_filter(data):
     # Flattening one level
     res = []

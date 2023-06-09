@@ -806,6 +806,33 @@ class WithinRequirement(Requirement):
             )
         )
 
+    def add_functional_dependency_constraint(
+        self,
+        key_columns: List[str],
+        value_columns: List[str],
+        condition: Condition = None,
+        name: str = None,
+    ):
+        """
+        Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
+        This means that for each unique combination of values in the `key_columns`, there is exactly one corresponding combination of values in the `value_columns`.
+
+        The ``add_unique_constraint`` constraint is a special case of this constraint, where the `key_columns` are a primary key,
+        and all other columns are included `value_columns`.
+        This constraint allows for a more general definition of functional dependencies, where the `key_columns` are not necessarily a primary key.
+
+        For more information on functional dependencies, see https://en.wikipedia.org/wiki/Functional_dependency.
+        """
+        relevant_columns = key_columns + value_columns
+        ref = DataReference(self.data_source, relevant_columns, condition)
+        self._constraints.append(
+            miscs_constraints.FunctionalDependency(
+                ref,
+                key_columns=key_columns,
+                name=name,
+            )
+        )
+
     def add_numeric_no_gap_constraint(
         self,
         start_column: str,

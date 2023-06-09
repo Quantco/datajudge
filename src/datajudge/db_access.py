@@ -785,6 +785,34 @@ def get_numeric_gaps(
     )
 
 
+def get_functional_dependency_violations(
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    key_columns: list[str],
+):
+    selection = ref.get_selection(engine)
+    uniques = selection.distinct().cte()
+
+    key_columns_sa = [uniques.c[key_column] for key_column in key_columns]
+    violations_stmt = (
+        sa.select(*key_columns_sa).group_by(*key_columns_sa).having(sa.func.count() > 1)
+    ).cte()
+
+    join_condition = sa.and_(
+        *[
+            uniques.c[key_column] == violations_stmt.c[key_column]
+            for key_column in key_columns
+        ]
+    )
+
+    violation_tuples = sa.select(uniques).select_from(
+        uniques.join(violations_stmt, join_condition)
+    )
+
+    result = engine.connect().execute(violation_tuples).fetchall()
+    return result, [violation_tuples]
+
+
 def get_row_count(engine, ref, row_limit: int = None):
     """Return the number of rows for a `DataReference`.
 
