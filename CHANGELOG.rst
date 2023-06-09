@@ -10,6 +10,10 @@ Changelog
 1.8.0 - 2023.XX.XX
 ------------------
 
+**New features**
+
+- Implement :meth:`datajudge.WithinRequirement.add_functional_dependency_constraint`.
+
 **Other changes**
 
 - Improve error message when a :class:`~datajudge.DataReference` is constructed with a single column name instead of specifying a list of columns.
