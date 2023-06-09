@@ -41,7 +41,7 @@ def test_test_name_within(method_name, arguments):
         ("add_varchar_min_length_constraint", ["column", "column"]),
         ("add_ks_2sample_constraint", ["column", "column"]),
         ("add_numeric_mean_constraint", ["column", "column", 0.1]),
-        ("add_row_superset_constraint", ["column", "column", 0]),
+        ("add_row_superset_constraint", [["column"], ["column"], 0]),
     ],
 )
 def test_test_name_between(method_name, arguments):
