@@ -7,6 +7,13 @@
 Changelog
 =========
 
+1.8.0 - 2023.XX.XX
+------------------
+
+**Other changes**
+
+- Improve error message when a :class:`~datajudge.DataReference` is constructed with a single column name instead of specifying a list of columns.
+
 1.7.0 - 2023.05.11
 ------------------
 
