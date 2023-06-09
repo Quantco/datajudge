@@ -6,7 +6,7 @@ import operator
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
-from typing import Callable, Sequence, final, overload
+from typing import Callable, Optional, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable
@@ -294,9 +294,12 @@ class DataReference:
     def __init__(
         self,
         data_source: DataSource,
-        columns: list[str] = None,
-        condition: Condition = None,
+        columns: Optional[list[str]] = None,
+        condition: Optional[Condition] = None,
     ):
+        if columns is not None and not isinstance(columns, list):
+            raise TypeError(f"columns must be a list, not {type(columns)}")
+
         self.data_source = data_source
         self.columns = columns
         self.condition = condition
