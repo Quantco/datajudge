@@ -294,9 +294,12 @@ class DataReference:
     def __init__(
         self,
         data_source: DataSource,
-        columns: list[str] = None,
-        condition: Condition = None,
+        columns: list[str] | None = None,
+        condition: Condition | None = None,
     ):
+        if columns is not None and not isinstance(columns, list):
+            raise TypeError(f"columns must be a list, not {type(columns)}")
+
         self.data_source = data_source
         self.columns = columns
         self.condition = condition
