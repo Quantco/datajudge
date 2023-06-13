@@ -1807,8 +1807,12 @@ class BetweenRequirement(Requirement):
         Alternatively, this can be thought of as counting mismatches in
         ``comparison_columns`` after performing an inner join on ``matching_columns``.
         """
-        ref = DataReference(self.data_source, None, condition1)
-        ref2 = DataReference(self.data_source2, None, condition2)
+        ref = DataReference(
+            self.data_source, matching_columns1 + comparison_columns1, condition1
+        )
+        ref2 = DataReference(
+            self.data_source2, matching_columns2 + comparison_columns2, condition2
+        )
         self._constraints.append(
             row_constraints.RowMatchingEquality(
                 ref,
