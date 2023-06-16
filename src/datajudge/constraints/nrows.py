@@ -117,7 +117,7 @@ class NRowsMaxGain(NRows):
         assertion_text = (
             f"{self.ref.get_string()} has {relative_gain:%} gain in #rows compared to "
             f"{self.ref2.get_string()}. It was only allowed "
-            f"to increase {self.max_relative_gain:%}. "
+            f"to increase by {self.max_relative_gain:%}. "
             f"{self.condition_string}"
         )
         result = relative_gain <= self.max_relative_gain
@@ -148,7 +148,7 @@ class NRowsMinGain(NRows):
         assertion_text = (
             f"{self.ref.get_string()} has {relative_gain:%} gain in #rows compared to "
             f"{self.ref2.get_string()}. It was supposed "
-            f"to increase at least {self.min_relative_gain:%}. "
+            f"to increase at least by {self.min_relative_gain:%}. "
             f"{self.condition_string}"
         )
         result = relative_gain >= self.min_relative_gain
