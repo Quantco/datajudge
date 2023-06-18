@@ -334,7 +334,7 @@ class DataReference:
         if self.columns is None:
             raise ValueError(
                 f"Trying to access column of DataReference "
-                f"{self.get_string()} yet none is given."
+                f"{str(self)} yet none is given."
             )
         columns = self.get_columns(engine)
         if len(columns) > 1:
@@ -366,7 +366,7 @@ class DataReference:
         where_string = "WHERE " if return_where else ""
         return "" if self.condition is None else where_string + str(self.condition)
 
-    def get_string(self):
+    def __str__(self):
         if self.columns is None:
             return str(self.data_source)
         return f"{self.data_source}'s column(s) {self.get_column_selection_string()}"
