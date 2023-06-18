@@ -32,7 +32,7 @@ class PrimaryKeyDefinition(Constraint):
                 iter(primary_keys_factual.difference(primary_keys_target))
             )
             assertion_message = (
-                f"{self.ref.get_string()} incorrectly includes "
+                f"{str(self.ref)} incorrectly includes "
                 f"{example_key} as primary key."
             )
             result = False
@@ -41,8 +41,7 @@ class PrimaryKeyDefinition(Constraint):
                 iter(primary_keys_target.difference(primary_keys_factual))
             )
             assertion_message = (
-                f"{self.ref.get_string()} doesn't include "
-                f"{example_key} as primary key."
+                f"{str(self.ref)} doesn't include " f"{example_key} as primary key."
             )
             result = False
         return result, assertion_message
@@ -87,7 +86,7 @@ class Uniqueness(Constraint):
             self.ref.columns = pk_columns
             if not pk_columns:  # there were no primary keys found
                 warnings.warn(
-                    f"""No primary keys found in {self.ref.get_string()}.
+                    f"""No primary keys found in {str(self.ref)}.
                     Uniqueness will be tested for all columns."""
                 )
 
@@ -111,7 +110,7 @@ class Uniqueness(Constraint):
         sample, _ = db_access.get_duplicate_sample(engine, self.ref)
         sample_string = format_sample(sample, self.ref)
         assertion_text = (
-            f"{self.ref.get_string()} has {row_count} rows > {unique_count} "
+            f"{str(self.ref)} has {row_count} rows > {unique_count} "
             f"uniques. This surpasses the max_duplicate_fraction of "
             f"{self.ref_value}. An example tuple breaking the "
             f"uniqueness condition is: {sample_string}."
@@ -132,7 +131,7 @@ class FunctionalDependency(Constraint):
             return TestResult.success()
 
         assertion_text = (
-            f"{self.ref.get_string()} has violations of functional dependence, e.g.:\n"
+            f"{str(self.ref)} has violations of functional dependence, e.g.:\n"
             + "\n".join([f"{tuple(violation)}" for violation in violations][:5])
         )
         return TestResult.failure(assertion_text)
@@ -169,7 +168,7 @@ class MaxNullFraction(Constraint):
         threshold = missing_fracion_target * (1 + self.max_relative_deviation)
         result = missing_fraction_factual <= threshold
         assertion_text = (
-            f"{missing_fraction_factual} of {self.ref.get_string()} values are NULL "
+            f"{missing_fraction_factual} of {str(self.ref)} values are NULL "
             f"while only {self.target_prefix}{threshold} were allowed to be NULL."
         )
         return result, assertion_text

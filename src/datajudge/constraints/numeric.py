@@ -32,7 +32,7 @@ class NumericMin(Constraint):
         if min_factual is None:
             return min_target == 0, "Empty set."
         assertion_text = (
-            f"{self.ref.get_string()} has min "
+            f"{str(self.ref)} has min "
             f"{min_factual} instead of {self.target_prefix}"
             f"{min_target} . "
             f"{self.condition_string}"
@@ -70,7 +70,7 @@ class NumericMax(Constraint):
         if max_target is None:
             return max_factual == 0, "Empty reference set."
         assertion_text = (
-            f"{self.ref.get_string()} has max "
+            f"{str(self.ref)} has max "
             f"{max_factual} instead of {self.target_prefix}"
             f"{max_target}. "
             f"{self.condition_string}"
@@ -108,7 +108,7 @@ class NumericBetween(Constraint):
         if fraction_factual is None:
             return True, "Empty selection."
         assertion_text = (
-            f"{self.ref.get_string()} "
+            f"{str(self.ref)} "
             f"has {fraction_factual} < {fraction_target} of rows "
             f"between {self.lower_bound} and {self.upper_bound}. "
             f"{self.condition_string}"
@@ -151,7 +151,7 @@ class NumericMean(Constraint):
             )
         deviation = abs(mean_factual - mean_target)
         assertion_text = (
-            f"{self.ref.get_string()} "
+            f"{str(self.ref)} "
             f"has mean {mean_factual}, deviating more than "
             f"{self.max_absolute_deviation} from "
             f"{self.target_prefix} {mean_target}. "
@@ -215,7 +215,7 @@ class NumericPercentile(Constraint):
             and abs_diff > self.max_absolute_deviation
         ):
             assertion_message = (
-                f"The {self.percentage}-th percentile of {self.ref.get_string()} was "
+                f"The {self.percentage}-th percentile of {str(self.ref)} was "
                 f"expected to be {self.target_prefix}{percentile_target} but was "
                 f"{percentile_factual}, resulting in an absolute difference of "
                 f"{abs_diff}. The maximally allowed absolute deviation would've been "
@@ -229,7 +229,7 @@ class NumericPercentile(Constraint):
                 rel_diff := abs_diff / abs(percentile_target)
             ) > self.max_relative_deviation:
                 assertion_message = (
-                    f"The {self.percentage}-th percentile of {self.ref.get_string()}  was "
+                    f"The {self.percentage}-th percentile of {str(self.ref)}  was "
                     f"expected to be {self.target_prefix}{percentile_target} but "
                     f"was {percentile_factual}, resulting in a relative difference of "
                     f"{rel_diff}. The maximally allowed relative deviation would've been "
@@ -261,7 +261,7 @@ class NumericNoGap(NoGapConstraint):
             return TestResult.success()
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{str(self.ref)} has a ratio of {violation_fraction} > "
             f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
             f"with a gap in the range in {self.start_columns[0]} and {self.end_columns[0]}."
             f"E.g. for: {self.sample}."
@@ -279,7 +279,7 @@ class NumericNoOverlap(NoOverlapConstraint):
             return TestResult.success()
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{str(self.ref)} has a ratio of {violation_fraction} > "
             f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
             f"with overlapping ranges in {self.start_columns[0]} and {self.end_columns[0]}."
             f"E.g. for: {self.sample}."

@@ -64,7 +64,7 @@ class VarCharRegexDb(Constraint):
             else ""
         )
         assertion_text = (
-            f"{self.ref.get_string()} "
+            f"{str(self.ref)} "
             f"breaks regex '{self.regex}' in {factual_relative_violations} > "
             f"{violations_target} of the cases. "
             f"In absolute terms, {factual_n_violations} of the {factual_n_rows} samples "
@@ -134,7 +134,7 @@ class VarCharRegex(Constraint):
 
         if n_relative_violations > self.relative_tolerance:
             assertion_text = (
-                f"{self.ref.get_string()} "
+                f"{str(self.ref)} "
                 f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
                 f"{self.relative_tolerance} of the cases. "
                 f"In absolute terms, {n_violations} of the {n_total} samples violated the regex. "
@@ -173,7 +173,7 @@ class VarCharMinLength(Constraint):
         if length_factual is None:
             return length_target == 0, "Empty set."
         assertion_text = (
-            f"{self.ref.get_string()} "
+            f"{str(self.ref)} "
             f"has min length {length_factual} instead of "
             f"{self.target_prefix} {length_target}. "
             f"{self.condition_string}"
@@ -211,7 +211,7 @@ class VarCharMaxLength(Constraint):
         if length_target is None:
             return length_factual == 0, "Reference value is None."
         assertion_text = (
-            f"{self.ref.get_string()} "
+            f"{str(self.ref)} "
             f"has max length {length_factual} instead of "
             f"{self.target_prefix} {length_target}. "
             f"{self.condition_string}"

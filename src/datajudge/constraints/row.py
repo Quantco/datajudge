@@ -69,8 +69,8 @@ class RowEquality(Row):
         assertion_message = (
             f"{missing_fraction} > "
             f"{self.max_missing_fraction} of rows differ "
-            f"between {self.ref.get_string()} and "
-            f"{self.ref2.get_string()}. E.g. for "
+            f"between {str(self.ref)} and "
+            f"{str(self.ref2)}. E.g. for "
             f"{sample_string}."
         )
         return result, assertion_message
@@ -107,8 +107,8 @@ class RowSubset(Row):
         assertion_message = (
             f"{missing_fraction} > "
             f"{self.max_missing_fraction} of rows of "
-            f"{self.ref.get_string()} are "
-            f"not in {self.ref2.get_string()}. E.g. for "
+            f"{str(self.ref)} are "
+            f"not in {str(self.ref2)}. E.g. for "
             f"{sample_string}. "
             f"{self.condition_string} "
         )
@@ -143,8 +143,8 @@ class RowSuperset(Row):
         assertion_message = (
             f"{missing_fraction} > "
             f"{self.max_missing_fraction} of rows of "
-            f"{self.ref2.get_string()} are "
-            f"not in {self.ref.get_string()}. E.g. for "
+            f"{str(self.ref2)} are "
+            f"not in {str(self.ref)}. E.g. for "
             f"{sample_string}. "
             f"{self.condition_string} "
         )
@@ -188,8 +188,8 @@ class RowMatchingEquality(Row):
         assertion_message = (
             f"{missing_fraction} > "
             f"{max_missing_fraction} of the rows differ "
-            f"on a match of {n_rows_match} rows between {self.ref.get_string()} and "
-            f"{self.ref2.get_string()}. "
+            f"on a match of {n_rows_match} rows between {str(self.ref)} and "
+            f"{str(self.ref2)}. "
             f"{self.condition_string}"
             f"{self.match_and_compare} "
         )
