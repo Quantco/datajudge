@@ -85,8 +85,8 @@ class NRowsMaxLoss(NRows):
         relative_loss = (n_rows_target - n_rows_factual) / n_rows_target
         assertion_text = (
             f"The #rows from {self.ref.get_string()} have decreased by "
-            f"{relative_loss} compared to table {self.ref2.get_string()}. "
-            f"It was only allowed to decrease {self.max_relative_loss}. "
+            f"{relative_loss:%} compared to table {self.ref2.get_string()}. "
+            f"They were expected to decrease by at most {self.max_relative_loss:%}. "
             f"{self.condition_string}"
         )
         result = relative_loss <= self.max_relative_loss
