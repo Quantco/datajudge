@@ -45,7 +45,7 @@ class ColumnSubset(Column):
             filter(lambda c: c not in column_names_target, column_names_factual)
         )
         assertion_message = (
-            f"{str(self.ref2)} doesn't have column(s) "
+            f"{self.ref2} doesn't have column(s) "
             f"{', '.join(missing_columns)}. "
         )
         result = len(missing_columns) == 0

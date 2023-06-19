@@ -149,7 +149,7 @@ class Constraint(abc.ABC):
 
     @property
     def target_prefix(self) -> str:
-        return f"{str(self.ref2)}'s " if (self.ref2 is not None) else ""
+        return f"{self.ref2}'s " if (self.ref2 is not None) else ""
 
     @property
     def condition_string(self) -> str:

@@ -85,7 +85,7 @@ class NRowsMaxLoss(NRows):
         relative_loss = (n_rows_target - n_rows_factual) / n_rows_target
         assertion_text = (
             f"The #rows from {str(self.ref)} have decreased by "
-            f"{relative_loss:%} compared to table {str(self.ref2)}. "
+            f"{relative_loss:%} compared to table {self.ref2}. "
             f"They were expected to decrease by at most {self.max_relative_loss:%}. "
             f"{self.condition_string}"
         )
@@ -116,7 +116,7 @@ class NRowsMaxGain(NRows):
         relative_gain = (n_rows_factual - n_rows_target) / n_rows_target
         assertion_text = (
             f"{str(self.ref)} has {relative_gain:%} gain in #rows compared to "
-            f"{str(self.ref2)}. It was only allowed "
+            f"{self.ref2}. It was only allowed "
             f"to increase by {self.max_relative_gain:%}. "
             f"{self.condition_string}"
         )
@@ -147,7 +147,7 @@ class NRowsMinGain(NRows):
         relative_gain = (n_rows_factual - n_rows_target) / n_rows_target
         assertion_text = (
             f"{str(self.ref)} has {relative_gain:%} gain in #rows compared to "
-            f"{str(self.ref2)}. It was supposed "
+            f"{self.ref2}. It was supposed "
             f"to increase at least by {self.min_relative_gain:%}. "
             f"{self.condition_string}"
         )

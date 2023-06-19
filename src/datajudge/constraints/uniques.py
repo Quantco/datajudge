@@ -249,7 +249,7 @@ class NUniquesMaxLoss(NUniques):
         relative_loss = (n_uniques_target - n_uniques_factual) / n_uniques_target
         assertion_text = (
             f"{str(self.ref)} has lost {relative_loss} "
-            f"of #uniques of table {str(self.ref2)}. It "
+            f"of #uniques of table {self.ref2}. It "
             f"was only allowed to decrease "
             f"{self.max_relative_loss}. "
             f"{self.condition_string}"
@@ -284,7 +284,7 @@ class NUniquesMaxGain(NUniques):
         relative_gain = (n_uniques_factual - n_uniques_target) / n_uniques_target
         assertion_text = (
             f"{str(self.ref)} has {relative_gain} of "
-            f"#uniques of {str(self.ref2)}. It was only "
+            f"#uniques of {self.ref2}. It was only "
             f"allowed to increase {self.max_relative_gain} . "
             f"{self.condition_string}"
         )
