@@ -37,7 +37,7 @@ class NRowsMin(NRows):
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
         result = n_rows_factual >= n_rows_target
         assertion_text = (
-            f"{str(self.ref)} has {n_rows_factual} "
+            f"{self.ref} has {n_rows_factual} "
             f"< {self.target_prefix} {n_rows_target} rows. "
             f"{self.condition_string}"
         )
@@ -48,7 +48,7 @@ class NRowsMax(NRows):
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
         result = n_rows_factual <= n_rows_target
         assertion_text = (
-            f"{str(self.ref)} has {n_rows_factual} "
+            f"{self.ref} has {n_rows_factual} "
             f"> {self.target_prefix} {n_rows_target} rows. "
             f"{self.condition_string}"
         )
@@ -59,7 +59,7 @@ class NRowsEquality(NRows):
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
         result = n_rows_factual == n_rows_target
         assertion_text = (
-            f"{str(self.ref)} has {n_rows_factual} row(s) "
+            f"{self.ref} has {n_rows_factual} row(s) "
             f"instead of {self.target_prefix} {n_rows_target}. "
             f"{self.condition_string}"
         )
@@ -84,7 +84,7 @@ class NRowsMaxLoss(NRows):
             return True, "Row gain."
         relative_loss = (n_rows_target - n_rows_factual) / n_rows_target
         assertion_text = (
-            f"The #rows from {str(self.ref)} have decreased by "
+            f"The #rows from {self.ref} have decreased by "
             f"{relative_loss:%} compared to table {self.ref2}. "
             f"They were expected to decrease by at most {self.max_relative_loss:%}. "
             f"{self.condition_string}"
@@ -115,7 +115,7 @@ class NRowsMaxGain(NRows):
             return True, "Row loss."
         relative_gain = (n_rows_factual - n_rows_target) / n_rows_target
         assertion_text = (
-            f"{str(self.ref)} has {relative_gain:%} gain in #rows compared to "
+            f"{self.ref} has {relative_gain:%} gain in #rows compared to "
             f"{self.ref2}. It was only allowed "
             f"to increase by {self.max_relative_gain:%}. "
             f"{self.condition_string}"
@@ -146,7 +146,7 @@ class NRowsMinGain(NRows):
             return False, "Row loss."
         relative_gain = (n_rows_factual - n_rows_target) / n_rows_target
         assertion_text = (
-            f"{str(self.ref)} has {relative_gain:%} gain in #rows compared to "
+            f"{self.ref} has {relative_gain:%} gain in #rows compared to "
             f"{self.ref2}. It was supposed "
             f"to increase at least by {self.min_relative_gain:%}. "
             f"{self.condition_string}"

@@ -31,7 +31,7 @@ class ColumnExistence(Column):
             filter(lambda c: c not in column_names_factual, column_names_target)
         )
         assertion_message = (
-            f"{str(self.ref)} doesn't have column(s) " f"{', '.join(excluded_columns)}."
+            f"{self.ref} doesn't have column(s) " f"{', '.join(excluded_columns)}."
         )
         result = len(excluded_columns) == 0
         return result, assertion_message
@@ -60,7 +60,7 @@ class ColumnSuperset(Column):
             filter(lambda c: c not in column_names_factual, column_names_target)
         )
         assertion_message = (
-            f"{str(self.ref)} doesn't have column(s) " f"{', '.join(missing_columns)}."
+            f"{self.ref} doesn't have column(s) " f"{', '.join(missing_columns)}."
         )
         result = len(missing_columns) == 0
         return result, assertion_message
@@ -97,7 +97,7 @@ class ColumnType(Constraint):
 
     def compare(self, column_type_factual, column_type_target) -> Tuple[bool, str]:
         assertion_message = (
-            f"{str(self.ref)} is {column_type_factual} "
+            f"{self.ref} is {column_type_factual} "
             f"instead of {column_type_target}."
         )
 

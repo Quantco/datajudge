@@ -114,7 +114,7 @@ class KolmogorovSmirnov2Sample(Constraint):
 
         assertion_text = (
             f"Null hypothesis (H0) for the 2-sample Kolmogorov-Smirnov test was rejected, i.e., "
-            f"the two samples ({str(self.ref)} and {self.target_prefix}) "
+            f"the two samples ({self.ref} and {self.target_prefix}) "
             f"do not originate from the same distribution. "
             f"The test results are d={d_statistic}"
         )
