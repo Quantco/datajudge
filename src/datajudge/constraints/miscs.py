@@ -32,8 +32,7 @@ class PrimaryKeyDefinition(Constraint):
                 iter(primary_keys_factual.difference(primary_keys_target))
             )
             assertion_message = (
-                f"{self.ref} incorrectly includes "
-                f"{example_key} as primary key."
+                f"{self.ref} incorrectly includes " f"{example_key} as primary key."
             )
             result = False
         if len(primary_keys_target.difference(primary_keys_factual)) > 0:
