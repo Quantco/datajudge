@@ -122,7 +122,7 @@ class UniquesEquality(Uniques):
         is_superset, lacking_values = _is_superset(factual_values, target_values)
         if not is_subset and not is_superset:
             assertion_text = (
-                f"{self.ref.get_string()} doesn't have the element(s) "
+                f"{self.ref} doesn't have the element(s) "
                 f"'{lacking_values}' and has the excess element(s) "
                 f"'{excess_values}' when compared with the reference values. "
                 f"{self.condition_string}"
@@ -130,14 +130,14 @@ class UniquesEquality(Uniques):
             return False, assertion_text
         if not is_subset:
             assertion_text = (
-                f"{self.ref.get_string()} has the excess element(s) "
+                f"{self.ref} has the excess element(s) "
                 f"'{excess_values}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
             return False, assertion_text
         if not is_superset:
             assertion_text = (
-                f"{self.ref.get_string()} doesn't have the element(s) "
+                f"{self.ref} doesn't have the element(s) "
                 f"'{lacking_values}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
@@ -164,7 +164,7 @@ class UniquesSubset(Uniques):
             > self.max_relative_violations
         ):
             assertion_text = (
-                f"{self.ref.get_string()} has a fraction of {relative_violations} > "
+                f"{self.ref} has a fraction of {relative_violations} > "
                 f"{self.max_relative_violations} values not being an element of "
                 f"'{set(target_values)}'. It has e.g. excess elements "
                 f"'{list(remainder.keys())[:5]}'."
@@ -189,7 +189,7 @@ class UniquesSuperset(Uniques):
             > self.max_relative_violations
         ):
             assertion_text = (
-                f"{self.ref.get_string()} has a fraction of "
+                f"{self.ref} has a fraction of "
                 f"{relative_violations} > {self.max_relative_violations} "
                 f"lacking unique values of '{set(target_values)}'. E.g. it "
                 f"doesn't have the unique value(s) '{list(remainder)[:5]}'."
@@ -222,7 +222,7 @@ class NUniquesEquality(NUniques):
     ) -> Tuple[bool, Optional[str]]:
         result = n_uniques_factual == n_uniques_target
         assertion_text = (
-            f"{self.ref.get_string()} has {n_uniques_factual} "
+            f"{self.ref} has {n_uniques_factual} "
             f"unique(s) instead of {self.target_prefix}"
             f"{n_uniques_target}. "
             f"{self.condition_string}"
@@ -248,8 +248,8 @@ class NUniquesMaxLoss(NUniques):
             return True, None
         relative_loss = (n_uniques_target - n_uniques_factual) / n_uniques_target
         assertion_text = (
-            f"{self.ref.get_string()} has lost {relative_loss} "
-            f"of #uniques of table {self.ref2.get_string()}. It "
+            f"{self.ref} has lost {relative_loss} "
+            f"of #uniques of table {self.ref2}. It "
             f"was only allowed to decrease "
             f"{self.max_relative_loss}. "
             f"{self.condition_string}"
@@ -283,8 +283,8 @@ class NUniquesMaxGain(NUniques):
             return True, None
         relative_gain = (n_uniques_factual - n_uniques_target) / n_uniques_target
         assertion_text = (
-            f"{self.ref.get_string()} has {relative_gain} of "
-            f"#uniques of {self.ref2.get_string()}. It was only "
+            f"{self.ref} has {relative_gain} of "
+            f"#uniques of {self.ref2}. It was only "
             f"allowed to increase {self.max_relative_gain} . "
             f"{self.condition_string}"
         )
@@ -361,7 +361,7 @@ class CategoricalBoundConstraint(Constraint):
             relative_violations := (sum(violations.values()) / total)
         ) > self.max_relative_violations:
             assertion_text = (
-                f"{self.ref.get_string()} has {relative_violations * 100}% > "
+                f"{self.ref} has {relative_violations * 100}% > "
                 f"{self.max_relative_violations * 100}% of element(s) violating the bound constraints:\n"
             )
 

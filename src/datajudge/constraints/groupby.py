@@ -44,7 +44,7 @@ class AggregateNumericRangeEquality(Constraint):
 
         if len(failed_results) / len(factual) > self.tolerance:
             assertion_text = (
-                f"{self.ref.get_string()} has unfulfilled continuity requirement for "
+                f"{self.ref} has unfulfilled continuity requirement for "
                 f"(key, missing values): `{failed_results}`."
                 f"{self.condition_string}"
             )

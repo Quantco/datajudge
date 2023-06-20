@@ -63,14 +63,14 @@ class DateMin(Constraint):
             return TestResult(min_target == 0, "Empty set.")
         if self.use_lower_bound_reference:
             assertion_text = (
-                f"{self.ref.get_string()} has min {min_factual} < "
+                f"{self.ref} has min {min_factual} < "
                 f"{self.target_prefix} {min_target}. "
                 f"{self.condition_string}"
             )
             result = min_factual >= min_target
         else:
             assertion_text = (
-                f"{self.ref.get_string()} has min {min_factual} > "
+                f"{self.ref} has min {min_factual} > "
                 f"{self.target_prefix} {min_target}. "
                 f"{self.condition_string}"
             )
@@ -109,14 +109,14 @@ class DateMax(Constraint):
             return max_factual == 0, "Empty reference set."
         if self.use_upper_bound_reference:
             assertion_text = (
-                f"{self.ref.get_string()} has max {max_factual} > "
+                f"{self.ref} has max {max_factual} > "
                 f"{self.target_prefix} {max_target}. "
                 f"{self.condition_string}"
             )
             result = max_factual <= max_target
         else:
             assertion_text = (
-                f"{self.ref.get_string()} has max {max_factual} < "
+                f"{self.ref} has max {max_factual} < "
                 f"{self.target_prefix} {max_target}. "
                 f"{self.condition_string}"
             )
@@ -149,7 +149,7 @@ class DateBetween(Constraint):
         self, fraction_factual: float, fraction_target: float
     ) -> Tuple[bool, str]:
         assertion_text = (
-            f"{self.ref.get_string()} has {fraction_factual} < "
+            f"{self.ref} has {fraction_factual} < "
             f"{fraction_target} of values between {self.lower_bound} and "
             f"{self.upper_bound}. {self.condition_string} "
         )
@@ -166,7 +166,7 @@ class DateNoOverlap(NoOverlapConstraint):
             return TestResult.success()
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{self.ref} has a ratio of {violation_fraction} > "
             f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
             f"with overlapping date ranges in {self.start_columns[0]} and {self.end_columns[0]}."
             f"E.g. for: {self.sample}."
@@ -184,7 +184,7 @@ class DateNoOverlap2d(NoOverlapConstraint):
             return TestResult.success()
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{self.ref} has a ratio of {violation_fraction} > "
             f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
             f"with overlapping date ranges in {self.start_columns[0]} and {self.end_columns[0]}."
             f"and {self.start_columns[1]} and {self.end_columns[1]}."
@@ -216,7 +216,7 @@ class DateNoGap(NoGapConstraint):
             return TestResult.success()
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref.get_string()} has a ratio of {violation_fraction} > "
+            f"{self.ref} has a ratio of {violation_fraction} > "
             f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
             f"with a gap in the date range in {self.start_columns[0]} and {self.end_columns[0]}."
             f"E.g. for: {self.sample}."
