@@ -27,7 +27,7 @@ Changelog
 - Extended :meth:`datajudge.WithinRequirement.add_column_type_constraint` to support column type specification using string format, backend-specific SQLAlchemy types, and SQLAlchemy's generic types.
 - Implement :meth:`datajudge.WithinRequirement.add_numeric_no_gap_constraint`, :meth:`datajudge.WithinRequirement.add_numeric_no_overlap_constraint`,
 
-1.6.0 - 2022.04.12
+1.6.0 - 2023.04.12
 ------------------
 
 **Other changes**
@@ -35,7 +35,7 @@ Changelog
 - Ensure compatibility with ``sqlalchemy`` >= 2.0.
 
 
-1.5.0 - 2022.03.14
+1.5.0 - 2023.03.14
 ------------------
 
 **New features**
@@ -46,7 +46,7 @@ Changelog
   :meth:`datajudge.WithinRequirement.add_numeric_percentile_constraint`.
 
 
-1.4.0 - 2022.02.24
+1.4.0 - 2023.02.24
 ------------------
 
 **New features**
@@ -54,7 +54,7 @@ Changelog
 - Add partial and experimental support for db2 as a backend.
 
 
-1.3.0 - 2022.01.17
+1.3.0 - 2023.01.17
 ------------------
 
 **New features**
