@@ -1,4 +1,4 @@
-from colorama import Fore, Style
+from colorama import Back
 
 from datajudge.formatter import AnsiColorFormatter, DefaultFormatter, HtmlFormatter
 
@@ -6,31 +6,31 @@ from datajudge.formatter import AnsiColorFormatter, DefaultFormatter, HtmlFormat
 def test_default_formatter():
     formatter = DefaultFormatter()
 
-    assert formatter.fmt_str("[b]Hello[/b]") == "Hello"
-    assert formatter.fmt_str("[red]Hello[/red]") == "Hello"
-    assert formatter.fmt_str("[red]Hello[/blue]") == "[red]Hello[/blue]"
-    assert formatter.fmt_str("[red]Hello[/red] [blue]World[/blue]") == "Hello World"
-    assert formatter.fmt_str("[]hello[/]") == "hello"
+    assert formatter.fmt_str("[numDiff]Hello[/numDiff]") == "Hello"
+    assert formatter.fmt_str("[numMatch]Hello[/numMatch]") == "Hello"
+    assert formatter.fmt_str("[b]Hello[/b]") == "[b]Hello[/b]"
+    assert formatter.fmt_str("[numDiff]Hello[/numMatch]") == "[numDiff]Hello[/numMatch]"
 
 
 def test_ansi_color_formatter():
     formatter = AnsiColorFormatter()
 
-    # Test color formatting
-    assert formatter.fmt_str("[red]Hello[/red]") == f"{Fore.RED}Hello{Style.RESET_ALL}"
-    assert formatter.fmt_str("[red]Hello[/blue]") == "[red]Hello[/blue]"
-
-    # Test BB strip functionality
-    assert formatter.fmt_str("[invalid]Hello[/invalid]") == "Hello"
+    assert (
+        formatter.fmt_str("[numDiff]Hello[/numDiff]") == f"{Back.CYAN}Hello{Back.RESET}"
+    )
+    assert formatter.fmt_str("[numMatch]Hello[/numMatch]") == "Hello"
+    assert formatter.fmt_str("[b]Hello[/b]") == "[b]Hello[/b]"
+    assert formatter.fmt_str("[numDiff]Hello[/numMatch]") == "[numDiff]Hello[/numMatch]"
 
 
 def test_html_formatter():
     formatter = HtmlFormatter()
 
-    assert (
-        formatter.fmt_str("[red]Hello[/red]") == "<span style='color:red'>Hello</span>"
+    assert formatter.fmt_str("[numDiff]Hello[/numDiff]") == (
+        "<span style='background-color: #FF0000; color: #FFFFFF'>Hello</span>"
     )
-    assert formatter.fmt_str("[red]Hello[/blue]") == "[red]Hello[/blue]"
-
-    # Test BB strip functionality
-    assert formatter.fmt_str("[invalid]Hello[/invalid]") == "Hello"
+    assert formatter.fmt_str("[numMatch]Hello[/numMatch]") == (
+        "<span style='background-color: #00FF00; color: #FFFFFF'>Hello</span>"
+    )
+    assert formatter.fmt_str("[b]Hello[/b]") == "[b]Hello[/b]"
+    assert formatter.fmt_str("[numDiff]Hello[/numMatch]") == "[numDiff]Hello[/numMatch]"

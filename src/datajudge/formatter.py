@@ -1,10 +1,9 @@
 import abc
 import re
 
-from colorama import Fore, Style
+from colorama import Back
 
-COLOR_REGEX = r"\[(red|green|yellow|blue|magenta|cyan|white|black)\](.*?)\[/\1\]"
-ALL_BB_REGEX = r"\[([a-zA-Z]*)\](.*)\[/\1\]"
+STYLING_CODES = r"\[(numMatch|numDiff)\](.*?)\[/\1\]"
 
 
 class Formatter(abc.ABC):
@@ -15,42 +14,37 @@ class Formatter(abc.ABC):
 
 class DefaultFormatter(Formatter):
     def __init__(self):
-        self.bb_pattern = re.compile(ALL_BB_REGEX)
+        self.known_bb_pattern = re.compile(STYLING_CODES)
 
-    def strip_bb(self, string: str) -> str:
-        return self.bb_pattern.sub(lambda m: m.group(2), string)
+    # Just ignore styling in the default formatter
+    def apply_formatting(self, _: str, inner: str) -> str:
+        return inner
 
     def fmt_str(self, string: str) -> str:
-        return self.strip_bb(string)
+        # Replace codes with platform specific styling
+        string = self.known_bb_pattern.sub(
+            lambda m: self.apply_formatting(m.group(1), m.group(2)), string
+        )
+
+        return string
 
 
 class AnsiColorFormatter(DefaultFormatter):
     def __init__(self):
-        self.color_patterns = re.compile(COLOR_REGEX)
         super().__init__()
 
-    def fmt_str(self, string: str) -> str:
-        # Replace bb color codes with colorama codes
-        string = self.color_patterns.sub(
-            lambda m: getattr(Fore, m.group(1).upper()) + m.group(2) + Style.RESET_ALL,
-            string,
-        )
-
-        # Stip all remaining bb code
-        return self.strip_bb(string)
+    def apply_formatting(self, code: str, inner: str) -> str:
+        if code == "numDiff":
+            return f"{Back.CYAN}{inner}{Back.RESET}"
+        else:
+            return inner
 
 
 class HtmlFormatter(DefaultFormatter):
-    def __init__(self):
-        self.color_patterns = re.compile(COLOR_REGEX)
-        super().__init__()
-
-    def fmt_str(self, string: str) -> str:
-        # Replace bb color codes with html color tags
-        string = self.color_patterns.sub(
-            lambda m: f"<span style='color:{m.group(1)}'>{m.group(2)}</span>",
-            string,
-        )
-
-        # Stip all remaining bb code
-        return self.strip_bb(string)
+    def apply_formatting(self, code: str, inner: str) -> str:
+        if code == "numDiff":
+            return f"<span style='background-color: #FF0000; color: #FFFFFF'>{inner}</span>"
+        elif code == "numMatch":
+            return f"<span style='background-color: #00FF00; color: #FFFFFF'>{inner}</span>"
+        else:
+            return inner
