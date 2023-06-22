@@ -30,9 +30,6 @@ class DefaultFormatter(Formatter):
 
 
 class AnsiColorFormatter(DefaultFormatter):
-    def __init__(self):
-        super().__init__()
-
     def apply_formatting(self, code: str, inner: str) -> str:
         if code == "numDiff":
             return f"{Back.CYAN}{inner}{Back.RESET}"
