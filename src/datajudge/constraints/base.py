@@ -6,6 +6,9 @@ from typing import Any, Callable, List, Optional, Tuple, TypeVar
 import sqlalchemy as sa
 
 from ..db_access import DataReference
+from ..formatter import DefaultFormatter, Formatter
+
+DEFAULT_FORMATTER = DefaultFormatter()
 
 T = TypeVar("T")
 OptionalSelections = Optional[List[sa.sql.expression.Select]]
@@ -25,10 +28,30 @@ def uncommon_substrings(string1: str, string2: str) -> Tuple[str, str]:
 @dataclass(frozen=True)
 class TestResult:
     outcome: bool
-    failure_message: Optional[str] = field(default=None, repr=False)
-    constraint_description: Optional[str] = field(default=None, repr=False)
+    _failure_message: Optional[str] = field(default=None, repr=False)
+    _constraint_description: Optional[str] = field(default=None, repr=False)
     _factual_queries: Optional[str] = field(default=None, repr=False)
     _target_queries: Optional[str] = field(default=None, repr=False)
+
+    def formatted_failure_message(self, formatter: Formatter) -> Optional[str]:
+        return (
+            formatter.fmt_str(self._failure_message) if self._failure_message else None
+        )
+
+    def formatted_constraint_description(self, formatter: Formatter) -> Optional[str]:
+        return (
+            formatter.fmt_str(self._constraint_description)
+            if self._constraint_description
+            else None
+        )
+
+    @property
+    def failure_message(self) -> Optional[str]:
+        return self.formatted_failure_message(DEFAULT_FORMATTER)
+
+    @property
+    def constraint_description(self) -> Optional[str]:
+        return self.formatted_constraint_description(DEFAULT_FORMATTER)
 
     @property
     def logging_message(self):
