@@ -7,7 +7,13 @@
 Changelog
 =========
 
-1.8.0 - 2023.XX.XX
+1.9.0 - 2023.XX.XX
+------------------
+
+**New features**
+- Added styling for assertion messages. See :ref:`assertion-message-styling` for more information.
+
+1.8.0 - 2023.06.16
 ------------------
 
 **New features**

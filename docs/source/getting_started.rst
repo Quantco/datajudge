@@ -132,6 +132,27 @@ as well as the underlying database queries.
 Depending on the use case at hand, it might make sense to rely on this information for logging or data investigation
 purposes. Again, more on this in the article on :doc:`testing <testing>`.
 
+Assertion Message Styling
+----------------
+Constraints can use styling to increase the readability of their assertion messages.
+The styling can be set independently of the platform and converted to e.g. ANSI color codes for command line output or CSS color tags for HTML reports.
+The styling tags describe use cases and not concrete colors, so formatters can use arbitrary color palettes, and these are not fixed by the constraint.
+
+The following table lists all the supported codes, along with their descriptions and examples of how they can be used:
+
+
+.. list-table:: Supported styling codes
+   :header-rows: 1
+
+   * - Code
+     - Description
+     - Example
+   * - `numMatch`
+     - Indicates the part of a number that matches the expected value.
+     - `[numMatch]3.141[/numMatch]`
+   * - `numDifference`
+     - Indicates the part of a number that differs.
+     - `[numDifference]6[/numDifference]`
 
 Alternative DataSources
 ---------------------------
