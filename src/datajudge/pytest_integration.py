@@ -4,7 +4,7 @@ import pytest
 
 from .constraints.base import Constraint
 from .db_access import apply_patches
-from .formatter import AnsiColorFormatter, DefaultFormatter, HtmlFormatter
+from .formatter import AnsiColorFormatter, Formatter, HtmlFormatter
 from .requirements import Requirement
 
 
@@ -18,7 +18,7 @@ def formatter(pytestconfig):
     elif is_html and (color == "yes" or color == "auto"):
         return HtmlFormatter()
     else:
-        return DefaultFormatter()
+        return Formatter()
 
 
 def collect_data_tests(requirements: Iterable[Requirement]):

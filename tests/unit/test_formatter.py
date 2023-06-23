@@ -1,10 +1,10 @@
 from colorama import Back
 
-from datajudge.formatter import AnsiColorFormatter, DefaultFormatter, HtmlFormatter
+from datajudge.formatter import AnsiColorFormatter, Formatter, HtmlFormatter
 
 
 def test_default_formatter():
-    formatter = DefaultFormatter()
+    formatter = Formatter()
 
     assert formatter.fmt_str("[numDiff]Hello[/numDiff]") == "Hello"
     assert formatter.fmt_str("[numMatch]Hello[/numMatch]") == "Hello"
