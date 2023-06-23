@@ -7,12 +7,6 @@ STYLING_CODES = r"\[(numMatch|numDiff)\](.*?)\[/\1\]"
 
 
 class Formatter(abc.ABC):
-    @abc.abstractmethod
-    def fmt_str(self, result: str) -> str:
-        pass
-
-
-class DefaultFormatter(Formatter):
     def __init__(self):
         self.known_bb_pattern = re.compile(STYLING_CODES)
 
@@ -29,7 +23,7 @@ class DefaultFormatter(Formatter):
         return string
 
 
-class AnsiColorFormatter(DefaultFormatter):
+class AnsiColorFormatter(Formatter):
     def apply_formatting(self, code: str, inner: str) -> str:
         if code == "numDiff":
             return f"{Back.CYAN}{inner}{Back.RESET}"
@@ -37,7 +31,7 @@ class AnsiColorFormatter(DefaultFormatter):
             return inner
 
 
-class HtmlFormatter(DefaultFormatter):
+class HtmlFormatter(Formatter):
     def apply_formatting(self, code: str, inner: str) -> str:
         if code == "numDiff":
             return f"<span style='background-color: #FF0000; color: #FFFFFF'>{inner}</span>"

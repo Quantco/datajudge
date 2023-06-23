@@ -6,9 +6,9 @@ from typing import Any, Callable, List, Optional, Tuple, TypeVar
 import sqlalchemy as sa
 
 from ..db_access import DataReference
-from ..formatter import DefaultFormatter, Formatter
+from ..formatter import Formatter
 
-DEFAULT_FORMATTER = DefaultFormatter()
+DEFAULT_FORMATTER = Formatter()
 
 T = TypeVar("T")
 OptionalSelections = Optional[List[sa.sql.expression.Select]]
