@@ -7,7 +7,7 @@ from datajudge.pytest_integration import collect_data_tests
 from datajudge.requirements import WithinRequirement
 
 example_req = WithinRequirement.from_table(
-    db_name=None, schema_name=None, table_name="companies"
+    db_name="main", schema_name="main", table_name="companies"
 )
 
 example_req.add_column_existence_constraint(columns=["name"])
