@@ -4,19 +4,15 @@ import pytest
 
 from .constraints.base import Constraint
 from .db_access import apply_patches
-from .formatter import AnsiColorFormatter, Formatter, HtmlFormatter
+from .formatter import AnsiColorFormatter, Formatter
 from .requirements import Requirement
 
 
-@pytest.fixture(scope="session")
-def formatter(pytestconfig):
+def get_formatter(pytestconfig):
     color = pytestconfig.getoption("color")
-    is_html = pytestconfig.getoption("htmlpath") is not None
 
-    if not is_html and (color == "yes" or color == "auto"):
+    if color == "yes" or color == "auto":
         return AnsiColorFormatter()
-    elif is_html and (color == "yes" or color == "auto"):
-        return HtmlFormatter()
     else:
         return Formatter()
 
@@ -35,8 +31,9 @@ def collect_data_tests(requirements: Iterable[Requirement]):
     @pytest.mark.parametrize(
         "constraint", all_constraints, ids=Constraint.get_description
     )
-    def test_constraint(constraint, datajudge_engine, formatter):
+    def test_constraint(constraint, datajudge_engine, pytestconfig):
         # apply patches that fix sqlalchemy issues
+        formatter = get_formatter(pytestconfig)
         apply_patches(datajudge_engine)
         test_result = constraint.test(datajudge_engine)
         assert test_result.outcome, test_result.formatted_failure_message(formatter)

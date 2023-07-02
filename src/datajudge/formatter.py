@@ -29,13 +29,3 @@ class AnsiColorFormatter(Formatter):
             return f"{Back.CYAN}{inner}{Back.RESET}"
         else:
             return inner
-
-
-class HtmlFormatter(Formatter):
-    def apply_formatting(self, code: str, inner: str) -> str:
-        if code == "numDiff":
-            return f"<span style='background-color: #FF0000; color: #FFFFFF'>{inner}</span>"
-        elif code == "numMatch":
-            return f"<span style='background-color: #00FF00; color: #FFFFFF'>{inner}</span>"
-        else:
-            return inner
