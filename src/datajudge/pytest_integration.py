@@ -1,6 +1,7 @@
 from typing import Iterable
 
 import pytest
+from pkg_resources import parse_version
 
 from .constraints.base import Constraint
 from .db_access import apply_patches
@@ -12,6 +13,20 @@ def get_formatter(pytestconfig):
     color = pytestconfig.getoption("color")
 
     if color == "yes" or color == "auto":
+        # before pytest-html < 4.0.0
+        # styling in assertion messages was not formatted correctly
+        # so in this case we use the default formatter
+        # in pytest-html >= 4.0.0 the styling gets stripped or
+        # translated to ANSI codes, depending if ansi2html is installed
+        if pytestconfig.getoption("htmlpath", False):
+            try:
+                import pytest_html
+
+                if parse_version(pytest_html.__version__).major >= 4:
+                    return AnsiColorFormatter()
+            finally:
+                return Formatter()
+
         return AnsiColorFormatter()
     else:
         return Formatter()

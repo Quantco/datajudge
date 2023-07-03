@@ -6,7 +6,6 @@ dependencies:
   - python>=3.8
   - pytest
   - pytest-cov
-  - conda-forge/label/pytest-html_rc::pytest-html==4.0.0rc4
   - pytest-xdist
   - make
   - numpydoc
