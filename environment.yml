@@ -6,7 +6,6 @@ dependencies:
   - python>=3.8
   - pytest
   - pytest-cov
-  - pytest-html
   - pytest-xdist
   - make
   - numpydoc
@@ -20,3 +19,4 @@ dependencies:
   - flit-core
   - flit
   - sphinx-autodoc-typehints
+  - colorama
