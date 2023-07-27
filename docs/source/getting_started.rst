@@ -150,9 +150,9 @@ The following table lists all the supported codes, along with their descriptions
    * - `numMatch`
      - Indicates the part of a number that matches the expected value.
      - `[numMatch]3.141[/numMatch]`
-   * - `numDifference`
+   * - `numDiff`
      - Indicates the part of a number that differs.
-     - `[numDifference]6[/numDifference]`
+     - `[numDiff]6[/numDiff]`
 
 Alternative DataSources
 ---------------------------
