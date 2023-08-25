@@ -1,9 +1,5 @@
 from typing import Tuple, Union
 
-from colorama import just_fix_windows_console
-
-just_fix_windows_console()
-
 
 def _fmt_diff_part(s, d):
     return f"[numDiff]{s[d:]}[/numDiff]" if d < len(s) else ""
