@@ -5,6 +5,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
+from ..utils import format_difference
 from .base import Constraint, OptionalSelections, TestResult, ToleranceGetter
 
 
@@ -47,9 +48,12 @@ class NRowsMin(NRows):
 class NRowsMax(NRows):
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
         result = n_rows_factual <= n_rows_target
+        n_rows_factual_fmt, n_rows_target_fmt = format_difference(
+            n_rows_factual, n_rows_target
+        )
         assertion_text = (
-            f"{self.ref} has {n_rows_factual} "
-            f"> {self.target_prefix} {n_rows_target} rows. "
+            f"{self.ref} has {n_rows_factual_fmt} "
+            f"> {self.target_prefix} {n_rows_target_fmt} rows. "
             f"{self.condition_string}"
         )
         return result, assertion_text
@@ -58,9 +62,12 @@ class NRowsMax(NRows):
 class NRowsEquality(NRows):
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
         result = n_rows_factual == n_rows_target
+        n_rows_factual_fmt, n_rows_target_fmt = format_difference(
+            n_rows_factual, n_rows_target
+        )
         assertion_text = (
-            f"{self.ref} has {n_rows_factual} row(s) "
-            f"instead of {self.target_prefix} {n_rows_target}. "
+            f"{self.ref} has {n_rows_factual_fmt} row(s) "
+            f"instead of {self.target_prefix} {n_rows_target_fmt}. "
             f"{self.condition_string}"
         )
         return result, assertion_text

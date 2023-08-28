@@ -1,8 +1,9 @@
 import abc
 import re
 
-from colorama import Back
+from colorama import Back, just_fix_windows_console
 
+# example: match = [numMatch]...[/numMatch]
 STYLING_CODES = r"\[(numMatch|numDiff)\](.*?)\[/\1\]"
 
 
@@ -24,6 +25,10 @@ class Formatter(abc.ABC):
 
 
 class AnsiColorFormatter(Formatter):
+    def __init__(self):
+        super().__init__()
+        just_fix_windows_console()
+
     def apply_formatting(self, code: str, inner: str) -> str:
         if code == "numDiff":
             return f"{Back.CYAN}{inner}{Back.RESET}"
