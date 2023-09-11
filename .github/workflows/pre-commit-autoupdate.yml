@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         # We need to checkout with SSH here to have actions run on the PR.
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
