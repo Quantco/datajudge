@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Python 3.8
         uses: actions/setup-python@v4
         with:
@@ -41,7 +41,7 @@ jobs:
         SA_VERSION: ['<2.0', '>=2.0']
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@2b72821d5ad7f6da3c003a3684ce341bf187b46f
         with:
@@ -78,7 +78,7 @@ jobs:
           - 1433:1433
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@2b72821d5ad7f6da3c003a3684ce341bf187b46f
         with:
@@ -128,7 +128,7 @@ jobs:
           - 5432:5432
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3      
+        uses: actions/checkout@v4      
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@2b72821d5ad7f6da3c003a3684ce341bf187b46f
         with:
@@ -173,7 +173,7 @@ jobs:
         
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@2b72821d5ad7f6da3c003a3684ce341bf187b46f
         with:
@@ -212,7 +212,7 @@ jobs:
         SA_VERSION: ["<2.0"]
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@2b72821d5ad7f6da3c003a3684ce341bf187b46f
         with:
@@ -241,7 +241,7 @@ jobs:
         SA_VERSION: ["<2.0"]
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@2b72821d5ad7f6da3c003a3684ce341bf187b46f
         with:
@@ -279,7 +279,7 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@2b72821d5ad7f6da3c003a3684ce341bf187b46f
         with:
