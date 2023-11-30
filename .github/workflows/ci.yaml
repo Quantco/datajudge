@@ -17,17 +17,30 @@ on:
 jobs:
 
   pre-commit-checks:
-    name: "pre-commit hooks - Python 3.8"
+    name: "Linux - pre-commit checks - Python 3.10"
+    timeout-minutes: 30
     runs-on: ubuntu-latest
+    env:
+      PRE_COMMIT_USE_MICROMAMBA: 1
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-      - name: Install Python 3.8
-        uses: actions/setup-python@v4
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@db1df3ba9e07ea86f759e98b575c002747e9e757
         with:
-          python-version: 3.8
-      - name: Run pre-commit checks
-        uses: pre-commit/action@v3.0.0
+          environment-name: pre-commit
+          cache-environment: true
+          create-args: >-
+            python=3.10
+            pre-commit
+      - name: Cache pre-commit
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-3|3.10|${{ hashFiles('.pre-commit-config.yaml') }}
+      - name: Run pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always --all-file
+        shell: bash -l {0}
 
   unit-tests:
     name: "unit tests - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
