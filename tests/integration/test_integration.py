@@ -902,17 +902,23 @@ def test_numeric_max_between(engine, int_table1, int_table2, data):
     assert operation(req[0].test(engine).outcome)
 
 
+# There are 62 rows in the table's column.
+# 60 of these values are numeric, 2 are NULL.
+# Of these 60, 22 are part of the interval [5, 15].
 @pytest.mark.parametrize(
     "data",
     [
-        (identity, 5, 15, 0.57, None),
-        (negation, 5, 15, 0.58, None),
-        (negation, 5, 15, 0.58, Condition(raw_string="col_int IS NOT NULL")),
+        # 22/62 ~ .355
+        (identity, 5, 15, 0.35, None),
+        (negation, 5, 15, 0.36, None),
+        # 22/60 ~ .366
+        (identity, 5, 15, 0.36, Condition(raw_string="col_int IS NOT NULL")),
+        (negation, 5, 15, 0.37, Condition(raw_string="col_int IS NOT NULL")),
     ],
 )
-def test_numeric_between_within(engine, int_table1, data):
+def test_numeric_between_within(engine, unique_table1, data):
     (operation, lower_bound, upper_bound, min_fraction, condition) = data
-    req = requirements.WithinRequirement.from_table(*int_table1)
+    req = requirements.WithinRequirement.from_table(*unique_table1)
     req.add_numeric_between_constraint(
         "col_int", lower_bound, upper_bound, min_fraction, condition
     )
