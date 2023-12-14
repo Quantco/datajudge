@@ -476,7 +476,14 @@ class WithinRequirement(Requirement):
         condition: Condition = None,
         name: str = None,
     ):
-        """At least min_fraction of column's values are >= lower_bound and <= upper_bound."""
+        """Assert that the column's values lie between ``lower_bound`` and ``upper_bound``.
+
+        Note that both bounds are inclusive.
+
+        Unless specified otherwise via the usage of a ``condition``, ``NULL`` values will
+        be considered in the denominator of ``min_fraction``. ``NULL`` values will never be
+        considered to lie in the interval [``lower_bound``, ``upper_bound``].
+        """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericBetween(
