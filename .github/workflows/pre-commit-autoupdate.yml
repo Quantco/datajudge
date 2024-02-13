@@ -20,7 +20,7 @@ jobs:
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Set up micromamba environment
-        uses: mamba-org/setup-micromamba@e820223f89c8720d6c740ca154a7adf32fcd278a
+        uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
           environment-name: pre-commit
           create-args: >-
@@ -33,7 +33,7 @@ jobs:
         run: |
           pre-commit autoupdate
           pre-commit run -a || true
-      - uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38
+      - uses: peter-evans/create-pull-request@b1ddad2c994a25fbc81a28b3ec0e368bb2021c50
         with:
           commit-message: "Auto-update pre-commit hooks"
           title: "Auto-update pre-commit hooks"
