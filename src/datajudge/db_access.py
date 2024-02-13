@@ -74,11 +74,13 @@ def apply_patches(engine: sa.engine.Engine):
 
 
 @overload
-def lowercase_column_names(column_names: str) -> str: ...
+def lowercase_column_names(column_names: str) -> str:  # fmt: off
+    ...
 
 
 @overload
-def lowercase_column_names(column_names: list[str]) -> list[str]: ...
+def lowercase_column_names(column_names: list[str]) -> list[str]:  # fmt: off
+    ...
 
 
 def lowercase_column_names(column_names: str | list[str]) -> str | list[str]:
