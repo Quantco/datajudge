@@ -1,7 +1,6 @@
 """datajudge allows to assess  whether data from database complies with reference
 information."""
 
-
 import pkg_resources
 
 from .constraints.base import Constraint
