@@ -1,3 +1,4 @@
+exclude: '^\.conda_lock_files/'
 repos:
   - repo: https://github.com/Quantco/pre-commit-mirrors-black
     rev: 24.1.1

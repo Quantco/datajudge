@@ -17,41 +17,40 @@ on:
 jobs:
 
   pre-commit-checks:
-    name: "pre-commit hooks - Python 3.8"
+    name: Pre-commit checks - Python 3.8
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-      - name: Install Python 3.8
-        uses: actions/setup-python@v5
+      - name: Run pre-commit-conda
+        uses: quantco/pre-commit-conda@v1
         with:
-          python-version: 3.8
-      - name: Run pre-commit checks
-        uses: pre-commit/action@v3.0.1
+          python-version: "3.8"
 
   unit-tests:
-    name: "unit tests - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "unit tests - ${{ matrix.environment-file }}"
     runs-on: ubuntu-latest
     env:
       CI: True
     strategy:
       fail-fast: true
       matrix:
-        PYTHON_VERSION: ['3.8', '3.9', '3.10']
-        SA_VERSION: ['<2.0', '>=2.0']
+        environment-file:
+          - .conda_lock_files/python38_sa1_linux64.yml
+          - .conda_lock_files/python38_sa2_linux64.yml
+          - .conda_lock_files/python312_sa1_linux64.yml
+          - .conda_lock_files/python312_sa2_linux64.yml
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: ${{ matrix.environment-file }}
           cache-downloads: true
           cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles(matrix.environment-file) }}
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
@@ -59,15 +58,18 @@ jobs:
 
   mssql:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'sqlserver') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "mssql - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "mssql - ${{ matrix.environment-file }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: ['3.8', '3.9', '3.10']
-        SA_VERSION: ["<2.0", ">=2.0"]
+        environment-file:
+          - .conda_lock_files/python38_sa1_linux64.yml
+          - .conda_lock_files/python38_sa2_linux64.yml
+          - .conda_lock_files/python312_sa1_linux64.yml
+          - .conda_lock_files/python312_sa2_linux64.yml
     services:
       DB:
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -82,13 +84,11 @@ jobs:
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: ${{ matrix.environment-file }}
           cache-downloads: true
           cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles(matrix.environment-file) }}
           create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
             pyodbc
       # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
       - name: Install msodbcsql17 driver
@@ -107,19 +107,22 @@ jobs:
 
   postgres:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "PostgreSQL ${{ matrix.POSTGRES_VERSION }} - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "PostgreSQL ${{ matrix.postgres-version }} - ${{ matrix.environment-file }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
-        POSTGRES_VERSION: [ '11', 'latest' ]
-        SA_VERSION: ["<2.0", ">=2.0"]
+        postgres-version: [ '11', 'latest' ]
+        environment-file:
+          - .conda_lock_files/python38_sa1_linux64.yml
+          - .conda_lock_files/python38_sa2_linux64.yml
+          - .conda_lock_files/python312_sa1_linux64.yml
+          - .conda_lock_files/python312_sa2_linux64.yml
     services:
       DB:
-        image: postgres:${{ matrix.POSTGRES_VERSION }}
+        image: postgres:${{ matrix.postgres-version }}
         env:
           POSTGRES_USER: datajudge
           POSTGRES_PASSWORD: datajudge
@@ -132,32 +135,31 @@ jobs:
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: ${{ matrix.environment-file }}
           cache-downloads: true
           cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles(matrix.environment-file) }}
           create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
             psycopg2
       - name: Run tests
         uses: ./.github/actions/pytest
         with:
           backend: postgres
           args: tests/integration
-      
+
 
   db2:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "DB2 - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "DB2 - ${{ matrix.environment-file }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [ '3.8', '3.9', '3.10' ]
-        SA_VERSION: ["<2.0"]
+        environment-file:
+          - .conda_lock_files/python38_sa1_linux64.yml
+          - .conda_lock_files/python312_sa1_linux64.yml
     services:
       DB:
         image: ibmcom/db2:11.5.5.1
@@ -177,13 +179,11 @@ jobs:
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: ${{ matrix.environment-file }}
           cache-downloads: true
           cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles(matrix.environment-file) }}
           create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
             ibm_db
             ibm_db_sa
       - name: Wait for db2 to load
@@ -199,7 +199,7 @@ jobs:
 
   snowflake:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'snowflake') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "Snowflake - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "Snowflake - ${{ matrix.environment-file }}"
     runs-on: ubuntu-latest
     env:
       SNOWFLAKE_USER: DATAJUDGE
@@ -208,21 +208,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [ '3.8' ]
-        SA_VERSION: ["<2.0"]
+        environment-file:
+          - .conda_lock_files/python38_sa1_linux64.yml
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: ${{ matrix.environment-file }}
           cache-downloads: true
           cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles(matrix.environment-file) }}
           create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
             snowflake-sqlalchemy
       - name: Run tests
         uses: ./.github/actions/pytest
@@ -232,26 +230,24 @@ jobs:
 
   bigquery:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'bigquery') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "BigQuery - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "BigQuery - ${{ matrix.environment-file }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [ '3.8' ]
-        SA_VERSION: ["<2.0"]
+        environment-file:
+          - .conda_lock_files/python38_sa1_linux64.yml
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: ${{ matrix.environment-file }}
           cache-downloads: true
           cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles(matrix.environment-file) }}
           create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
             sqlalchemy-bigquery
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
@@ -266,16 +262,16 @@ jobs:
 
   impala-column:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "Impala - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "Impala - ${{ matrix.environment-file }}"
     runs-on: ubuntu-20.04
     env:
       CI: True
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: [ '3.8' ]
-        SA_VERSION: ["<2.0"]
-        PYTEST_ARG: ["tests/integration/test_column_capitalization.py", "tests/integration/test_data_source.py", "tests/integration/test_integration.py -k row", "tests/integration/test_integration.py -k uniques", "tests/integration/test_integration.py -k date", "tests/integration/test_integration.py -k varchar", "tests/integration/test_integration.py -k numeric"]
+        environment-file:
+          - .conda_lock_files/python38_sa1_linux64.yml
+        pytest-args: ["tests/integration/test_column_capitalization.py", "tests/integration/test_data_source.py", "tests/integration/test_integration.py -k row", "tests/integration/test_integration.py -k uniques", "tests/integration/test_integration.py -k date", "tests/integration/test_integration.py -k varchar", "tests/integration/test_integration.py -k numeric"]
 
     steps:
       - name: Checkout branch
@@ -283,13 +279,11 @@ jobs:
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: ${{ matrix.environment-file }}
           cache-downloads: true
           cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
+          cache-environment-key: ${{ runner.os }}-${{ hashFiles(matrix.environment-file) }}
           create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
             impyla
       - name: Set up container
         run: docker compose up --wait impala
@@ -297,4 +291,4 @@ jobs:
         uses: ./.github/actions/pytest
         with:
           backend: impala
-          args: ${{ matrix.PYTEST_ARG }}
+          args: ${{ matrix.pytest-args }}

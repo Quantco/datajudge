@@ -58,3 +58,27 @@ default_section = 'THIRDPARTY'
 # Temporary fix.
 no_implicit_optional = false
 allow_empty_bodies = true
+
+[[tool.conda-env-lock.variants]]
+lockfile = ".conda_lock_files/python38_sa1_linux64.yml"
+dependency_file = "environment.yml"
+platform = "linux-64"
+constraints = ["python=3.8", "sqlalchemy=1"]
+
+[[tool.conda-env-lock.variants]]
+lockfile = ".conda_lock_files/python38_sa2_linux64.yml"
+dependency_file = "environment.yml"
+platform = "linux-64"
+constraints = ["python=3.8", "sqlalchemy=2"]
+
+[[tool.conda-env-lock.variants]]
+lockfile = ".conda_lock_files/python312_sa1_linux64.yml"
+dependency_file = "environment.yml"
+platform = "linux-64"
+constraints = ["python=3.12", "sqlalchemy=1"]
+
+[[tool.conda-env-lock.variants]]
+lockfile = ".conda_lock_files/python312_sa2_linux64.yml"
+dependency_file = "environment.yml"
+platform = "linux-64"
+constraints = ["python=3.12", "sqlalchemy=2"]
