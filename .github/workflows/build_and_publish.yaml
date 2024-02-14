@@ -23,7 +23,7 @@ jobs:
 
       - uses: mamba-org/setup-micromamba@8767fb704bd78032e9392f0386bf46950bdd1194
         with:
-          environment-file: environment.yml
+          environment-file: .conda_lock_files/python312_sa2_linux64.yml
 
       - name: Build
         shell: bash -l {0}
