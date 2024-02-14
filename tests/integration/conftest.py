@@ -52,8 +52,9 @@ def get_engine(backend) -> sa.engine.Engine:
         # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = "bigquery://"
 
-    engine = sa.create_engine(connection_string, echo=True, pool_size=10, max_overflow=20)
-)
+    engine = sa.create_engine(
+        connection_string, echo=True, pool_size=10, max_overflow=20
+    )
     apply_patches(engine)
 
     return engine
