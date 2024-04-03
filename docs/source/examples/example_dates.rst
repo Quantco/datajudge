@@ -71,7 +71,7 @@ Assuming that such a table exists in database, we can write a specification agai
     prices_req.add_date_between_constraint(
         column="date_from",
 	lower_bound="'20220101'",
-	upper_bound="'20220101'",
+	upper_bound="'20220131'",
 	# We don't tolerate any violations of the constraint:
 	min_fraction=1,
     )
@@ -81,7 +81,7 @@ Assuming that such a table exists in database, we can write a specification agai
     prices_req.add_date_between_constraint(
         column="date_to",
 	lower_bound="'20220101'",
-	upper_bound="'20220101'",
+	upper_bound="'20220131'",
 	# We don't tolerate any violations of the constraint:
 	min_fraction=1,
     )
