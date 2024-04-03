@@ -1,9 +1,9 @@
 Example: Dates
 ==============
 
-This example concerns itself with expressing ``Constraint``s against data revolving
-around dates. While date ``Constraint``s between tables exist, we will only illustrate
-``Constraint``s on a single table and reference values here. As a consequence, we will
+This example concerns itself with expressing ``Constraint``\s against data revolving
+around dates. While date ``Constraint``\s between tables exist, we will only illustrate
+``Constraint``\s on a single table and reference values here. As a consequence, we will
 only use ``WithinRequirement``, as opposed to ``BetweenRequirement``.
 
 Concretely, we will assume a table containing prices for a given product of id 1.
@@ -156,7 +156,8 @@ Assuming that such a table exists in database, we can write a specification agai
 Pleas note that the ``DateNoOverlap`` and ``DateNoGap`` constraints also exist
 in a slightly different form: ``DateNoOverlap2d`` and ``DateNoGap2d``.
 As the names suggest, these can operate in 'two date dimensions'.
-It could for instance be, that a table has four date columns, representing two
+
+For example, let's assume a table with four date columns, representing two
 ranges in distinct dimensions, respectively:
 
 * ``date_from``: Date from when a price is valid
