@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/Quantco/pre-commit-mirrors-black
-    rev: 24.3.0
+    rev: 24.4.2
     hooks:
       - id: black-conda
         args:
@@ -16,7 +16,7 @@ repos:
       - id: isort-conda
         additional_dependencies: [-c, conda-forge, toml=0.10.2]
   - repo: https://github.com/Quantco/pre-commit-mirrors-mypy
-    rev: "1.9.0"
+    rev: "1.10.0"
     hooks:
       - id: mypy-conda
         additional_dependencies: [-c, conda-forge, types-setuptools]
@@ -27,7 +27,7 @@ repos:
         args:
           - --py38-plus
   - repo: https://github.com/Quantco/pre-commit-mirrors-typos
-    rev: 1.19.0
+    rev: 1.21.0
     hooks:
       - id: typos-conda
         exclude: "\\.csv$"
