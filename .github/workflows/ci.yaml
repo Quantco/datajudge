@@ -43,7 +43,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -80,7 +80,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -130,7 +130,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4      
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -175,7 +175,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -214,7 +214,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -243,7 +243,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
         with:
           environment-file: environment.yml
           cache-downloads: true
@@ -281,7 +281,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@422500192359a097648154e8db4e39bdb6c6eed7
+        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
         with:
           environment-file: environment.yml
           cache-downloads: true
