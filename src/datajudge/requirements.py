@@ -259,8 +259,12 @@ class WithinRequirement(Requirement):
         self,
         columns: List[str],
         uniques: Collection[T],
+        filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
         condition: Condition = None,
         name: str = None,
     ):
@@ -270,8 +274,20 @@ class WithinRequirement(Requirement):
         of a ``DataSource`` are strictly the ones of a reference set of expected values,
         specified via the ``uniques`` parameter.
 
+        Null values in the column are ignored. To assert the non-existence of them use
+        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom `filter_func` function.
+        Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
+        `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+        For new deployments, using one of the above filters or a custom one is recommended.
+        Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+        The deprecated default may change in future versions.
+        To silence the warning, set `filter_func` explicitly.
+
         See the ``Uniques`` class for further parameter details on ``map_func`` and
-        ``reduce_func``.
+        ``reduce_func``, and ``output_postprocessing_sorter``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -279,8 +295,10 @@ class WithinRequirement(Requirement):
             uniques_constraints.UniquesEquality(
                 ref,
                 uniques=uniques,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_postprocessing_sorter=output_postprocessing_sorter,
                 name=name,
             )
         )
@@ -290,8 +308,13 @@ class WithinRequirement(Requirement):
         columns: List[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
+        filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer=slice(5),
         condition: Condition = None,
         name: str = None,
     ):
@@ -303,6 +326,14 @@ class WithinRequirement(Requirement):
         Null values in the column are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom `filter_func` function.
+        Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
+        `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+        For new deployments, using one of the above filters or a custom one is recommended.
+        Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+        The deprecated default may change in future versions.
+        To silence the warning, set `filter_func` explicitly.
 
         ``max_relative_violations`` indicates what fraction of unique values of the given
         ``DataSource`` are not represented in the reference set of unique values. Please
@@ -311,7 +342,8 @@ class WithinRequirement(Requirement):
         One use of this constraint is to test for consistency in columns with expected
         categorical values.
 
-        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
+        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -320,8 +352,11 @@ class WithinRequirement(Requirement):
                 ref,
                 uniques=uniques,
                 max_relative_violations=max_relative_violations,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
         )
@@ -331,8 +366,14 @@ class WithinRequirement(Requirement):
         columns: List[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
+        filter_func: Callable[[List[T]], List[T]] = None,
+        compare_distinct: bool = False,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer=slice(5),
         condition: Condition = None,
         name: str = None,
     ):
@@ -345,12 +386,27 @@ class WithinRequirement(Requirement):
         Null values in the column are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom `filter_func` function.
+        Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
+        `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+        For new deployments, using one of the above filters or a custom one is recommended.
+        Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+        The deprecated default may change in future versions.
+        To silence the warning, set `filter_func` explicitly.
+
 
         ``max_relative_violations`` indicates what fraction of rows of the given table
         may have values not included in the reference set of unique values. Please note
         that ``UniquesSubset`` and ``UniquesSuperset`` are not symmetrical in this regard.
 
-        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
+        By default, the number of occurrences affects the computed fraction of violations.
+        To disable this weighting, set `compare_distinct=True`.
+        This argument does not have an effect on the test results for other `Uniques` constraints,
+        or if `max_relative_violations` is 0.
+
+        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -359,8 +415,12 @@ class WithinRequirement(Requirement):
                 ref,
                 uniques=uniques,
                 max_relative_violations=max_relative_violations,
+                filter_func=filter_func,
+                compare_distinct=compare_distinct,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
         )
@@ -1408,8 +1468,12 @@ class BetweenRequirement(Requirement):
         self,
         columns1: List[str],
         columns2: List[str],
+        filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1420,8 +1484,20 @@ class BetweenRequirement(Requirement):
         of a ``DataSource``'s columns, are strictly the ones of another ``DataSource``'s
         columns.
 
-        See the ``Uniques`` class for further parameter details on ``map_func`` and
-        ``reduce_func``.
+        Null values in the column are ignored. To assert the non-existence of them use
+        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom `filter_func` function.
+        Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
+        `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+        For new deployments, using one of the above filters or a custom one is recommended.
+        Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+        The deprecated default may change in future versions.
+        To silence the warning, set `filter_func` explicitly.
+
+        See the ``Uniques`` class for further parameter details on ``map_func``,
+        ``reduce_func``, and ``output_postprocessing_sorter``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1430,8 +1506,10 @@ class BetweenRequirement(Requirement):
             uniques_constraints.UniquesEquality(
                 ref,
                 ref2=ref2,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_postprocessing_sorter=output_postprocessing_sorter,
                 name=name,
             )
         )
@@ -1441,8 +1519,13 @@ class BetweenRequirement(Requirement):
         columns1: List[str],
         columns2: List[str],
         max_relative_violations: float = 0,
+        filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer=slice(5),
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1456,6 +1539,14 @@ class BetweenRequirement(Requirement):
         Null values in the column are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom `filter_func` function.
+        Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
+        `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+        For new deployments, using one of the above filters or a custom one is recommended.
+        Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+        The deprecated default may change in future versions.
+        To silence the warning, set `filter_func` explicitly.
 
         ``max_relative_violations`` indicates what fraction of unique values of the given
         ``DataSource`` are not represented in the reference set of unique values. Please
@@ -1464,7 +1555,8 @@ class BetweenRequirement(Requirement):
         One use of this constraint is to test for consistency in columns with expected
         categorical values.
 
-        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
+        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1474,8 +1566,11 @@ class BetweenRequirement(Requirement):
                 ref,
                 ref2=ref2,
                 max_relative_violations=max_relative_violations,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
         )
@@ -1485,8 +1580,14 @@ class BetweenRequirement(Requirement):
         columns1: List[str],
         columns2: List[str],
         max_relative_violations: float = 0,
+        filter_func: Callable[[List[T]], List[T]] = None,
+        compare_distinct: bool = False,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer=slice(5),
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1500,12 +1601,26 @@ class BetweenRequirement(Requirement):
         Null values in the column are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom `filter_func` function.
+        Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
+        `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+        For new deployments, using one of the above filters or a custom one is recommended.
+        Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+        The deprecated default may change in future versions.
+        To silence the warning, set `filter_func` explicitly.
 
         ``max_relative_violations`` indicates what fraction of rows of the given table
         may have values not included in the reference set of unique values. Please note
         that ``UniquesSubset`` and ``UniquesSuperset`` are not symmetrical in this regard.
 
-        See ``Uniques`` for further details on ``map_func`` and ``reduce_func``.
+        By default, the number of occurrences affects the computed fraction of violations.
+        To disable this weighting, set `compare_distinct=True`.
+        This argument does not have an effect on the test results for other `Uniques` constraints,
+        or if `max_relative_violations` is 0.
+
+        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1515,8 +1630,12 @@ class BetweenRequirement(Requirement):
                 ref,
                 ref2=ref2,
                 max_relative_violations=max_relative_violations,
+                compare_distinct=compare_distinct,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
         )

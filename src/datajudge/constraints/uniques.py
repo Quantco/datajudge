@@ -1,4 +1,5 @@
 import abc
+import warnings
 from collections import Counter
 from itertools import zip_longest
 from math import ceil, floor
@@ -35,6 +36,109 @@ def _subset_violation_counts(
     return len(remainder) == 0, remainder
 
 
+def util_output_postprocessing_sorter(
+    collection: Collection, counts: Optional[Collection] = None
+):
+    """
+    Sorts a collection of tuple elements in descending order of their counts,
+    and for ties, makes use of the ascending order of the elements themselves.
+
+    If the first element is not instanceof tuple,
+    each element will be transparently packaged into a 1-tuple for processing;
+    this process is not visible to the caller.
+
+    Handles None values as described in `sort_tuple_none_aware`.
+    """
+    collection = list(collection)
+    if not isinstance(collection[0], tuple):
+        # package into a 1 tuple and pass into the method again
+        packaged_list = [(elem,) for elem in collection]
+        res_main, res_counts = util_output_postprocessing_sorter(packaged_list, counts)
+        return [elem[0] for elem in res_main], res_counts
+
+    if counts is None:
+        return sort_tuple_none_aware(collection), counts
+
+    assert len(collection) == len(
+        counts
+    ), "collection and counts must have the same length"
+
+    if len(collection) <= 1:
+        return collection, counts  # empty or 1 element lists are always sorted
+
+    lst = sort_tuple_none_aware(
+        [(-count, *elem) for count, elem in zip(counts, collection)]
+    )
+    return [elem[1:] for elem in lst], [-elem[0] for elem in lst]
+
+
+def util_filternull_default_deprecated(values: List[T]) -> List[T]:
+    return list(filter(lambda value: value is not None, values))
+
+
+def util_filternull_never(values: List[T]) -> List[T]:
+    return values
+
+
+def util_filternull_element_or_tuple_all(values: List[T]) -> List[T]:
+    return list(
+        filter(
+            lambda value: (value is not None)
+            and (not (isinstance(value, tuple) and all(x is None for x in value))),
+            values,
+        )
+    )
+
+
+def util_filternull_element_or_tuple_any(values: List[T]) -> List[T]:
+    return list(
+        filter(
+            lambda value: (value is not None)
+            and (not (isinstance(value, tuple) and any(x is None for x in value))),
+            values,
+        )
+    )
+
+
+def sort_tuple_none_aware(collection: Collection[Tuple], ascending=True):
+    """
+    Sorts a collection of either tuples or single elements,
+    where `None` is considered the same as the default value of the respective column's type.
+    For ints/floats `int()`/`float()` yield `0`/`0.0`, for strings `str()` yields `''`.
+    The constructor is determined by calling type() on the first non-`None` element of the respective column.
+
+    Checks and requires all elements in collection are tuples, and that all tuples have the same length.
+    """
+    lst = list(collection)
+
+    if len(lst) <= 1:
+        return lst  # empty or 1 element lists are always sorted
+
+    assert all(
+        isinstance(elem, tuple) and len(elem) == len(lst[0]) for elem in lst
+    ), "all elements must be tuples and have the same length"
+
+    dtypes_each_tupleelement: List[Optional[type]] = [None] * len(lst[0])
+    for dtypeidx in range(len(dtypes_each_tupleelement)):
+        for elem in lst:
+            if elem[dtypeidx] is not None:
+                dtypes_each_tupleelement[dtypeidx] = type(elem[dtypeidx])
+                break
+        else:
+            # if all entries are None, just use a constant int() == 0
+            dtypes_each_tupleelement[dtypeidx] = int
+
+    def replace_None_with_default(elem):
+        return tuple(
+            (dtype() if subelem is None else subelem)
+            for dtype, subelem in zip(dtypes_each_tupleelement, elem)
+        )
+
+    return sorted(
+        lst, key=lambda elem: replace_None_with_default(elem), reverse=not ascending
+    )
+
+
 class Uniques(Constraint, abc.ABC):
     """Uniques is an abstract class for comparisons between unique values of a column and a reference.
 
@@ -42,9 +146,18 @@ class Uniques(Constraint, abc.ABC):
     are part of a reference set of expected values - either externally supplied
     through parameter `uniques` or obtained from another `DataSource`.
 
-    Null values in the column are ignored. To assert the non-existence of them use
+    Null values in the column are ignored by default. To assert the non-existence of them use
     the `NullAbsence` constraint via the `add_null_absence_constraint` helper method for
     `WithinRequirement`.
+    By default, the null filtering does not trigger if multiple columns are fetched at once.
+    It can be configured in more detail by supplying a custom `filter_func` function.
+    Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
+    `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+    For new deployments, using one of the above filters or a custom one is recommended.
+    Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+    The deprecated default may change in future versions.
+    To silence the warning, set `filter_func` explicitly.
+
 
     There are two ways to do some post processing of the data obtained from the
     database by providing a function to be executed. In general, no postprocessing
@@ -63,6 +176,31 @@ class Uniques(Constraint, abc.ABC):
     (eager or lazy) of the same type as the type of the values of the column (in their
     Python equivalent).
 
+    Furthermore, the `max_relative_violations` parameter can be used to set a tolerance
+    threshold for the proportion of elements in the data that can violate the constraint
+    (default: 0).
+    Setting this argument is currently not supported for `UniquesEquality`.
+
+    For `UniquesSubset`, by default,
+    the number of occurrences affects the computed fraction of violations.
+    To disable this weighting, set `compare_distinct=True`.
+    This argument does not have an effect on the test results for other `Uniques` constraints,
+    or if `max_relative_violations` is 0.
+
+    By default, the assertion messages make use of sets,
+    thus, they may differ from run to run despite the exact same situation being present.
+    To enforce a reproducible output via (e.g.) sorting, set `output_postprocessing_sorter` to a callable
+    which takes in two collections, and returns modified (e.g. sorted) versions of them.
+    In most cases, the second argument is simply None,
+    but for `UniquesSubset` it is the counts of each of the elements.
+    The suggested function is `util_output_postprocessing_sorter` from this file,
+    - see its documentation for details.
+
+    By default, the number of subset or superset remainders (excess or missing values)
+    for `UniquesSubset` and `UniquesSuperset` is sliced by [:5] (i.e. the first 5) in the assertion message.
+    This can be configured using `output_remainder_slicer`.
+    This argument does not have an effect for `UniquesEquality`.
+
     One use is of this constraint is to test for consistency in columns with expected
     categorical values.
     """
@@ -74,23 +212,51 @@ class Uniques(Constraint, abc.ABC):
         *,
         ref2: DataReference = None,
         uniques: Collection = None,
+        filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
         max_relative_violations=0,
+        compare_distinct=False,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer: slice = slice(5),
     ):
         ref_value: Optional[Tuple[Collection, List]]
         ref_value = (uniques, []) if uniques else None
         super().__init__(ref, ref2=ref2, ref_value=ref_value, name=name)
+
+        if filter_func is None:
+            warnings.warn(
+                "Using deprecated default null filter function. "
+                "Set filter_func explicitly to disable this warning."
+            )
+            filter_func = util_filternull_default_deprecated
+
+        self.filter_func = filter_func
         self.local_func = map_func
         self.global_func = reduce_func
         self.max_relative_violations = max_relative_violations
+        self.compare_distinct = compare_distinct
+        self.output_postprocessing_sorter = output_postprocessing_sorter
+        self.output_remainder_slicer = output_remainder_slicer
+
+    def apply_output_formatting_no_counts(
+        self, values: Collection[T], apply_remainder_limit=False
+    ) -> Collection[T]:
+        if self.output_postprocessing_sorter is not None:
+            values, _ = self.output_postprocessing_sorter(values)  # type: ignore[call-arg]
+        if apply_remainder_limit:
+            values = list(values)
+            values = values[self.output_remainder_slicer]
+        return values
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> Tuple[Tuple[List[T], List[int]], OptionalSelections]:
         uniques, selection = db_access.get_uniques(engine, ref)
         values = list(uniques.keys())
-        values = list(filter(lambda value: value is not None, values))
+        values = self.filter_func(values)
         counts = [uniques[value] for value in values]
         if self.local_func:
             values = list(map(self.local_func, values))
@@ -106,7 +272,11 @@ class Uniques(Constraint, abc.ABC):
 class UniquesEquality(Uniques):
     def __init__(self, args, name: str = None, **kwargs):
         if kwargs.get("max_relative_violations"):
-            raise RuntimeError("Some useful message")
+            raise RuntimeError(
+                "max_relative_violations is not supported for UniquesEquality."
+            )
+        if kwargs.get("compare_distinct"):
+            raise RuntimeError("compare_distinct is not supported for UniquesEquality.")
         super().__init__(args, name=name, **kwargs)
 
     def compare(
@@ -123,22 +293,22 @@ class UniquesEquality(Uniques):
         if not is_subset and not is_superset:
             assertion_text = (
                 f"{self.ref} doesn't have the element(s) "
-                f"'{lacking_values}' and has the excess element(s) "
-                f"'{excess_values}' when compared with the reference values. "
+                f"'{self.apply_output_formatting_no_counts(lacking_values)}' and has the excess element(s) "
+                f"'{self.apply_output_formatting_no_counts(excess_values)}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
             return False, assertion_text
         if not is_subset:
             assertion_text = (
                 f"{self.ref} has the excess element(s) "
-                f"'{excess_values}' when compared with the reference values. "
+                f"'{self.apply_output_formatting_no_counts(excess_values)}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
             return False, assertion_text
         if not is_superset:
             assertion_text = (
                 f"{self.ref} doesn't have the element(s) "
-                f"'{lacking_values}' when compared with the reference values. "
+                f"'{self.apply_output_formatting_no_counts(lacking_values)}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
             return False, assertion_text
@@ -153,21 +323,38 @@ class UniquesSubset(Uniques):
     ) -> Tuple[bool, Optional[str]]:
         factual_values, factual_counts = factual
         target_values, _ = target
+
         is_subset, remainder = _subset_violation_counts(
             factual_values, factual_counts, target_values
         )
-        n_rows = sum(factual_counts)
-        n_violations = sum(remainder.values())
+        if not self.compare_distinct:
+            n_rows = sum(factual_counts)
+            n_violations = sum(remainder.values())
+        else:
+            n_rows = len(factual_values)
+            n_violations = len(remainder)
+
         if (
             n_rows > 0
             and (relative_violations := (n_violations / n_rows))
             > self.max_relative_violations
         ):
+            output_elemes, output_counts = list(remainder.keys()), list(
+                remainder.values()
+            )
+            if self.output_postprocessing_sorter is not None:
+                output_elemes, output_counts = self.output_postprocessing_sorter(
+                    output_elemes, output_counts
+                )
+            output_elemes = output_elemes[self.output_remainder_slicer]
+            output_counts = output_counts[self.output_remainder_slicer]
+
             assertion_text = (
                 f"{self.ref} has a fraction of {relative_violations} > "
-                f"{self.max_relative_violations} values not being an element of "
-                f"'{set(target_values)}'. It has e.g. excess elements "
-                f"'{list(remainder.keys())[:5]}'."
+                f"{self.max_relative_violations} {'DISTINCT ' if self.compare_distinct else ''}values ({n_violations} / {n_rows}) not being an element of "
+                f"'{self.apply_output_formatting_no_counts(set(target_values))}'. It has e.g. ({self.output_remainder_slicer}) excess elements "
+                f"'{output_elemes}' "
+                f"with counts {output_counts}."
                 f"{self.condition_string}"
             )
             return False, assertion_text
@@ -175,6 +362,11 @@ class UniquesSubset(Uniques):
 
 
 class UniquesSuperset(Uniques):
+    def __init__(self, args, name: str = None, **kwargs):
+        if kwargs.get("compare_distinct"):
+            raise RuntimeError("compare_distinct is not supported for UniquesSuperset.")
+        super().__init__(args, name=name, **kwargs)
+
     def compare(
         self,
         factual: Tuple[List[T], List[int]],
@@ -185,14 +377,18 @@ class UniquesSuperset(Uniques):
         is_superset, remainder = _is_superset(factual_values, target_values)
         if (
             len(factual_values) > 0
-            and (relative_violations := (len(remainder) / len(target_values)))
+            and (
+                relative_violations := (
+                    (n_violations := (len(remainder))) / (n_rows := len(target_values))
+                )
+            )
             > self.max_relative_violations
         ):
             assertion_text = (
                 f"{self.ref} has a fraction of "
-                f"{relative_violations} > {self.max_relative_violations} "
-                f"lacking unique values of '{set(target_values)}'. E.g. it "
-                f"doesn't have the unique value(s) '{list(remainder)[:5]}'."
+                f"{relative_violations} > {self.max_relative_violations} ({n_violations} / {n_rows}) "
+                f"lacking unique values of '{self.apply_output_formatting_no_counts(set(target_values))}'. E.g. ({self.output_remainder_slicer}) it "
+                f"doesn't have the unique value(s) '{self.apply_output_formatting_no_counts(list(remainder), apply_remainder_limit=True)}'."
                 f"{self.condition_string}"
             )
             return False, assertion_text
