@@ -1,12 +1,13 @@
 import abc
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Any, Callable, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Collection, List, Optional, Tuple, TypeVar, Union
 
 import sqlalchemy as sa
 
 from ..db_access import DataReference
 from ..formatter import Formatter
+from ..utils import OutputProcessor, output_processor_limit
 
 DEFAULT_FORMATTER = Formatter()
 
@@ -113,7 +114,15 @@ class Constraint(abc.ABC):
     """
 
     def __init__(
-        self, ref: DataReference, *, ref2=None, ref_value: Any = None, name: str = None
+        self,
+        ref: DataReference,
+        *,
+        ref2=None,
+        ref_value: Any = None,
+        name: str = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = output_processor_limit,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref
@@ -124,6 +133,12 @@ class Constraint(abc.ABC):
         self.target_selections: OptionalSelections = None
         self.factual_queries: Optional[List[str]] = None
         self.target_queries: Optional[List[str]] = None
+
+        if (output_processors is not None) and (
+            not isinstance(output_processors, list)
+        ):
+            output_processors = [output_processors]
+        self.output_processors = output_processors
 
     def _check_if_valid_between_or_within(
         self, ref2: Optional[DataReference], ref_value: Optional[Any]
@@ -240,6 +255,12 @@ class Constraint(abc.ABC):
             factual_queries,
             target_queries,
         )
+
+    def apply_output_formatting(self, values: Collection) -> Collection:
+        if self.output_processors is not None:
+            for output_processor in self.output_processors:
+                values, _ = output_processor(values)
+        return values
 
 
 def format_sample(sample, ref: DataReference) -> str:

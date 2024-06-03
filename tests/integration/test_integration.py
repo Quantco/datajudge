@@ -1,4 +1,5 @@
 import functools
+import textwrap
 
 import pytest
 import sqlalchemy as sa
@@ -12,6 +13,14 @@ from datajudge.db_access import (
     is_mssql,
     is_postgresql,
     is_snowflake,
+)
+from datajudge.utils import (
+    filternull_element,
+    filternull_element_or_tuple_all,
+    filternull_element_or_tuple_any,
+    filternull_never,
+    output_processor_limit,
+    output_processor_sort,
 )
 
 
@@ -307,6 +316,48 @@ def test_uniques_equality_within(engine, unique_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            filternull_element_or_tuple_any,
+            None,
+            output_processor_sort,
+            None,
+            "column(s) 'col_int', 'col_varchar' has the excess element(s) '[(1, 'hi1'), (2, 'hi1'), (3, 'hi2'), (4, 'hi2'), (4, 'hi3'), (5, 'hi3'), (6, 'hi4'), (7, 'hi4'), (7, 'hi5'), (8, 'hi5'), (9, 'hi6'), (10, 'hi6'), (10, 'hi7'), (11, 'hi7'), (12, 'hi8'), (13, 'hi8'), (13, 'hi9'), (14, 'hi9'), (15, 'hi10'), (16, 'hi10'), (16, 'hi11'), (17, 'hi11'), (18, 'hi12'), (19, 'hi12'), (19, 'hi13'), (20, 'hi13'), (21, 'hi14'), (22, 'hi14'), (22, 'hi15'), (23, 'hi15'), (24, 'hi16'), (25, 'hi16'), (25, 'hi17'), (26, 'hi17'), (27, 'hi18'), (28, 'hi18'), (28, 'hi19'), (29, 'hi19')]' when compared with the reference values. ",
+        ),
+    ],
+)
+def test_uniques_equality_within_with_outputcheck(engine, unique_table1, data):
+    (
+        operation,
+        columns,
+        uniques,
+        filter_func,
+        map_func,
+        output_processors,
+        condition,
+        failure_message_suffix,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*unique_table1)
+    req.add_uniques_equality_constraint(
+        columns,
+        uniques,
+        condition=condition,
+        filter_func=filter_func,
+        map_func=map_func,
+        output_processors=output_processors,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (negation, ["col_int"], ["col_int"], None, None, None),
         (
             identity,
@@ -368,6 +419,53 @@ def test_uniques_equality_between(engine, unique_table1, unique_table2, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            ["col_int", "col_varchar"],
+            filternull_element_or_tuple_all,
+            None,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has the excess element(s) '[(None, 'hi'), (20, 'hi13'), (21, 'hi14'), (22, 'hi14'), (22, 'hi15'), (23, 'hi15'), (24, 'hi16'), (25, 'hi16'), (25, 'hi17'), (26, 'hi17'), (27, 'hi18'), (28, 'hi18'), (28, 'hi19'), (29, 'hi19')]' when compared with the reference values. ",
+        ),
+    ],
+)
+def test_uniques_equality_between_with_outputcheck(
+    engine, unique_table1, unique_table2, data
+):
+    (
+        operation,
+        columns1,
+        columns2,
+        filter_func,
+        map_func,
+        output_processors,
+        condition1,
+        condition2,
+        failure_message_suffix,
+    ) = data
+    req = requirements.BetweenRequirement.from_tables(*unique_table1, *unique_table2)
+    req.add_uniques_equality_constraint(
+        columns1,
+        columns2,
+        filter_func=filter_func,
+        map_func=map_func,
+        output_processors=output_processors,
+        condition1=condition1,
+        condition2=condition2,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (identity, ["col_int"], range(30), 0, None, None),
         (identity, ["col_int"], range(29), 0, None, None),
         (negation, ["col_int"], range(31), 0, None, None),
@@ -404,6 +502,153 @@ def test_uniques_superset_within(engine, unique_table1, data):
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(1337, "hi0"), (None, "hi"), (None, None)],
+            0,
+            filternull_never,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.3333333333333333 > 0 (1 / 3) lacking unique values of '[(None, None), (None, 'hi'), (1337, 'hi0')]'. It doesn't have the unique value(s) '[(1337, 'hi0')]'.",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(1337, "hi0"), (None, "hi"), (None, None)],
+            0,
+            None,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.3333333333333333 > 0 (1 / 3) lacking unique values of '[(None, None), (None, 'hi'), (1337, 'hi0')]'. It doesn't have the unique value(s) '[(1337, 'hi0')]'.",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(1337, "hi0"), (None, "hi"), (None, None)],
+            0,
+            filternull_element_or_tuple_all,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.6666666666666666 > 0 (2 / 3) lacking unique values of '[(None, None), (None, 'hi'), (1337, 'hi0')]'. It doesn't have the unique value(s) '[(None, None), (1337, 'hi0')]'.",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(1337, "hi0"), (None, "hi"), (None, None)],
+            0,
+            filternull_element_or_tuple_any,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 1.0 > 0 (3 / 3) lacking unique values of '[(None, None), (None, 'hi'), (1337, 'hi0')]'. It doesn't have the unique value(s) '[(None, None), (None, 'hi'), (1337, 'hi0')]'.",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [
+                (0, "hi0"),
+                (1234, "hi"),
+                (1234, "hi2"),
+                (1234, "hi3"),
+                (1234, "hi4"),
+                (1234, "hi5"),
+                (9999, "hi4"),
+            ],
+            0,
+            filternull_element_or_tuple_any,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.8571428571428571 > 0 (6 / 7) lacking unique values of '[(0, 'hi0'), (1234, 'hi'), (1234, 'hi2'), (1234, 'hi3'), (1234, 'hi4'), (1234, 'hi5'), (9999, 'hi4')]'. It doesn't have the unique value(s) '[(1234, 'hi'), (1234, 'hi2'), (1234, 'hi3'), (1234, 'hi4'), (1234, 'hi5'), (9999, 'hi4')]'.",
+        ),
+    ],
+)
+def test_uniques_superset_within_with_outputcheck(engine, unique_table1, data):
+    (
+        operation,
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func,
+        output_processors,
+        function,
+        condition,
+        failure_message_suffix,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*unique_table1)
+    req.add_uniques_superset_constraint(
+        columns,
+        uniques=uniques,
+        max_relative_violations=max_relative_violations,
+        filter_func=filter_func,
+        condition=condition,
+        map_func=function,
+        output_processors=output_processors,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            ["col_int", "col_varchar"],
+            0,
+            filternull_element_or_tuple_any,
+            [output_processor_sort],
+            None,
+            Condition(raw_string="col_int < 19"),
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.375 > 0 (15 / 40) lacking unique values of '[(0, 'hi0'), (1, 'hi0'), (1, 'hi1'), (2, 'hi1'), (3, 'hi2'), (4, 'hi2'), (4, 'hi3'), (5, 'hi3'), (6, 'hi4'), (7, 'hi4'), (7, 'hi5'), (8, 'hi5'), (9, 'hi6'), (10, 'hi6'), (10, 'hi7'), (11, 'hi7'), (12, 'hi8'), (13, 'hi8'), (13, 'hi9'), (14, 'hi9'), (15, 'hi10'), (16, 'hi10'), (16, 'hi11'), (17, 'hi11'), (18, 'hi12'), (19, 'hi12'), (19, 'hi13'), (20, 'hi13'), (21, 'hi14'), (22, 'hi14'), (22, 'hi15'), (23, 'hi15'), (24, 'hi16'), (25, 'hi16'), (25, 'hi17'), (26, 'hi17'), (27, 'hi18'), (28, 'hi18'), (28, 'hi19'), (29, 'hi19')]'. It doesn't have the unique value(s) '[(19, 'hi12'), (19, 'hi13'), (20, 'hi13'), (21, 'hi14'), (22, 'hi14'), (22, 'hi15'), (23, 'hi15'), (24, 'hi16'), (25, 'hi16'), (25, 'hi17'), (26, 'hi17'), (27, 'hi18'), (28, 'hi18'), (28, 'hi19'), (29, 'hi19')]'.Condition on first table: WHERE col_int < 19; ",
+        ),
+    ],
+)
+def test_uniques_superset_between_with_outputcheck(
+    engine, unique_table1, unique_table2, data
+):
+    (
+        operation,
+        columns1,
+        columns2,
+        max_relative_violations,
+        filter_func,
+        output_processors,
+        map_func,
+        condition1,
+        condition2,
+        failure_message_suffix,
+    ) = data
+    req = requirements.BetweenRequirement.from_tables(*unique_table2, *unique_table1)
+    req.add_uniques_superset_constraint(
+        columns1,
+        columns2,
+        max_relative_violations=max_relative_violations,
+        filter_func=filter_func,
+        output_processors=output_processors,
+        map_func=map_func,
+        condition1=condition1,
+        condition2=condition2,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
 
 
 @pytest.mark.parametrize(
@@ -538,6 +783,345 @@ def test_uniques_subset_within(engine, unique_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            None,
+            False,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9516129032258065 > 0 values (59 / 62) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (None, None), (None, 'hi'), (1, 'hi1'), (4, 'hi2'), (4, 'hi3'), (7, 'hi4'), (7, 'hi5'), (10, 'hi6'), (10, 'hi7'), (13, 'hi8'), (13, 'hi9'), (16, 'hi10'), (16, 'hi11'), (19, 'hi12'), (19, 'hi13'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            None,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9523809523809523 > 0 DISTINCT values (40 / 42) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (None, None), (None, 'hi'), (1, 'hi1'), (4, 'hi2'), (4, 'hi3'), (7, 'hi4'), (7, 'hi5'), (10, 'hi6'), (10, 'hi7'), (13, 'hi8'), (13, 'hi9'), (16, 'hi10'), (16, 'hi11'), (19, 'hi12'), (19, 'hi13'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+        (
+            negation,
+            ["col_int"],
+            [i for i in range(30) if i != 3],
+            0,
+            None,
+            False,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int' has a fraction of 0.03333333333333333 > 0 values (2 / 60) not being an element of '[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]'. It has excess elements '[3]' with counts [2].",
+        ),
+        (
+            negation,
+            ["col_int"],
+            [i for i in range(30) if i != 3],
+            0,
+            None,
+            False,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int' has a fraction of 0.03333333333333333 > 0 values (2 / 60) not being an element of '[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]'. It has excess elements '[3]' with counts [2].",
+        ),
+        (
+            negation,
+            ["col_int"],
+            [i for i in range(30) if i != 3],
+            0,
+            None,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int' has a fraction of 0.03333333333333333 > 0 DISTINCT values (1 / 30) not being an element of '[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]'. It has excess elements '[3]' with counts [2].",
+        ),
+        (
+            negation,
+            ["col_int"],
+            [i for i in range(30) if i != 3],
+            0,
+            filternull_element,
+            False,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int' has a fraction of 0.03333333333333333 > 0 values (2 / 60) not being an element of '[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]'. It has excess elements '[3]' with counts [2].",
+        ),
+        (
+            negation,
+            ["col_int"],
+            [i for i in range(30) if i != 3],
+            0,
+            filternull_element_or_tuple_all,
+            False,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int' has a fraction of 0.03333333333333333 > 0 values (2 / 60) not being an element of '[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]'. It has excess elements '[3]' with counts [2].",
+        ),
+        (
+            negation,
+            ["col_int"],
+            [i for i in range(30) if i != 3],
+            0,
+            filternull_element_or_tuple_any,
+            False,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int' has a fraction of 0.03333333333333333 > 0 values (2 / 60) not being an element of '[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]'. It has excess elements '[3]' with counts [2].",
+        ),
+        (
+            negation,
+            ["col_int"],
+            [i for i in range(30) if i != 3],
+            0,
+            filternull_never,
+            False,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int' has a fraction of 0.06451612903225806 > 0 values (4 / 62) not being an element of '[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]'. It has excess elements '[None, 3]' with counts [2, 2].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9523809523809523 > 0 DISTINCT values (40 / 42) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (None, None), (None, 'hi'), (1, 'hi1'), (4, 'hi2'), (4, 'hi3'), (7, 'hi4'), (7, 'hi5'), (10, 'hi6'), (10, 'hi7'), (13, 'hi8'), (13, 'hi9'), (16, 'hi10'), (16, 'hi11'), (19, 'hi12'), (19, 'hi13'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_never,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9523809523809523 > 0 DISTINCT values (40 / 42) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (None, None), (None, 'hi'), (1, 'hi1'), (4, 'hi2'), (4, 'hi3'), (7, 'hi4'), (7, 'hi5'), (10, 'hi6'), (10, 'hi7'), (13, 'hi8'), (13, 'hi9'), (16, 'hi10'), (16, 'hi11'), (19, 'hi12'), (19, 'hi13'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_all,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9512195121951219 > 0 DISTINCT values (39 / 41) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (None, 'hi'), (1, 'hi1'), (4, 'hi2'), (4, 'hi3'), (7, 'hi4'), (7, 'hi5'), (10, 'hi6'), (10, 'hi7'), (13, 'hi8'), (13, 'hi9'), (16, 'hi10'), (16, 'hi11'), (19, 'hi12'), (19, 'hi13'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_any,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.95 > 0 DISTINCT values (38 / 40) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (1, 'hi1'), (4, 'hi2'), (4, 'hi3'), (7, 'hi4'), (7, 'hi5'), (10, 'hi6'), (10, 'hi7'), (13, 'hi8'), (13, 'hi9'), (16, 'hi10'), (16, 'hi11'), (19, 'hi12'), (19, 'hi13'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+    ],
+)
+def test_uniques_subset_within_complex_with_outputcheck(engine, unique_table1, data):
+    (
+        operation,
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func,
+        compare_distinct,
+        output_processors,
+        function,
+        condition,
+        failure_message_suffix,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*unique_table1)
+    req.add_uniques_subset_constraint(
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func=filter_func,
+        compare_distinct=compare_distinct,
+        output_processors=output_processors,
+        condition=condition,
+        map_func=function,
+    )
+
+    test_result = req[0].test(engine)
+    print(test_result)
+    print(test_result.failure_message)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_any,
+            True,
+            [output_processor_sort, output_processor_limit],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9997569866342649 > 0 DISTINCT values (8228 / 8230) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (30, 'hi20'), (32, 'hi21'), (33, 'hi22'), (35, 'hi23'), (36, 'hi24'), (38, 'hi25'), (39, 'hi26'), (41, 'hi27'), (42, 'hi28'), (44, 'hi29'), (45, 'hi30'), (47, 'hi31'), (48, 'hi32'), (50, 'hi33'), (51, 'hi34'), (53, 'hi35'), (54, 'hi36'), (56, 'hi37'), (57, 'hi38'), (59, 'hi39'), (60, 'hi40'), (62, 'hi41'), (63, 'hi42'), (65, 'hi43'), (66, 'hi44'), (68, 'hi45'), (69, 'hi46'), (71, 'hi47'), (72, 'hi48'), (74, 'hi49'), (75, 'hi50'), (77, 'hi51'), (78, 'hi52'), (80, 'hi53'), (81, 'hi54'), (83, 'hi55'), (84, 'hi56'), (86, 'hi57'), (87, 'hi58'), (89, 'hi59'), (90, 'hi60'), (92, 'hi61'), (93, 'hi62'), (95, 'hi63'), (96, 'hi64'), (98, 'hi65'), (99, 'hi66'), (101, 'hi67'), (102, 'hi68'), (104, 'hi69'), (105, 'hi70'), (107, 'hi71'), (108, 'hi72'), (110, 'hi73'), (111, 'hi74'), (113, 'hi75'), (114, 'hi76'), (116, 'hi77'), (117, 'hi78'), (119, 'hi79'), (120, 'hi80'), (122, 'hi81'), (123, 'hi82'), (125, 'hi83'), (126, 'hi84'), (128, 'hi85'), (129, 'hi86'), (131, 'hi87'), (132, 'hi88'), (134, 'hi89'), (135, 'hi90'), (137, 'hi91'), (138, 'hi92'), (140, 'hi93'), (141, 'hi94'), (143, 'hi95'), (144, 'hi96'), (146, 'hi97'), (147, 'hi98'), (149, 'hi99'), (150, 'hi100'), '<SHORTENED OUTPUT, displaying the first 100 / 8228 elements above>']' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, '<SHORTENED OUTPUT, displaying the first 100 / 8228 counts above>'].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_any,
+            True,
+            [output_processor_sort, functools.partial(output_processor_limit, limit=5)],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9997569866342649 > 0 DISTINCT values (8228 / 8230) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), '<SHORTENED OUTPUT, displaying the first 5 / 8228 elements above>']' with counts [2, 2, 2, 2, 2, '<SHORTENED OUTPUT, displaying the first 5 / 8228 counts above>'].",
+        ),
+    ],
+)
+def test_uniques_subset_within_complex_with_outputcheck_extralong(
+    engine, unique_table_extralong, data
+):
+    (
+        operation,
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func,
+        compare_distinct,
+        output_processors,
+        function,
+        condition,
+        failure_message_suffix,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*unique_table_extralong)
+    req.add_uniques_subset_constraint(
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func=filter_func,
+        compare_distinct=compare_distinct,
+        output_processors=output_processors,
+        condition=condition,
+        map_func=function,
+    )
+
+    test_result = req[0].test(engine)
+    print(test_result)
+    print(test_result.failure_message)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            ["col_int", "col_varchar"],
+            0,
+            filternull_element_or_tuple_any,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.325 > 0 DISTINCT values (13 / 40) not being an element of '[(0, 'hi0'), (1, 'hi0'), (1, 'hi1'), (2, 'hi1'), (3, 'hi2'), (4, 'hi2'), (4, 'hi3'), (5, 'hi3'), (6, 'hi4'), (7, 'hi4'), (7, 'hi5'), (8, 'hi5'), (9, 'hi6'), (10, 'hi6'), (10, 'hi7'), (11, 'hi7'), (12, 'hi8'), (13, 'hi8'), (13, 'hi9'), (14, 'hi9'), (15, 'hi10'), (16, 'hi10'), (16, 'hi11'), (17, 'hi11'), (18, 'hi12'), (19, 'hi12'), (19, 'hi13')]'. It has excess elements '[(20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            ["col_int", "col_varchar"],
+            0,
+            filternull_element_or_tuple_all,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.34146341463414637 > 0 DISTINCT values (14 / 41) not being an element of '[(0, 'hi0'), (1, 'hi0'), (1, 'hi1'), (2, 'hi1'), (3, 'hi2'), (4, 'hi2'), (4, 'hi3'), (5, 'hi3'), (6, 'hi4'), (7, 'hi4'), (7, 'hi5'), (8, 'hi5'), (9, 'hi6'), (10, 'hi6'), (10, 'hi7'), (11, 'hi7'), (12, 'hi8'), (13, 'hi8'), (13, 'hi9'), (14, 'hi9'), (15, 'hi10'), (16, 'hi10'), (16, 'hi11'), (17, 'hi11'), (18, 'hi12'), (19, 'hi12'), (19, 'hi13')]'. It has excess elements '[(20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (None, 'hi'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            ["col_int", "col_varchar"],
+            0,
+            filternull_never,
+            True,
+            [output_processor_sort],
+            None,
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.35714285714285715 > 0 DISTINCT values (15 / 42) not being an element of '[(0, 'hi0'), (1, 'hi0'), (1, 'hi1'), (2, 'hi1'), (3, 'hi2'), (4, 'hi2'), (4, 'hi3'), (5, 'hi3'), (6, 'hi4'), (7, 'hi4'), (7, 'hi5'), (8, 'hi5'), (9, 'hi6'), (10, 'hi6'), (10, 'hi7'), (11, 'hi7'), (12, 'hi8'), (13, 'hi8'), (13, 'hi9'), (14, 'hi9'), (15, 'hi10'), (16, 'hi10'), (16, 'hi11'), (17, 'hi11'), (18, 'hi12'), (19, 'hi12'), (19, 'hi13')]'. It has excess elements '[(20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (None, None), (None, 'hi'), (22, 'hi14'), (22, 'hi15'), (25, 'hi16'), (25, 'hi17'), (28, 'hi18'), (28, 'hi19')]' with counts [2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1].",
+        ),
+    ],
+)
+def test_uniques_subset_between_with_outputcheck(
+    engine, unique_table1, unique_table2, data
+):
+    (
+        operation,
+        columns1,
+        columns2,
+        max_relative_violations,
+        filter_func,
+        compare_distinct,
+        output_processors,
+        map_func,
+        condition1,
+        condition2,
+        failure_message_suffix,
+    ) = data
+    req = requirements.BetweenRequirement.from_tables(*unique_table1, *unique_table2)
+    req.add_uniques_subset_constraint(
+        columns1,
+        columns2,
+        max_relative_violations=max_relative_violations,
+        filter_func=filter_func,
+        compare_distinct=compare_distinct,
+        output_processors=output_processors,
+        map_func=map_func,
+        condition1=condition1,
+        condition2=condition2,
+    )
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
         (negation, ["col_int"], ["col_int"], 0, None, None, None),
         (identity, ["col_int"], ["col_int"], 20 / 60, None, None, None),
         (negation, ["col_int"], ["col_int"], 19 / 60, None, None, None),
@@ -623,6 +1207,73 @@ def test_functional_dependency_within_multi_key(
     )
     req.add_functional_dependency_constraint(key_columns, value_columns)
     assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["a", "b"],
+            ["d"],
+            [output_processor_sort],
+            textwrap.dedent(
+                """\
+                column(s) 'a', 'b', 'd' has violations of functional dependence (in total 10 rows):
+                (1, 1, 3)
+                (1, 1, 4)
+                (1, 2, 5)
+                (1, 2, 6)
+                (2, 1, 7)
+                (2, 1, 8)
+                (2, 2, 9)
+                (2, 2, 10)
+                (44, 44, 12)
+                (44, 44, 13)
+                """
+            ).strip(),
+        ),
+        (
+            negation,
+            ["a", "b"],
+            ["c", "e"],
+            [output_processor_sort],
+            textwrap.dedent(
+                """\
+                column(s) 'a', 'b', 'c', 'e' has violations of functional dependence (in total 4 rows):
+                (43, 43, 6, 6)
+                (43, 43, 6, 7)
+                (44, 44, None, None)
+                (44, 44, None, 99)
+                """
+            ).strip(),
+        ),
+    ],
+)
+def test_functional_dependency_within_multi_key_with_outputcheck(
+    engine, functional_dependency_table_multi_key, data
+):
+    (
+        operation,
+        key_columns,
+        value_columns,
+        output_processors,
+        failure_message_suffix,
+    ) = data
+    req = requirements.WithinRequirement.from_table(
+        *functional_dependency_table_multi_key
+    )
+    req.add_functional_dependency_constraint(
+        key_columns,
+        value_columns,
+        output_processors=output_processors,
+    )
+
+    test_result = req[0].test(engine)
+    assert operation(test_result.outcome)
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
 
 
 def _flatten_and_filter(data):
@@ -2077,7 +2728,7 @@ def test_max_null_fraction_between(engine, unique_table1, data):
 )
 def test_column_type_within(engine, mix_table1, data):
     (operation, col_name, type_name) = data
-    if is_impala(engine) and type_name is str:
+    if is_impala(engine) and isinstance(type_name, str):
         type_name = {"VARCHAR": "string", "INTEGER": "int"}[type_name]
     req = requirements.WithinRequirement.from_table(*mix_table1)
     req.add_column_type_constraint(col_name, type_name)
