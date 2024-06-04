@@ -4,13 +4,6 @@ import pytest
 import sqlalchemy as sa
 
 import datajudge.requirements as requirements
-from datajudge.constraints.uniques import (
-    util_filternull_default_deprecated,
-    util_filternull_element_or_tuple_all,
-    util_filternull_element_or_tuple_any,
-    util_filternull_never,
-    util_output_postprocessing_sorter,
-)
 from datajudge.db_access import (
     Condition,
     is_bigquery,
@@ -19,6 +12,13 @@ from datajudge.db_access import (
     is_mssql,
     is_postgresql,
     is_snowflake,
+)
+from datajudge.utils import (
+    util_filternull_default_deprecated,
+    util_filternull_element_or_tuple_all,
+    util_filternull_element_or_tuple_any,
+    util_filternull_never,
+    util_output_postprocessing_sorter,
 )
 
 

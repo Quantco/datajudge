@@ -9,6 +9,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
+from ..utils import util_filternull_default_deprecated
 from .base import Constraint, OptionalSelections, T, TestResult, ToleranceGetter
 
 
@@ -36,109 +37,6 @@ def _subset_violation_counts(
     return len(remainder) == 0, remainder
 
 
-def util_output_postprocessing_sorter(
-    collection: Collection, counts: Optional[Collection] = None
-):
-    """
-    Sorts a collection of tuple elements in descending order of their counts,
-    and for ties, makes use of the ascending order of the elements themselves.
-
-    If the first element is not instanceof tuple,
-    each element will be transparently packaged into a 1-tuple for processing;
-    this process is not visible to the caller.
-
-    Handles None values as described in `sort_tuple_none_aware`.
-    """
-    collection = list(collection)
-    if not isinstance(collection[0], tuple):
-        # package into a 1 tuple and pass into the method again
-        packaged_list = [(elem,) for elem in collection]
-        res_main, res_counts = util_output_postprocessing_sorter(packaged_list, counts)
-        return [elem[0] for elem in res_main], res_counts
-
-    if counts is None:
-        return sort_tuple_none_aware(collection), counts
-
-    assert len(collection) == len(
-        counts
-    ), "collection and counts must have the same length"
-
-    if len(collection) <= 1:
-        return collection, counts  # empty or 1 element lists are always sorted
-
-    lst = sort_tuple_none_aware(
-        [(-count, *elem) for count, elem in zip(counts, collection)]
-    )
-    return [elem[1:] for elem in lst], [-elem[0] for elem in lst]
-
-
-def util_filternull_default_deprecated(values: List[T]) -> List[T]:
-    return list(filter(lambda value: value is not None, values))
-
-
-def util_filternull_never(values: List[T]) -> List[T]:
-    return values
-
-
-def util_filternull_element_or_tuple_all(values: List[T]) -> List[T]:
-    return list(
-        filter(
-            lambda value: (value is not None)
-            and (not (isinstance(value, tuple) and all(x is None for x in value))),
-            values,
-        )
-    )
-
-
-def util_filternull_element_or_tuple_any(values: List[T]) -> List[T]:
-    return list(
-        filter(
-            lambda value: (value is not None)
-            and (not (isinstance(value, tuple) and any(x is None for x in value))),
-            values,
-        )
-    )
-
-
-def sort_tuple_none_aware(collection: Collection[Tuple], ascending=True):
-    """
-    Sorts a collection of either tuples or single elements,
-    where `None` is considered the same as the default value of the respective column's type.
-    For ints/floats `int()`/`float()` yield `0`/`0.0`, for strings `str()` yields `''`.
-    The constructor is determined by calling type() on the first non-`None` element of the respective column.
-
-    Checks and requires all elements in collection are tuples, and that all tuples have the same length.
-    """
-    lst = list(collection)
-
-    if len(lst) <= 1:
-        return lst  # empty or 1 element lists are always sorted
-
-    assert all(
-        isinstance(elem, tuple) and len(elem) == len(lst[0]) for elem in lst
-    ), "all elements must be tuples and have the same length"
-
-    dtypes_each_tupleelement: List[Optional[type]] = [None] * len(lst[0])
-    for dtypeidx in range(len(dtypes_each_tupleelement)):
-        for elem in lst:
-            if elem[dtypeidx] is not None:
-                dtypes_each_tupleelement[dtypeidx] = type(elem[dtypeidx])
-                break
-        else:
-            # if all entries are None, just use a constant int() == 0
-            dtypes_each_tupleelement[dtypeidx] = int
-
-    def replace_None_with_default(elem):
-        return tuple(
-            (dtype() if subelem is None else subelem)
-            for dtype, subelem in zip(dtypes_each_tupleelement, elem)
-        )
-
-    return sorted(
-        lst, key=lambda elem: replace_None_with_default(elem), reverse=not ascending
-    )
-
-
 class Uniques(Constraint, abc.ABC):
     """Uniques is an abstract class for comparisons between unique values of a column and a reference.
 
@@ -151,10 +49,10 @@ class Uniques(Constraint, abc.ABC):
     `WithinRequirement`.
     By default, the null filtering does not trigger if multiple columns are fetched at once.
     It can be configured in more detail by supplying a custom ``filter_func`` function.
-    Some exemplary implementations are available in this module as ``util_filternull_default_deprecated``,
-    ``util_filternull_never``, ``util_filternull_element_or_tuple_all``, ``util_filternull_element_or_tuple_any``.
+    Some exemplary implementations are available in this module as ``datajudge.utils.util_filternull_default_deprecated``,
+    ``datajudge.utils.util_filternull_never``, ``datajudge.utils.util_filternull_element_or_tuple_all``, ``datajudge.utils.util_filternull_element_or_tuple_any``.
     For new deployments, using one of the above filters or a custom one is recommended.
-    Passing None as the argument is equivalent to ``util_filternull_default_deprecated``, but triggers a warning.
+    Passing None as the argument is equivalent to ``datajudge.utils.util_filternull_default_deprecated``, but triggers a warning.
     The deprecated default may change in future versions.
     To silence the warning, set ``filter_func`` explicitly.
 
@@ -193,7 +91,7 @@ class Uniques(Constraint, abc.ABC):
     which takes in two collections, and returns modified (e.g. sorted) versions of them.
     In most cases, the second argument is simply None,
     but for `UniquesSubset` it is the counts of each of the elements.
-    The suggested function is `util_output_postprocessing_sorter` from this file,
+    The suggested function is ``datajudge.utils.util_output_postprocessing_sorter`` from this file,
     - see its documentation for details.
 
     By default, the number of subset or superset remainders (excess or missing values)
