@@ -150,13 +150,13 @@ class Uniques(Constraint, abc.ABC):
     the `NullAbsence` constraint via the `add_null_absence_constraint` helper method for
     `WithinRequirement`.
     By default, the null filtering does not trigger if multiple columns are fetched at once.
-    It can be configured in more detail by supplying a custom `filter_func` function.
-    Some exemplary implementations are available in this module as `util_filternull_default_deprecated`,
-    `util_filternull_never`, `util_filternull_element_or_tuple_all`, `util_filternull_element_or_tuple_any`.
+    It can be configured in more detail by supplying a custom ``filter_func`` function.
+    Some exemplary implementations are available in this module as ``util_filternull_default_deprecated``,
+    ``util_filternull_never``, ``util_filternull_element_or_tuple_all``, ``util_filternull_element_or_tuple_any``.
     For new deployments, using one of the above filters or a custom one is recommended.
-    Passing None as the argument is equivalent to `util_filternull_default_deprecated`, but triggers a warning.
+    Passing None as the argument is equivalent to ``util_filternull_default_deprecated``, but triggers a warning.
     The deprecated default may change in future versions.
-    To silence the warning, set `filter_func` explicitly.
+    To silence the warning, set ``filter_func`` explicitly.
 
 
     There are two ways to do some post processing of the data obtained from the
