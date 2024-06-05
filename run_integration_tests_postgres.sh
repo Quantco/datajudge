@@ -3,7 +3,7 @@
 docker stop $(docker ps -q --filter name=postgres_datajudge)
 
 ./start_postgres.sh &
-bash -c "while true; do printf '\nPress enter to once postgres is ready: '; sleep 1; done" & 
+bash -c "while true; do printf '\nPress enter once postgres is ready: '; sleep 1; done" & 
 
 read -p "Press enter to once postgres is ready: "
 kill %%
