@@ -130,8 +130,15 @@ class FunctionalDependency(Constraint):
             return TestResult.success()
 
         assertion_text = (
-            f"{self.ref} has violations of functional dependence, e.g.:\n"
-            + "\n".join([f"{tuple(violation)}" for violation in violations][:5])
+            f"{self.ref} has violations of functional dependence (in total {len(violations)} rows), e.g. ({self.output_remainder_slicer}):\n"
+            + "\n".join(
+                [
+                    f"{violation}"
+                    for violation in self.apply_output_formatting_no_counts(
+                        [tuple(elem) for elem in violations], True
+                    )
+                ]
+            )
         )
         return TestResult.failure(assertion_text)
 

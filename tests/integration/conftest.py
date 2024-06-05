@@ -760,22 +760,40 @@ def functional_dependency_table_multi_key(engine, metadata):
 
     # ab -> c
     # ab -/-> d
+    # ab -/-> ce
     columns = [
         sa.Column("a", sa.Integer()),
         sa.Column("b", sa.Integer()),
         sa.Column("c", sa.Integer()),
         sa.Column("d", sa.Integer()),
+        sa.Column("e", sa.Integer()),
     ]
+
+    # fmt: off
     data = [
-        {"a": 1, "b": 1, "c": 2, "d": 3},
-        {"a": 1, "b": 1, "c": 2, "d": 4},
-        {"a": 1, "b": 2, "c": 3, "d": 5},
-        {"a": 1, "b": 2, "c": 3, "d": 6},
-        {"a": 2, "b": 1, "c": 4, "d": 7},
-        {"a": 2, "b": 1, "c": 4, "d": 8},
-        {"a": 2, "b": 2, "c": 5, "d": 9},
-        {"a": 2, "b": 2, "c": 5, "d": 10},
+        {"a": 1, "b": 1, "c": 2, "d": 3, "e": 2, },
+        {"a": 1, "b": 1, "c": 2, "d": 4, "e": 2, },
+        {"a": 1, "b": 2, "c": 3, "d": 5, "e": 3, },
+        {"a": 1, "b": 2, "c": 3, "d": 6, "e": 3, },
+        {"a": 2, "b": 1, "c": 4, "d": 7, "e": 4, },
+        {"a": 2, "b": 1, "c": 4, "d": 8, "e": 4, },
+        {"a": 2, "b": 2, "c": 5, "d": 9, "e": 5, },
+        {"a": 2, "b": 2, "c": 5, "d": 10, "e": 5, },
+
+        # if NULL is on the LHS, this is not considered a functional dependency violation
+        {"a": None, "b": None, "c": 6, "d": 10, "e": 6, },
+        {"a": None, "b": None, "c": 6, "d": 11, "e": 8, },
+
+        {"a": None, "b": 99, "c": 6, "d": 10, "e": 6, },
+        {"a": None, "b": 99, "c": 6, "d": 11, "e": 8, },
+        {"a": 42, "b": None, "c": 6, "d": 11, "e": 6, },
+        {"a": None, "b": 42, "c": 6, "d": 11, "e": 6, },
+        {"a": 43, "b": 43, "c": 6, "d": 12, "e": 6, },
+        {"a": 43, "b": 43, "c": 6, "d": 12, "e": 7, },
+        {"a": 44, "b": 44, "c": None, "d": 12, "e": None, },
+        {"a": 44, "b": 44, "c": None, "d": 13, "e": 99, },
     ]
+    # fmt: on
 
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name

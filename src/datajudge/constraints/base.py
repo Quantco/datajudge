@@ -1,7 +1,7 @@
 import abc
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Any, Callable, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Collection, List, Optional, Tuple, TypeVar
 
 import sqlalchemy as sa
 
@@ -113,7 +113,16 @@ class Constraint(abc.ABC):
     """
 
     def __init__(
-        self, ref: DataReference, *, ref2=None, ref_value: Any = None, name: str = None
+        self,
+        ref: DataReference,
+        *,
+        ref2=None,
+        ref_value: Any = None,
+        name: str = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer=slice(5),
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref
@@ -124,6 +133,8 @@ class Constraint(abc.ABC):
         self.target_selections: OptionalSelections = None
         self.factual_queries: Optional[List[str]] = None
         self.target_queries: Optional[List[str]] = None
+        self.output_postprocessing_sorter = output_postprocessing_sorter
+        self.output_remainder_slicer = output_remainder_slicer
 
     def _check_if_valid_between_or_within(
         self, ref2: Optional[DataReference], ref_value: Optional[Any]
@@ -240,6 +251,16 @@ class Constraint(abc.ABC):
             factual_queries,
             target_queries,
         )
+
+    def apply_output_formatting_no_counts(
+        self, values: Collection, apply_remainder_limit=False
+    ) -> Collection:
+        if self.output_postprocessing_sorter is not None:
+            values, _ = self.output_postprocessing_sorter(values)  # type: ignore[call-arg]
+        if apply_remainder_limit:
+            values = list(values)
+            values = values[self.output_remainder_slicer]
+        return values
 
 
 def format_sample(sample, ref: DataReference) -> str:

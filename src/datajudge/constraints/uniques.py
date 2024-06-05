@@ -107,6 +107,10 @@ class Uniques(Constraint, abc.ABC):
         self,
         ref: DataReference,
         name: str = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer=slice(5),
         *,
         ref2: DataReference = None,
         uniques: Collection = None,
@@ -115,14 +119,17 @@ class Uniques(Constraint, abc.ABC):
         reduce_func: Callable[[Collection], Collection] = None,
         max_relative_violations=0,
         compare_distinct=False,
-        output_postprocessing_sorter: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer: slice = slice(5),
     ):
         ref_value: Optional[Tuple[Collection, List]]
         ref_value = (uniques, []) if uniques else None
-        super().__init__(ref, ref2=ref2, ref_value=ref_value, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=ref_value,
+            name=name,
+            output_postprocessing_sorter=output_postprocessing_sorter,
+            output_remainder_slicer=output_remainder_slicer,
+        )
 
         if filter_func is None:
             warnings.warn("Using deprecated default null filter function.")
@@ -133,18 +140,6 @@ class Uniques(Constraint, abc.ABC):
         self.global_func = reduce_func
         self.max_relative_violations = max_relative_violations
         self.compare_distinct = compare_distinct
-        self.output_postprocessing_sorter = output_postprocessing_sorter
-        self.output_remainder_slicer = output_remainder_slicer
-
-    def apply_output_formatting_no_counts(
-        self, values: Collection[T], apply_remainder_limit=False
-    ) -> Collection[T]:
-        if self.output_postprocessing_sorter is not None:
-            values, _ = self.output_postprocessing_sorter(values)  # type: ignore[call-arg]
-        if apply_remainder_limit:
-            values = list(values)
-            values = values[self.output_remainder_slicer]
-        return values
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference

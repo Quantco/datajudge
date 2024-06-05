@@ -1,4 +1,6 @@
 import functools
+import textwrap
+import warnings
 
 import pytest
 import sqlalchemy as sa
@@ -1194,6 +1196,78 @@ def test_functional_dependency_within_multi_key(
     )
     req.add_functional_dependency_constraint(key_columns, value_columns)
     assert operation(req[0].test(engine).outcome)
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["a", "b"],
+            ["d"],
+            output_postprocessing_sorter,
+            slice(None),
+            textwrap.dedent(
+                """\
+                column(s) 'a', 'b', 'd' has violations of functional dependence (in total 10 rows), e.g. (slice(None, None, None)):
+                (1, 1, 3)
+                (1, 1, 4)
+                (1, 2, 5)
+                (1, 2, 6)
+                (2, 1, 7)
+                (2, 1, 8)
+                (2, 2, 9)
+                (2, 2, 10)
+                (44, 44, 12)
+                (44, 44, 13)
+                """
+            ).strip(),
+        ),
+        (
+            negation,
+            ["a", "b"],
+            ["c", "e"],
+            output_postprocessing_sorter,
+            slice(None),
+            textwrap.dedent(
+                """\
+                column(s) 'a', 'b', 'c', 'e' has violations of functional dependence (in total 4 rows), e.g. (slice(None, None, None)):
+                (43, 43, 6, 6)
+                (43, 43, 6, 7)
+                (44, 44, None, None)
+                (44, 44, None, 99)
+                """
+            ).strip(),
+        ),
+    ],
+)
+def test_functional_dependency_within_multi_key_with_outputcheck(
+    engine, functional_dependency_table_multi_key, data
+):
+    (
+        operation,
+        key_columns,
+        value_columns,
+        output_postprocessing_sorter,
+        output_remainder_slicer,
+        failure_message_suffix,
+    ) = data
+    req = requirements.WithinRequirement.from_table(
+        *functional_dependency_table_multi_key
+    )
+    req.add_functional_dependency_constraint(
+        key_columns,
+        value_columns,
+        output_postprocessing_sorter=output_postprocessing_sorter,
+        output_remainder_slicer=output_remainder_slicer,
+    )
+
+    test_result = req[0].test(engine)
+    warnings.warn(test_result.failure_message)
+    assert operation(test_result.outcome)
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
 
 
 def _flatten_and_filter(data):

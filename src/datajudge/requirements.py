@@ -310,12 +310,12 @@ class WithinRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        condition: Condition = None,
+        name: str = None,
         output_postprocessing_sorter: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
-        condition: Condition = None,
-        name: str = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -368,12 +368,12 @@ class WithinRequirement(Requirement):
         compare_distinct: bool = False,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        condition: Condition = None,
+        name: str = None,
         output_postprocessing_sorter: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
-        condition: Condition = None,
-        name: str = None,
     ):
         """Check if the data's unique values are contained in a given set of values.
 
@@ -876,6 +876,10 @@ class WithinRequirement(Requirement):
         value_columns: List[str],
         condition: Condition = None,
         name: str = None,
+        output_postprocessing_sorter: Callable[
+            [Collection, Optional[Collection]], Collection
+        ] = None,
+        output_remainder_slicer=slice(5),
     ):
         """
         Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
@@ -885,6 +889,8 @@ class WithinRequirement(Requirement):
         and all other columns are included `value_columns`.
         This constraint allows for a more general definition of functional dependencies, where the `key_columns` are not necessarily a primary key.
 
+        Additional configuration options (for details see the analogous parameters in for ``Uniques``-constraints) on how the output is sorted and how many counterexamples are shown are available as ``output_postprocessing_sorter`` and ``output_remainder_slicer``.
+
         For more information on functional dependencies, see https://en.wikipedia.org/wiki/Functional_dependency.
         """
         relevant_columns = key_columns + value_columns
@@ -893,6 +899,8 @@ class WithinRequirement(Requirement):
             miscs_constraints.FunctionalDependency(
                 ref,
                 key_columns=key_columns,
+                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
         )
@@ -1518,13 +1526,13 @@ class BetweenRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        condition1: Condition = None,
+        condition2: Condition = None,
+        name: str = None,
         output_postprocessing_sorter: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -1579,13 +1587,13 @@ class BetweenRequirement(Requirement):
         compare_distinct: bool = False,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
+        condition1: Condition = None,
+        condition2: Condition = None,
+        name: str = None,
         output_postprocessing_sorter: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
     ):
         """Check if the given columns's unique values in are contained in reference data.
 
