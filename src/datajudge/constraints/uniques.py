@@ -9,7 +9,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from ..utils import util_filternull_default_deprecated
+from ..utils import filternull_element
 from .base import Constraint, OptionalSelections, T, TestResult, ToleranceGetter
 
 
@@ -49,10 +49,10 @@ class Uniques(Constraint, abc.ABC):
     `WithinRequirement`.
     By default, the null filtering does not trigger if multiple columns are fetched at once.
     It can be configured in more detail by supplying a custom ``filter_func`` function.
-    Some exemplary implementations are available in this module as ``datajudge.utils.util_filternull_default_deprecated``,
-    ``datajudge.utils.util_filternull_never``, ``datajudge.utils.util_filternull_element_or_tuple_all``, ``datajudge.utils.util_filternull_element_or_tuple_any``.
+    Some exemplary implementations are available in this module as ``datajudge.utils.filternull_element``,
+    ``datajudge.utils.filternull_never``, ``datajudge.utils.filternull_element_or_tuple_all``, ``datajudge.utils.filternull_element_or_tuple_any``.
     For new deployments, using one of the above filters or a custom one is recommended.
-    Passing None as the argument is equivalent to ``datajudge.utils.util_filternull_default_deprecated``, but triggers a warning.
+    Passing None as the argument is equivalent to ``datajudge.utils.filternull_element``, but triggers a warning.
     The deprecated default may change in future versions.
     To silence the warning, set ``filter_func`` explicitly.
 
@@ -91,7 +91,7 @@ class Uniques(Constraint, abc.ABC):
     which takes in two collections, and returns modified (e.g. sorted) versions of them.
     In most cases, the second argument is simply None,
     but for `UniquesSubset` it is the counts of each of the elements.
-    The suggested function is ``datajudge.utils.util_output_postprocessing_sorter`` from this file,
+    The suggested function is ``datajudge.utils.output_postprocessing_sorter`` from this file,
     - see its documentation for details.
 
     By default, the number of subset or superset remainders (excess or missing values)
@@ -125,11 +125,8 @@ class Uniques(Constraint, abc.ABC):
         super().__init__(ref, ref2=ref2, ref_value=ref_value, name=name)
 
         if filter_func is None:
-            warnings.warn(
-                "Using deprecated default null filter function. "
-                "Set filter_func explicitly to disable this warning."
-            )
-            filter_func = util_filternull_default_deprecated
+            warnings.warn("Using deprecated default null filter function.")
+            filter_func = filternull_element
 
         self.filter_func = filter_func
         self.local_func = map_func

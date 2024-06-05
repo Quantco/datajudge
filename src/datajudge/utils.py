@@ -46,7 +46,7 @@ def format_difference(
     )
 
 
-def util_output_postprocessing_sorter(
+def output_postprocessing_sorter(
     collection: Collection, counts: Optional[Collection] = None
 ):
     """
@@ -63,7 +63,7 @@ def util_output_postprocessing_sorter(
     if not isinstance(collection[0], tuple):
         # package into a 1 tuple and pass into the method again
         packaged_list = [(elem,) for elem in collection]
-        res_main, res_counts = util_output_postprocessing_sorter(packaged_list, counts)
+        res_main, res_counts = output_postprocessing_sorter(packaged_list, counts)
         return [elem[0] for elem in res_main], res_counts
 
     if counts is None:
@@ -82,32 +82,30 @@ def util_output_postprocessing_sorter(
     return [elem[1:] for elem in lst], [-elem[0] for elem in lst]
 
 
-def util_filternull_default_deprecated(values: List[T]) -> List[T]:
-    return list(filter(lambda value: value is not None, values))
+def filternull_element(values: List[T]) -> List[T]:
+    return [value for value in values if value is not None]
 
 
-def util_filternull_never(values: List[T]) -> List[T]:
+def filternull_never(values: List[T]) -> List[T]:
     return values
 
 
-def util_filternull_element_or_tuple_all(values: List[T]) -> List[T]:
-    return list(
-        filter(
-            lambda value: (value is not None)
-            and (not (isinstance(value, tuple) and all(x is None for x in value))),
-            values,
-        )
-    )
+def filternull_element_or_tuple_all(values: List[T]) -> List[T]:
+    return [
+        value
+        for value in values
+        if value is not None
+        and not (isinstance(value, tuple) and all(x is None for x in value))
+    ]
 
 
-def util_filternull_element_or_tuple_any(values: List[T]) -> List[T]:
-    return list(
-        filter(
-            lambda value: (value is not None)
-            and (not (isinstance(value, tuple) and any(x is None for x in value))),
-            values,
-        )
-    )
+def filternull_element_or_tuple_any(values: List[T]) -> List[T]:
+    return [
+        value
+        for value in values
+        if value is not None
+        and not (isinstance(value, tuple) and any(x is None for x in value))
+    ]
 
 
 def sort_tuple_none_aware(collection: Collection[Tuple], ascending=True):
