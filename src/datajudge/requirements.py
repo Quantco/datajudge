@@ -262,7 +262,7 @@ class WithinRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         condition: Condition = None,
@@ -286,7 +286,7 @@ class WithinRequirement(Requirement):
         To silence the warning, set ``filter_func`` explicitly.
 
         See the ``Uniques`` class for further parameter details on ``map_func`` and
-        ``reduce_func``, and ``output_postprocessing_sorter``.
+        ``reduce_func``, and ``output_processor``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -297,7 +297,7 @@ class WithinRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_processor=output_processor,
                 name=name,
             )
         )
@@ -312,7 +312,7 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
         name: str = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
@@ -341,7 +341,7 @@ class WithinRequirement(Requirement):
         categorical values.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
+        ``output_processor``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -353,7 +353,7 @@ class WithinRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_processor=output_processor,
                 output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
@@ -370,7 +370,7 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
         name: str = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
@@ -403,7 +403,7 @@ class WithinRequirement(Requirement):
         or if `max_relative_violations` is 0.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
+        ``output_processor``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -416,7 +416,7 @@ class WithinRequirement(Requirement):
                 compare_distinct=compare_distinct,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_processor=output_processor,
                 output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
@@ -876,7 +876,7 @@ class WithinRequirement(Requirement):
         value_columns: List[str],
         condition: Condition = None,
         name: str = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
@@ -889,7 +889,7 @@ class WithinRequirement(Requirement):
         and all other columns are included `value_columns`.
         This constraint allows for a more general definition of functional dependencies, where the `key_columns` are not necessarily a primary key.
 
-        Additional configuration options (for details see the analogous parameters in for ``Uniques``-constraints) on how the output is sorted and how many counterexamples are shown are available as ``output_postprocessing_sorter`` and ``output_remainder_slicer``.
+        Additional configuration options (for details see the analogous parameters in for ``Uniques``-constraints) on how the output is sorted and how many counterexamples are shown are available as ``output_processor`` and ``output_remainder_slicer``.
 
         For more information on functional dependencies, see https://en.wikipedia.org/wiki/Functional_dependency.
         """
@@ -899,7 +899,7 @@ class WithinRequirement(Requirement):
             miscs_constraints.FunctionalDependency(
                 ref,
                 key_columns=key_columns,
-                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_processor=output_processor,
                 output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
@@ -1476,7 +1476,7 @@ class BetweenRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         condition1: Condition = None,
@@ -1501,7 +1501,7 @@ class BetweenRequirement(Requirement):
         To silence the warning, set ``filter_func`` explicitly.
 
         See the ``Uniques`` class for further parameter details on ``map_func``,
-        ``reduce_func``, and ``output_postprocessing_sorter``.
+        ``reduce_func``, and ``output_processor``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1513,7 +1513,7 @@ class BetweenRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_processor=output_processor,
                 name=name,
             )
         )
@@ -1529,7 +1529,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
@@ -1559,7 +1559,7 @@ class BetweenRequirement(Requirement):
         categorical values.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
+        ``output_processor``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1572,7 +1572,7 @@ class BetweenRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_processor=output_processor,
                 output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )
@@ -1590,7 +1590,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
@@ -1622,7 +1622,7 @@ class BetweenRequirement(Requirement):
         or if `max_relative_violations` is 0.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_postprocessing_sorter``, and ``output_remainder_slicer``.
+        ``output_processor``, and ``output_remainder_slicer``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1636,7 +1636,7 @@ class BetweenRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_postprocessing_sorter=output_postprocessing_sorter,
+                output_processor=output_processor,
                 output_remainder_slicer=output_remainder_slicer,
                 name=name,
             )

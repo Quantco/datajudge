@@ -119,7 +119,7 @@ class Constraint(abc.ABC):
         ref2=None,
         ref_value: Any = None,
         name: str = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
@@ -133,7 +133,7 @@ class Constraint(abc.ABC):
         self.target_selections: OptionalSelections = None
         self.factual_queries: Optional[List[str]] = None
         self.target_queries: Optional[List[str]] = None
-        self.output_postprocessing_sorter = output_postprocessing_sorter
+        self.output_processor = output_processor
         self.output_remainder_slicer = output_remainder_slicer
 
     def _check_if_valid_between_or_within(
@@ -255,8 +255,8 @@ class Constraint(abc.ABC):
     def apply_output_formatting_no_counts(
         self, values: Collection, apply_remainder_limit=False
     ) -> Collection:
-        if self.output_postprocessing_sorter is not None:
-            values, _ = self.output_postprocessing_sorter(values)  # type: ignore[call-arg]
+        if self.output_processor is not None:
+            values, _ = self.output_processor(values)  # type: ignore[call-arg]
         if apply_remainder_limit:
             values = list(values)
             values = values[self.output_remainder_slicer]

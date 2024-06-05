@@ -46,9 +46,7 @@ def format_difference(
     )
 
 
-def output_postprocessing_sorter(
-    collection: Collection, counts: Optional[Collection] = None
-):
+def output_processor_sort(collection: Collection, counts: Optional[Collection] = None):
     """
     Sorts a collection of tuple elements in descending order of their counts,
     and for ties, makes use of the ascending order of the elements themselves.
@@ -63,7 +61,7 @@ def output_postprocessing_sorter(
     if not isinstance(collection[0], tuple):
         # package into a 1 tuple and pass into the method again
         packaged_list = [(elem,) for elem in collection]
-        res_main, res_counts = output_postprocessing_sorter(packaged_list, counts)
+        res_main, res_counts = output_processor_sort(packaged_list, counts)
         return [elem[0] for elem in res_main], res_counts
 
     if counts is None:

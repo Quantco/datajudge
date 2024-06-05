@@ -87,11 +87,11 @@ class Uniques(Constraint, abc.ABC):
 
     By default, the assertion messages make use of sets,
     thus, they may differ from run to run despite the exact same situation being present.
-    To enforce a reproducible output via (e.g.) sorting, set `output_postprocessing_sorter` to a callable
+    To enforce a reproducible output via (e.g.) sorting, set `output_processor` to a callable
     which takes in two collections, and returns modified (e.g. sorted) versions of them.
     In most cases, the second argument is simply None,
     but for `UniquesSubset` it is the counts of each of the elements.
-    The suggested function is ``datajudge.utils.output_postprocessing_sorter`` from this file,
+    The suggested function is ``datajudge.utils.output_processor_sort`` from this file,
     - see its documentation for details.
 
     By default, the number of subset or superset remainders (excess or missing values)
@@ -107,7 +107,7 @@ class Uniques(Constraint, abc.ABC):
         self,
         ref: DataReference,
         name: str = None,
-        output_postprocessing_sorter: Callable[
+        output_processor: Callable[
             [Collection, Optional[Collection]], Collection
         ] = None,
         output_remainder_slicer=slice(5),
@@ -127,7 +127,7 @@ class Uniques(Constraint, abc.ABC):
             ref2=ref2,
             ref_value=ref_value,
             name=name,
-            output_postprocessing_sorter=output_postprocessing_sorter,
+            output_processor=output_processor,
             output_remainder_slicer=output_remainder_slicer,
         )
 
@@ -232,8 +232,8 @@ class UniquesSubset(Uniques):
             output_elemes, output_counts = list(remainder.keys()), list(
                 remainder.values()
             )
-            if self.output_postprocessing_sorter is not None:
-                output_elemes, output_counts = self.output_postprocessing_sorter(
+            if self.output_processor is not None:
+                output_elemes, output_counts = self.output_processor(
                     output_elemes, output_counts
                 )
             output_elemes = output_elemes[self.output_remainder_slicer]
