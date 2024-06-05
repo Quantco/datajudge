@@ -34,6 +34,7 @@ from .db_access import (
     TableDataSource,
     get_date_growth_rate,
 )
+from .utils import OutputProcessor
 
 T = TypeVar("T")
 
@@ -262,9 +263,7 @@ class WithinRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
+        output_processors: List[OutputProcessor] = None,
         condition: Condition = None,
         name: str = None,
     ):
@@ -297,7 +296,7 @@ class WithinRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_processor=output_processor,
+                output_processors=output_processors,
                 name=name,
             )
         )
@@ -312,10 +311,7 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
         name: str = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer=slice(5),
+        output_processors: List[OutputProcessor] = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -341,7 +337,7 @@ class WithinRequirement(Requirement):
         categorical values.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_processor``, and ``output_remainder_slicer``.
+        and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -353,8 +349,7 @@ class WithinRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_processor=output_processor,
-                output_remainder_slicer=output_remainder_slicer,
+                output_processors=output_processors,
                 name=name,
             )
         )
@@ -370,10 +365,7 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
         name: str = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer=slice(5),
+        output_processors: List[OutputProcessor] = None,
     ):
         """Check if the data's unique values are contained in a given set of values.
 
@@ -403,7 +395,7 @@ class WithinRequirement(Requirement):
         or if `max_relative_violations` is 0.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_processor``, and ``output_remainder_slicer``.
+        and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -416,8 +408,7 @@ class WithinRequirement(Requirement):
                 compare_distinct=compare_distinct,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_processor=output_processor,
-                output_remainder_slicer=output_remainder_slicer,
+                output_processors=output_processors,
                 name=name,
             )
         )
@@ -876,10 +867,7 @@ class WithinRequirement(Requirement):
         value_columns: List[str],
         condition: Condition = None,
         name: str = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer=slice(5),
+        output_processors: List[OutputProcessor] = None,
     ):
         """
         Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
@@ -889,7 +877,8 @@ class WithinRequirement(Requirement):
         and all other columns are included `value_columns`.
         This constraint allows for a more general definition of functional dependencies, where the `key_columns` are not necessarily a primary key.
 
-        Additional configuration options (for details see the analogous parameters in for ``Uniques``-constraints) on how the output is sorted and how many counterexamples are shown are available as ``output_processor`` and ``output_remainder_slicer``.
+        An additional configuration option (for details see the analogous parameter in for ``Uniques``-constraints)
+        on how the output is sorted and how many counterexamples are shown is available as ``output_processors``.
 
         For more information on functional dependencies, see https://en.wikipedia.org/wiki/Functional_dependency.
         """
@@ -899,8 +888,7 @@ class WithinRequirement(Requirement):
             miscs_constraints.FunctionalDependency(
                 ref,
                 key_columns=key_columns,
-                output_processor=output_processor,
-                output_remainder_slicer=output_remainder_slicer,
+                output_processors=output_processors,
                 name=name,
             )
         )
@@ -1476,9 +1464,7 @@ class BetweenRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
+        output_processors: List[OutputProcessor] = None,
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1513,7 +1499,7 @@ class BetweenRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_processor=output_processor,
+                output_processors=output_processors,
                 name=name,
             )
         )
@@ -1529,10 +1515,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer=slice(5),
+        output_processors: List[OutputProcessor] = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -1559,7 +1542,7 @@ class BetweenRequirement(Requirement):
         categorical values.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_processor``, and ``output_remainder_slicer``.
+        and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1572,8 +1555,7 @@ class BetweenRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_processor=output_processor,
-                output_remainder_slicer=output_remainder_slicer,
+                output_processors=output_processors,
                 name=name,
             )
         )
@@ -1590,10 +1572,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer=slice(5),
+        output_processors: List[OutputProcessor] = None,
     ):
         """Check if the given columns's unique values in are contained in reference data.
 
@@ -1622,7 +1601,7 @@ class BetweenRequirement(Requirement):
         or if `max_relative_violations` is 0.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
-        ``output_processor``, and ``output_remainder_slicer``.
+        and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1636,8 +1615,7 @@ class BetweenRequirement(Requirement):
                 filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
-                output_processor=output_processor,
-                output_remainder_slicer=output_remainder_slicer,
+                output_processors=output_processors,
                 name=name,
             )
         )

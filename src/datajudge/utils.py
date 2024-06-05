@@ -1,6 +1,4 @@
-from typing import Collection, List, Optional, Tuple, Union
-
-from .constraints.base import T
+from typing import Collection, List, Optional, Protocol, Tuple, Union
 
 
 def _fmt_diff_part(s, d):
@@ -46,7 +44,17 @@ def format_difference(
     )
 
 
-def output_processor_sort(collection: Collection, counts: Optional[Collection] = None):
+class OutputProcessor(Protocol):
+    def __call__(  # noqa: E704
+        self,
+        collection: Collection,
+        counts: Optional[Collection] = None,
+    ) -> Collection: ...
+
+
+def output_processor_sort(
+    collection: Collection, counts: Optional[Collection] = None
+) -> Collection:
     """
     Sorts a collection of tuple elements in descending order of their counts,
     and for ties, makes use of the ascending order of the elements themselves.
@@ -80,15 +88,15 @@ def output_processor_sort(collection: Collection, counts: Optional[Collection] =
     return [elem[1:] for elem in lst], [-elem[0] for elem in lst]
 
 
-def filternull_element(values: List[T]) -> List[T]:
+def filternull_element(values: List) -> List:
     return [value for value in values if value is not None]
 
 
-def filternull_never(values: List[T]) -> List[T]:
+def filternull_never(values: List) -> List:
     return values
 
 
-def filternull_element_or_tuple_all(values: List[T]) -> List[T]:
+def filternull_element_or_tuple_all(values: List) -> List:
     return [
         value
         for value in values
@@ -97,7 +105,7 @@ def filternull_element_or_tuple_all(values: List[T]) -> List[T]:
     ]
 
 
-def filternull_element_or_tuple_any(values: List[T]) -> List[T]:
+def filternull_element_or_tuple_any(values: List) -> List:
     return [
         value
         for value in values

@@ -9,7 +9,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from ..utils import filternull_element
+from ..utils import OutputProcessor, filternull_element
 from .base import Constraint, OptionalSelections, T, TestResult, ToleranceGetter
 
 
@@ -94,11 +94,6 @@ class Uniques(Constraint, abc.ABC):
     The suggested function is ``datajudge.utils.output_processor_sort`` from this file,
     - see its documentation for details.
 
-    By default, the number of subset or superset remainders (excess or missing values)
-    for `UniquesSubset` and `UniquesSuperset` is sliced by [:5] (i.e. the first 5) in the assertion message.
-    This can be configured using `output_remainder_slicer`.
-    This argument does not have an effect for `UniquesEquality`.
-
     One use is of this constraint is to test for consistency in columns with expected
     categorical values.
     """
@@ -107,10 +102,7 @@ class Uniques(Constraint, abc.ABC):
         self,
         ref: DataReference,
         name: str = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer=slice(5),
+        output_processors: List[OutputProcessor] = None,
         *,
         ref2: DataReference = None,
         uniques: Collection = None,
@@ -127,8 +119,7 @@ class Uniques(Constraint, abc.ABC):
             ref2=ref2,
             ref_value=ref_value,
             name=name,
-            output_processor=output_processor,
-            output_remainder_slicer=output_remainder_slicer,
+            output_processors=output_processors,
         )
 
         if filter_func is None:
@@ -232,17 +223,16 @@ class UniquesSubset(Uniques):
             output_elemes, output_counts = list(remainder.keys()), list(
                 remainder.values()
             )
-            if self.output_processor is not None:
-                output_elemes, output_counts = self.output_processor(
-                    output_elemes, output_counts
-                )
-            output_elemes = output_elemes[self.output_remainder_slicer]
-            output_counts = output_counts[self.output_remainder_slicer]
+            if self.output_processors is not None:
+                for output_processor in self.output_processors:
+                    output_elemes, output_counts = output_processor(
+                        output_elemes, output_counts
+                    )
 
             assertion_text = (
                 f"{self.ref} has a fraction of {relative_violations} > "
                 f"{self.max_relative_violations} {'DISTINCT ' if self.compare_distinct else ''}values ({n_violations} / {n_rows}) not being an element of "
-                f"'{self.apply_output_formatting_no_counts(set(target_values))}'. It has e.g. ({self.output_remainder_slicer}) excess elements "
+                f"'{self.apply_output_formatting_no_counts(set(target_values))}'. It has excess elements "
                 f"'{output_elemes}' "
                 f"with counts {output_counts}."
                 f"{self.condition_string}"
@@ -277,8 +267,8 @@ class UniquesSuperset(Uniques):
             assertion_text = (
                 f"{self.ref} has a fraction of "
                 f"{relative_violations} > {self.max_relative_violations} ({n_violations} / {n_rows}) "
-                f"lacking unique values of '{self.apply_output_formatting_no_counts(set(target_values))}'. E.g. ({self.output_remainder_slicer}) it "
-                f"doesn't have the unique value(s) '{self.apply_output_formatting_no_counts(list(remainder), apply_remainder_limit=True)}'."
+                f"lacking unique values of '{self.apply_output_formatting_no_counts(set(target_values))}'. It "
+                f"doesn't have the unique value(s) '{self.apply_output_formatting_no_counts(list(remainder))}'."
                 f"{self.condition_string}"
             )
             return False, assertion_text

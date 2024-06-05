@@ -7,6 +7,7 @@ import sqlalchemy as sa
 
 from ..db_access import DataReference
 from ..formatter import Formatter
+from ..utils import OutputProcessor
 
 DEFAULT_FORMATTER = Formatter()
 
@@ -119,10 +120,7 @@ class Constraint(abc.ABC):
         ref2=None,
         ref_value: Any = None,
         name: str = None,
-        output_processor: Callable[
-            [Collection, Optional[Collection]], Collection
-        ] = None,
-        output_remainder_slicer=slice(5),
+        output_processors: List[OutputProcessor] = None,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref
@@ -133,8 +131,7 @@ class Constraint(abc.ABC):
         self.target_selections: OptionalSelections = None
         self.factual_queries: Optional[List[str]] = None
         self.target_queries: Optional[List[str]] = None
-        self.output_processor = output_processor
-        self.output_remainder_slicer = output_remainder_slicer
+        self.output_processors = output_processors
 
     def _check_if_valid_between_or_within(
         self, ref2: Optional[DataReference], ref_value: Optional[Any]
@@ -252,14 +249,10 @@ class Constraint(abc.ABC):
             target_queries,
         )
 
-    def apply_output_formatting_no_counts(
-        self, values: Collection, apply_remainder_limit=False
-    ) -> Collection:
-        if self.output_processor is not None:
-            values, _ = self.output_processor(values)  # type: ignore[call-arg]
-        if apply_remainder_limit:
-            values = list(values)
-            values = values[self.output_remainder_slicer]
+    def apply_output_formatting_no_counts(self, values: Collection) -> Collection:
+        if self.output_processors is not None:
+            for output_processor in self.output_processors:
+                values, _ = output_processor(values)
         return values
 
 
