@@ -102,7 +102,9 @@ class Uniques(Constraint, abc.ABC):
         self,
         ref: DataReference,
         name: str = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
         *,
         ref2: DataReference = None,
         uniques: Collection = None,

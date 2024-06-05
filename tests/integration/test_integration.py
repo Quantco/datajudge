@@ -321,7 +321,7 @@ def test_uniques_equality_within(engine, unique_table1, data):
             [(0, "hi0"), (1, "hi0")],
             filternull_element_or_tuple_any,
             None,
-            [output_processor_sort],
+            output_processor_sort,
             None,
             "column(s) 'col_int', 'col_varchar' has the excess element(s) '[(1, 'hi1'), (2, 'hi1'), (3, 'hi2'), (4, 'hi2'), (4, 'hi3'), (5, 'hi3'), (6, 'hi4'), (7, 'hi4'), (7, 'hi5'), (8, 'hi5'), (9, 'hi6'), (10, 'hi6'), (10, 'hi7'), (11, 'hi7'), (12, 'hi8'), (13, 'hi8'), (13, 'hi9'), (14, 'hi9'), (15, 'hi10'), (16, 'hi10'), (16, 'hi11'), (17, 'hi11'), (18, 'hi12'), (19, 'hi12'), (19, 'hi13'), (20, 'hi13'), (21, 'hi14'), (22, 'hi14'), (22, 'hi15'), (23, 'hi15'), (24, 'hi16'), (25, 'hi16'), (25, 'hi17'), (26, 'hi17'), (27, 'hi18'), (28, 'hi18'), (28, 'hi19'), (29, 'hi19')]' when compared with the reference values. ",
         ),

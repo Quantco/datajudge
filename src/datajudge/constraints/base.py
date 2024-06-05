@@ -1,7 +1,7 @@
 import abc
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Any, Callable, Collection, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Collection, List, Optional, Tuple, TypeVar, Union
 
 import sqlalchemy as sa
 
@@ -120,7 +120,9 @@ class Constraint(abc.ABC):
         ref2=None,
         ref_value: Any = None,
         name: str = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref
@@ -131,6 +133,11 @@ class Constraint(abc.ABC):
         self.target_selections: OptionalSelections = None
         self.factual_queries: Optional[List[str]] = None
         self.target_queries: Optional[List[str]] = None
+
+        if (output_processors is not None) and (
+            not isinstance(output_processors, list)
+        ):
+            output_processors = [output_processors]
         self.output_processors = output_processors
 
     def _check_if_valid_between_or_within(

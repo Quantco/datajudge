@@ -263,7 +263,9 @@ class WithinRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
         condition: Condition = None,
         name: str = None,
     ):
@@ -311,7 +313,9 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
         name: str = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -365,7 +369,9 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         condition: Condition = None,
         name: str = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
     ):
         """Check if the data's unique values are contained in a given set of values.
 
@@ -867,7 +873,9 @@ class WithinRequirement(Requirement):
         value_columns: List[str],
         condition: Condition = None,
         name: str = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
     ):
         """
         Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
@@ -1464,7 +1472,9 @@ class BetweenRequirement(Requirement):
         filter_func: Callable[[List[T]], List[T]] = None,
         map_func: Callable[[T], T] = None,
         reduce_func: Callable[[Collection], Collection] = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1515,7 +1525,9 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -1572,7 +1584,9 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
-        output_processors: List[OutputProcessor] = None,
+        output_processors: Optional[
+            Union[OutputProcessor, List[OutputProcessor]]
+        ] = None,
     ):
         """Check if the given columns's unique values in are contained in reference data.
 
