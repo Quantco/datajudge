@@ -19,6 +19,7 @@ from datajudge.utils import (
     filternull_element_or_tuple_all,
     filternull_element_or_tuple_any,
     filternull_never,
+    output_processor_limit,
     output_processor_sort,
 )
 
@@ -954,6 +955,71 @@ def test_uniques_subset_within_complex_with_outputcheck(engine, unique_table1, d
         failure_message_suffix,
     ) = data
     req = requirements.WithinRequirement.from_table(*unique_table1)
+    req.add_uniques_subset_constraint(
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func=filter_func,
+        compare_distinct=compare_distinct,
+        output_processors=output_processors,
+        condition=condition,
+        map_func=function,
+    )
+
+    test_result = req[0].test(engine)
+    print(test_result)
+    print(test_result.failure_message)
+    assert operation(test_result.outcome), test_result.failure_message
+    assert test_result.failure_message.endswith(
+        failure_message_suffix
+    ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_any,
+            True,
+            [output_processor_sort, output_processor_limit],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9997569866342649 > 0 DISTINCT values (8228 / 8230) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), (9, 'hi6'), (11, 'hi7'), (12, 'hi8'), (14, 'hi9'), (15, 'hi10'), (17, 'hi11'), (18, 'hi12'), (20, 'hi13'), (21, 'hi14'), (23, 'hi15'), (24, 'hi16'), (26, 'hi17'), (27, 'hi18'), (29, 'hi19'), (30, 'hi20'), (32, 'hi21'), (33, 'hi22'), (35, 'hi23'), (36, 'hi24'), (38, 'hi25'), (39, 'hi26'), (41, 'hi27'), (42, 'hi28'), (44, 'hi29'), (45, 'hi30'), (47, 'hi31'), (48, 'hi32'), (50, 'hi33'), (51, 'hi34'), (53, 'hi35'), (54, 'hi36'), (56, 'hi37'), (57, 'hi38'), (59, 'hi39'), (60, 'hi40'), (62, 'hi41'), (63, 'hi42'), (65, 'hi43'), (66, 'hi44'), (68, 'hi45'), (69, 'hi46'), (71, 'hi47'), (72, 'hi48'), (74, 'hi49'), (75, 'hi50'), (77, 'hi51'), (78, 'hi52'), (80, 'hi53'), (81, 'hi54'), (83, 'hi55'), (84, 'hi56'), (86, 'hi57'), (87, 'hi58'), (89, 'hi59'), (90, 'hi60'), (92, 'hi61'), (93, 'hi62'), (95, 'hi63'), (96, 'hi64'), (98, 'hi65'), (99, 'hi66'), (101, 'hi67'), (102, 'hi68'), (104, 'hi69'), (105, 'hi70'), (107, 'hi71'), (108, 'hi72'), (110, 'hi73'), (111, 'hi74'), (113, 'hi75'), (114, 'hi76'), (116, 'hi77'), (117, 'hi78'), (119, 'hi79'), (120, 'hi80'), (122, 'hi81'), (123, 'hi82'), (125, 'hi83'), (126, 'hi84'), (128, 'hi85'), (129, 'hi86'), (131, 'hi87'), (132, 'hi88'), (134, 'hi89'), (135, 'hi90'), (137, 'hi91'), (138, 'hi92'), (140, 'hi93'), (141, 'hi94'), (143, 'hi95'), (144, 'hi96'), (146, 'hi97'), (147, 'hi98'), (149, 'hi99'), (150, 'hi100'), '<SHORTENED OUTPUT, displaying the first 100 / 8228 elements above>']' with counts [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, '<SHORTENED OUTPUT, displaying the first 100 / 8228 counts above>'].",
+        ),
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_any,
+            True,
+            [output_processor_sort, functools.partial(output_processor_limit, limit=5)],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9997569866342649 > 0 DISTINCT values (8228 / 8230) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), '<SHORTENED OUTPUT, displaying the first 5 / 8228 elements above>']' with counts [2, 2, 2, 2, 2, '<SHORTENED OUTPUT, displaying the first 5 / 8228 counts above>'].",
+        ),
+    ],
+)
+def test_uniques_subset_within_complex_with_outputcheck_extralong(
+    engine, unique_table_extralong, data
+):
+    (
+        operation,
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func,
+        compare_distinct,
+        output_processors,
+        function,
+        condition,
+        failure_message_suffix,
+    ) = data
+    req = requirements.WithinRequirement.from_table(*unique_table_extralong)
     req.add_uniques_subset_constraint(
         columns,
         uniques,

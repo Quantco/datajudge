@@ -717,6 +717,18 @@ def unique_table2(engine, metadata):
 
 
 @pytest.fixture(scope="module")
+def unique_table_extralong(engine, metadata):
+    table_name = "unique_table_extralong"
+    columns = [
+        sa.Column("col_int", sa.Integer()),
+        sa.Column("col_varchar", _string_column(engine)),
+    ]
+    data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(12345)]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
     columns = [sa.Column("nested_varchar", _string_column(engine))]

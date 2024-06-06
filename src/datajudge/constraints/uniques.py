@@ -86,13 +86,17 @@ class Uniques(Constraint, abc.ABC):
     or if `max_relative_violations` is 0.
 
     By default, the assertion messages make use of sets,
-    thus, they may differ from run to run despite the exact same situation being present.
-    To enforce a reproducible output via (e.g.) sorting, set `output_processor` to a callable
-    which takes in two collections, and returns modified (e.g. sorted) versions of them.
+    thus, they may differ from run to run despite the exact same situation being present,
+    and can have an arbitrary length.
+    To enforce a reproducible, limited output via (e.g.) sorting and slicing,
+    set `output_processors` to a list of callables
+
+    Each callable takes in two collections, and returns modified (e.g. sorted) versions of them.
     In most cases, the second argument is simply None,
     but for `UniquesSubset` it is the counts of each of the elements.
-    The suggested function is ``datajudge.utils.output_processor_sort`` from this file,
-    - see its documentation for details.
+    The suggested functions are ``datajudge.utils.output_processor_sort``
+    and ``datajudge.utils.output_processor_limit``.,
+    - see their respective docstrings for details.
 
     One use is of this constraint is to test for consistency in columns with expected
     categorical values.

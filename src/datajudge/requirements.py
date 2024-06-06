@@ -287,7 +287,7 @@ class WithinRequirement(Requirement):
         To silence the warning, set ``filter_func`` explicitly.
 
         See the ``Uniques`` class for further parameter details on ``map_func`` and
-        ``reduce_func``, and ``output_processor``.
+        ``reduce_func``, and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -1497,7 +1497,7 @@ class BetweenRequirement(Requirement):
         To silence the warning, set ``filter_func`` explicitly.
 
         See the ``Uniques`` class for further parameter details on ``map_func``,
-        ``reduce_func``, and ``output_processor``.
+        ``reduce_func``, and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)

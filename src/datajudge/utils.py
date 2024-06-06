@@ -88,6 +88,32 @@ def output_processor_sort(
     return [elem[1:] for elem in lst], [-elem[0] for elem in lst]
 
 
+def output_processor_limit(
+    collection: Collection, counts: Optional[Collection] = None, limit: int = 100
+) -> Collection:
+    """
+    Limits the collection to the first ``limit`` elements.
+    If the list was shortened,
+    will add a ``limit+1``-th string element,
+    informing the user of the truncation.
+    The default limit of ``100`` can be adjusted using ``functools.partial``
+    """
+    collection = list(collection)
+
+    ret_collection = collection[:limit]
+    ret_counts = None if counts is None else list(counts)[:limit]
+    if len(collection) > limit:
+        ret_collection.append(
+            f"<SHORTENED OUTPUT, displaying the first {limit} / {len(collection)} elements above>"
+        )
+        if ret_counts is not None:
+            ret_counts.append(
+                f"<SHORTENED OUTPUT, displaying the first {limit} / {len(collection)} counts above>"
+            )
+
+    return ret_collection, ret_counts
+
+
 def filternull_element(values: List) -> List:
     return [value for value in values if value is not None]
 
