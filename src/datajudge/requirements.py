@@ -275,7 +275,7 @@ class WithinRequirement(Requirement):
         of a ``DataSource`` are strictly the ones of a reference set of expected values,
         specified via the ``uniques`` parameter.
 
-        Null values in the columns ``colums`` are ignored. To assert the non-existence of them use
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
@@ -322,7 +322,7 @@ class WithinRequirement(Requirement):
         The ``UniquesSuperset`` constraint asserts that reference set of expected values,
         specified via ``uniques``, is contained in given columns of a ``DataSource``.
 
-        Null values in the column are ignored. To assert the non-existence of them use
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
@@ -379,7 +379,7 @@ class WithinRequirement(Requirement):
         a ``DataSource`` are part of a reference set of expected values, specified via
         ``uniques``.
 
-        Null values in the column are ignored. To assert the non-existence of them use
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
@@ -1485,7 +1485,7 @@ class BetweenRequirement(Requirement):
         of a ``DataSource``'s columns, are strictly the ones of another ``DataSource``'s
         columns.
 
-        Null values in the column are ignored. To assert the non-existence of them use
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
@@ -1535,7 +1535,7 @@ class BetweenRequirement(Requirement):
         derived from the unique values in given columns of the reference ``DataSource``,
         is contained in given columns of a ``DataSource``.
 
-        Null values in the column are ignored. To assert the non-existence of them use
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
@@ -1594,7 +1594,7 @@ class BetweenRequirement(Requirement):
         a ``DataSource`` are part of the unique values of given columns of another
         ``DataSource``.
 
-        Null values in the column are ignored. To assert the non-existence of them use
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
