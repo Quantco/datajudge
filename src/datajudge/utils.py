@@ -140,11 +140,18 @@ def filternull_element_or_tuple_any(values: List) -> List:
     ]
 
 
-def sort_tuple_none_aware(collection: Collection[Tuple], ascending=True):
+def sort_tuple_none_aware(
+    collection: Collection[Tuple], ascending=True
+) -> Collection[Tuple]:
     """
-    Sorts a collection of either tuples or single elements,
-    where `None` is considered the same as the default value of the respective column's type.
-    For ints and floats ``int()`` and ``float()`` yield ``0`` and ``0.0`` respectively; for strings, ``str()`` yields ``''``.
+    Sorts a collection of tuples.
+    Each tuple in the collection must have the same length,
+    since they are treated as rows in a table,
+    with ``elem[0]`` being the first column,
+    ``elem[1]`` the second, etc. for each ``elem`` in ``collection``.
+    For sorting, ``None`` is considered the same as the default value of the respective column's type.
+
+    ints and floats ``int()`` and ``float()`` yield ``0`` and ``0.0`` respectively; for strings, ``str()`` yields ``''``.
     The constructor is determined by calling ``type`` on the first non-``None`` element of the respective column.
 
     Validates that all elements in collection are tuples and that all tuples have the same length.
