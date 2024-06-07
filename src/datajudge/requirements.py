@@ -1610,7 +1610,7 @@ class BetweenRequirement(Requirement):
         that ``UniquesSubset`` and ``UniquesSuperset`` are not symmetrical in this regard.
 
         By default, the number of occurrences affects the computed fraction of violations.
-        To disable this weighting, set `compare_distinct=True`.
+        To disable this weighting, set ``compare_distinct=True``.
         This argument does not have an effect on the test results for other `Uniques` constraints,
         or if `max_relative_violations` is 0.
 
