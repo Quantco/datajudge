@@ -1553,7 +1553,7 @@ class BetweenRequirement(Requirement):
         One use of this constraint is to test for consistency in columns with expected
         categorical values.
 
-        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        See :class:`~datajudge.constraints.uniques.Uniques` for further details on ``map_func``, ``reduce_func``,
         and ``output_processors``.
         """
 
