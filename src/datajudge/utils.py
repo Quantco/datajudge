@@ -75,9 +75,8 @@ def output_processor_sort(
     if counts is None:
         return sort_tuple_none_aware(collection), counts
 
-    assert len(collection) == len(
-        counts
-    ), "collection and counts must have the same length"
+    if len(collection) != len(counts):
+        raise ValueError("collection and counts must have the same length")
 
     if len(collection) <= 1:
         return collection, counts  # empty or 1 element lists are always sorted
@@ -161,9 +160,8 @@ def sort_tuple_none_aware(
     if len(lst) <= 1:
         return lst  # empty or 1 element lists are always sorted
 
-    assert all(
-        isinstance(elem, tuple) and len(elem) == len(lst[0]) for elem in lst
-    ), "all elements must be tuples and have the same length"
+    if not all(isinstance(elem, tuple) and len(elem) == len(lst[0]) for elem in lst):
+        raise ValueError("all elements must be tuples and have the same length")
 
     dtypes_each_tupleelement: List[Optional[type]] = [None] * len(lst[0])
     for dtypeidx in range(len(dtypes_each_tupleelement)):
