@@ -1611,7 +1611,7 @@ class BetweenRequirement(Requirement):
 
         By default, the number of occurrences affects the computed fraction of violations.
         To disable this weighting, set ``compare_distinct=True``.
-        This argument does not have an effect on the test results for other `Uniques` constraints,
+        This argument does not have an effect on the test results for other :class:`~datajudge.constraints.uniques.Uniques` constraints,
         or if ``max_relative_violations`` is 0.
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
