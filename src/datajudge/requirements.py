@@ -1496,7 +1496,7 @@ class BetweenRequirement(Requirement):
         The deprecated default may change in future versions.
         To silence the warning, set ``filter_func`` explicitly.
 
-        See the ``Uniques`` class for further parameter details on ``map_func``,
+        See :class:`~datajudge.constraints.uniques.Uniques` for further parameter details on ``map_func``,
         ``reduce_func``, and ``output_processors``.
         """
 
