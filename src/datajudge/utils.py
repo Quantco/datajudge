@@ -63,7 +63,7 @@ def output_processor_sort(
     each element will be transparently packaged into a 1-tuple for processing;
     this process is not visible to the caller.
 
-    Handles None values as described in `sort_tuple_none_aware`.
+    Handles ``None`` values as described in ``sort_tuple_none_aware``.
     """
     collection = list(collection)
     if not isinstance(collection[0], tuple):
