@@ -144,7 +144,7 @@ def sort_tuple_none_aware(collection: Collection[Tuple], ascending=True):
     """
     Sorts a collection of either tuples or single elements,
     where `None` is considered the same as the default value of the respective column's type.
-    For ints/floats `int()`/`float()` yield `0`/`0.0`, for strings `str()` yields `''`.
+    For ints and floats ``int()`` and ``float()`` yield ``0`` and ``0.0`` respectively; for strings, ``str()`` yields ``''``.
     The constructor is determined by calling type() on the first non-`None` element of the respective column.
 
     Checks and requires all elements in collection are tuples, and that all tuples have the same length.
