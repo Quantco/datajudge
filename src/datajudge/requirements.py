@@ -275,7 +275,7 @@ class WithinRequirement(Requirement):
         of a ``DataSource`` are strictly the ones of a reference set of expected values,
         specified via the ``uniques`` parameter.
 
-        Null values in the column are ignored. To assert the non-existence of them use
+        Null values in the columns ``colums`` are ignored. To assert the non-existence of them use
         the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
