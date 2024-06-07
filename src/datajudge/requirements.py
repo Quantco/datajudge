@@ -1614,7 +1614,7 @@ class BetweenRequirement(Requirement):
         This argument does not have an effect on the test results for other :class:`~datajudge.constraints.uniques.Uniques` constraints,
         or if ``max_relative_violations`` is 0.
 
-        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        See :class:`~datajudge.constraints.uniques.Uniques` for further details on ``map_func``, ``reduce_func``,
         and ``output_processors``.
         """
 
