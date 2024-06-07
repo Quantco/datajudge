@@ -284,8 +284,11 @@ class WithinRequirement(Requirement):
         :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
         :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-        The deprecated default may change in future versions.
-        To silence the warning, set ``filter_func`` explicitly.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
 
         See the ``Uniques`` class for further parameter details on ``map_func`` and
         ``reduce_func``, and ``output_processors``.
@@ -332,8 +335,11 @@ class WithinRequirement(Requirement):
         :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
         :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-        The deprecated default may change in future versions.
-        To silence the warning, set ``filter_func`` explicitly.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
 
         ``max_relative_violations`` indicates what fraction of unique values of the given
         ``DataSource`` are not represented in the reference set of unique values. Please
@@ -390,8 +396,11 @@ class WithinRequirement(Requirement):
         :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
         :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-        The deprecated default may change in future versions.
-        To silence the warning, set ``filter_func`` explicitly.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
 
 
         ``max_relative_violations`` indicates what fraction of rows of the given table
@@ -1497,8 +1506,11 @@ class BetweenRequirement(Requirement):
         :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
         :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-        The deprecated default may change in future versions.
-        To silence the warning, set ``filter_func`` explicitly.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
 
         See :class:`~datajudge.constraints.uniques.Uniques` for further parameter details on ``map_func``,
         ``reduce_func``, and ``output_processors``.
@@ -1548,8 +1560,11 @@ class BetweenRequirement(Requirement):
         :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
         :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-        The deprecated default may change in future versions.
-        To silence the warning, set ``filter_func`` explicitly.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
 
         ``max_relative_violations`` indicates what fraction of unique values of the given
         ``DataSource`` are not represented in the reference set of unique values. Please
@@ -1608,8 +1623,11 @@ class BetweenRequirement(Requirement):
         :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
         :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-        The deprecated default may change in future versions.
-        To silence the warning, set ``filter_func`` explicitly.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
 
         ``max_relative_violations`` indicates what fraction of rows of the given table
         may have values not included in the reference set of unique values. Please note

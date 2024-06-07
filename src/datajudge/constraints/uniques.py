@@ -53,8 +53,11 @@ class Uniques(Constraint, abc.ABC):
     :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
     :func:`~datajudge.utils.filternull_element_or_tuple_any`.
     Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-    The deprecated default may change in future versions.
-    To silence the warning, set ``filter_func`` explicitly.
+    The current default of :func:`~datajudge.utils.filternull_element`
+    Cause (possibly often unintended) changes in behavior when the users adds a second column
+    (filtering no longer can trigger at all).
+    The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+    To silence the warning, set ``filter_func`` explicitly..
 
 
     There are two ways to do some post processing of the data obtained from the
