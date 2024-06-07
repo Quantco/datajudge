@@ -44,15 +44,15 @@ class Uniques(Constraint, abc.ABC):
     are part of a reference set of expected values - either externally supplied
     through parameter `uniques` or obtained from another `DataSource`.
 
-    Null values in the column are ignored by default. To assert the non-existence of them use
-    the `NullAbsence` constraint via the `add_null_absence_constraint` helper method for
-    `WithinRequirement`.
+    Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
+    the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+    for ``WithinRequirement``.
     By default, the null filtering does not trigger if multiple columns are fetched at once.
     It can be configured in more detail by supplying a custom ``filter_func`` function.
-    Some exemplary implementations are available in this module as ``datajudge.utils.filternull_element``,
-    ``datajudge.utils.filternull_never``, ``datajudge.utils.filternull_element_or_tuple_all``, ``datajudge.utils.filternull_element_or_tuple_any``.
-    For new deployments, using one of the above filters or a custom one is recommended.
-    Passing None as the argument is equivalent to ``datajudge.utils.filternull_element``, but triggers a warning.
+    Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+    :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+    :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+    Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
     The deprecated default may change in future versions.
     To silence the warning, set ``filter_func`` explicitly.
 

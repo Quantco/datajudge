@@ -276,12 +276,13 @@ class WithinRequirement(Requirement):
         specified via the ``uniques`` parameter.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
-        Some exemplary implementations are available in this module as :func:`~datajudge.utils.filternull_element`,
-        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`, :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
         The deprecated default may change in future versions.
         To silence the warning, set ``filter_func`` explicitly.
@@ -323,13 +324,14 @@ class WithinRequirement(Requirement):
         specified via ``uniques``, is contained in given columns of a ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
-        Some exemplary implementations are available in this module as ``datajudge.utils.filternull_element``,
-        ``datajudge.utils.filternull_never``, ``datajudge.utils.filternull_element_or_tuple_all``, ``datajudge.utils.filternull_element_or_tuple_any``.
-        Passing None as the argument is equivalent to ``datajudge.utils.filternull_element``, but triggers a warning.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
         The deprecated default may change in future versions.
         To silence the warning, set ``filter_func`` explicitly.
 
@@ -380,13 +382,14 @@ class WithinRequirement(Requirement):
         ``uniques``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
-        Some exemplary implementations are available in this module as ``datajudge.utils.filternull_element``,
-        ``datajudge.utils.filternull_never``, ``datajudge.utils.filternull_element_or_tuple_all``, ``datajudge.utils.filternull_element_or_tuple_any``.
-        Passing None as the argument is equivalent to ``datajudge.utils.filternull_element``, but triggers a warning.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
         The deprecated default may change in future versions.
         To silence the warning, set ``filter_func`` explicitly.
 
@@ -1486,13 +1489,14 @@ class BetweenRequirement(Requirement):
         columns.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
-        Some exemplary implementations are available in this module as :func:`datajudge.utils.filternull_element`,
-        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`, :func:`~datajudge.utils.filternull_element_or_tuple_any`.
-        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element`, but triggers a warning.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
         The deprecated default may change in future versions.
         To silence the warning, set ``filter_func`` explicitly.
 
@@ -1536,13 +1540,14 @@ class BetweenRequirement(Requirement):
         is contained in given columns of a ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
-        Some exemplary implementations are available in this module as :func:`~datajudge.utils.filternull_element`,
-        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`, :func:`~datajudge.utils.filternull_element_or_tuple_any`.
-        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element`, but triggers a warning.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
         The deprecated default may change in future versions.
         To silence the warning, set ``filter_func`` explicitly.
 
@@ -1595,12 +1600,13 @@ class BetweenRequirement(Requirement):
         ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the ``NullAbsence`` constraint via the ``add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
-        Some exemplary implementations are available in this module as ``datajudge.utils.filternull_element``,
-        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`, :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
         Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
         The deprecated default may change in future versions.
         To silence the warning, set ``filter_func`` explicitly.
