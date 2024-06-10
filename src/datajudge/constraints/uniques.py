@@ -9,7 +9,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from ..utils import OutputProcessor, filternull_element
+from ..utils import OutputProcessor, filternull_element, output_processor_limit
 from .base import Constraint, OptionalSelections, T, TestResult, ToleranceGetter
 
 
@@ -92,13 +92,12 @@ class Uniques(Constraint, abc.ABC):
     thus, they may differ from run to run despite the exact same situation being present,
     and can have an arbitrary length.
     To enforce a reproducible, limited output via (e.g.) sorting and slicing,
-    set `output_processors` to a list of callables
+    set `output_processors` to a callable or a list of callables. By default, only the first 100 elements are displayed (:func:`~datajudge.utils.output_processor_limit`).
 
     Each callable takes in two collections, and returns modified (e.g. sorted) versions of them.
     In most cases, the second argument is simply None,
     but for `UniquesSubset` it is the counts of each of the elements.
-    The suggested functions are ``datajudge.utils.output_processor_sort``
-    and ``datajudge.utils.output_processor_limit``.,
+    The suggested functions are :func:`~datajudge.utils.output_processor_sort` and :func:`~datajudge.utils.output_processor_limit`
     - see their respective docstrings for details.
 
     One use is of this constraint is to test for consistency in columns with expected
@@ -111,7 +110,7 @@ class Uniques(Constraint, abc.ABC):
         name: str = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
         *,
         ref2: DataReference = None,
         uniques: Collection = None,

@@ -7,7 +7,7 @@ import sqlalchemy as sa
 
 from ..db_access import DataReference
 from ..formatter import Formatter
-from ..utils import OutputProcessor
+from ..utils import OutputProcessor, output_processor_limit
 
 DEFAULT_FORMATTER = Formatter()
 
@@ -122,7 +122,7 @@ class Constraint(abc.ABC):
         name: str = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref

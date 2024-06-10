@@ -34,7 +34,7 @@ from .db_access import (
     TableDataSource,
     get_date_growth_rate,
 )
-from .utils import OutputProcessor
+from .utils import OutputProcessor, output_processor_limit
 
 T = TypeVar("T")
 
@@ -265,7 +265,7 @@ class WithinRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
         condition: Condition = None,
         name: str = None,
     ):
@@ -319,7 +319,7 @@ class WithinRequirement(Requirement):
         name: str = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -379,7 +379,7 @@ class WithinRequirement(Requirement):
         name: str = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
     ):
         """Check if the data's unique values are contained in a given set of values.
 
@@ -887,7 +887,7 @@ class WithinRequirement(Requirement):
         name: str = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
     ):
         """
         Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
@@ -1486,7 +1486,7 @@ class BetweenRequirement(Requirement):
         reduce_func: Callable[[Collection], Collection] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
@@ -1543,7 +1543,7 @@ class BetweenRequirement(Requirement):
         name: str = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -1606,7 +1606,7 @@ class BetweenRequirement(Requirement):
         name: str = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
-        ] = None,
+        ] = output_processor_limit,
     ):
         """Check if the given columns's unique values in are contained in reference data.
 
