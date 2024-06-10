@@ -54,7 +54,7 @@ class OutputProcessor(Protocol):
 
 def output_processor_sort(
     collection: Collection, counts: Optional[Collection] = None
-) -> Collection:
+) -> Tuple[Collection, Optional[Collection]]:
     """
     Sorts a collection of tuple elements in descending order of their counts,
     and for ties, makes use of the ascending order of the elements themselves.
@@ -89,7 +89,7 @@ def output_processor_sort(
 
 def output_processor_limit(
     collection: Collection, counts: Optional[Collection] = None, limit: int = 100
-) -> Collection:
+) -> Tuple[Collection, Optional[Collection]]:
     """
     Limits the collection to the first ``limit`` elements.
     If the list was shortened,
@@ -143,7 +143,7 @@ def sort_tuple_none_aware(
     collection: Collection[Tuple], ascending=True
 ) -> Collection[Tuple]:
     """
-    Sorts a collection of tuples.
+    Stable sort of a collection of tuples.
     Each tuple in the collection must have the same length,
     since they are treated as rows in a table,
     with ``elem[0]`` being the first column,
