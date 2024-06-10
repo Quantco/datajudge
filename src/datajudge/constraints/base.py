@@ -256,7 +256,7 @@ class Constraint(abc.ABC):
             target_queries,
         )
 
-    def apply_output_formatting_no_counts(self, values: Collection) -> Collection:
+    def apply_output_formatting(self, values: Collection) -> Collection:
         if self.output_processors is not None:
             for output_processor in self.output_processors:
                 values, _ = output_processor(values)

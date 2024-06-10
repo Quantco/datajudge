@@ -183,22 +183,22 @@ class UniquesEquality(Uniques):
         if not is_subset and not is_superset:
             assertion_text = (
                 f"{self.ref} doesn't have the element(s) "
-                f"'{self.apply_output_formatting_no_counts(lacking_values)}' and has the excess element(s) "
-                f"'{self.apply_output_formatting_no_counts(excess_values)}' when compared with the reference values. "
+                f"'{self.apply_output_formatting(lacking_values)}' and has the excess element(s) "
+                f"'{self.apply_output_formatting(excess_values)}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
             return False, assertion_text
         if not is_subset:
             assertion_text = (
                 f"{self.ref} has the excess element(s) "
-                f"'{self.apply_output_formatting_no_counts(excess_values)}' when compared with the reference values. "
+                f"'{self.apply_output_formatting(excess_values)}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
             return False, assertion_text
         if not is_superset:
             assertion_text = (
                 f"{self.ref} doesn't have the element(s) "
-                f"'{self.apply_output_formatting_no_counts(lacking_values)}' when compared with the reference values. "
+                f"'{self.apply_output_formatting(lacking_values)}' when compared with the reference values. "
                 f"{self.condition_string}"
             )
             return False, assertion_text
@@ -241,7 +241,7 @@ class UniquesSubset(Uniques):
             assertion_text = (
                 f"{self.ref} has a fraction of {relative_violations} > "
                 f"{self.max_relative_violations} {'DISTINCT ' if self.compare_distinct else ''}values ({n_violations} / {n_rows}) not being an element of "
-                f"'{self.apply_output_formatting_no_counts(set(target_values))}'. It has excess elements "
+                f"'{self.apply_output_formatting(set(target_values))}'. It has excess elements "
                 f"'{output_elemes}' "
                 f"with counts {output_counts}."
                 f"{self.condition_string}"
@@ -276,8 +276,8 @@ class UniquesSuperset(Uniques):
             assertion_text = (
                 f"{self.ref} has a fraction of "
                 f"{relative_violations} > {self.max_relative_violations} ({n_violations} / {n_rows}) "
-                f"lacking unique values of '{self.apply_output_formatting_no_counts(set(target_values))}'. It "
-                f"doesn't have the unique value(s) '{self.apply_output_formatting_no_counts(list(remainder))}'."
+                f"lacking unique values of '{self.apply_output_formatting(set(target_values))}'. It "
+                f"doesn't have the unique value(s) '{self.apply_output_formatting(list(remainder))}'."
                 f"{self.condition_string}"
             )
             return False, assertion_text

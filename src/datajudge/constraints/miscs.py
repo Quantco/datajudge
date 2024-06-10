@@ -134,7 +134,7 @@ class FunctionalDependency(Constraint):
             + "\n".join(
                 [
                     f"{violation}"
-                    for violation in self.apply_output_formatting_no_counts(
+                    for violation in self.apply_output_formatting(
                         [tuple(elem) for elem in violations]
                     )
                 ]
