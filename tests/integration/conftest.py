@@ -1066,7 +1066,10 @@ def capitalization_table(engine, metadata):
         primary_key = ""
     else:
         str_datatype = "TEXT"
+
     with engine.begin() as connection:
+        if sa.inspect(connection).has_table(table_name, schema=SCHEMA):
+            return TEST_DB_NAME, SCHEMA, table_name, uppercase_column, lowercase_column
         connection.execute(sa.text(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}"))
         connection.execute(
             sa.text(
