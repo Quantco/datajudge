@@ -275,7 +275,11 @@ jobs:
       matrix:
         PYTHON_VERSION: [ '3.8' ]
         SA_VERSION: ["<2.0"]
-        PYTEST_ARG: ["tests/integration/test_column_capitalization.py", "tests/integration/test_data_source.py", "tests/integration/test_integration.py -k row", "tests/integration/test_integration.py -k uniques", "tests/integration/test_integration.py -k date", "tests/integration/test_integration.py -k varchar", "tests/integration/test_integration.py -k numeric"]
+        # PYTEST_ARG: ["tests/integration/test_column_capitalization.py", "tests/integration/test_data_source.py", "tests/integration/test_integration.py -k row", "tests/integration/test_integration.py -k uniques", "tests/integration/test_integration.py -k date", "tests/integration/test_integration.py -k varchar", "tests/integration/test_integration.py -k numeric"]
+
+        # more comprehensive matching; note that tests which start with test_i and not test_integer are not matched and must be added here
+
+        PYTEST_ARG: ["tests/integration/test_integration.py -k 'test_a or test_b or test_c or test_d or test_e or test_f or test_g or test_h or test_integer or test_j or test_k or test_l or test_m'", "tests/integration/test_integration.py -k 'test_n or test_o or test_p or test_q or test_r or test_s or test_t or test_u or test_v or test_w or test_x or test_y or test_z'"]
 
     steps:
       - name: Checkout branch

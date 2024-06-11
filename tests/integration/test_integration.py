@@ -2728,7 +2728,7 @@ def test_max_null_fraction_between(engine, unique_table1, data):
 )
 def test_column_type_within(engine, mix_table1, data):
     (operation, col_name, type_name) = data
-    if is_impala(engine) and type_name is str:
+    if is_impala(engine) and isinstance(type_name, str):
         type_name = {"VARCHAR": "string", "INTEGER": "int"}[type_name]
     req = requirements.WithinRequirement.from_table(*mix_table1)
     req.add_column_type_constraint(col_name, type_name)

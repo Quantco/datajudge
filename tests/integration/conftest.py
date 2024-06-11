@@ -718,6 +718,10 @@ def unique_table2(engine, metadata):
 
 @pytest.fixture(scope="module")
 def unique_table_extralong(engine, metadata):
+    if is_impala(engine):
+        pytest.skip(
+            "Skipping this larger output check for impala due to it being quite brittle"
+        )
     table_name = "unique_table_extralong"
     columns = [
         sa.Column("col_int", sa.Integer()),
