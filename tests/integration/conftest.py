@@ -722,6 +722,10 @@ def unique_table_extralong(engine, metadata):
         pytest.skip(
             "Skipping this larger output check for impala due to it being quite brittle"
         )
+    if is_bigquery(engine):
+        pytest.skip(
+            "Skipping this larger output check for bigquery since creating the table is very slow"
+        )
     table_name = "unique_table_extralong"
     columns = [
         sa.Column("col_int", sa.Integer()),

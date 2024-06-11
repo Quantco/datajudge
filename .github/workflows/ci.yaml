@@ -262,7 +262,7 @@ jobs:
         uses: ./.github/actions/pytest
         with:
           backend: bigquery
-          args: -n auto tests/integration
+          args: -n 16 -v tests/integration
 
   impala-column:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
