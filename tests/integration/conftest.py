@@ -717,6 +717,26 @@ def unique_table2(engine, metadata):
 
 
 @pytest.fixture(scope="module")
+def unique_table_extralong(engine, metadata):
+    if is_impala(engine):
+        pytest.skip(
+            "Skipping this larger output check for impala due to it being quite brittle"
+        )
+    if is_bigquery(engine):
+        pytest.skip(
+            "Skipping this larger output check for bigquery since creating the table is very slow"
+        )
+    table_name = "unique_table_extralong"
+    columns = [
+        sa.Column("col_int", sa.Integer()),
+        sa.Column("col_varchar", _string_column(engine)),
+    ]
+    data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(12345)]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
     columns = [sa.Column("nested_varchar", _string_column(engine))]
@@ -760,22 +780,40 @@ def functional_dependency_table_multi_key(engine, metadata):
 
     # ab -> c
     # ab -/-> d
+    # ab -/-> ce
     columns = [
         sa.Column("a", sa.Integer()),
         sa.Column("b", sa.Integer()),
         sa.Column("c", sa.Integer()),
         sa.Column("d", sa.Integer()),
+        sa.Column("e", sa.Integer()),
     ]
+
+    # fmt: off
     data = [
-        {"a": 1, "b": 1, "c": 2, "d": 3},
-        {"a": 1, "b": 1, "c": 2, "d": 4},
-        {"a": 1, "b": 2, "c": 3, "d": 5},
-        {"a": 1, "b": 2, "c": 3, "d": 6},
-        {"a": 2, "b": 1, "c": 4, "d": 7},
-        {"a": 2, "b": 1, "c": 4, "d": 8},
-        {"a": 2, "b": 2, "c": 5, "d": 9},
-        {"a": 2, "b": 2, "c": 5, "d": 10},
+        {"a": 1, "b": 1, "c": 2, "d": 3, "e": 2, },
+        {"a": 1, "b": 1, "c": 2, "d": 4, "e": 2, },
+        {"a": 1, "b": 2, "c": 3, "d": 5, "e": 3, },
+        {"a": 1, "b": 2, "c": 3, "d": 6, "e": 3, },
+        {"a": 2, "b": 1, "c": 4, "d": 7, "e": 4, },
+        {"a": 2, "b": 1, "c": 4, "d": 8, "e": 4, },
+        {"a": 2, "b": 2, "c": 5, "d": 9, "e": 5, },
+        {"a": 2, "b": 2, "c": 5, "d": 10, "e": 5, },
+
+        # if NULL is on the LHS, this is not considered a functional dependency violation
+        {"a": None, "b": None, "c": 6, "d": 10, "e": 6, },
+        {"a": None, "b": None, "c": 6, "d": 11, "e": 8, },
+
+        {"a": None, "b": 99, "c": 6, "d": 10, "e": 6, },
+        {"a": None, "b": 99, "c": 6, "d": 11, "e": 8, },
+        {"a": 42, "b": None, "c": 6, "d": 11, "e": 6, },
+        {"a": None, "b": 42, "c": 6, "d": 11, "e": 6, },
+        {"a": 43, "b": 43, "c": 6, "d": 12, "e": 6, },
+        {"a": 43, "b": 43, "c": 6, "d": 12, "e": 7, },
+        {"a": 44, "b": 44, "c": None, "d": 12, "e": None, },
+        {"a": 44, "b": 44, "c": None, "d": 13, "e": 99, },
     ]
+    # fmt: on
 
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
@@ -1028,7 +1066,10 @@ def capitalization_table(engine, metadata):
         primary_key = ""
     else:
         str_datatype = "TEXT"
+
     with engine.begin() as connection:
+        if sa.inspect(connection).has_table(table_name, schema=SCHEMA):
+            return TEST_DB_NAME, SCHEMA, table_name, uppercase_column, lowercase_column
         connection.execute(sa.text(f"DROP TABLE IF EXISTS {SCHEMA}.{table_name}"))
         connection.execute(
             sa.text(
