@@ -97,21 +97,21 @@ def lowercase_column_names(column_names: str | list[str]) -> str | list[str]:
 class Condition:
     """Condition allows for further narrowing down of a DataSource in a Constraint.
 
-    A `Condition` can be thought of as a filter, the content of a sql 'where' clause
+    A ``Condition`` can be thought of as a filter, the content of a sql 'where' clause
     or a condition as known from probability theory.
 
-    While a `DataSource` is expressed more generally, one might be interested
-    in testing properties of a specific part of said `DataSource` in light
-    of a particular constraint. Hence using `Condition`s allows for the reusage
-    of a `DataSource, in lieu of creating a new custom `DataSource` with
-    the `Condition` implicitly built in.
+    While a ``DataSource`` is expressed more generally, one might be interested
+    in testing properties of a specific part of said ``DataSource`` in light
+    of a particular constraint. Hence using ``Condition`` allows for the reusage
+    of a ``DataSource``, in lieu of creating a new custom ``DataSource`` with
+    the ``Condition`` implicitly built in.
 
-    A `Condition` can either be 'atomic', i.e. not further reducible to sub-conditions
+    A ``Condition`` can either be 'atomic', i.e. not further reducible to sub-conditions
     or 'composite', i.e. combining multiple subconditions. In the former case, it can
-    be instantiated with help of the `raw_string` parameter, e.g. `"col1 > 0"`. In the
-    latter case, it can be instantiated with help of the `conditions` and
-    `reduction_operator` parameters. `reduction_operator` allows for two values: `"and"` (logical
-    conjunction) and `"or"` (logical disjunction). Note that composition of `Condition`s
+    be instantiated with help of the ``raw_string`` parameter, e.g. ``"col1 > 0"``. In the
+    latter case, it can be instantiated with help of the ``conditions`` and
+    ``reduction_operator`` parameters. ``reduction_operator`` allows for two values: ``"and"`` (logical
+    conjunction) and ``"or"`` (logical disjunction). Note that composition of ``Condition``
     supports arbitrary degrees of nesting.
     """
 
