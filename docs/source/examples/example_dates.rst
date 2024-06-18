@@ -153,7 +153,7 @@ Assuming that such a table exists in database, we can write a specification agai
     # up these tests.
     test_constraint = collect_data_tests(requirements)
 
-Pleas note that the ``DateNoOverlap`` and ``DateNoGap`` constraints also exist
+Please note that the ``DateNoOverlap`` and ``DateNoGap`` constraints also exist
 in a slightly different form: ``DateNoOverlap2d`` and ``DateNoGap2d``.
 As the names suggest, these can operate in 'two date dimensions'.
 
