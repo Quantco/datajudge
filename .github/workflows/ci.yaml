@@ -30,44 +30,49 @@ jobs:
         uses: pre-commit/action@v3.0.1
 
   unit-tests:
-    name: "unit tests - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "unit tests"
     runs-on: ubuntu-latest
-    env:
-      CI: True
     strategy:
       fail-fast: true
       matrix:
-        PYTHON_VERSION: ['3.8', '3.9', '3.10']
-        SA_VERSION: ['<2.0', '>=2.0']
+        env:
+          - py38
+          - py39
+          - py310
+          - py311
+          - py312
+          - sa1
+          - sa2
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-      - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          environment-file: environment.yml
-          cache-downloads: true
-          cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
-      - name: Run tests
-        uses: ./.github/actions/pytest
+          environments: ${{ matrix.env }}
+      - run: |
+          pixi run -e ${{ matrix.env }} postinstall
+          pixi run -e ${{ matrix.env }} coverage
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.3
         with:
-          args: "tests/unit"
+          file: ./coverage.xml
 
   mssql:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'sqlserver') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "mssql - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: "mssql"
     runs-on: ubuntu-20.04
-    env:
-      CI: True
     strategy:
       fail-fast: false
       matrix:
-        PYTHON_VERSION: ['3.8', '3.9', '3.10']
-        SA_VERSION: ["<2.0", ">=2.0"]
+        env:
+          - mssql-py38
+          - mssql-py39
+          - mssql-py310
+          - mssql-py311
+          - mssql-py312
+          - mssql-sa1
+          - mssql-sa2
     services:
       DB:
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -79,31 +84,25 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
-      - name: Set up micromamba
-        uses: mamba-org/setup-micromamba@f8b8a1e23a26f60a44c853292711bacfd3eac822
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          environment-file: environment.yml
-          cache-downloads: true
-          cache-environment: true
-          cache-environment-key: ${{ runner.os }}-${{ hashFiles('environment.yml') }}-${{ matrix.PYTHON_VERSION }}-${{ matrix.SA_VERSION }}
-          create-args: >-
-            python=${{ matrix.PYTHON_VERSION }}
-            sqlalchemy${{ matrix.SA_VERSION }}
-            pyodbc
+          environments: ${{ matrix.env }}
       # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
       - name: Install msodbcsql17 driver
-        shell: bash -l {0}
         run: |
           wget https://packages.microsoft.com/ubuntu/20.04/prod/pool/main/m/msodbcsql17/msodbcsql17_17.9.1.1-1_amd64.deb
           ACCEPT_EULA=Y sudo apt install ./msodbcsql17_17.9.1.1-1_amd64.deb --allow-downgrades
       - name: Wait for SQL Server
         timeout-minutes: 1
         run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
-      - name: Run tests
-        uses: ./.github/actions/pytest
+      - run: |
+          pixi run -e ${{ matrix.env }} postinstall
+          pixi run -e ${{ matrix.env }} coverage
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.3
         with:
-          backend: mssql
-          args: tests/integration
+          file: ./coverage.xml
 
   postgres:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
