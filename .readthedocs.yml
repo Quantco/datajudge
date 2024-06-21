@@ -5,9 +5,9 @@ build:
     python: mambaforge-latest
   commands:
     - mamba install -c conda-forge -c nodefaults pixi
-    - pixi install
-    - pixi run docs
-    - pixi run readthedocs
+    - pixi run -e docs postinstall
+    - pixi run -e docs docs
+    - pixi run -e docs readthedocs
 formats:
 - pdf
 
