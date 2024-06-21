@@ -98,7 +98,7 @@ class KolmogorovSmirnov2Sample(Constraint):
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         if self.ref2 is None:
-            raise ValueError("Constraint needs ref2.")
+            raise ValueError("KolmogorovSmirnov2Sample requires ref2.")
         (
             d_statistic,
             p_value,

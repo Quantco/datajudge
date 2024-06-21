@@ -142,7 +142,7 @@ class RowSuperset(Row):
         if result:
             return result, None
         if self.ref2 is None:
-            raise ValueError("RowEquality constraint requires ref2.")
+            raise ValueError("RowSuperset constraint requires ref2.")
         sample_string = format_sample(self.ref2_minus_ref1_sample, self.ref2)
         assertion_message = (
             f"{missing_fraction} > "

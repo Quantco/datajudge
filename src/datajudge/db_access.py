@@ -149,7 +149,7 @@ class Condition:
         if self._is_atomic():
             return self.raw_string
         if not self.conditions:
-            raise ValueError("This should never happen.")
+            raise ValueError("This should never happen thanks to __post__init.")
         return f" {self.reduction_operator} ".join(
             f"({condition})" for condition in self.conditions
         )
@@ -821,7 +821,9 @@ def get_functional_dependency_violations(
     return result, [violation_tuples]
 
 
-def get_row_count(engine, ref, row_limit: int | None = None):
+def get_row_count(
+    engine, ref, row_limit: int | None = None
+) -> tuple[int, list[sa.Select]]:
     """Return the number of rows for a `DataReference`.
 
     If `row_limit` is given, the number of rows is capped at the limit.
@@ -831,7 +833,7 @@ def get_row_count(engine, ref, row_limit: int | None = None):
         subquery = subquery.limit(row_limit)
     subquery = subquery.alias()
     selection = sa.select(sa.cast(sa.func.count(), sa.BigInteger)).select_from(subquery)
-    result = engine.connect().execute(selection).scalar()
+    result = int(str(engine.connect().execute(selection).scalar()))
     return result, [selection]
 
 
