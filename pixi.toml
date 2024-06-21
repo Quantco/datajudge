@@ -10,8 +10,6 @@ postinstall = "pip install --no-build-isolation --no-deps --disable-pip-version-
 python = ">=3.8"
 scipy = "*"
 sqlalchemy = ">=1.4,<3"
-flit-core = "*"
-flit = "*"
 colorama = "*"
 pytest = "*"
 
@@ -104,8 +102,11 @@ pyupgrade = "*"
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
-[environments]
+[host-dependencies]
+flit-core = "*"
+flit = "*"
 
+[environments]
 default = ["test"]
 docs = ["docs"]
 
