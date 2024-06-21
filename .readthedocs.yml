@@ -8,6 +8,8 @@ build:
     - pixi run -e docs postinstall
     - pixi run -e docs docs
     - pixi run -e docs readthedocs
+sphinx:
+  configuration: docs/source/conf.py
 formats:
 - pdf
 
