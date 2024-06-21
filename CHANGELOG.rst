@@ -11,7 +11,13 @@ Changelog
 ------------------
 
 **New features**
+
 - Added styling for assertion messages. See :ref:`assertion-message-styling` for more information.
+
+**Other changes**
+
+- Provide a ``py.typed`` file.
+
 
 1.8.0 - 2023.06.16
 ------------------
