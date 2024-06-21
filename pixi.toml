@@ -43,8 +43,10 @@ coverage = "pytest tests/unit --cov=datajudge --cov-report=xml --cov-append"
 
 [feature.mssql.dependencies]
 pyodbc = "*"
+freetds = "*"
 [feature.mssql.tasks]
 test = "pytest tests/integration --backend=mssql"
+test_freetds = "pytest tests/integration --backend=mssql-freetds"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=mssql"
 
 [feature.postgres.dependencies]
@@ -88,7 +90,6 @@ sqlalchemy = "2.*"
 pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
-freetds = "*"
 
 [feature.lint.dependencies]
 pre-commit = "*"

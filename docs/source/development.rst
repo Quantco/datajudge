@@ -1,7 +1,8 @@
 Development
 ===========
 
-In order to work on ``datajudge``, you can create a development conda environment as follows:
+``datajudge`` development relies on [pixi](https://pixi.sh/latest/).
+In order to work on ``datajudge``, you can create a development environment as follows:
 
 ::
 
@@ -41,9 +42,14 @@ and
 
 ::
 
-   pixi run -e mssql-py38 test
+   pixi run -e mssql-py310 test
 
-depending on the driver you are using.
+or
 
 
-# TODO: Look into supporting different drivers.
+::
+
+   pixi run -e mssql-py310 test_freetds
+
+
+depending on the driver you'd like to use.
