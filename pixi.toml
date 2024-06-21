@@ -65,8 +65,8 @@ coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-appe
 [feature.bigquery.dependencies]
 sqlalchemy-bigquery = "*"
 [feature.bigquery.tasks]
-test = "pytest tests/integration --backend=bigquery"
-coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=bigquery"
+test = "pytest tests/integration --backend=bigquery -v -n=16"
+coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=bigquery -v -n=16"
 
 [feature.impala.dependencies]
 impyla = "*"
