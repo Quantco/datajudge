@@ -2,17 +2,12 @@ version: 2
 build:
   os: ubuntu-20.04
   tools:
-    python: mambaforge-4.10
-sphinx:
-  configuration: docs/source/conf.py
-python:
-  install:
-  - method: pip
-    path: .
-    extra_requirements:
-      - doc
-      - test
-conda:
-  environment: environment.yml
+    python: mambaforge-latest
+  commands:
+    - mamba install -c conda-forge -c nodefaults pixi
+    - pixi install
+    - pixi run docs
+    - pixi run readthedocs
 formats:
 - pdf
+

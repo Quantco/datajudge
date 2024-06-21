@@ -21,6 +21,9 @@ sphinx = "*"
 sphinx_rtd_theme = "*"
 sphinxcontrib-apidoc = "*"
 sphinx-autodoc-typehints = "*"
+[feature.docs.tasks]
+docs = "cd docs && make html"
+readthedocs = "rm -rf $READTHEDOCS_OUTPUT/html && cp -r docs/build/html $READTHEDOCS_OUTPUT/html"
 
 [feature.py38.dependencies]
 python = "3.8.*"
