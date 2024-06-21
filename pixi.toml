@@ -22,7 +22,7 @@ sphinx_rtd_theme = "*"
 sphinxcontrib-apidoc = "*"
 sphinx-autodoc-typehints = "*"
 [feature.docs.tasks]
-docs = "cd docs && make html"
+docs = "cd docs && make html "
 readthedocs = "rm -rf $READTHEDOCS_OUTPUT/html && cp -r docs/build/html $READTHEDOCS_OUTPUT/html"
 
 [feature.py38.dependencies]
@@ -91,8 +91,16 @@ freetds = "*"
 
 [feature.lint.dependencies]
 pre-commit = "*"
+black = "*"
+flake8 = "*"
+isort = "*"
+taplo = "*"
+typos = "*"
+pyupgrade = "*"
+
 [feature.lint.tasks]
-lint = "pre-commit run --all"
+pre-commit-install = "pre-commit install"
+pre-commit-run = "pre-commit run -a"
 
 [environments]
 
@@ -109,7 +117,7 @@ sa2 = ["sa2", "test", "unit"]
 
 mssql-py38 = ["mssql", "py38", "test"]
 mssql-py39 = ["mssql", "py39", "test"]
-mssql-py310 = ["mssql","py310", "test"]
+mssql-py310 = ["mssql", "py310", "test"]
 mssql-py311 = ["mssql", "py311", "test"]
 mssql-py312 = ["mssql", "py312", "test"]
 mssql-sa1 = ["mssql", "sa1", "test"]
@@ -155,4 +163,4 @@ impala-py312 = ["impala", "py312", "test"]
 impala-sa1 = ["impala", "sa1", "test"]
 impala-sa2 = ["impala", "sa2", "test"]
 
-lint = {features=["lint"], no-default-feature=true}
+lint = { features = ["lint"], no-default-feature = true }
