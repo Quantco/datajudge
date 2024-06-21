@@ -3,8 +3,7 @@ import itertools
 import os
 import random
 import urllib.parse
-
-from typing import Union, Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import pytest
 import sqlalchemy as sa
@@ -589,7 +588,7 @@ def float_table_gap(engine, metadata):
         sa.Column("range_start", sa.Float()),
         sa.Column("range_end", sa.Float()),
     ]
-    data : List[Dict[str, Union[int, float]]] = []
+    data: List[Dict[str, Union[int, float]]] = []
     # Single entry should not be considered a gap.
     data += [
         {
@@ -741,7 +740,9 @@ def unique_table_extralong(engine, metadata):
 @pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
-    columns : List[Union[sa.Column, str]] = [sa.Column("nested_varchar", _string_column(engine))]
+    columns: List[Union[sa.Column, str]] = [
+        sa.Column("nested_varchar", _string_column(engine))
+    ]
     data = [
         {"nested_varchar": "ABC#1,"},
         {"nested_varchar": "ABC#1,DEF#2,"},
@@ -824,10 +825,12 @@ def functional_dependency_table_multi_key(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table1(engine, metadata):
     table_name = "varchar_table1"
-    columns : List[Union[sa.Column, str]] =  [
+    columns: List[Union[sa.Column, str]] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
-    data : List[Dict[str, Optional[str]]] = [{"col_varchar": "qq" * i} for i in range(1, 10)]
+    data: List[Dict[str, Optional[str]]] = [
+        {"col_varchar": "qq" * i} for i in range(1, 10)
+    ]
     data.append({"col_varchar": None})
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
@@ -836,7 +839,7 @@ def varchar_table1(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table2(engine, metadata):
     table_name = "varchar_table2"
-    columns : List[Union[sa.Column, str]] = [
+    columns: List[Union[sa.Column, str]] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(2, 11)]
@@ -847,7 +850,7 @@ def varchar_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table_real(engine, metadata):
     table_name = "varchar_table_real"
-    columns : List[Union[sa.Column, str]] = [
+    columns: List[Union[sa.Column, str]] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [

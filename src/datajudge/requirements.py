@@ -127,7 +127,9 @@ class WithinRequirement(Requirement):
         """
         return cls(data_source=ExpressionDataSource(expression, name))
 
-    def add_column_existence_constraint(self, columns: List[str], name: Optional[str] = None):
+    def add_column_existence_constraint(
+        self, columns: List[str], name: Optional[str] = None
+    ):
         # Note that columns are not meant to be part of the reference.
         ref = DataReference(self.data_source)
         self._constraints.append(column_constraints.ColumnExistence(ref, columns))
@@ -207,7 +209,10 @@ class WithinRequirement(Requirement):
         )
 
     def add_null_absence_constraint(
-        self, column: str, condition: Optional[Condition] = None, name: Optional[str] = None
+        self,
+        column: str,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -233,7 +238,10 @@ class WithinRequirement(Requirement):
         )
 
     def add_n_rows_equality_constraint(
-        self, n_rows: int, condition: Optional[Condition] = None, name: Optional[str] = None
+        self,
+        n_rows: int,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
@@ -241,7 +249,10 @@ class WithinRequirement(Requirement):
         )
 
     def add_n_rows_min_constraint(
-        self, n_rows_min: int, condition: Optional[Condition] = None, name: Optional[str] = None
+        self,
+        n_rows_min: int,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
@@ -249,7 +260,10 @@ class WithinRequirement(Requirement):
         )
 
     def add_n_rows_max_constraint(
-        self, n_rows_max: int, condition: Optional[Condition] = None, name: Optional[str] = None
+        self,
+        n_rows_max: int,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
@@ -1837,7 +1851,9 @@ class BetweenRequirement(Requirement):
             column_constraints.ColumnSuperset(self.ref, ref2=self.ref2, name=name)
         )
 
-    def add_column_type_constraint(self, column1: str, column2: str, name: Optional[str] = None):
+    def add_column_type_constraint(
+        self, column1: str, column2: str, name: Optional[str] = None
+    ):
         "Check that the columns have the same type."
         ref1 = DataReference(self.data_source, [column1])
         ref2 = DataReference(self.data_source2, [column2])

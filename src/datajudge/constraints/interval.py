@@ -56,7 +56,9 @@ class IntervalConstraint(Constraint):
         sample_selection, n_violations_selection = self.select(engine, ref)
         with engine.connect() as connection:
             self.sample = connection.execute(sample_selection).first()
-            n_violation_keys = int(str(connection.execute(n_violations_selection).scalar()))
+            n_violation_keys = int(
+                str(connection.execute(n_violations_selection).scalar())
+            )
 
         selections = [*n_keys_selections, sample_selection, n_violations_selection]
         return (n_violation_keys, n_distinct_key_values), selections

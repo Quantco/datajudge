@@ -123,7 +123,7 @@ def test_n_rows_max_gain_between(engine, mix_table1, mix_table2, data):
         condition1,
         condition2,
     ) = data
-    req = requirements.BetweenRequirement.from_tables( # type: ignore[misc]
+    req = requirements.BetweenRequirement.from_tables(  # type: ignore[misc]
         *mix_table1,
         *mix_table2,
         date_column="col_date",

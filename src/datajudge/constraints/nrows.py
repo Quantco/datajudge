@@ -1,5 +1,5 @@
 import abc
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import sqlalchemy as sa
 
@@ -11,7 +11,12 @@ from .base import Constraint, OptionalSelections, TestResult, ToleranceGetter
 
 class NRows(Constraint, abc.ABC):
     def __init__(
-        self, ref, *, ref2: Optional[DataReference] = None, n_rows: Optional[int] = None, name: Optional[str] = None
+        self,
+        ref,
+        *,
+        ref2: Optional[DataReference] = None,
+        n_rows: Optional[int] = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, ref_value=n_rows, name=name)
 

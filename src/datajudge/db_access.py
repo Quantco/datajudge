@@ -6,7 +6,7 @@ import operator
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
-from typing import Callable, Sequence, final, overload, Optional, Any
+from typing import Any, Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable
@@ -52,8 +52,8 @@ def apply_patches(engine: sa.engine.Engine):
         # This is implemented in the same way as for sqlalchemy-bigquery, see
         # https://github.com/googleapis/python-bigquery-sqlalchemy/blob/f1889443bd4d680550387b9bb14daeea8eb792d4/sqlalchemy_bigquery/base.py#L187
         compound_keywords_extensions = {
-            selectable.CompoundSelect.EXCEPT: "EXCEPT DISTINCT", # type: ignore[attr-defined]
-            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL", # type: ignore[attr-defined]
+            selectable.CompoundSelect.EXCEPT: "EXCEPT DISTINCT",  # type: ignore[attr-defined]
+            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL",  # type: ignore[attr-defined]
         }
         engine.dialect.statement_compiler.compound_keywords.update(
             compound_keywords_extensions
@@ -65,8 +65,8 @@ def apply_patches(engine: sa.engine.Engine):
         # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/388) but doesn't seem
         # to be an issue here.
         compound_keywords_extensions = {
-            selectable.CompoundSelect.INTERSECT: "INTERSECT DISTINCT", # type: ignore[attr-defined]
-            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL", # type: ignore[attr-defined]
+            selectable.CompoundSelect.INTERSECT: "INTERSECT DISTINCT",  # type: ignore[attr-defined]
+            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL",  # type: ignore[attr-defined]
         }
         engine.dialect.statement_compiler.compound_keywords.update(
             compound_keywords_extensions
@@ -266,7 +266,7 @@ class ExpressionDataSource(DataSource):
 
 @final
 class RawQueryDataSource(DataSource):
-    def __init__(self, query_string: str, name: str, columns: Optional[list[str]] = None):
+    def __init__(self, query_string: str, name: str, columns: list[str] | None = None):
         self.query_string = query_string
         self.name = name
         self.columns = columns
@@ -351,7 +351,7 @@ class DataReference:
             )
         return columns[0]
 
-    def get_columns(self, engine) -> Optional[list[str]]:
+    def get_columns(self, engine) -> list[str] | None:
         """Fetch all relevant columns of a DataReference."""
         if self.columns is None:
             return None
@@ -821,7 +821,7 @@ def get_functional_dependency_violations(
     return result, [violation_tuples]
 
 
-def get_row_count(engine, ref, row_limit: Optional[int] = None):
+def get_row_count(engine, ref, row_limit: int | None = None):
     """Return the number of rows for a `DataReference`.
 
     If `row_limit` is given, the number of rows is capped at the limit.
@@ -1136,7 +1136,9 @@ def get_column_array_agg(
     engine: sa.engine.Engine, ref: DataReference, aggregation_column: str
 ):
     selections = column_array_agg_query(engine, ref, aggregation_column)
-    result : Sequence[sa.engine.row.Row[Any]] | list[tuple[Any, ...]] = engine.connect().execute(selections[0]).fetchall()
+    result: Sequence[sa.engine.row.Row[Any]] | list[tuple[Any, ...]] = (
+        engine.connect().execute(selections[0]).fetchall()
+    )
     if is_snowflake(engine):
         result = [
             (*t[:-1], list(map(int, snowflake_parse_variant_column(t[-1]))))
