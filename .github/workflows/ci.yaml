@@ -41,8 +41,8 @@ jobs:
           environments: default lint
       - name: mypy
         run: |
-          pixi run -e lint postinstall
-          pixi run -e lint mypy .
+          pixi run -e mypy postinstall
+          pixi run -e mypy mypy .
 
   unit-tests:
     name: "unit tests"

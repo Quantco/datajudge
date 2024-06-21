@@ -91,6 +91,9 @@ pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
 
+[feature.mypy.dependencies]
+mypy = "*"
+
 [feature.lint.dependencies]
 pre-commit = "*"
 black = "*"
@@ -166,3 +169,5 @@ impala-sa1 = ["impala", "sa1", "test"]
 impala-sa2 = ["impala", "sa2", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
+
+mypy = ["mypy"]
