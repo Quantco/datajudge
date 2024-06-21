@@ -93,6 +93,10 @@ pytest-xdist = "*"
 
 [feature.mypy.dependencies]
 mypy = "*"
+types-setuptools = "*"
+types-colorama = "*"
+pandas-stubs = "*"
+types-jinja2 = "*"
 
 [feature.lint.dependencies]
 pre-commit = "*"
