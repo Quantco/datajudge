@@ -13,6 +13,7 @@ sqlalchemy = ">=1.4,<3"
 flit-core = "*"
 flit = "*"
 colorama = "*"
+pytest = "*"
 
 [feature.docs.dependencies]
 make = "*"
