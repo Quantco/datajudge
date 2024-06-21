@@ -21,7 +21,7 @@ class Column(Constraint, abc.ABC):
 
 
 class ColumnExistence(Column):
-    def __init__(self, ref: DataReference, columns: List[str], name: str = None):
+    def __init__(self, ref: DataReference, columns: List[str], name: Optional[str] = None):
         super().__init__(ref, ref_value=columns, name=name)
 
     def compare(

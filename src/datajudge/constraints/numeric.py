@@ -12,10 +12,10 @@ class NumericMin(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        name: str = None,
+        name: Optional[str] = None,
         *,
-        ref2: DataReference = None,
-        min_value: float = None,
+        ref2: Optional[DataReference] = None,
+        min_value: Optional[float] = None,
     ):
         super().__init__(ref, ref2=ref2, ref_value=min_value, name=name)
 
@@ -45,10 +45,10 @@ class NumericMax(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        name: str = None,
+        name: Optional[str] = None,
         *,
-        ref2: DataReference = None,
-        max_value: float = None,
+        ref2: Optional[DataReference] = None,
+        max_value: Optional[float] = None,
     ):
         super().__init__(
             ref,
@@ -86,7 +86,7 @@ class NumericBetween(Constraint):
         min_fraction: float,
         lower_bound: float,
         upper_bound: float,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref_value=min_fraction, name=name)
         self.lower_bound = lower_bound
@@ -122,10 +122,10 @@ class NumericMean(Constraint):
         self,
         ref: DataReference,
         max_absolute_deviation: float,
-        name: str = None,
+        name: Optional[str] = None,
         *,
-        ref2: DataReference = None,
-        mean_value: float = None,
+        ref2: Optional[DataReference] = None,
+        mean_value: Optional[float] = None,
     ):
         super().__init__(
             ref,
@@ -170,8 +170,8 @@ class NumericPercentile(Constraint):
         max_relative_deviation: Optional[float] = None,
         name: Optional[str] = None,
         *,
-        ref2: DataReference = None,
-        expected_percentile: float = None,
+        ref2: Optional[DataReference] = None,
+        expected_percentile: Optional[float] = None,
     ):
         super().__init__(
             ref,

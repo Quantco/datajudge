@@ -4,6 +4,8 @@ import os
 import random
 import urllib.parse
 
+from typing import Union, Dict, List, Optional
+
 import pytest
 import sqlalchemy as sa
 
@@ -587,7 +589,7 @@ def float_table_gap(engine, metadata):
         sa.Column("range_start", sa.Float()),
         sa.Column("range_end", sa.Float()),
     ]
-    data = []
+    data : List[Dict[str, Union[int, float]]] = []
     # Single entry should not be considered a gap.
     data += [
         {
@@ -739,7 +741,7 @@ def unique_table_extralong(engine, metadata):
 @pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
-    columns = [sa.Column("nested_varchar", _string_column(engine))]
+    columns : List[Union[sa.Column, str]] = [sa.Column("nested_varchar", _string_column(engine))]
     data = [
         {"nested_varchar": "ABC#1,"},
         {"nested_varchar": "ABC#1,DEF#2,"},
@@ -822,10 +824,10 @@ def functional_dependency_table_multi_key(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table1(engine, metadata):
     table_name = "varchar_table1"
-    columns = [
+    columns : List[Union[sa.Column, str]] =  [
         sa.Column("col_varchar", _string_column(engine)),
     ]
-    data = [{"col_varchar": "qq" * i} for i in range(1, 10)]
+    data : List[Dict[str, Optional[str]]] = [{"col_varchar": "qq" * i} for i in range(1, 10)]
     data.append({"col_varchar": None})
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
@@ -834,7 +836,7 @@ def varchar_table1(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table2(engine, metadata):
     table_name = "varchar_table2"
-    columns = [
+    columns : List[Union[sa.Column, str]] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(2, 11)]
@@ -845,7 +847,7 @@ def varchar_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table_real(engine, metadata):
     table_name = "varchar_table_real"
-    columns = [
+    columns : List[Union[sa.Column, str]] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [
@@ -969,10 +971,10 @@ def groupby_aggregation_table_correct(engine, metadata):
         sa.Column("value", sa.Integer()),
     ]
     data_source = [
-        [34807101, 8, {1}],
-        [42760071, 3, {7, 3, 4, 5, 6, 1, 2}],
-        [42760071, 7, {1}],
-        [44093821, 10, {2, 8, 3, 6, 7, 4, 1, 5}],
+        (34807101, 8, {1}),
+        (42760071, 3, {7, 3, 4, 5, 6, 1, 2}),
+        (42760071, 7, {1}),
+        (44093821, 10, {2, 8, 3, 6, 7, 4, 1, 5}),
     ]
     data = [
         {"some_id": id, "extra_id": e, "value": v}
@@ -992,10 +994,10 @@ def groupby_aggregation_table_incorrect(engine, metadata):
         sa.Column("value", sa.Integer()),
     ]
     data_source = [
-        [34807101, 8, {1}],
-        [42760071, 3, {7, 3, 4, 5, 6, 1, 2}],
-        [42760071, 7, {1}],
-        [44093821, 7, {22, 19, 16, 24, 23, 21, 20, 18, 17}],
+        (34807101, 8, {1}),
+        (42760071, 3, {7, 3, 4, 5, 6, 1, 2}),
+        (42760071, 7, {1}),
+        (44093821, 7, {22, 19, 16, 24, 23, 21, 20, 18, 17}),
     ]
     data = [
         {"some_id": id, "extra_id": e, "value": v}

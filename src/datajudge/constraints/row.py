@@ -15,7 +15,7 @@ class Row(Constraint, abc.ABC):
         ref: DataReference,
         ref2: DataReference,
         max_missing_fraction_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, name=name)
         self.max_missing_fraction_getter = max_missing_fraction_getter
@@ -62,6 +62,8 @@ class RowEquality(Row):
         result = missing_fraction <= self.max_missing_fraction
         if result:
             return result, None
+        if self.ref2 is None:
+            raise ValueError("RowEquality constraint requires ref2.")
         if n_rows_missing_left > 0:
             sample_string = format_sample(self.ref1_minus_ref2_sample, self.ref2)
         else:
@@ -139,6 +141,8 @@ class RowSuperset(Row):
         result = missing_fraction <= self.max_missing_fraction
         if result:
             return result, None
+        if self.ref2 is None:
+            raise ValueError("RowEquality constraint requires ref2.")
         sample_string = format_sample(self.ref2_minus_ref1_sample, self.ref2)
         assertion_message = (
             f"{missing_fraction} > "
@@ -161,7 +165,7 @@ class RowMatchingEquality(Row):
         comparison_columns1: List[str],
         comparison_columns2: List[str],
         max_missing_fraction_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(
             ref,

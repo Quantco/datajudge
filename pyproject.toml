@@ -55,6 +55,10 @@ skip_glob = '\.eggs/*,\.git/*,\.venv/*,build/*,dist/*'
 default_section = 'THIRDPARTY'
 
 [tool.mypy]
-# Temporary fix.
-no_implicit_optional = false
+no_implicit_optional = true
 allow_empty_bodies = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "impala.*", "pytest_html"]
+ignore_missing_imports = true

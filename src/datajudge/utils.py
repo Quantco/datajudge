@@ -175,7 +175,7 @@ def sort_tuple_none_aware(
 
     def replace_None_with_default(elem):
         return tuple(
-            (dtype() if subelem is None else subelem)
+            ((dtype() if dtype else None) if subelem is None else subelem)
             for dtype, subelem in zip(dtypes_each_tupleelement, elem)
         )
 

@@ -101,7 +101,7 @@ class WithinRequirement(Requirement):
         )
 
     @classmethod
-    def from_raw_query(cls, query: str, name: str, columns: List[str] = None):
+    def from_raw_query(cls, query: str, name: str, columns: Optional[List[str]] = None):
         """Create a ``WithinRequirement`` based on a raw query string.
 
         The ``query`` parameter can be passed any query string returning rows, e.g.
@@ -127,13 +127,13 @@ class WithinRequirement(Requirement):
         """
         return cls(data_source=ExpressionDataSource(expression, name))
 
-    def add_column_existence_constraint(self, columns: List[str], name: str = None):
+    def add_column_existence_constraint(self, columns: List[str], name: Optional[str] = None):
         # Note that columns are not meant to be part of the reference.
         ref = DataReference(self.data_source)
         self._constraints.append(column_constraints.ColumnExistence(ref, columns))
 
     def add_primary_key_definition_constraint(
-        self, primary_keys: List[str], name: str = None
+        self, primary_keys: List[str], name: Optional[str] = None
     ):
         """Check that the primary key constraints in the database are exactly equal to the given column names.
 
@@ -146,12 +146,12 @@ class WithinRequirement(Requirement):
 
     def add_uniqueness_constraint(
         self,
-        columns: List[str] = None,
+        columns: Optional[List[str]] = None,
         max_duplicate_fraction: float = 0,
-        condition: Condition = None,
+        condition: Optional[Condition] = None,
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns: bool = False,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         """Columns should uniquely identify row.
 
@@ -180,7 +180,7 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         column_type: Union[str, sa.types.TypeEngine],
-        name: str = None,
+        name: Optional[str] = None,
     ):
         """
         Check if a column type matches the expected column_type.
@@ -207,7 +207,7 @@ class WithinRequirement(Requirement):
         )
 
     def add_null_absence_constraint(
-        self, column: str, condition: Condition = None, name: str = None
+        self, column: str, condition: Optional[Condition] = None, name: Optional[str] = None
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -218,8 +218,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         max_null_fraction: float,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Assert that ``column`` has less than a certain fraction of ``NULL`` values.
 
@@ -233,7 +233,7 @@ class WithinRequirement(Requirement):
         )
 
     def add_n_rows_equality_constraint(
-        self, n_rows: int, condition: Condition = None, name: str = None
+        self, n_rows: int, condition: Optional[Condition] = None, name: Optional[str] = None
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
@@ -241,7 +241,7 @@ class WithinRequirement(Requirement):
         )
 
     def add_n_rows_min_constraint(
-        self, n_rows_min: int, condition: Condition = None, name: str = None
+        self, n_rows_min: int, condition: Optional[Condition] = None, name: Optional[str] = None
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
@@ -249,7 +249,7 @@ class WithinRequirement(Requirement):
         )
 
     def add_n_rows_max_constraint(
-        self, n_rows_max: int, condition: Condition = None, name: str = None
+        self, n_rows_max: int, condition: Optional[Condition] = None, name: Optional[str] = None
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
@@ -260,14 +260,14 @@ class WithinRequirement(Requirement):
         self,
         columns: List[str],
         uniques: Collection[T],
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Check if the data's unique values are equal to a given set of values.
 
@@ -312,11 +312,11 @@ class WithinRequirement(Requirement):
         columns: List[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
-        condition: Condition = None,
-        name: str = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -371,12 +371,12 @@ class WithinRequirement(Requirement):
         columns: List[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
         compare_distinct: bool = False,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
-        condition: Condition = None,
-        name: str = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -435,8 +435,8 @@ class WithinRequirement(Requirement):
         self,
         columns: Optional[List[str]],
         n_uniques: int,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
@@ -449,8 +449,8 @@ class WithinRequirement(Requirement):
         distribution: Dict[T, Tuple[float, float]],
         default_bounds: Tuple[float, float] = (0, 0),
         max_relative_violations: float = 0,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """
         Check if the distribution of unique values in columns falls within the
@@ -512,7 +512,7 @@ class WithinRequirement(Requirement):
         )
 
     def add_numeric_min_constraint(
-        self, column: str, min_value: float, condition: Condition = None
+        self, column: str, min_value: float, condition: Optional[Condition] = None
     ):
         """All values in column are greater or equal min_value."""
         ref = DataReference(self.data_source, [column], condition)
@@ -524,8 +524,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         max_value: float,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """All values in column are less or equal max_value."""
         ref = DataReference(self.data_source, [column], condition)
@@ -539,8 +539,8 @@ class WithinRequirement(Requirement):
         lower_bound: float,
         upper_bound: float,
         min_fraction: float,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Assert that the column's values lie between ``lower_bound`` and ``upper_bound``.
 
@@ -566,8 +566,8 @@ class WithinRequirement(Requirement):
         column: str,
         mean_value: float,
         max_absolute_deviation: float,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Assert the mean of the column deviates at most max_deviation from mean_value."""
         ref = DataReference(self.data_source, [column], condition)
@@ -587,8 +587,8 @@ class WithinRequirement(Requirement):
         expected_percentile: float,
         max_absolute_deviation: Optional[float] = None,
         max_relative_deviation: Optional[float] = None,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Assert that the ``percentage``-th percentile is approximately ``expected_percentile``.
 
@@ -622,9 +622,9 @@ class WithinRequirement(Requirement):
         column: str,
         min_value: str,
         use_lower_bound_reference: bool = True,
-        column_type: Union[str, sa.types.TypeEngine] = "date",
-        condition: Condition = None,
-        name: str = None,
+        column_type: str = "date",
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Ensure all dates to be superior than min_value.
 
@@ -653,9 +653,9 @@ class WithinRequirement(Requirement):
         column: str,
         max_value: str,
         use_upper_bound_reference: bool = True,
-        column_type: Union[str, sa.types.TypeEngine] = "date",
-        condition: Condition = None,
-        name: str = None,
+        column_type: str = "date",
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Ensure all dates to be superior than max_value.
 
@@ -685,8 +685,8 @@ class WithinRequirement(Requirement):
         lower_bound: str,
         upper_bound: str,
         min_fraction: float,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Use string format: lower_bound="'20121230'"."""
         ref = DataReference(self.data_source, [column], condition)
@@ -701,8 +701,8 @@ class WithinRequirement(Requirement):
         key_columns: Optional[List[str]] = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Constraint expressing that several date range rows may not overlap.
 
@@ -760,8 +760,8 @@ class WithinRequirement(Requirement):
         key_columns: Optional[List[str]] = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Express that several date range rows do not overlap in two date dimensions.
 
@@ -832,8 +832,8 @@ class WithinRequirement(Requirement):
         key_columns: Optional[List[str]] = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """
         Express that date range rows have no gap in-between them.
@@ -883,8 +883,8 @@ class WithinRequirement(Requirement):
         self,
         key_columns: List[str],
         value_columns: List[str],
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -920,8 +920,8 @@ class WithinRequirement(Requirement):
         key_columns: Optional[List[str]] = None,
         legitimate_gap_size: float = 0,
         max_relative_n_violations: float = 0,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """
         Express that numeric interval rows have no gaps larger than some max value in-between them.
@@ -971,8 +971,8 @@ class WithinRequirement(Requirement):
         key_columns: Optional[List[str]] = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Constraint expressing that several numeric interval rows may not overlap.
 
@@ -1025,8 +1025,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         regex: str,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
         allow_none: bool = False,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
@@ -1068,8 +1068,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         regex: str,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
@@ -1108,8 +1108,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         min_length: int,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -1120,8 +1120,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         max_length: int,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -1134,8 +1134,8 @@ class WithinRequirement(Requirement):
         aggregation_column: str,
         start_value: int,
         tolerance: float = 0,
-        condition: Condition = None,
-        name: str = None,
+        condition: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Check whether array aggregate corresponds to an integer range.
 
@@ -1212,8 +1212,8 @@ class BetweenRequirement(Requirement):
         query2: str,
         name1: str,
         name2: str,
-        columns1: List[str] = None,
-        columns2: List[str] = None,
+        columns1: Optional[List[str]] = None,
+        columns2: Optional[List[str]] = None,
         date_column: Optional[str] = None,
         date_column2: Optional[str] = None,
     ):
@@ -1286,9 +1286,9 @@ class BetweenRequirement(Requirement):
 
     def add_n_rows_equality_constraint(
         self,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, condition=condition1)
         ref2 = DataReference(self.data_source2, condition=condition2)
@@ -1300,9 +1300,9 @@ class BetweenRequirement(Requirement):
         self,
         constant_max_relative_gain: Optional[float] = None,
         date_range_gain_deviation: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """#rows from first table <= #rows from second table * (1 + max_growth).
 
@@ -1323,9 +1323,9 @@ class BetweenRequirement(Requirement):
         self,
         constant_min_relative_gain: Optional[float] = None,
         date_range_gain_deviation: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """#rows from first table  >= #rows from second table * (1 + min_growth).
 
@@ -1346,9 +1346,9 @@ class BetweenRequirement(Requirement):
         self,
         constant_max_relative_loss: Optional[float] = None,
         date_range_loss_deviation: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """#rows from first table >= #rows from second table * (1 - max_loss).
 
@@ -1369,9 +1369,9 @@ class BetweenRequirement(Requirement):
         self,
         columns1: Optional[List[str]],
         columns2: Optional[List[str]],
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
@@ -1385,9 +1385,9 @@ class BetweenRequirement(Requirement):
         columns2: Optional[List[str]],
         constant_max_relative_gain: Optional[float] = None,
         date_range_gain_deviation: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """#uniques or first table <= #uniques of second table* (1 + max_growth).
 
@@ -1416,9 +1416,9 @@ class BetweenRequirement(Requirement):
         columns2: Optional[List[str]],
         constant_max_relative_loss: Optional[float] = None,
         date_range_loss_deviation: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """#uniques in first table <= #uniques in second table * (1 - max_loss).
 
@@ -1443,9 +1443,9 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         max_relative_deviation: float,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Assert that the fraction of ``NULL`` values of one is at most that of the other.
 
@@ -1467,9 +1467,9 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
@@ -1481,15 +1481,15 @@ class BetweenRequirement(Requirement):
         self,
         columns1: List[str],
         columns2: List[str],
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Check if the data's unique values in given columns are equal.
 
@@ -1535,12 +1535,12 @@ class BetweenRequirement(Requirement):
         columns1: List[str],
         columns2: List[str],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -1597,13 +1597,13 @@ class BetweenRequirement(Requirement):
         columns1: List[str],
         columns2: List[str],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
         compare_distinct: bool = False,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -1662,9 +1662,9 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
@@ -1677,9 +1677,9 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         max_absolute_deviation: float,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
@@ -1701,7 +1701,7 @@ class BetweenRequirement(Requirement):
         max_relative_deviation: Optional[float] = None,
         condition1: Optional[Condition] = None,
         condition2: Optional[Condition] = None,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         """Assert that the ``percentage``-th percentile is approximately equal.
 
@@ -1736,10 +1736,10 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         use_lower_bound_reference: bool = True,
-        column_type: Union[str, sa.types.TypeEngine] = "date",
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        column_type: str = "date",
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Ensure date min of first table is greater or equal date min of second table.
 
@@ -1769,10 +1769,10 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         use_upper_bound_reference: bool = True,
-        column_type: Union[str, sa.types.TypeEngine] = "date",
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        column_type: str = "date",
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Compare date max of first table to date max of second table.
 
@@ -1801,9 +1801,9 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
@@ -1815,9 +1815,9 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
@@ -1825,19 +1825,19 @@ class BetweenRequirement(Requirement):
             varchar_constraints.VarCharMaxLength(ref, ref2=ref2, name=name)
         )
 
-    def add_column_subset_constraint(self, name: str = None):
+    def add_column_subset_constraint(self, name: Optional[str] = None):
         """Columns of first table are subset of second table."""
         self._constraints.append(
             column_constraints.ColumnSubset(self.ref, ref2=self.ref2, name=name)
         )
 
-    def add_column_superset_constraint(self, name: str = None):
+    def add_column_superset_constraint(self, name: Optional[str] = None):
         """Columns of first table are superset of columns of second table."""
         self._constraints.append(
             column_constraints.ColumnSuperset(self.ref, ref2=self.ref2, name=name)
         )
 
-    def add_column_type_constraint(self, column1: str, column2: str, name: str = None):
+    def add_column_type_constraint(self, column1: str, column2: str, name: Optional[str] = None):
         "Check that the columns have the same type."
         ref1 = DataReference(self.data_source, [column1])
         ref2 = DataReference(self.data_source2, [column2])
@@ -1850,9 +1850,9 @@ class BetweenRequirement(Requirement):
         columns1: Optional[List[str]],
         columns2: Optional[List[str]],
         max_missing_fraction: float,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """At most ``max_missing_fraction`` of rows in T1 and T2 are absent in either.
 
@@ -1874,9 +1874,9 @@ class BetweenRequirement(Requirement):
         columns2: Optional[List[str]],
         constant_max_missing_fraction: Optional[float],
         date_range_loss_fraction: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """At most ``max_missing_fraction`` of rows in T1 are not in T2.
 
@@ -1904,9 +1904,9 @@ class BetweenRequirement(Requirement):
         columns2: Optional[List[str]],
         constant_max_missing_fraction: float,
         date_range_loss_fraction: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """At most ``max_missing_fraction`` of rows in T2 are not in T1.
 
@@ -1933,9 +1933,9 @@ class BetweenRequirement(Requirement):
         comparison_columns1: List[str],
         comparison_columns2: List[str],
         max_missing_fraction: float,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
     ):
         """Match tables in matching_columns, compare for equality in comparison_columns.
 
@@ -1974,9 +1974,9 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
-        name: str = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
+        name: Optional[str] = None,
         significance_level: float = 0.05,
     ):
         """

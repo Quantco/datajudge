@@ -18,7 +18,7 @@ class IntervalConstraint(Constraint):
         start_columns: List[str],
         end_columns: List[str],
         max_relative_n_violations: float,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref_value=object(), name=name)
         self.key_columns = key_columns
@@ -56,7 +56,7 @@ class IntervalConstraint(Constraint):
         sample_selection, n_violations_selection = self.select(engine, ref)
         with engine.connect() as connection:
             self.sample = connection.execute(sample_selection).first()
-            n_violation_keys = connection.execute(n_violations_selection).scalar()
+            n_violation_keys = int(str(connection.execute(n_violations_selection).scalar()))
 
         selections = [*n_keys_selections, sample_selection, n_violations_selection]
         return (n_violation_keys, n_distinct_key_values), selections
@@ -97,7 +97,7 @@ class NoOverlapConstraint(IntervalConstraint):
         return sample_selection, n_violations_selection
 
     @abc.abstractmethod
-    def compare(self, engine: sa.engine.Engine, ref: DataReference):
+    def compare(self, factual: Any, target: Any):
         pass
 
 

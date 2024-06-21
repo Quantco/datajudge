@@ -1,5 +1,5 @@
 import abc
-from typing import Tuple
+from typing import Tuple, Optional
 
 import sqlalchemy as sa
 
@@ -11,7 +11,7 @@ from .base import Constraint, OptionalSelections, TestResult, ToleranceGetter
 
 class NRows(Constraint, abc.ABC):
     def __init__(
-        self, ref, *, ref2: DataReference = None, n_rows: int = None, name: str = None
+        self, ref, *, ref2: Optional[DataReference] = None, n_rows: Optional[int] = None, name: Optional[str] = None
     ):
         super().__init__(ref, ref2=ref2, ref_value=n_rows, name=name)
 
@@ -79,7 +79,7 @@ class NRowsMaxLoss(NRows):
         ref: DataReference,
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_loss_getter = max_relative_loss_getter
@@ -110,7 +110,7 @@ class NRowsMaxGain(NRows):
         ref: DataReference,
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_gain_getter = max_relative_gain_getter
@@ -141,7 +141,7 @@ class NRowsMinGain(NRows):
         ref: DataReference,
         ref2: DataReference,
         min_relative_gain_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, name=name)
         self.min_relative_gain_getter = min_relative_gain_getter

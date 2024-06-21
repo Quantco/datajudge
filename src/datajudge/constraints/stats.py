@@ -15,7 +15,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         ref: DataReference,
         ref2: DataReference,
         significance_level: float = 0.05,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         self.significance_level = significance_level
         super().__init__(ref, ref2=ref2, name=name)
@@ -97,6 +97,8 @@ class KolmogorovSmirnov2Sample(Constraint):
         return d_statistic, p_value, n_samples, m_samples, selections
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
+        if self.ref2 is None:
+            raise ValueError("Constraint needs ref2.")
         (
             d_statistic,
             p_value,
