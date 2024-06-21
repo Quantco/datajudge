@@ -85,7 +85,6 @@ sqlalchemy = "1.*"
 sqlalchemy = "2.*"
 
 [feature.test.dependencies]
-pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
 
