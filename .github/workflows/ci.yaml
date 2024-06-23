@@ -61,7 +61,7 @@ jobs:
   mssql:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'sqlserver') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
     name: "mssql"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -107,7 +107,7 @@ jobs:
   postgres:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
     name: PostgreSQL
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -150,7 +150,7 @@ jobs:
   db2:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
     name: DB2
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -250,7 +250,7 @@ jobs:
 
   # impala-column:
   #   name: "Impala"
-  #   runs-on: ubuntu-20.04
+  #   runs-on: ubuntu-latest
   #   strategy:
   #     fail-fast: false
   #     matrix:
