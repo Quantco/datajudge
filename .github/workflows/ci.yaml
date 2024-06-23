@@ -175,7 +175,7 @@ jobs:
         options: --privileged
         ports:
           - 50000:50000
-        
+
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
@@ -252,36 +252,29 @@ jobs:
         with:
           file: ./coverage.xml
 
-  # impala-column:
-  #   name: "Impala"
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       # more comprehensive matching; note that tests which start with test_i and not test_integer are not matched and must be added here
-
-  #       # test_selection: ["-k 'test_a or test_b or test_c or test_d or test_e or test_f or test_g or test_h or test_integer or test_j or test_k or test_l or test_m'", "-k 'test_n or test_o or test_p or test_q or test_r or test_s or test_t or test_u or test_v or test_w or test_x or test_y or test_z'"]
-  #       env:
-  #         - impala-py38
-  #         - impala-py39
-  #         - impala-py310
-  #         - impala-py311
-  #         - impala-py312
-  #         - impala-sa1
-  #         - impala-sa2
-  #    steps:
-  #     - name: Checkout branch
-  #       uses: actions/checkout@v4
-  #     - name: Set up container
-  #       run: docker compose up --wait impala
-  #     - name: Set up pixi
-  #       uses: prefix-dev/setup-pixi@v0.8.1
-  #       with:
-  #         environments: ${{ matrix.env }}
-  #     - run: |
-  #         pixi run -e ${{ matrix.env }} postinstall
-  #         pixi run -e ${{ matrix.env }} coverage
-  #     - name: Generate code coverage report
-  #       uses: codecov/codecov-action@v3.1.3
-  #       with:
-  #         file: ./coverage.xml
+  impala:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
+    name: "Impala"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - impala-py38
+          - impala-sa1
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      - name: Set up container
+        run: docker compose up --wait impala
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          environments: ${{ matrix.env }}
+      - run: |
+          pixi run -e ${{ matrix.env }} postinstall
+          pixi run -e ${{ matrix.env }} coverage
+      - name: Generate code coverage report
+        uses: codecov/codecov-action@v3.1.3
+        with:
+          file: ./coverage.xml

@@ -145,11 +145,6 @@ bigquery-py38 = ["bigquery", "py38", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
 
 impala-py38 = ["impala", "py38", "test"]
-impala-py39 = ["impala", "py39", "test"]
-impala-py310 = ["impala", "py310", "test"]
-impala-py311 = ["impala", "py311", "test"]
-impala-py312 = ["impala", "py312", "test"]
 impala-sa1 = ["impala", "sa1", "test"]
-impala-sa2 = ["impala", "sa2", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
