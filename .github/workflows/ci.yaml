@@ -43,6 +43,10 @@ jobs:
           - py312
           - sa1
           - sa2
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
