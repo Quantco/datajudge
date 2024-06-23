@@ -106,7 +106,7 @@ jobs:
 
   postgres:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'postgres') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "PostgreSQL ${{ matrix.POSTGRES_VERSION }} - Python ${{ matrix.PYTHON_VERSION }} - SA ${{ matrix.SA_VERSION }}"
+    name: PostgreSQL
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
