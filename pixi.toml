@@ -151,7 +151,9 @@ snowflake-sa1 = ["snowflake", "sa1", "test"]
 bigquery-py38 = ["bigquery", "py38", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
 
-impala-py38 = ["impala", "py38", "test"]
+# We specify sqlalchemy 1 due to this bug:
+# https://github.com/cloudera/impyla/issues/512
+impala-py38 = ["impala", "py38", "sa1", "test"]
 impala-sa1 = ["impala", "sa1", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
