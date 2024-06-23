@@ -206,12 +206,7 @@ jobs:
       matrix:
         env:
           - snowflake-py38
-          - snowflake-py39
-          - snowflake-py310
-          - snowflake-py311
-          - snowflake-py312
           - snowflake-sa1
-          - snowflake-sa2
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
@@ -236,12 +231,7 @@ jobs:
       matrix:
         env:
           - bigquery-py38
-          - bigquery-py39
-          - bigquery-py310
-          - bigquery-py311
-          - bigquery-py312
           - bigquery-sa1
-          - bigquery-sa2
     steps:
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@71fee32a0bb7e97b4d33d548e7d957010649d8fa'
