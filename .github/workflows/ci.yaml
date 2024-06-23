@@ -31,7 +31,6 @@ jobs:
 
   unit-tests:
     name: "unit tests"
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
@@ -47,6 +46,7 @@ jobs:
           - ubuntu-latest
           - macos-latest
           - windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
