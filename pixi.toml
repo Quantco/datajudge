@@ -10,8 +10,6 @@ postinstall = "pip install --no-build-isolation --no-deps --disable-pip-version-
 python = ">=3.8"
 scipy = "*"
 sqlalchemy = ">=1.4,<3"
-flit-core = "*"
-flit = "*"
 colorama = "*"
 pytest = "*"
 
@@ -87,7 +85,6 @@ sqlalchemy = "1.*"
 sqlalchemy = "2.*"
 
 [feature.test.dependencies]
-pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
 
@@ -111,8 +108,11 @@ pyupgrade = "*"
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
-[environments]
+[host-dependencies]
+flit-core = "*"
+flit = "*"
 
+[environments]
 default = ["test"]
 docs = ["docs"]
 
@@ -143,26 +143,13 @@ postgres-sa2 = ["postgres", "sa2", "test"]
 db2-py38 = ["db2", "py38", "test"]
 db2-py39 = ["db2", "py39", "test"]
 db2-py310 = ["db2", "py310", "test"]
-# db2-py311 = ["db2", "py311", "test"]
-# db2-py312 = ["db2", "py312", "test"]
 db2-sa1 = ["db2", "sa1", "test"]
-db2-sa2 = ["db2", "sa2", "test"]
 
 snowflake-py38 = ["snowflake", "py38", "test"]
-snowflake-py39 = ["snowflake", "py39", "test"]
-snowflake-py310 = ["snowflake", "py310", "test"]
-snowflake-py311 = ["snowflake", "py311", "test"]
-snowflake-py312 = ["snowflake", "py312", "test"]
 snowflake-sa1 = ["snowflake", "sa1", "test"]
-# snowflake-sa2 = ["snowflake", "sa2", "test"]
 
 bigquery-py38 = ["bigquery", "py38", "test"]
-bigquery-py39 = ["bigquery", "py39", "test"]
-bigquery-py310 = ["bigquery", "py310", "test"]
-bigquery-py311 = ["bigquery", "py311", "test"]
-bigquery-py312 = ["bigquery", "py312", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
-bigquery-sa2 = ["bigquery", "sa2", "test"]
 
 impala-py38 = ["impala", "py38", "test"]
 impala-py39 = ["impala", "py39", "test"]
