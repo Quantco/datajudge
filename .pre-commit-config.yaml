@@ -1,33 +1,47 @@
+exclude: ^\.pixi
 repos:
-  - repo: https://github.com/Quantco/pre-commit-mirrors-black
-    rev: 24.4.2
+  - repo: local
     hooks:
-      - id: black-conda
-        args:
-          - --safe
-          - --target-version=py38
-  - repo: https://github.com/Quantco/pre-commit-mirrors-flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8-conda
-  - repo: https://github.com/Quantco/pre-commit-mirrors-isort
-    rev: 5.13.2
-    hooks:
-      - id: isort-conda
-        additional_dependencies: [-c, conda-forge, toml=0.10.2]
-  - repo: https://github.com/Quantco/pre-commit-mirrors-mypy
-    rev: "1.10.0"
-    hooks:
-      - id: mypy-conda
-        additional_dependencies: [-c, conda-forge, types-setuptools]
-  - repo: https://github.com/Quantco/pre-commit-mirrors-pyupgrade
-    rev: 3.15.2
-    hooks:
-      - id: pyupgrade-conda
-        args:
-          - --py38-plus
-  - repo: https://github.com/Quantco/pre-commit-mirrors-typos
-    rev: 1.21.0
-    hooks:
-      - id: typos-conda
+      # ensure pixi environments are up to date
+      # workaround for https://github.com/prefix-dev/pixi/issues/1482
+      - id: pixi-install
+        name: pixi-install
+        entry: pixi install -e default -e lint
+        language: system
+        always_run: true
+        require_serial: true
+        pass_filenames: false
+      - id: black
+        name: black
+        entry: pixi run -e lint black
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: flake8
+        name: flake8
+        entry: pixi run -e lint flake8
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+      - id: pyupgrade
+        name: pyupgrade
+        entry: pixi run -e lint pyupgrade
+        language: system
+        types: [python, pyi]
+      - id: isort
+        name: isort
+        entry: pixi run -e lint isort
+        language: system
+        types: [python, pyi]
+      - id: typos
+        name: typos
+        entry: pixi run -e lint typos --force-exclude
+        language: system
+        types: [text]
         exclude: "\\.csv$"
+        require_serial: true
+      - id: taplo
+        name: taplo
+        entry: pixi run -e lint taplo format
+        language: system
+        types: [toml]
