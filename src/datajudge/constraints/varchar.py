@@ -17,7 +17,7 @@ class VarCharRegexDb(Constraint):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref_value=relative_tolerance, name=name)
         self.regex = regex
@@ -82,7 +82,7 @@ class VarCharRegex(Constraint):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref_value=regex, name=name)
         self.allow_none = allow_none
@@ -149,9 +149,9 @@ class VarCharMinLength(Constraint):
         self,
         ref,
         *,
-        ref2: DataReference = None,
-        min_length: int = None,
-        name: str = None,
+        ref2: Optional[DataReference] = None,
+        min_length: Optional[int] = None,
+        name: Optional[str] = None,
     ):
         super().__init__(
             ref,
@@ -187,9 +187,9 @@ class VarCharMaxLength(Constraint):
         self,
         ref: DataReference,
         *,
-        ref2: DataReference = None,
-        max_length: int = None,
-        name: str = None,
+        ref2: Optional[DataReference] = None,
+        max_length: Optional[int] = None,
+        name: Optional[str] = None,
     ):
         super().__init__(
             ref,

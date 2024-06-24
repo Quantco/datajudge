@@ -88,6 +88,13 @@ sqlalchemy = "2.*"
 pytest-cov = "*"
 pytest-xdist = "*"
 
+[feature.mypy.dependencies]
+mypy = "*"
+types-setuptools = "*"
+types-colorama = "*"
+pandas-stubs = "*"
+types-jinja2 = "*"
+
 [feature.lint.dependencies]
 pre-commit = "*"
 black = "*"
@@ -150,3 +157,5 @@ impala-py38 = ["impala", "py38", "sa1", "test"]
 impala-sa1 = ["impala", "sa1", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
+
+mypy = ["mypy"]

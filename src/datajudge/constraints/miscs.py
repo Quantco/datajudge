@@ -9,7 +9,7 @@ from .base import Constraint, OptionalSelections, TestResult, format_sample
 
 
 class PrimaryKeyDefinition(Constraint):
-    def __init__(self, ref, primary_keys: List[str], name: str = None):
+    def __init__(self, ref, primary_keys: List[str], name: Optional[str] = None):
         super().__init__(ref, ref_value=set(primary_keys), name=name)
 
     def retrieve(
@@ -55,7 +55,7 @@ class Uniqueness(Constraint):
         max_duplicate_fraction: float = 0,
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns: bool = False,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         if max_duplicate_fraction != 0 and max_absolute_n_duplicates != 0:
             raise ValueError(
@@ -148,10 +148,10 @@ class MaxNullFraction(Constraint):
         self,
         ref,
         *,
-        ref2: DataReference = None,
-        max_null_fraction: float = None,
+        ref2: Optional[DataReference] = None,
+        max_null_fraction: Optional[float] = None,
         max_relative_deviation: float = 0,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, ref_value=max_null_fraction, name=name)
         if max_null_fraction is not None and not (0 <= max_null_fraction <= 1):

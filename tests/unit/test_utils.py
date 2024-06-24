@@ -155,14 +155,12 @@ def test_output_processor_limit_defaults():
     input_counts = None
 
     input_main_copy = input_main.copy()
-    input_counts_copy = input_counts.copy() if input_counts is not None else None
     assert output_processor_limit(input_main, input_counts) == (
         list(range(100))
         + ["<SHORTENED OUTPUT, displaying the first 100 / 12345 elements above>"],
         None,
     )
     assert input_main == input_main_copy
-    assert input_counts == input_counts_copy
 
 
 def test_output_processor_limit_custom():
@@ -170,14 +168,12 @@ def test_output_processor_limit_custom():
     input_counts = None
 
     input_main_copy = input_main.copy()
-    input_counts_copy = input_counts.copy() if input_counts is not None else None
     assert output_processor_limit(input_main, input_counts, limit=42) == (
         list(range(42))
         + ["<SHORTENED OUTPUT, displaying the first 42 / 12345 elements above>"],
         None,
     )
     assert input_main == input_main_copy
-    assert input_counts == input_counts_copy
 
 
 def test_output_processor_limit_withcounts():

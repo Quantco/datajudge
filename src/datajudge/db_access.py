@@ -6,7 +6,7 @@ import operator
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
-from typing import Callable, Sequence, final, overload
+from typing import Any, Callable, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable
@@ -52,8 +52,8 @@ def apply_patches(engine: sa.engine.Engine):
         # This is implemented in the same way as for sqlalchemy-bigquery, see
         # https://github.com/googleapis/python-bigquery-sqlalchemy/blob/f1889443bd4d680550387b9bb14daeea8eb792d4/sqlalchemy_bigquery/base.py#L187
         compound_keywords_extensions = {
-            selectable.CompoundSelect.EXCEPT: "EXCEPT DISTINCT",
-            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL",
+            selectable.CompoundSelect.EXCEPT: "EXCEPT DISTINCT",  # type: ignore[attr-defined]
+            selectable.CompoundSelect.EXCEPT_ALL: "EXCEPT ALL",  # type: ignore[attr-defined]
         }
         engine.dialect.statement_compiler.compound_keywords.update(
             compound_keywords_extensions
@@ -65,8 +65,8 @@ def apply_patches(engine: sa.engine.Engine):
         # https://github.com/googleapis/python-bigquery-sqlalchemy/issues/388) but doesn't seem
         # to be an issue here.
         compound_keywords_extensions = {
-            selectable.CompoundSelect.INTERSECT: "INTERSECT DISTINCT",
-            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL",
+            selectable.CompoundSelect.INTERSECT: "INTERSECT DISTINCT",  # type: ignore[attr-defined]
+            selectable.CompoundSelect.INTERSECT_ALL: "INTERSECT ALL",  # type: ignore[attr-defined]
         }
         engine.dialect.statement_compiler.compound_keywords.update(
             compound_keywords_extensions
@@ -148,6 +148,8 @@ class Condition:
     def __str__(self):
         if self._is_atomic():
             return self.raw_string
+        if not self.conditions:
+            raise ValueError("This should never happen thanks to __post__init.")
         return f" {self.reduction_operator} ".join(
             f"({condition})" for condition in self.conditions
         )
@@ -248,7 +250,7 @@ class TableDataSource(DataSource):
 
 @final
 class ExpressionDataSource(DataSource):
-    def __init__(self, expression: FromClause, name: str):
+    def __init__(self, expression: FromClause | sa.Select, name: str):
         self.expression = expression
         self.name = name
 
@@ -264,7 +266,7 @@ class ExpressionDataSource(DataSource):
 
 @final
 class RawQueryDataSource(DataSource):
-    def __init__(self, query_string: str, name: str, columns: list[str] = None):
+    def __init__(self, query_string: str, name: str, columns: list[str] | None = None):
         self.query_string = query_string
         self.name = name
         self.columns = columns
@@ -310,8 +312,11 @@ class DataReference:
     def get_selection(self, engine: sa.engine.Engine):
         clause = self.data_source.get_clause(engine)
         if self.columns:
+            column_names = self.get_columns(engine)
+            if column_names is None:
+                raise ValueError("This shouldn't happen.")
             selection = sa.select(
-                *[clause.c[column_name] for column_name in self.get_columns(engine)]
+                *[clause.c[column_name] for column_name in column_names]
             )
         else:
             selection = sa.select(clause)
@@ -337,6 +342,8 @@ class DataReference:
                 f"{str(self)} yet none is given."
             )
         columns = self.get_columns(engine)
+        if columns is None:
+            raise ValueError("No columns defined.")
         if len(columns) > 1:
             raise ValueError(
                 "DataReference was expected to only have a single column but had multiple: "
@@ -344,8 +351,10 @@ class DataReference:
             )
         return columns[0]
 
-    def get_columns(self, engine):
+    def get_columns(self, engine) -> list[str] | None:
         """Fetch all relevant columns of a DataReference."""
+        if self.columns is None:
+            return None
         if is_snowflake(engine):
             return lowercase_column_names(self.columns)
         return self.columns
@@ -709,7 +718,6 @@ def _date_gap_condition(
             > legitimate_gap_size
         )
     elif is_postgresql(engine):
-        gap_condition = (start_table.c[start_column] > end_table.c[end_column] + 1,)
         gap_condition = (
             sa.sql.extract(
                 "day",
@@ -813,7 +821,9 @@ def get_functional_dependency_violations(
     return result, [violation_tuples]
 
 
-def get_row_count(engine, ref, row_limit: int = None):
+def get_row_count(
+    engine, ref, row_limit: int | None = None
+) -> tuple[int, list[sa.Select]]:
     """Return the number of rows for a `DataReference`.
 
     If `row_limit` is given, the number of rows is capped at the limit.
@@ -823,7 +833,7 @@ def get_row_count(engine, ref, row_limit: int = None):
         subquery = subquery.limit(row_limit)
     subquery = subquery.alias()
     selection = sa.select(sa.cast(sa.func.count(), sa.BigInteger)).select_from(subquery)
-    result = engine.connect().execute(selection).scalar()
+    result = int(str(engine.connect().execute(selection).scalar()))
     return result, [selection]
 
 
@@ -840,6 +850,8 @@ def get_column(
     """
     subquery = ref.get_selection(engine).alias()
     column = subquery.c[ref.get_column(engine)]
+
+    result: Any | None | Sequence[Any]
 
     if not aggregate_operator:
         selection = sa.select(column)
@@ -937,11 +949,13 @@ def get_fraction_between(engine, ref, lower_bound, upper_bound):
 
 def get_uniques(
     engine: sa.engine.Engine, ref: DataReference
-) -> tuple[Counter, list[sa.select]]:
+) -> tuple[Counter, list[sa.Select]]:
     if not ref.get_columns(engine):
         return Counter({}), []
     selection = ref.get_selection(engine).alias()
-    columns = [selection.c[column_name] for column_name in ref.get_columns(engine)]
+    if (column_names := ref.get_columns(engine)) is None:
+        raise ValueError("Need columns for get_uniques.")
+    columns = [selection.c[column_name] for column_name in column_names]
     selection = sa.select(*columns, sa.func.count()).group_by(*columns)
 
     def _scalar_accessor(row):
@@ -964,11 +978,11 @@ def get_uniques(
     return result, [selection]
 
 
-def get_unique_count(engine, ref):
+def get_unique_count(engine, ref) -> tuple[int, list[sa.Select]]:
     selection = ref.get_selection(engine)
     subquery = selection.distinct().alias()
     selection = sa.select(sa.func.count()).select_from(subquery)
-    result = engine.connect().execute(selection).scalar()
+    result = int(engine.connect().execute(selection).scalar())
     return result, [selection]
 
 
@@ -1104,10 +1118,9 @@ def column_array_agg_query(
     engine: sa.engine.Engine, ref: DataReference, aggregation_column: str
 ):
     clause = ref.data_source.get_clause(engine)
-    # NOTE: This was needed to appease mypy.
-    if not ref.get_columns(engine):
+    if not (column_names := ref.get_columns(engine)):
         raise ValueError("There must be a column to group by")
-    group_columns = [clause.c[column] for column in ref.get_columns(engine)]
+    group_columns = [clause.c[column] for column in column_names]
     agg_column = clause.c[aggregation_column]
     selection = sa.select(*group_columns, sa.func.array_agg(agg_column)).group_by(
         *group_columns
@@ -1125,7 +1138,9 @@ def get_column_array_agg(
     engine: sa.engine.Engine, ref: DataReference, aggregation_column: str
 ):
     selections = column_array_agg_query(engine, ref, aggregation_column)
-    result = engine.connect().execute(selections[0]).fetchall()
+    result: Sequence[sa.engine.row.Row[Any]] | list[tuple[Any, ...]] = (
+        engine.connect().execute(selections[0]).fetchall()
+    )
     if is_snowflake(engine):
         result = [
             (*t[:-1], list(map(int, snowflake_parse_variant_column(t[-1]))))
