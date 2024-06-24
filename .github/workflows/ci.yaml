@@ -29,6 +29,21 @@ jobs:
       - name: pre-commit
         run: pixi run pre-commit-run --color=always --show-diff-on-failure
 
+  mypy-type-checks:
+    name: Mypy Type Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          environments: default lint
+      - name: mypy
+        run: |
+          pixi run -e mypy postinstall
+          pixi run -e mypy mypy .
+
   unit-tests:
     name: "unit tests"
     strategy:

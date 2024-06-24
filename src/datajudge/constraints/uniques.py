@@ -107,16 +107,16 @@ class Uniques(Constraint, abc.ABC):
     def __init__(
         self,
         ref: DataReference,
-        name: str = None,
+        name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
         *,
-        ref2: DataReference = None,
-        uniques: Collection = None,
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        ref2: Optional[DataReference] = None,
+        uniques: Optional[Collection] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         max_relative_violations=0,
         compare_distinct=False,
     ):
@@ -159,7 +159,7 @@ class Uniques(Constraint, abc.ABC):
 
 
 class UniquesEquality(Uniques):
-    def __init__(self, args, name: str = None, **kwargs):
+    def __init__(self, args, name: Optional[str] = None, **kwargs):
         if kwargs.get("max_relative_violations"):
             raise RuntimeError(
                 "max_relative_violations is not supported for UniquesEquality."
@@ -250,7 +250,7 @@ class UniquesSubset(Uniques):
 
 
 class UniquesSuperset(Uniques):
-    def __init__(self, args, name: str = None, **kwargs):
+    def __init__(self, args, name: Optional[str] = None, **kwargs):
         if kwargs.get("compare_distinct"):
             raise RuntimeError("compare_distinct is not supported for UniquesSuperset.")
         super().__init__(args, name=name, **kwargs)
@@ -288,9 +288,9 @@ class NUniques(Constraint, abc.ABC):
         self,
         ref: DataReference,
         *,
-        ref2: DataReference = None,
-        n_uniques: int = None,
-        name: str = None,
+        ref2: Optional[DataReference] = None,
+        n_uniques: Optional[int] = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, ref_value=n_uniques, name=name)
 
@@ -320,7 +320,7 @@ class NUniquesMaxLoss(NUniques):
         ref: DataReference,
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_loss_getter = max_relative_loss_getter
@@ -353,7 +353,7 @@ class NUniquesMaxGain(NUniques):
         ref: DataReference,
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
     ):
         super().__init__(ref, ref2=ref2, name=name)
         self.max_relative_gain_getter = max_relative_gain_getter
