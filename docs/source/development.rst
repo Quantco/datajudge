@@ -1,26 +1,23 @@
 Development
 ===========
 
-In order to work on ``datajudge``, you can create a development conda environment as follows:
+``datajudge`` development relies on [pixi](https://pixi.sh/latest/).
+In order to work on ``datajudge``, you can create a development environment as follows:
 
 ::
 
     git clone https://github.com/Quantco/datajudge
     cd datajudge
-    mamba env create
-    conda activate datajudge
-    pip install --no-build-isolation --disable-pip-version-check -e .
+    pixi run postinstall
 
 Unit tests can be run by executing
 
 ::
 
-   pytest tests/unit
+   pixi run test
 
 Integration tests are run against a specific backend at a time. As of now, we provide helper
 scripts to spin up either a Postgres or MSSQL backend.
-Our ``environment.yml`` does not include the necessary dependencies for these backends, so you will need to install them manually.
-
 
 To run integration tests against Postgres, first start a docker container with a Postgres database:
 
@@ -33,7 +30,7 @@ After this, you may execute integration tests as follows:
 
 ::
 
-   pytest tests/integration --backend=postgres
+   pixi run -e postgres-py38 test
 
 Analogously, for MSSQL, run
 
@@ -45,13 +42,14 @@ and
 
 ::
 
-   pytest tests/integration --backend=mssql-freetds
+   pixi run -e mssql-py310 test
 
 or
 
+
 ::
 
-   pytest tests/integration --backend=mssql
+   pixi run -e mssql-py310 test_freetds
 
-depending on the driver you are using.
 
+depending on the driver you'd like to use.
