@@ -1,7 +1,7 @@
 from typing import Iterable
 
 import pytest
-from pkg_resources import parse_version
+from packaging.version import Version
 
 from .constraints.base import Constraint
 from .db_access import apply_patches
@@ -22,7 +22,7 @@ def get_formatter(pytestconfig):
             try:
                 import pytest_html
 
-                if parse_version(pytest_html.__version__).major >= 4:
+                if Version(pytest_html.__version__).major >= 4:
                     return AnsiColorFormatter()
             finally:
                 return Formatter()

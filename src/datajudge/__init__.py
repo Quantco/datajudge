@@ -1,7 +1,7 @@
 """datajudge allows to assess  whether data from database complies with reference
 information."""
 
-import pkg_resources
+import importlib.metadata
 
 from .constraints.base import Constraint
 from .db_access import Condition
@@ -16,6 +16,6 @@ __all__ = [
 ]
 
 try:
-    __version__ = pkg_resources.get_distribution(__name__).version
+    __version__ = importlib.metadata.distribution(__name__).version
 except Exception:
     __version__ = "1.8.0"
