@@ -16,16 +16,17 @@ Changelog
 
 - Add ``output_processors`` and ``filter_func`` parameters to
   :meth:`datajudge.requirements.WithinRequirement.add_uniques_equality_constraint`,
-  :meth:`datajudge.requirements.WithinRequirement.add_uniques_superset_constraint`,
-  :meth:`datajudge.requirements.WithinRequirement.add_uniques_subset_constraint`,
+  :meth:`datajudge.requirements.WithinRequirement.add_uniques_superset_constraint`
+  and :meth:`datajudge.requirements.WithinRequirement.add_uniques_subset_constraint`.
 
 - Add ``output_processors``, ``filter_func`` and ``compare_distinct`` parameters to
   :meth:`datajudge.requirements.BetweenRequirement.add_uniques_equality_constraint`,
-  :meth:`datajudge.requirements.BetweenRequirement.add_uniques_superset_constraint`,
-  :meth:`datajudge.requirements.BetweenRequirement.add_uniques_subset_constraint`,
+  :meth:`datajudge.requirements.BetweenRequirement.add_uniques_superset_constraint`
+  and :meth:`datajudge.requirements.BetweenRequirement.add_uniques_subset_constraint`.
 
 - Add ``output_processors`` parameter to
-  :meth:`datajudge.requirements.BetweenRequirement.add_functional_dependency_constraint`,
+  :meth:`datajudge.requirements.BetweenRequirement.add_functional_dependency_constraint`.
+
 **Other changes**
 
 - Provide a ``py.typed`` file.
