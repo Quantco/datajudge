@@ -7,16 +7,31 @@
 Changelog
 =========
 
-1.9.0 - 2023.XX.XX
+1.9.0 - 2024.06.25
 ------------------
 
 **New features**
 
-- Added styling for assertion messages. See :ref:`assertion-message-styling` for more information.
+- Add styling for assertion messages. See :ref:`assertion-message-styling` for more information.
+
+- Add ``output_processors`` and ``filter_func`` parameters to
+  :meth:`datajudge.requirements.WithinRequirement.add_uniques_equality_constraint`,
+  :meth:`datajudge.requirements.WithinRequirement.add_uniques_superset_constraint`
+  and :meth:`datajudge.requirements.WithinRequirement.add_uniques_subset_constraint`.
+
+- Add ``output_processors``, ``filter_func`` and ``compare_distinct`` parameters to
+  :meth:`datajudge.requirements.BetweenRequirement.add_uniques_equality_constraint`,
+  :meth:`datajudge.requirements.BetweenRequirement.add_uniques_superset_constraint`
+  and :meth:`datajudge.requirements.BetweenRequirement.add_uniques_subset_constraint`.
+
+- Add ``output_processors`` parameter to
+  :meth:`datajudge.requirements.BetweenRequirement.add_functional_dependency_constraint`.
 
 **Other changes**
 
 - Provide a ``py.typed`` file.
+
+- Remove usage of ``pkg_resources``.
 
 
 1.8.0 - 2023.06.16
