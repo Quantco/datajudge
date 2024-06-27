@@ -15,7 +15,7 @@ class Row(Constraint, abc.ABC):
         ref: DataReference,
         ref2: DataReference,
         max_missing_fraction_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
@@ -160,7 +160,7 @@ class RowMatchingEquality(Row):
         comparison_columns1: List[str],
         comparison_columns2: List[str],
         max_missing_fraction_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(

@@ -25,7 +25,7 @@ class ColumnExistence(Column):
         self,
         ref: DataReference,
         columns: List[str],
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(

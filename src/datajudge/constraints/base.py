@@ -123,7 +123,7 @@ class Constraint(abc.ABC):
         *,
         ref2=None,
         ref_value: Any = None,
-        name: str = None,
+        name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,

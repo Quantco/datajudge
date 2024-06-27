@@ -12,10 +12,10 @@ class NumericMin(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         min_value: float = None,
     ):
         super().__init__(
@@ -52,10 +52,10 @@ class NumericMax(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         max_value: float = None,
     ):
         super().__init__(
@@ -95,7 +95,7 @@ class NumericBetween(Constraint):
         min_fraction: float,
         lower_bound: float,
         upper_bound: float,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(
@@ -134,10 +134,10 @@ class NumericMean(Constraint):
         self,
         ref: DataReference,
         max_absolute_deviation: float,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         mean_value: float = None,
     ):
         super().__init__(
@@ -185,7 +185,7 @@ class NumericPercentile(Constraint):
         name: Optional[str] = None,
         lru_cache_maxsize=None,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         expected_percentile: float = None,
     ):
         super().__init__(

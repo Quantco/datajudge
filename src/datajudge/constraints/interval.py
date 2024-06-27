@@ -18,7 +18,7 @@ class IntervalConstraint(Constraint):
         start_columns: List[str],
         end_columns: List[str],
         max_relative_n_violations: float,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(ref, ref_value=object(), name=name)

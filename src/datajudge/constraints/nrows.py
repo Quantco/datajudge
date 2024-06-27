@@ -1,5 +1,5 @@
 import abc
-from typing import Tuple
+from typing import Optional, Tuple
 
 import sqlalchemy as sa
 
@@ -14,9 +14,9 @@ class NRows(Constraint, abc.ABC):
         self,
         ref,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         n_rows: int = None,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(
@@ -91,7 +91,7 @@ class NRowsMaxLoss(NRows):
         ref: DataReference,
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
@@ -123,7 +123,7 @@ class NRowsMaxGain(NRows):
         ref: DataReference,
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
@@ -155,7 +155,7 @@ class NRowsMinGain(NRows):
         ref: DataReference,
         ref2: DataReference,
         min_relative_gain_getter: ToleranceGetter,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)

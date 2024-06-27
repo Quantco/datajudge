@@ -15,7 +15,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         ref: DataReference,
         ref2: DataReference,
         significance_level: float = 0.05,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         self.significance_level = significance_level

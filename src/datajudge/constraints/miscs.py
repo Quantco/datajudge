@@ -13,7 +13,7 @@ class PrimaryKeyDefinition(Constraint):
         self,
         ref,
         primary_keys: List[str],
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(ref, ref_value=set(primary_keys), name=name)
@@ -61,7 +61,7 @@ class Uniqueness(Constraint):
         max_duplicate_fraction: float = 0,
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns: bool = False,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         if max_duplicate_fraction != 0 and max_absolute_n_duplicates != 0:
@@ -157,10 +157,10 @@ class MaxNullFraction(Constraint):
         self,
         ref,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         max_null_fraction: float = None,
         max_relative_deviation: float = 0,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(

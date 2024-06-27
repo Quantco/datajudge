@@ -38,10 +38,10 @@ class DateMin(Constraint):
         ref: DataReference,
         use_lower_bound_reference: bool,
         column_type: str,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         min_value: str = None,
     ):
         self.format = get_format_from_column_type(column_type)
@@ -91,10 +91,10 @@ class DateMax(Constraint):
         ref: DataReference,
         use_upper_bound_reference: bool,
         column_type: str,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
         *,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
         max_value: str = None,
     ):
         self.format = get_format_from_column_type(column_type)
@@ -146,7 +146,7 @@ class DateBetween(Constraint):
         min_fraction: float,
         lower_bound: str,
         upper_bound: str,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
         super().__init__(

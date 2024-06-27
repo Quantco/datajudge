@@ -13,11 +13,11 @@ class AggregateNumericRangeEquality(Constraint):
         ref: DataReference,
         aggregation_column: str,
         start_value: int = 0,
-        name: str = None,
+        name: Optional[str] = None,
         lru_cache_maxsize=None,
         *,
         tolerance: float = 0,
-        ref2: DataReference = None,
+        ref2: Optional[DataReference] = None,
     ):
         super().__init__(ref, ref2=ref2, ref_value=object(), name=name)
         self.aggregation_column = aggregation_column
