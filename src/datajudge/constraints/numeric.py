@@ -13,11 +13,18 @@ class NumericMin(Constraint):
         self,
         ref: DataReference,
         name: str = None,
+        lru_cache_maxsize=None,
         *,
         ref2: DataReference = None,
         min_value: float = None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=min_value, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=min_value,
+            name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
+        )
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -46,6 +53,7 @@ class NumericMax(Constraint):
         self,
         ref: DataReference,
         name: str = None,
+        lru_cache_maxsize=None,
         *,
         ref2: DataReference = None,
         max_value: float = None,
@@ -55,6 +63,7 @@ class NumericMax(Constraint):
             ref2=ref2,
             ref_value=max_value,
             name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
         )
 
     def retrieve(
@@ -87,8 +96,11 @@ class NumericBetween(Constraint):
         lower_bound: float,
         upper_bound: float,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
-        super().__init__(ref, ref_value=min_fraction, name=name)
+        super().__init__(
+            ref, ref_value=min_fraction, name=name, lru_cache_maxsize=lru_cache_maxsize
+        )
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
@@ -123,6 +135,7 @@ class NumericMean(Constraint):
         ref: DataReference,
         max_absolute_deviation: float,
         name: str = None,
+        lru_cache_maxsize=None,
         *,
         ref2: DataReference = None,
         mean_value: float = None,
@@ -132,6 +145,7 @@ class NumericMean(Constraint):
             ref2=ref2,
             ref_value=mean_value,
             name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
         )
         self.max_absolute_deviation = max_absolute_deviation
 
@@ -169,6 +183,7 @@ class NumericPercentile(Constraint):
         max_absolute_deviation: Optional[float] = None,
         max_relative_deviation: Optional[float] = None,
         name: Optional[str] = None,
+        lru_cache_maxsize=None,
         *,
         ref2: DataReference = None,
         expected_percentile: float = None,
@@ -178,6 +193,7 @@ class NumericPercentile(Constraint):
             ref2=ref2,
             ref_value=expected_percentile,
             name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
         )
         if not (0 <= percentage <= 100):
             raise ValueError(

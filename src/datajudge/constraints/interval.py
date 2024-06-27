@@ -19,6 +19,7 @@ class IntervalConstraint(Constraint):
         end_columns: List[str],
         max_relative_n_violations: float,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         super().__init__(ref, ref_value=object(), name=name)
         self.key_columns = key_columns
@@ -72,6 +73,7 @@ class NoOverlapConstraint(IntervalConstraint):
         max_relative_n_violations: float,
         end_included: bool,
         name: Optional[str] = None,
+        lru_cache_maxsize=None,
     ):
         self.end_included = end_included
         super().__init__(
@@ -81,6 +83,7 @@ class NoOverlapConstraint(IntervalConstraint):
             end_columns,
             max_relative_n_violations,
             name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
         )
 
     def select(self, engine: sa.engine.Engine, ref: DataReference):
@@ -111,6 +114,7 @@ class NoGapConstraint(IntervalConstraint):
         max_relative_n_violations: float,
         legitimate_gap_size: float,
         name: Optional[str] = None,
+        lru_cache_maxsize=None,
     ):
         self.legitimate_gap_size = legitimate_gap_size
         super().__init__(
@@ -120,6 +124,7 @@ class NoGapConstraint(IntervalConstraint):
             end_columns,
             max_relative_n_violations,
             name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
         )
 
     @abc.abstractmethod

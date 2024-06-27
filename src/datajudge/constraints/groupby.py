@@ -14,6 +14,7 @@ class AggregateNumericRangeEquality(Constraint):
         aggregation_column: str,
         start_value: int = 0,
         name: str = None,
+        lru_cache_maxsize=None,
         *,
         tolerance: float = 0,
         ref2: DataReference = None,

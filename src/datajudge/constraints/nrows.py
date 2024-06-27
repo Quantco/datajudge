@@ -11,9 +11,21 @@ from .base import Constraint, OptionalSelections, TestResult, ToleranceGetter
 
 class NRows(Constraint, abc.ABC):
     def __init__(
-        self, ref, *, ref2: DataReference = None, n_rows: int = None, name: str = None
+        self,
+        ref,
+        *,
+        ref2: DataReference = None,
+        n_rows: int = None,
+        name: str = None,
+        lru_cache_maxsize=None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=n_rows, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=n_rows,
+            name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
+        )
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -80,8 +92,9 @@ class NRowsMaxLoss(NRows):
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name)
+        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
         self.max_relative_loss_getter = max_relative_loss_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
@@ -111,8 +124,9 @@ class NRowsMaxGain(NRows):
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name)
+        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
         self.max_relative_gain_getter = max_relative_gain_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
@@ -142,8 +156,9 @@ class NRowsMinGain(NRows):
         ref2: DataReference,
         min_relative_gain_getter: ToleranceGetter,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name)
+        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
         self.min_relative_gain_getter = min_relative_gain_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:

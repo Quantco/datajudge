@@ -16,8 +16,9 @@ class Row(Constraint, abc.ABC):
         ref2: DataReference,
         max_missing_fraction_getter: ToleranceGetter,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name)
+        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
         self.max_missing_fraction_getter = max_missing_fraction_getter
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
@@ -34,7 +35,7 @@ class Row(Constraint, abc.ABC):
 
 
 class RowEquality(Row):
-    @lru_cache(maxsize=None)
+    # @lru_cache(maxsize=None)
     def get_factual_value(self, engine: sa.engine.Engine) -> Tuple[int, int]:
         n_rows_missing_left, selections_left = db_access.get_row_difference_count(
             engine, self.ref, self.ref2
@@ -45,7 +46,7 @@ class RowEquality(Row):
         self.factual_selections = [*selections_left, *selections_right]
         return n_rows_missing_left, n_rows_missing_right
 
-    @lru_cache(maxsize=None)
+    # @lru_cache(maxsize=None)
     def get_target_value(self, engine: sa.engine.Engine) -> int:
         n_rows_total, selections = db_access.get_unique_count_union(
             engine, self.ref, self.ref2
@@ -116,7 +117,6 @@ class RowSubset(Row):
 
 
 class RowSuperset(Row):
-    @lru_cache(maxsize=None)
     def get_factual_value(self, engine: sa.engine.Engine) -> int:
         n_rows_missing, selections = db_access.get_row_difference_count(
             engine, self.ref2, self.ref
@@ -124,7 +124,6 @@ class RowSuperset(Row):
         self.factual_selections = selections
         return n_rows_missing
 
-    @lru_cache(maxsize=None)
     def get_target_value(self, engine: sa.engine.Engine) -> int:
         n_rows_total, selections = db_access.get_unique_count(engine, self.ref2)
         self.target_selections = selections
@@ -162,12 +161,14 @@ class RowMatchingEquality(Row):
         comparison_columns2: List[str],
         max_missing_fraction_getter: ToleranceGetter,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         super().__init__(
             ref,
             ref2=ref2,
             max_missing_fraction_getter=max_missing_fraction_getter,
             name=name,
+            lru_cache_maxsize=lru_cache_maxsize,
         )
         self.match_and_compare = MatchAndCompare(
             matching_columns1,

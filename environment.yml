@@ -7,6 +7,8 @@ dependencies:
   - pytest
   - pytest-cov
   - pytest-xdist
+  - memray
+  - pytest-memray
   - make
   - numpydoc
   - scipy

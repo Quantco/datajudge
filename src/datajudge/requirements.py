@@ -127,13 +127,19 @@ class WithinRequirement(Requirement):
         """
         return cls(data_source=ExpressionDataSource(expression, name))
 
-    def add_column_existence_constraint(self, columns: List[str], name: str = None):
+    def add_column_existence_constraint(
+        self, columns: List[str], name: str = None, lru_cache_maxsize=None
+    ):
         # Note that columns are not meant to be part of the reference.
         ref = DataReference(self.data_source)
-        self._constraints.append(column_constraints.ColumnExistence(ref, columns))
+        self._constraints.append(
+            column_constraints.ColumnExistence(
+                ref, columns, lru_cache_maxsize=lru_cache_maxsize
+            )
+        )
 
     def add_primary_key_definition_constraint(
-        self, primary_keys: List[str], name: str = None
+        self, primary_keys: List[str], name: str = None, lru_cache_maxsize=None
     ):
         """Check that the primary key constraints in the database are exactly equal to the given column names.
 
@@ -141,7 +147,9 @@ class WithinRequirement(Requirement):
         """
         ref = DataReference(self.data_source)
         self._constraints.append(
-            miscs_constraints.PrimaryKeyDefinition(ref, primary_keys, name=name)
+            miscs_constraints.PrimaryKeyDefinition(
+                ref, primary_keys, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_uniqueness_constraint(
@@ -152,6 +160,7 @@ class WithinRequirement(Requirement):
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns: bool = False,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Columns should uniquely identify row.
 
@@ -173,6 +182,7 @@ class WithinRequirement(Requirement):
                 max_absolute_n_duplicates=max_absolute_n_duplicates,
                 infer_pk_columns=infer_pk_columns,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -181,6 +191,7 @@ class WithinRequirement(Requirement):
         column: str,
         column_type: Union[str, sa.types.TypeEngine],
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """
         Check if a column type matches the expected column_type.
@@ -203,15 +214,26 @@ class WithinRequirement(Requirement):
         """
         ref = DataReference(self.data_source, [column])
         self._constraints.append(
-            column_constraints.ColumnType(ref, column_type=column_type, name=name)
+            column_constraints.ColumnType(
+                ref,
+                column_type=column_type,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
+            )
         )
 
     def add_null_absence_constraint(
-        self, column: str, condition: Condition = None, name: str = None
+        self,
+        column: str,
+        condition: Condition = None,
+        name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            miscs_constraints.MaxNullFraction(ref, max_null_fraction=0, name=name)
+            miscs_constraints.MaxNullFraction(
+                ref, max_null_fraction=0, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_max_null_fraction_constraint(
@@ -220,6 +242,7 @@ class WithinRequirement(Requirement):
         max_null_fraction: float,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Assert that ``column`` has less than a certain fraction of ``NULL`` values.
 
@@ -228,32 +251,53 @@ class WithinRequirement(Requirement):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             miscs_constraints.MaxNullFraction(
-                ref, max_null_fraction=max_null_fraction, name=name
+                ref,
+                max_null_fraction=max_null_fraction,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
     def add_n_rows_equality_constraint(
-        self, n_rows: int, condition: Condition = None, name: str = None
+        self,
+        n_rows: int,
+        condition: Condition = None,
+        name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
-            nrows_constraints.NRowsEquality(ref, n_rows=n_rows, name=name)
+            nrows_constraints.NRowsEquality(
+                ref, n_rows=n_rows, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_n_rows_min_constraint(
-        self, n_rows_min: int, condition: Condition = None, name: str = None
+        self,
+        n_rows_min: int,
+        condition: Condition = None,
+        name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
-            nrows_constraints.NRowsMin(ref, n_rows=n_rows_min, name=name)
+            nrows_constraints.NRowsMin(
+                ref, n_rows=n_rows_min, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_n_rows_max_constraint(
-        self, n_rows_max: int, condition: Condition = None, name: str = None
+        self,
+        n_rows_max: int,
+        condition: Condition = None,
+        name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, None, condition)
         self._constraints.append(
-            nrows_constraints.NRowsMax(ref, n_rows=n_rows_max, name=name)
+            nrows_constraints.NRowsMax(
+                ref, n_rows=n_rows_max, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_uniques_equality_constraint(
@@ -268,6 +312,7 @@ class WithinRequirement(Requirement):
         ] = output_processor_limit,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Check if the data's unique values are equal to a given set of values.
 
@@ -304,6 +349,7 @@ class WithinRequirement(Requirement):
                 reduce_func=reduce_func,
                 output_processors=output_processors,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -320,6 +366,7 @@ class WithinRequirement(Requirement):
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
+        lru_cache_maxsize=None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -363,6 +410,7 @@ class WithinRequirement(Requirement):
                 reduce_func=reduce_func,
                 output_processors=output_processors,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -380,6 +428,7 @@ class WithinRequirement(Requirement):
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
+        lru_cache_maxsize=None,
     ):
         """Check if the data's unique values are contained in a given set of values.
 
@@ -428,6 +477,7 @@ class WithinRequirement(Requirement):
                 reduce_func=reduce_func,
                 output_processors=output_processors,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -437,10 +487,13 @@ class WithinRequirement(Requirement):
         n_uniques: int,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
-            uniques_constraints.NUniquesEquality(ref, n_uniques=n_uniques, name=name)
+            uniques_constraints.NUniquesEquality(
+                ref, n_uniques=n_uniques, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_categorical_bound_constraint(
@@ -451,6 +504,7 @@ class WithinRequirement(Requirement):
         max_relative_violations: float = 0,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """
         Check if the distribution of unique values in columns falls within the
@@ -508,16 +562,23 @@ class WithinRequirement(Requirement):
                 default_bounds=default_bounds,
                 max_relative_violations=max_relative_violations,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
     def add_numeric_min_constraint(
-        self, column: str, min_value: float, condition: Condition = None
+        self,
+        column: str,
+        min_value: float,
+        condition: Condition = None,
+        lru_cache_maxsize=None,
     ):
         """All values in column are greater or equal min_value."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            numeric_constraints.NumericMin(ref, min_value=min_value)
+            numeric_constraints.NumericMin(
+                ref, min_value=min_value, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_numeric_max_constraint(
@@ -526,11 +587,14 @@ class WithinRequirement(Requirement):
         max_value: float,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """All values in column are less or equal max_value."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            numeric_constraints.NumericMax(ref, max_value=max_value, name=name)
+            numeric_constraints.NumericMax(
+                ref, max_value=max_value, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_numeric_between_constraint(
@@ -541,6 +605,7 @@ class WithinRequirement(Requirement):
         min_fraction: float,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Assert that the column's values lie between ``lower_bound`` and ``upper_bound``.
 
@@ -558,6 +623,7 @@ class WithinRequirement(Requirement):
                 lower_bound,
                 upper_bound,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -568,6 +634,7 @@ class WithinRequirement(Requirement):
         max_absolute_deviation: float,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Assert the mean of the column deviates at most max_deviation from mean_value."""
         ref = DataReference(self.data_source, [column], condition)
@@ -577,6 +644,7 @@ class WithinRequirement(Requirement):
                 max_absolute_deviation,
                 mean_value=mean_value,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -589,6 +657,7 @@ class WithinRequirement(Requirement):
         max_relative_deviation: Optional[float] = None,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Assert that the ``percentage``-th percentile is approximately ``expected_percentile``.
 
@@ -614,6 +683,7 @@ class WithinRequirement(Requirement):
                 max_absolute_deviation=max_absolute_deviation,
                 max_relative_deviation=max_relative_deviation,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -625,6 +695,7 @@ class WithinRequirement(Requirement):
         column_type: Union[str, sa.types.TypeEngine] = "date",
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Ensure all dates to be superior than min_value.
 
@@ -645,6 +716,7 @@ class WithinRequirement(Requirement):
                 use_lower_bound_reference=use_lower_bound_reference,
                 column_type=column_type,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -656,6 +728,7 @@ class WithinRequirement(Requirement):
         column_type: Union[str, sa.types.TypeEngine] = "date",
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Ensure all dates to be superior than max_value.
 
@@ -676,6 +749,7 @@ class WithinRequirement(Requirement):
                 use_upper_bound_reference=use_upper_bound_reference,
                 column_type=column_type,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -687,11 +761,18 @@ class WithinRequirement(Requirement):
         min_fraction: float,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Use string format: lower_bound="'20121230'"."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            date_constraints.DateBetween(ref, min_fraction, lower_bound, upper_bound)
+            date_constraints.DateBetween(
+                ref,
+                min_fraction,
+                lower_bound,
+                upper_bound,
+                lru_cache_maxsize=lru_cache_maxsize,
+            )
         )
 
     def add_date_no_overlap_constraint(
@@ -703,6 +784,7 @@ class WithinRequirement(Requirement):
         max_relative_n_violations: float = 0,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Constraint expressing that several date range rows may not overlap.
 
@@ -748,6 +830,7 @@ class WithinRequirement(Requirement):
                 end_included=end_included,
                 max_relative_n_violations=max_relative_n_violations,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -762,6 +845,7 @@ class WithinRequirement(Requirement):
         max_relative_n_violations: float = 0,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Express that several date range rows do not overlap in two date dimensions.
 
@@ -822,6 +906,7 @@ class WithinRequirement(Requirement):
                 end_included=end_included,
                 max_relative_n_violations=max_relative_n_violations,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -834,6 +919,7 @@ class WithinRequirement(Requirement):
         max_relative_n_violations: float = 0,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """
         Express that date range rows have no gap in-between them.
@@ -876,6 +962,7 @@ class WithinRequirement(Requirement):
                 max_relative_n_violations=max_relative_n_violations,
                 legitimate_gap_size=1 if end_included else 0,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -888,6 +975,7 @@ class WithinRequirement(Requirement):
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
+        lru_cache_maxsize=None,
     ):
         """
         Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
@@ -910,6 +998,7 @@ class WithinRequirement(Requirement):
                 key_columns=key_columns,
                 output_processors=output_processors,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -922,6 +1011,7 @@ class WithinRequirement(Requirement):
         max_relative_n_violations: float = 0,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """
         Express that numeric interval rows have no gaps larger than some max value in-between them.
@@ -961,6 +1051,7 @@ class WithinRequirement(Requirement):
                 legitimate_gap_size=legitimate_gap_size,
                 max_relative_n_violations=max_relative_n_violations,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -973,6 +1064,7 @@ class WithinRequirement(Requirement):
         max_relative_n_violations: float = 0,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Constraint expressing that several numeric interval rows may not overlap.
 
@@ -1018,6 +1110,7 @@ class WithinRequirement(Requirement):
                 end_included=end_included,
                 max_relative_n_violations=max_relative_n_violations,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1031,6 +1124,7 @@ class WithinRequirement(Requirement):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
+        lru_cache_maxsize=None,
     ):
         """
         Assesses whether the values in a column match a given regular expression pattern.
@@ -1061,6 +1155,7 @@ class WithinRequirement(Requirement):
                 aggregated=aggregated,
                 n_counterexamples=n_counterexamples,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1073,6 +1168,7 @@ class WithinRequirement(Requirement):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
+        lru_cache_maxsize=None,
     ):
         """
         Assesses whether the values in a column match a given regular expression pattern.
@@ -1101,6 +1197,7 @@ class WithinRequirement(Requirement):
                 aggregated=aggregated,
                 n_counterexamples=n_counterexamples,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1110,10 +1207,16 @@ class WithinRequirement(Requirement):
         min_length: int,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            varchar_constraints.VarCharMinLength(ref, min_length=min_length, name=name)
+            varchar_constraints.VarCharMinLength(
+                ref,
+                min_length=min_length,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
+            )
         )
 
     def add_varchar_max_length_constraint(
@@ -1122,10 +1225,16 @@ class WithinRequirement(Requirement):
         max_length: int,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
-            varchar_constraints.VarCharMaxLength(ref, max_length=max_length, name=name)
+            varchar_constraints.VarCharMaxLength(
+                ref,
+                max_length=max_length,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
+            )
         )
 
     def add_groupby_aggregation_constraint(
@@ -1136,6 +1245,7 @@ class WithinRequirement(Requirement):
         tolerance: float = 0,
         condition: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Check whether array aggregate corresponds to an integer range.
 
@@ -1158,6 +1268,7 @@ class WithinRequirement(Requirement):
                 tolerance=tolerance,
                 start_value=start_value,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1289,11 +1400,14 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, condition=condition1)
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
-            nrows_constraints.NRowsEquality(ref, ref2=ref2, name=name)
+            nrows_constraints.NRowsEquality(
+                ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_n_rows_max_gain_constraint(
@@ -1303,6 +1417,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """#rows from first table <= #rows from second table * (1 + max_growth).
 
@@ -1315,7 +1430,11 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
             nrows_constraints.NRowsMaxGain(
-                ref, ref2, max_relative_gain_getter, name=name
+                ref,
+                ref2,
+                max_relative_gain_getter,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1326,6 +1445,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """#rows from first table  >= #rows from second table * (1 + min_growth).
 
@@ -1338,7 +1458,11 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
             nrows_constraints.NRowsMinGain(
-                ref, ref2, min_relative_gain_getter, name=name
+                ref,
+                ref2,
+                min_relative_gain_getter,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1349,6 +1473,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """#rows from first table >= #rows from second table * (1 - max_loss).
 
@@ -1361,7 +1486,11 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
             nrows_constraints.NRowsMaxLoss(
-                ref, ref2, max_relative_loss_getter, name=name
+                ref,
+                ref2,
+                max_relative_loss_getter,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1372,11 +1501,14 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
-            uniques_constraints.NUniquesEquality(ref, ref2=ref2, name=name)
+            uniques_constraints.NUniquesEquality(
+                ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_n_uniques_max_gain_constraint(
@@ -1388,6 +1520,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """#uniques or first table <= #uniques of second table* (1 + max_growth).
 
@@ -1407,6 +1540,7 @@ class BetweenRequirement(Requirement):
                 ref2,
                 max_relative_gain_getter,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1419,6 +1553,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """#uniques in first table <= #uniques in second table * (1 - max_loss).
 
@@ -1434,7 +1569,11 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
             uniques_constraints.NUniquesMaxLoss(
-                ref, ref2, max_relative_loss_getter, name=name
+                ref,
+                ref2,
+                max_relative_loss_getter,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1446,6 +1585,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Assert that the fraction of ``NULL`` values of one is at most that of the other.
 
@@ -1460,6 +1600,7 @@ class BetweenRequirement(Requirement):
                 ref,
                 ref2=ref2,
                 max_relative_deviation=max_relative_deviation,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1470,11 +1611,14 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
-            numeric_constraints.NumericMin(ref, ref2=ref2, name=name)
+            numeric_constraints.NumericMin(
+                ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_uniques_equality_constraint(
@@ -1490,6 +1634,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Check if the data's unique values in given columns are equal.
 
@@ -1527,6 +1672,7 @@ class BetweenRequirement(Requirement):
                 reduce_func=reduce_func,
                 output_processors=output_processors,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1544,6 +1690,7 @@ class BetweenRequirement(Requirement):
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
+        lru_cache_maxsize=None,
     ):
         """Check if unique values of columns are contained in the reference data.
 
@@ -1589,6 +1736,7 @@ class BetweenRequirement(Requirement):
                 reduce_func=reduce_func,
                 output_processors=output_processors,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1607,6 +1755,7 @@ class BetweenRequirement(Requirement):
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
+        lru_cache_maxsize=None,
     ):
         """Check if the given columns's unique values in are contained in reference data.
 
@@ -1655,6 +1804,7 @@ class BetweenRequirement(Requirement):
                 reduce_func=reduce_func,
                 output_processors=output_processors,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1665,11 +1815,14 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
-            numeric_constraints.NumericMax(ref, ref2=ref2, name=name)
+            numeric_constraints.NumericMax(
+                ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_numeric_mean_constraint(
@@ -1680,6 +1833,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
@@ -1689,6 +1843,7 @@ class BetweenRequirement(Requirement):
                 max_absolute_deviation,
                 ref2=ref2,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1702,6 +1857,7 @@ class BetweenRequirement(Requirement):
         condition1: Optional[Condition] = None,
         condition2: Optional[Condition] = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Assert that the ``percentage``-th percentile is approximately equal.
 
@@ -1728,6 +1884,7 @@ class BetweenRequirement(Requirement):
                 max_relative_deviation=max_relative_deviation,
                 ref2=ref2,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1740,6 +1897,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Ensure date min of first table is greater or equal date min of second table.
 
@@ -1761,6 +1919,7 @@ class BetweenRequirement(Requirement):
                 use_lower_bound_reference=use_lower_bound_reference,
                 column_type=column_type,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1773,6 +1932,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Compare date max of first table to date max of second table.
 
@@ -1794,6 +1954,7 @@ class BetweenRequirement(Requirement):
                 use_upper_bound_reference=use_upper_bound_reference,
                 column_type=column_type,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1804,11 +1965,14 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
-            varchar_constraints.VarCharMinLength(ref, ref2=ref2, name=name)
+            varchar_constraints.VarCharMinLength(
+                ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_varchar_max_length_constraint(
@@ -1818,31 +1982,42 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
-            varchar_constraints.VarCharMaxLength(ref, ref2=ref2, name=name)
+            varchar_constraints.VarCharMaxLength(
+                ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
-    def add_column_subset_constraint(self, name: str = None):
+    def add_column_subset_constraint(self, name: str = None, lru_cache_maxsize=None):
         """Columns of first table are subset of second table."""
         self._constraints.append(
-            column_constraints.ColumnSubset(self.ref, ref2=self.ref2, name=name)
+            column_constraints.ColumnSubset(
+                self.ref, ref2=self.ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
-    def add_column_superset_constraint(self, name: str = None):
+    def add_column_superset_constraint(self, name: str = None, lru_cache_maxsize=None):
         """Columns of first table are superset of columns of second table."""
         self._constraints.append(
-            column_constraints.ColumnSuperset(self.ref, ref2=self.ref2, name=name)
+            column_constraints.ColumnSuperset(
+                self.ref, ref2=self.ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
-    def add_column_type_constraint(self, column1: str, column2: str, name: str = None):
+    def add_column_type_constraint(
+        self, column1: str, column2: str, name: str = None, lru_cache_maxsize=None
+    ):
         "Check that the columns have the same type."
         ref1 = DataReference(self.data_source, [column1])
         ref2 = DataReference(self.data_source2, [column2])
         self._constraints.append(
-            column_constraints.ColumnType(ref1, ref2=ref2, name=name)
+            column_constraints.ColumnType(
+                ref1, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize
+            )
         )
 
     def add_row_equality_constraint(
@@ -1853,6 +2028,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """At most ``max_missing_fraction`` of rows in T1 and T2 are absent in either.
 
@@ -1864,7 +2040,11 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
             row_constraints.RowEquality(
-                ref, ref2, lambda engine: max_missing_fraction, name=name
+                ref,
+                ref2,
+                lambda engine: max_missing_fraction,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1877,6 +2057,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """At most ``max_missing_fraction`` of rows in T1 are not in T2.
 
@@ -1895,7 +2076,13 @@ class BetweenRequirement(Requirement):
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
-            row_constraints.RowSubset(ref, ref2, max_missing_fraction_getter, name=name)
+            row_constraints.RowSubset(
+                ref,
+                ref2,
+                max_missing_fraction_getter,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
+            )
         )
 
     def add_row_superset_constraint(
@@ -1907,6 +2094,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """At most ``max_missing_fraction`` of rows in T2 are not in T1.
 
@@ -1922,7 +2110,11 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
             row_constraints.RowSuperset(
-                ref, ref2, max_missing_fraction_getter, name=name
+                ref,
+                ref2,
+                max_missing_fraction_getter,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1936,6 +2128,7 @@ class BetweenRequirement(Requirement):
         condition1: Condition = None,
         condition2: Condition = None,
         name: str = None,
+        lru_cache_maxsize=None,
     ):
         """Match tables in matching_columns, compare for equality in comparison_columns.
 
@@ -1967,6 +2160,7 @@ class BetweenRequirement(Requirement):
                 comparison_columns2,
                 lambda engine: max_missing_fraction,
                 name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
 
@@ -1978,6 +2172,7 @@ class BetweenRequirement(Requirement):
         condition2: Condition = None,
         name: str = None,
         significance_level: float = 0.05,
+        lru_cache_maxsize=None,
     ):
         """
         Apply the so-called two-sample Kolmogorov-Smirnov test to the distributions of the two given columns.
@@ -2000,6 +2195,10 @@ class BetweenRequirement(Requirement):
         ref2 = DataReference(self.data_source2, [column2], condition=condition2)
         self._constraints.append(
             stats_constraints.KolmogorovSmirnov2Sample(
-                ref, ref2, significance_level, name=name
+                ref,
+                ref2,
+                significance_level,
+                name=name,
+                lru_cache_maxsize=lru_cache_maxsize,
             )
         )
