@@ -158,7 +158,7 @@ class MaxNullFraction(Constraint):
         ref,
         *,
         ref2: Optional[DataReference] = None,
-        max_null_fraction: float = None,
+        max_null_fraction: Optional[float] = None,
         max_relative_deviation: float = 0,
         name: Optional[str] = None,
         lru_cache_maxsize=None,

@@ -4,12 +4,8 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "datajudge"
-authors = [{name="QuantCo, Inc.", email="noreply@quantco.com"}]
-keywords = [
-  "test",
-  "databases",
-  "validation",
-]
+authors = [{ name = "QuantCo, Inc.", email = "noreply@quantco.com" }]
+keywords = ["test", "databases", "validation"]
 classifiers = [
   "License :: OSI Approved :: BSD License",
   "Operating System :: OS Independent",
@@ -17,19 +13,14 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
-  "Topic :: Database"
+  "Topic :: Database",
 ]
 readme = "README.md"
 dynamic = ["version", "description"]
 
 requires-python = ">=3.8.0"
 
-dependencies = [
-    "sqlalchemy >=1.4",
-    "setuptools",
-    "scipy",
-    "colorama"
-]
+dependencies = ["sqlalchemy >=1.4", "setuptools", "scipy", "colorama"]
 
 [project.urls]
 Source = "https://github.com/quantco/datajudge"
@@ -55,6 +46,10 @@ skip_glob = '\.eggs/*,\.git/*,\.venv/*,build/*,dist/*'
 default_section = 'THIRDPARTY'
 
 [tool.mypy]
-# Temporary fix.
-no_implicit_optional = false
+no_implicit_optional = true
 allow_empty_bodies = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "impala.*", "pytest_html"]
+ignore_missing_imports = true

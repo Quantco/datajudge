@@ -12,7 +12,6 @@ extensions = [
     "numpydoc",
     "sphinxcontrib.apidoc",
     "sphinx.ext.autodoc",
-    "sphinx_autodoc_typehints",
 ]
 
 
@@ -32,4 +31,14 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
-always_document_param_types = True
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource",
+    "inherited-members": True,
+    "undoc-members": True,
+}
+autodoc_typehints = "description"
+
+# Copied from https://stackoverflow.com/questions/65198998/sphinx-warning-autosummary-stub-file-not-found-for-the-methods-of-the-class-c/
+# Also tested numpydoc_class_members_toctree = False but it does still create a TOC
+numpydoc_show_class_members = False

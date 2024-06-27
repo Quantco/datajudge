@@ -21,7 +21,7 @@ one failing test to halt all others.
 
 Many of these approaches rely on adapting pytest's ``conftest.py``. If you are not familiar
 with this concept, you might want to read up on it
-`here <https://docs.pytest.org/en/6.2.x/writing_plugins.html#conftest-py-plugins>`_.
+`in the pytest docs <https://docs.pytest.org/en/6.2.x/writing_plugins.html#conftest-py-plugins>`_.
 
 Subselection
 ------------

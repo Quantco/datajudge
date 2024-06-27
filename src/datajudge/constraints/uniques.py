@@ -59,6 +59,21 @@ class Uniques(Constraint, abc.ABC):
     The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
     To silence the warning, set ``filter_func`` explicitly..
 
+    Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
+    the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+    for ``WithinRequirement``.
+    By default, the null filtering does not trigger if multiple columns are fetched at once.
+    It can be configured in more detail by supplying a custom ``filter_func`` function.
+    Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+    :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+    :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+    Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
+    The current default of :func:`~datajudge.utils.filternull_element`
+    Cause (possibly often unintended) changes in behavior when the users adds a second column
+    (filtering no longer can trigger at all).
+    The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+    To silence the warning, set ``filter_func`` explicitly..
+
 
     There are two ways to do some post processing of the data obtained from the
     database by providing a function to be executed. In general, no postprocessing
@@ -100,6 +115,29 @@ class Uniques(Constraint, abc.ABC):
     The suggested functions are :func:`~datajudge.utils.output_processor_sort` and :func:`~datajudge.utils.output_processor_limit`
     - see their respective docstrings for details.
 
+    Furthermore, the `max_relative_violations` parameter can be used to set a tolerance
+    threshold for the proportion of elements in the data that can violate the constraint
+    (default: 0).
+    Setting this argument is currently not supported for `UniquesEquality`.
+
+    For `UniquesSubset`, by default,
+    the number of occurrences affects the computed fraction of violations.
+    To disable this weighting, set `compare_distinct=True`.
+    This argument does not have an effect on the test results for other `Uniques` constraints,
+    or if `max_relative_violations` is 0.
+
+    By default, the assertion messages make use of sets,
+    thus, they may differ from run to run despite the exact same situation being present,
+    and can have an arbitrary length.
+    To enforce a reproducible, limited output via (e.g.) sorting and slicing,
+    set `output_processors` to a callable or a list of callables. By default, only the first 100 elements are displayed (:func:`~datajudge.utils.output_processor_limit`).
+
+    Each callable takes in two collections, and returns modified (e.g. sorted) versions of them.
+    In most cases, the second argument is simply None,
+    but for `UniquesSubset` it is the counts of each of the elements.
+    The suggested functions are :func:`~datajudge.utils.output_processor_sort` and :func:`~datajudge.utils.output_processor_limit`
+    - see their respective docstrings for details.
+
     One use is of this constraint is to test for consistency in columns with expected
     categorical values.
     """
@@ -114,10 +152,10 @@ class Uniques(Constraint, abc.ABC):
         ] = output_processor_limit,
         *,
         ref2: Optional[DataReference] = None,
-        uniques: Collection = None,
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        uniques: Optional[Collection] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         max_relative_violations=0,
         compare_distinct=False,
     ):
@@ -141,12 +179,14 @@ class Uniques(Constraint, abc.ABC):
         self.global_func = reduce_func
         self.max_relative_violations = max_relative_violations
         self.compare_distinct = compare_distinct
+        self.compare_distinct = compare_distinct
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> Tuple[Tuple[List[T], List[int]], OptionalSelections]:
         uniques, selection = db_access.get_uniques(engine, ref)
         values = list(uniques.keys())
+        values = self.filter_func(values)
         values = self.filter_func(values)
         counts = [uniques[value] for value in values]
         if self.local_func:
@@ -165,6 +205,11 @@ class UniquesEquality(Uniques):
         self, args, name: Optional[str] = None, lru_cache_maxsize=None, **kwargs
     ):
         if kwargs.get("max_relative_violations"):
+            raise RuntimeError(
+                "max_relative_violations is not supported for UniquesEquality."
+            )
+        if kwargs.get("compare_distinct"):
+            raise RuntimeError("compare_distinct is not supported for UniquesEquality.")
             raise RuntimeError(
                 "max_relative_violations is not supported for UniquesEquality."
             )
@@ -241,6 +286,15 @@ class UniquesSubset(Uniques):
                         output_elemes, output_counts
                     )
 
+            output_elemes, output_counts = list(remainder.keys()), list(
+                remainder.values()
+            )
+            if self.output_processors is not None:
+                for output_processor in self.output_processors:
+                    output_elemes, output_counts = output_processor(
+                        output_elemes, output_counts
+                    )
+
             assertion_text = (
                 f"{self.ref} has a fraction of {relative_violations} > "
                 f"{self.max_relative_violations} {'DISTINCT ' if self.compare_distinct else ''}values ({n_violations} / {n_rows}) not being an element of "
@@ -295,7 +349,7 @@ class NUniques(Constraint, abc.ABC):
         ref: DataReference,
         *,
         ref2: Optional[DataReference] = None,
-        n_uniques: int = None,
+        n_uniques: Optional[int] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):

@@ -121,8 +121,8 @@ class Constraint(abc.ABC):
         self,
         ref: DataReference,
         *,
-        ref2=None,
-        ref_value: Any = None,
+        ref2: Optional[DataReference] = None,
+        ref_value: Optional[Any] = None,
         name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]

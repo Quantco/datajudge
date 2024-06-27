@@ -101,7 +101,7 @@ class WithinRequirement(Requirement):
         )
 
     @classmethod
-    def from_raw_query(cls, query: str, name: str, columns: List[str] = None):
+    def from_raw_query(cls, query: str, name: str, columns: Optional[List[str]] = None):
         """Create a ``WithinRequirement`` based on a raw query string.
 
         The ``query`` parameter can be passed any query string returning rows, e.g.
@@ -157,7 +157,7 @@ class WithinRequirement(Requirement):
 
     def add_uniqueness_constraint(
         self,
-        columns: List[str] = None,
+        columns: Optional[List[str]] = None,
         max_duplicate_fraction: float = 0,
         condition: Optional[Condition] = None,
         max_absolute_n_duplicates: int = 0,
@@ -307,9 +307,9 @@ class WithinRequirement(Requirement):
         self,
         columns: List[str],
         uniques: Collection[T],
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -336,9 +336,10 @@ class WithinRequirement(Requirement):
         Cause (possibly often unintended) changes in behavior when the users adds a second column
         (filtering no longer can trigger at all).
         The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
-        To silence the warning, set ``filter_func`` explicitly..
+        To silence the warning, set ``filter_func`` explicitly.
 
         See the ``Uniques`` class for further parameter details on ``map_func`` and
+        ``reduce_func``, and ``output_processors``.
         ``reduce_func``, and ``output_processors``.
         """
 
@@ -348,8 +349,10 @@ class WithinRequirement(Requirement):
                 ref,
                 uniques=uniques,
                 filter_func=filter_func,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_processors=output_processors,
                 output_processors=output_processors,
                 name=name,
                 lru_cache_maxsize=lru_cache_maxsize,
@@ -361,9 +364,9 @@ class WithinRequirement(Requirement):
         columns: List[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         condition: Optional[Condition] = None,
         name: Optional[str] = None,
         output_processors: Optional[
@@ -378,7 +381,20 @@ class WithinRequirement(Requirement):
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom ``filter_func`` function.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
         Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
@@ -400,6 +416,8 @@ class WithinRequirement(Requirement):
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
         and ``output_processors``.
+        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -409,8 +427,10 @@ class WithinRequirement(Requirement):
                 uniques=uniques,
                 max_relative_violations=max_relative_violations,
                 filter_func=filter_func,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_processors=output_processors,
                 output_processors=output_processors,
                 name=name,
                 lru_cache_maxsize=lru_cache_maxsize,
@@ -422,10 +442,10 @@ class WithinRequirement(Requirement):
         columns: List[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
         compare_distinct: bool = False,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         condition: Optional[Condition] = None,
         name: Optional[str] = None,
         output_processors: Optional[
@@ -441,7 +461,21 @@ class WithinRequirement(Requirement):
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom ``filter_func`` function.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
+
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
         Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
@@ -466,6 +500,13 @@ class WithinRequirement(Requirement):
 
         See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
         and ``output_processors``.
+        By default, the number of occurrences affects the computed fraction of violations.
+        To disable this weighting, set `compare_distinct=True`.
+        This argument does not have an effect on the test results for other `Uniques` constraints,
+        or if `max_relative_violations` is 0.
+
+        See ``Uniques`` for further details on ``map_func``, ``reduce_func``,
+        and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns, condition)
@@ -476,8 +517,11 @@ class WithinRequirement(Requirement):
                 max_relative_violations=max_relative_violations,
                 filter_func=filter_func,
                 compare_distinct=compare_distinct,
+                filter_func=filter_func,
+                compare_distinct=compare_distinct,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_processors=output_processors,
                 output_processors=output_processors,
                 name=name,
                 lru_cache_maxsize=lru_cache_maxsize,
@@ -728,7 +772,7 @@ class WithinRequirement(Requirement):
         column: str,
         max_value: str,
         use_upper_bound_reference: bool = True,
-        column_type: Union[str, sa.types.TypeEngine] = "date",
+        column_type: str = "date",
         condition: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
@@ -991,6 +1035,9 @@ class WithinRequirement(Requirement):
         An additional configuration option (for details see the analogous parameter in for ``Uniques``-constraints)
         on how the output is sorted and how many counterexamples are shown is available as ``output_processors``.
 
+        An additional configuration option (for details see the analogous parameter in for ``Uniques``-constraints)
+        on how the output is sorted and how many counterexamples are shown is available as ``output_processors``.
+
         For more information on functional dependencies, see https://en.wikipedia.org/wiki/Functional_dependency.
         """
         relevant_columns = key_columns + value_columns
@@ -999,6 +1046,7 @@ class WithinRequirement(Requirement):
             miscs_constraints.FunctionalDependency(
                 ref,
                 key_columns=key_columns,
+                output_processors=output_processors,
                 output_processors=output_processors,
                 name=name,
                 lru_cache_maxsize=lru_cache_maxsize,
@@ -1326,8 +1374,8 @@ class BetweenRequirement(Requirement):
         query2: str,
         name1: str,
         name2: str,
-        columns1: List[str] = None,
-        columns2: List[str] = None,
+        columns1: Optional[List[str]] = None,
+        columns2: Optional[List[str]] = None,
         date_column: Optional[str] = None,
         date_column2: Optional[str] = None,
     ):
@@ -1628,9 +1676,9 @@ class BetweenRequirement(Requirement):
         self,
         columns1: List[str],
         columns2: List[str],
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -1662,6 +1710,23 @@ class BetweenRequirement(Requirement):
 
         See :class:`~datajudge.constraints.uniques.Uniques` for further parameter details on ``map_func``,
         ``reduce_func``, and ``output_processors``.
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom ``filter_func`` function.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
+
+        See :class:`~datajudge.constraints.uniques.Uniques` for further parameter details on ``map_func``,
+        ``reduce_func``, and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1671,8 +1736,10 @@ class BetweenRequirement(Requirement):
                 ref,
                 ref2=ref2,
                 filter_func=filter_func,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_processors=output_processors,
                 output_processors=output_processors,
                 name=name,
                 lru_cache_maxsize=lru_cache_maxsize,
@@ -1684,11 +1751,11 @@ class BetweenRequirement(Requirement):
         columns1: List[str],
         columns2: List[str],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
@@ -1703,7 +1770,20 @@ class BetweenRequirement(Requirement):
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom ``filter_func`` function.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
         Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
@@ -1735,8 +1815,10 @@ class BetweenRequirement(Requirement):
                 ref2=ref2,
                 max_relative_violations=max_relative_violations,
                 filter_func=filter_func,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_processors=output_processors,
                 output_processors=output_processors,
                 name=name,
                 lru_cache_maxsize=lru_cache_maxsize,
@@ -1748,12 +1830,12 @@ class BetweenRequirement(Requirement):
         columns1: List[str],
         columns2: List[str],
         max_relative_violations: float = 0,
-        filter_func: Callable[[List[T]], List[T]] = None,
+        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
         compare_distinct: bool = False,
-        map_func: Callable[[T], T] = None,
-        reduce_func: Callable[[Collection], Collection] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        map_func: Optional[Callable[[T], T]] = None,
+        reduce_func: Optional[Callable[[Collection], Collection]] = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
@@ -1768,7 +1850,20 @@ class BetweenRequirement(Requirement):
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
         the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
         for ``WithinRequirement``.
+        By default, the null filtering does not trigger if multiple columns are fetched at once.
+        It can be configured in more detail by supplying a custom ``filter_func`` function.
+        Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
+        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        :func:`~datajudge.utils.filternull_element_or_tuple_any`.
+        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
+        The current default of :func:`~datajudge.utils.filternull_element`
+        Cause (possibly often unintended) changes in behavior when the users adds a second column
+        (filtering no longer can trigger at all).
+        The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+        To silence the warning, set ``filter_func`` explicitly..
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
         Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
@@ -1792,6 +1887,13 @@ class BetweenRequirement(Requirement):
 
         See :class:`~datajudge.constraints.uniques.Uniques` for further details on ``map_func``, ``reduce_func``,
         and ``output_processors``.
+        By default, the number of occurrences affects the computed fraction of violations.
+        To disable this weighting, set ``compare_distinct=True``.
+        This argument does not have an effect on the test results for other :class:`~datajudge.constraints.uniques.Uniques` constraints,
+        or if ``max_relative_violations`` is 0.
+
+        See :class:`~datajudge.constraints.uniques.Uniques` for further details on ``map_func``, ``reduce_func``,
+        and ``output_processors``.
         """
 
         ref = DataReference(self.data_source, columns1, condition1)
@@ -1803,8 +1905,11 @@ class BetweenRequirement(Requirement):
                 max_relative_violations=max_relative_violations,
                 compare_distinct=compare_distinct,
                 filter_func=filter_func,
+                compare_distinct=compare_distinct,
+                filter_func=filter_func,
                 map_func=map_func,
                 reduce_func=reduce_func,
+                output_processors=output_processors,
                 output_processors=output_processors,
                 name=name,
                 lru_cache_maxsize=lru_cache_maxsize,
@@ -1833,8 +1938,8 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         max_absolute_deviation: float,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -1896,9 +2001,9 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         use_lower_bound_reference: bool = True,
-        column_type: Union[str, sa.types.TypeEngine] = "date",
-        condition1: Condition = None,
-        condition2: Condition = None,
+        column_type: str = "date",
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -1931,9 +2036,9 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         use_upper_bound_reference: bool = True,
-        column_type: Union[str, sa.types.TypeEngine] = "date",
-        condition1: Condition = None,
-        condition2: Condition = None,
+        column_type: str = "date",
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -1965,8 +2070,8 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -1982,8 +2087,8 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -2036,8 +2141,8 @@ class BetweenRequirement(Requirement):
         columns1: Optional[List[str]],
         columns2: Optional[List[str]],
         max_missing_fraction: float,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -2065,8 +2170,8 @@ class BetweenRequirement(Requirement):
         columns2: Optional[List[str]],
         constant_max_missing_fraction: Optional[float],
         date_range_loss_fraction: Optional[float] = None,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -2179,8 +2284,8 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        condition1: Optional[Condition] = None,
+        condition2: Optional[Condition] = None,
         name: Optional[str] = None,
         significance_level: float = 0.05,
         lru_cache_maxsize=None,

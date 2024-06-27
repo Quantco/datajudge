@@ -159,7 +159,7 @@ class VarCharMinLength(Constraint):
         ref,
         *,
         ref2: Optional[DataReference] = None,
-        min_length: int = None,
+        min_length: Optional[int] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):
@@ -199,7 +199,7 @@ class VarCharMaxLength(Constraint):
         ref: DataReference,
         *,
         ref2: Optional[DataReference] = None,
-        max_length: int = None,
+        max_length: Optional[int] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):

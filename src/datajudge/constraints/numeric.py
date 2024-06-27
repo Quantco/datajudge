@@ -16,7 +16,7 @@ class NumericMin(Constraint):
         lru_cache_maxsize=None,
         *,
         ref2: Optional[DataReference] = None,
-        min_value: float = None,
+        min_value: Optional[float] = None,
     ):
         super().__init__(
             ref,
@@ -56,7 +56,7 @@ class NumericMax(Constraint):
         lru_cache_maxsize=None,
         *,
         ref2: Optional[DataReference] = None,
-        max_value: float = None,
+        max_value: Optional[float] = None,
     ):
         super().__init__(
             ref,
@@ -138,7 +138,7 @@ class NumericMean(Constraint):
         lru_cache_maxsize=None,
         *,
         ref2: Optional[DataReference] = None,
-        mean_value: float = None,
+        mean_value: Optional[float] = None,
     ):
         super().__init__(
             ref,
@@ -186,7 +186,7 @@ class NumericPercentile(Constraint):
         lru_cache_maxsize=None,
         *,
         ref2: Optional[DataReference] = None,
-        expected_percentile: float = None,
+        expected_percentile: Optional[float] = None,
     ):
         super().__init__(
             ref,

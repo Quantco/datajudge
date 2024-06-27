@@ -133,7 +133,7 @@ Depending on the use case at hand, it might make sense to rely on this informati
 purposes. Again, more on this in the article on :doc:`testing <testing>`.
 
 Assertion Message Styling
-----------------
+-------------------------
 Constraints can use styling to increase the readability of their assertion messages.
 The styling can be set independently of the platform and converted to e.g. ANSI color codes for command line output or CSS color tags for HTML reports.
 The styling tags describe use cases and not concrete colors, so formatters can use arbitrary color palettes, and these are not fixed by the constraint.

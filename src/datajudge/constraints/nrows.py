@@ -15,7 +15,7 @@ class NRows(Constraint, abc.ABC):
         ref,
         *,
         ref2: Optional[DataReference] = None,
-        n_rows: int = None,
+        n_rows: Optional[int] = None,
         name: Optional[str] = None,
         lru_cache_maxsize=None,
     ):

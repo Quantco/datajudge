@@ -42,7 +42,7 @@ class DateMin(Constraint):
         lru_cache_maxsize=None,
         *,
         ref2: Optional[DataReference] = None,
-        min_value: str = None,
+        min_value: Optional[str] = None,
     ):
         self.format = get_format_from_column_type(column_type)
         self.use_lower_bound_reference = use_lower_bound_reference
@@ -95,7 +95,7 @@ class DateMax(Constraint):
         lru_cache_maxsize=None,
         *,
         ref2: Optional[DataReference] = None,
-        max_value: str = None,
+        max_value: Optional[str] = None,
     ):
         self.format = get_format_from_column_type(column_type)
         self.use_upper_bound_reference = use_upper_bound_reference
