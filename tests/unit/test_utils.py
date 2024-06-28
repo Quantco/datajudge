@@ -161,7 +161,7 @@ def test_output_processor_limit_defaults():
         + ["<SHORTENED OUTPUT, displaying the first 100 / 12345 elements above>"],
         None,
     )
-    assert input_main == input_main_copy
+    assert input_main == input_main_copy  # verify inputs are not modified
     assert input_counts == input_counts_copy
 
 
@@ -176,7 +176,7 @@ def test_output_processor_limit_custom():
         + ["<SHORTENED OUTPUT, displaying the first 42 / 12345 elements above>"],
         None,
     )
-    assert input_main == input_main_copy
+    assert input_main == input_main_copy  # verify inputs are not modified
     assert input_counts == input_counts_copy
 
 
@@ -192,7 +192,7 @@ def test_output_processor_limit_withcounts():
         list(range(1, 42 + 1))
         + ["<SHORTENED OUTPUT, displaying the first 42 / 12345 counts above>"],
     )
-    assert input_main == input_main_copy
+    assert input_main == input_main_copy  # verify inputs are not modified
     assert input_counts == input_counts_copy
 
 
