@@ -1111,9 +1111,11 @@ def test_memory_no_caching(engine, unique_table_largesize, data):
             cache_size=0,
         )
 
-    for constraint in req:
-        test_result = constraint.test(engine)
-        assert operation(test_result.outcome)
+    with QueryCollector() as query_collector:
+        for constraint in req:
+            test_result = constraint.test(engine)
+            assert operation(test_result.outcome)
+        assert len(query_collector) > 20, query_collector.queries
 
 
 @pytest.mark.parametrize(
