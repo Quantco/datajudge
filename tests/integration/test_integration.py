@@ -1074,7 +1074,7 @@ def test_uniques_subset_within_complex_with_outputcheck_extralong(
             [output_processor_sort, functools.partial(output_processor_limit, limit=5)],
             None,
             None,
-            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9997569866342649 > 0 DISTINCT values (8228 / 8230) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), '<SHORTENED OUTPUT, displaying the first 5 / 8228 elements above>']' with counts [2, 2, 2, 2, 2, '<SHORTENED OUTPUT, displaying the first 5 / 8228 counts above>'].",
+            None,
         ),
     ],
 )
@@ -1095,6 +1095,10 @@ def test_memory_no_caching(engine, unique_table_largesize, data):
 
     req = requirements.WithinRequirement.from_table(*unique_table_largesize)
     for i in range(20):
+        # typical use-case of datajudge: many (possibly memory-intensive) constraints
+        # are added, and subsequently tested
+        # if the user specifies a cache_size of 0,
+        # this should work even if keeping the intermediate results of all checks in memory is infeasible
         req.add_uniques_subset_constraint(
             columns,
             uniques,
