@@ -1153,7 +1153,6 @@ def test_caching(engine, unique_table_largesize, data):
         output_processors=output_processors,
         condition=condition,
         map_func=function,
-        # cache_size=0,
     )
 
     with QueryCollector() as query_collector:
