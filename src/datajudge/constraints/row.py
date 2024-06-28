@@ -45,7 +45,6 @@ class RowEquality(Row):
         self.factual_selections = [*selections_left, *selections_right]
         return n_rows_missing_left, n_rows_missing_right
 
-    # @lru_cache(maxsize=None)
     def get_target_value(self, engine: sa.engine.Engine) -> int:
         n_rows_total, selections = db_access.get_unique_count_union(
             engine, self.ref, self.ref2
