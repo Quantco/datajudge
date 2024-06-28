@@ -171,7 +171,7 @@ class Constraint(abc.ABC):
                 f"{class_name}. Use exactly either of them."
             )
 
-    # @lru_cache(maxsize=None)
+    # @lru_cache(maxsize=None), see _setup_caching()
     def get_factual_value(self, engine: sa.engine.Engine) -> Any:
         factual_value, factual_selections = self.retrieve(engine, self.ref)
         self.factual_selections = factual_selections
