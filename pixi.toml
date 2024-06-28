@@ -88,6 +88,10 @@ sqlalchemy = "2.*"
 pytest-cov = "*"
 pytest-xdist = "*"
 
+[target.unix.dependencies]
+pytest-memray = "*"
+memray = "*"
+
 [feature.mypy.dependencies]
 mypy = "*"
 types-setuptools = "*"

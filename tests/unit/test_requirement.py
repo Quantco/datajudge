@@ -24,7 +24,7 @@ def test_all_requirements_new_kwargs():
                 continue
             add_func = getattr(req, add_func_name)
             sig = inspect.signature(add_func)
-            assert "lru_cache_maxsize" in sig.parameters, (
+            assert "cache_size" in sig.parameters, (
                 add_func,
                 sig.parameters,
                 sig,

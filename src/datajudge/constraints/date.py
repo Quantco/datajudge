@@ -39,7 +39,7 @@ class DateMin(Constraint):
         use_lower_bound_reference: bool,
         column_type: str,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         min_value: Optional[str] = None,
@@ -54,7 +54,7 @@ class DateMin(Constraint):
             ref2=ref2,
             ref_value=min_date,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
         )
 
     def retrieve(
@@ -92,7 +92,7 @@ class DateMax(Constraint):
         use_upper_bound_reference: bool,
         column_type: str,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         max_value: Optional[str] = None,
@@ -107,7 +107,7 @@ class DateMax(Constraint):
             ref2=ref2,
             ref_value=max_date,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
         )
 
     def retrieve(
@@ -147,11 +147,9 @@ class DateBetween(Constraint):
         lower_bound: str,
         upper_bound: str,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(
-            ref, ref_value=min_fraction, name=name, lru_cache_maxsize=lru_cache_maxsize
-        )
+        super().__init__(ref, ref_value=min_fraction, name=name, cache_size=cache_size)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 

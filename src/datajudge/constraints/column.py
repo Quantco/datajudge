@@ -26,11 +26,9 @@ class ColumnExistence(Column):
         ref: DataReference,
         columns: List[str],
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(
-            ref, ref_value=columns, name=name, lru_cache_maxsize=lru_cache_maxsize
-        )
+        super().__init__(ref, ref_value=columns, name=name, cache_size=cache_size)
 
     def compare(
         self, column_names_factual: List[str], column_names_target: List[str]
@@ -92,14 +90,14 @@ class ColumnType(Constraint):
         ref2: Optional[DataReference] = None,
         column_type: Optional[Union[str, sa.types.TypeEngine]] = None,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
         super().__init__(
             ref,
             ref2=ref2,
             ref_value=column_type,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
         )
         self.column_type = column_type
 

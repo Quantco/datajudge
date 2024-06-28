@@ -107,7 +107,7 @@ class Uniques(Constraint, abc.ABC):
         self,
         ref: DataReference,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -127,7 +127,7 @@ class Uniques(Constraint, abc.ABC):
             ref2=ref2,
             ref_value=ref_value,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
             output_processors=output_processors,
         )
 
@@ -161,9 +161,7 @@ class Uniques(Constraint, abc.ABC):
 
 
 class UniquesEquality(Uniques):
-    def __init__(
-        self, args, name: Optional[str] = None, lru_cache_maxsize=None, **kwargs
-    ):
+    def __init__(self, args, name: Optional[str] = None, cache_size=None, **kwargs):
         if kwargs.get("max_relative_violations"):
             raise RuntimeError(
                 "max_relative_violations is not supported for UniquesEquality."
@@ -254,9 +252,7 @@ class UniquesSubset(Uniques):
 
 
 class UniquesSuperset(Uniques):
-    def __init__(
-        self, args, name: Optional[str] = None, lru_cache_maxsize=None, **kwargs
-    ):
+    def __init__(self, args, name: Optional[str] = None, cache_size=None, **kwargs):
         if kwargs.get("compare_distinct"):
             raise RuntimeError("compare_distinct is not supported for UniquesSuperset.")
         super().__init__(args, name=name, **kwargs)
@@ -297,14 +293,14 @@ class NUniques(Constraint, abc.ABC):
         ref2: Optional[DataReference] = None,
         n_uniques: Optional[int] = None,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
         super().__init__(
             ref,
             ref2=ref2,
             ref_value=n_uniques,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
         )
 
     def retrieve(
@@ -334,9 +330,9 @@ class NUniquesMaxLoss(NUniques):
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_loss_getter = max_relative_loss_getter
 
     def compare(
@@ -368,9 +364,9 @@ class NUniquesMaxGain(NUniques):
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_gain_getter = max_relative_gain_getter
 
     def compare(
@@ -426,7 +422,7 @@ class CategoricalBoundConstraint(Constraint):
         distribution: Dict[T, Tuple[float, float]],
         default_bounds: Tuple[float, float] = (0, 0),
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
         max_relative_violations: float = 0,
         **kwargs,
     ):
@@ -436,7 +432,7 @@ class CategoricalBoundConstraint(Constraint):
             ref,
             ref_value=distribution,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
             **kwargs,
         )
 

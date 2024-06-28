@@ -17,14 +17,14 @@ class NRows(Constraint, abc.ABC):
         ref2: Optional[DataReference] = None,
         n_rows: Optional[int] = None,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
         super().__init__(
             ref,
             ref2=ref2,
             ref_value=n_rows,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
         )
 
     def retrieve(
@@ -92,9 +92,9 @@ class NRowsMaxLoss(NRows):
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_loss_getter = max_relative_loss_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
@@ -124,9 +124,9 @@ class NRowsMaxGain(NRows):
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_gain_getter = max_relative_gain_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:
@@ -156,9 +156,9 @@ class NRowsMinGain(NRows):
         ref2: DataReference,
         min_relative_gain_getter: ToleranceGetter,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.min_relative_gain_getter = min_relative_gain_getter
 
     def compare(self, n_rows_factual: int, n_rows_target: int) -> Tuple[bool, str]:

@@ -113,7 +113,7 @@ class Constraint(abc.ABC):
     value. If `ref_value` is already provided, usually no further mapping needs to be taken care of.
 
     By default, retrieved arguments are cached indefinitely ``@lru_cache(maxsize=None)``.
-    This can be controlled by setting the `lru_cache_maxsize` argument to a different value.
+    This can be controlled by setting the `cache_size` argument to a different value.
     ``0`` disables caching.
     """
 
@@ -127,7 +127,7 @@ class Constraint(abc.ABC):
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref
@@ -145,15 +145,15 @@ class Constraint(abc.ABC):
             output_processors = [output_processors]
         self.output_processors = output_processors
 
-        self.lru_cache_maxsize = lru_cache_maxsize
+        self.cache_size = cache_size
         self._setup_caching()
 
     def _setup_caching(self):
         # this has an added benefit of allowing the class to be garbage collected
         # according to https://rednafi.com/python/lru_cache_on_methods/
         # and https://docs.astral.sh/ruff/rules/cached-instance-method/
-        self.get_factual_value = lru_cache(self.lru_cache_maxsize)(self.get_factual_value)  # type: ignore[method-assign]
-        self.get_target_value = lru_cache(self.lru_cache_maxsize)(self.get_target_value)  # type: ignore[method-assign]
+        self.get_factual_value = lru_cache(self.cache_size)(self.get_factual_value)  # type: ignore[method-assign]
+        self.get_target_value = lru_cache(self.cache_size)(self.get_target_value)  # type: ignore[method-assign]
 
     def _check_if_valid_between_or_within(
         self, ref2: Optional[DataReference], ref_value: Optional[Any]

@@ -16,9 +16,9 @@ class Row(Constraint, abc.ABC):
         ref2: DataReference,
         max_missing_fraction_getter: ToleranceGetter,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name, lru_cache_maxsize=lru_cache_maxsize)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_missing_fraction_getter = max_missing_fraction_getter
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
@@ -165,14 +165,14 @@ class RowMatchingEquality(Row):
         comparison_columns2: List[str],
         max_missing_fraction_getter: ToleranceGetter,
         name: Optional[str] = None,
-        lru_cache_maxsize=None,
+        cache_size=None,
     ):
         super().__init__(
             ref,
             ref2=ref2,
             max_missing_fraction_getter=max_missing_fraction_getter,
             name=name,
-            lru_cache_maxsize=lru_cache_maxsize,
+            cache_size=cache_size,
         )
         self.match_and_compare = MatchAndCompare(
             matching_columns1,
