@@ -6,15 +6,15 @@ from datajudge.requirements import BetweenRequirement
 
 def test_all_requirements_new_kwargs():
     prices_req = WithinRequirement.from_table(
-        db_name="example", schema_name=None, table_name="prices"
+        db_name="example", schema_name="schema", table_name="prices"
     )
 
     prices_req_between = BetweenRequirement.from_tables(
         "example",
-        None,
+        "schema1",
         "table1",
         "example",
-        None,
+        "schema2",
         "table2",
     )
 
