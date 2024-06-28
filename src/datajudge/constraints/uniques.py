@@ -57,23 +57,7 @@ class Uniques(Constraint, abc.ABC):
     Cause (possibly often unintended) changes in behavior when the users adds a second column
     (filtering no longer can trigger at all).
     The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
-    To silence the warning, set ``filter_func`` explicitly..
-
-    Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-    the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
-    for ``WithinRequirement``.
-    By default, the null filtering does not trigger if multiple columns are fetched at once.
-    It can be configured in more detail by supplying a custom ``filter_func`` function.
-    Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
-    :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
-    :func:`~datajudge.utils.filternull_element_or_tuple_any`.
-    Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-    The current default of :func:`~datajudge.utils.filternull_element`
-    Cause (possibly often unintended) changes in behavior when the users adds a second column
-    (filtering no longer can trigger at all).
-    The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
-    To silence the warning, set ``filter_func`` explicitly..
-
+    To silence the warning, set ``filter_func`` explicitly.
 
     There are two ways to do some post processing of the data obtained from the
     database by providing a function to be executed. In general, no postprocessing
@@ -91,29 +75,6 @@ class Uniques(Constraint, abc.ABC):
     given in `map_func` is finished. The output of this function has to be an iterable
     (eager or lazy) of the same type as the type of the values of the column (in their
     Python equivalent).
-
-    Furthermore, the `max_relative_violations` parameter can be used to set a tolerance
-    threshold for the proportion of elements in the data that can violate the constraint
-    (default: 0).
-    Setting this argument is currently not supported for `UniquesEquality`.
-
-    For `UniquesSubset`, by default,
-    the number of occurrences affects the computed fraction of violations.
-    To disable this weighting, set `compare_distinct=True`.
-    This argument does not have an effect on the test results for other `Uniques` constraints,
-    or if `max_relative_violations` is 0.
-
-    By default, the assertion messages make use of sets,
-    thus, they may differ from run to run despite the exact same situation being present,
-    and can have an arbitrary length.
-    To enforce a reproducible, limited output via (e.g.) sorting and slicing,
-    set `output_processors` to a callable or a list of callables. By default, only the first 100 elements are displayed (:func:`~datajudge.utils.output_processor_limit`).
-
-    Each callable takes in two collections, and returns modified (e.g. sorted) versions of them.
-    In most cases, the second argument is simply None,
-    but for `UniquesSubset` it is the counts of each of the elements.
-    The suggested functions are :func:`~datajudge.utils.output_processor_sort` and :func:`~datajudge.utils.output_processor_limit`
-    - see their respective docstrings for details.
 
     Furthermore, the `max_relative_violations` parameter can be used to set a tolerance
     threshold for the proportion of elements in the data that can violate the constraint
@@ -179,7 +140,6 @@ class Uniques(Constraint, abc.ABC):
         self.global_func = reduce_func
         self.max_relative_violations = max_relative_violations
         self.compare_distinct = compare_distinct
-        self.compare_distinct = compare_distinct
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -205,11 +165,6 @@ class UniquesEquality(Uniques):
         self, args, name: Optional[str] = None, lru_cache_maxsize=None, **kwargs
     ):
         if kwargs.get("max_relative_violations"):
-            raise RuntimeError(
-                "max_relative_violations is not supported for UniquesEquality."
-            )
-        if kwargs.get("compare_distinct"):
-            raise RuntimeError("compare_distinct is not supported for UniquesEquality.")
             raise RuntimeError(
                 "max_relative_violations is not supported for UniquesEquality."
             )
@@ -277,15 +232,6 @@ class UniquesSubset(Uniques):
             and (relative_violations := (n_violations / n_rows))
             > self.max_relative_violations
         ):
-            output_elemes, output_counts = list(remainder.keys()), list(
-                remainder.values()
-            )
-            if self.output_processors is not None:
-                for output_processor in self.output_processors:
-                    output_elemes, output_counts = output_processor(
-                        output_elemes, output_counts
-                    )
-
             output_elemes, output_counts = list(remainder.keys()), list(
                 remainder.values()
             )
