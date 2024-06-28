@@ -177,7 +177,7 @@ class Constraint(abc.ABC):
         self.factual_selections = factual_selections
         return factual_value
 
-    # @lru_cache(maxsize=None)
+    # @lru_cache(maxsize=None), see _setup_caching()
     def get_target_value(self, engine: sa.engine.Engine) -> Any:
         if self.ref2 is None:
             return self.ref_value
