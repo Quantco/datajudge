@@ -88,7 +88,7 @@ sqlalchemy = "2.*"
 pytest-cov = "*"
 pytest-xdist = "*"
 
-[target.unix.dependencies]
+[feature.test.target.unix.dependencies]
 pytest-memray = "*"
 memray = "*"
 
