@@ -35,7 +35,6 @@ class Row(Constraint, abc.ABC):
 
 
 class RowEquality(Row):
-    # @lru_cache(maxsize=None)
     def get_factual_value(self, engine: sa.engine.Engine) -> Tuple[int, int]:
         n_rows_missing_left, selections_left = db_access.get_row_difference_count(
             engine, self.ref, self.ref2
