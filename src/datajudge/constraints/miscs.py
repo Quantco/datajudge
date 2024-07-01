@@ -9,7 +9,13 @@ from .base import Constraint, OptionalSelections, TestResult, format_sample
 
 
 class PrimaryKeyDefinition(Constraint):
-    def __init__(self, ref, primary_keys: List[str], name: Optional[str] = None):
+    def __init__(
+        self,
+        ref,
+        primary_keys: List[str],
+        name: Optional[str] = None,
+        cache_size=None,
+    ):
         super().__init__(ref, ref_value=set(primary_keys), name=name)
 
     def retrieve(
@@ -56,6 +62,7 @@ class Uniqueness(Constraint):
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns: bool = False,
         name: Optional[str] = None,
+        cache_size=None,
     ):
         if max_duplicate_fraction != 0 and max_absolute_n_duplicates != 0:
             raise ValueError(
@@ -71,7 +78,7 @@ class Uniqueness(Constraint):
             ref_value = ("relative", 0)
 
         self.infer_pk_columns = infer_pk_columns
-        super().__init__(ref, ref_value=ref_value, name=name)
+        super().__init__(ref, ref_value=ref_value, name=name, cache_size=cache_size)
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         if self.infer_pk_columns and db_access.is_bigquery(engine):
@@ -152,8 +159,15 @@ class MaxNullFraction(Constraint):
         max_null_fraction: Optional[float] = None,
         max_relative_deviation: float = 0,
         name: Optional[str] = None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=max_null_fraction, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=max_null_fraction,
+            name=name,
+            cache_size=cache_size,
+        )
         if max_null_fraction is not None and not (0 <= max_null_fraction <= 1):
             raise ValueError(
                 f"max_null_fraction was expected to lie within [0, 1] but is "

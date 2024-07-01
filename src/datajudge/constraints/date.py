@@ -39,6 +39,7 @@ class DateMin(Constraint):
         use_lower_bound_reference: bool,
         column_type: str,
         name: Optional[str] = None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         min_value: Optional[str] = None,
@@ -48,7 +49,13 @@ class DateMin(Constraint):
         min_date: Optional[dt.date] = None
         if min_value is not None:
             min_date = dt.datetime.strptime(min_value, INPUT_DATE_FORMAT).date()
-        super().__init__(ref, ref2=ref2, ref_value=min_date, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=min_date,
+            name=name,
+            cache_size=cache_size,
+        )
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -85,6 +92,7 @@ class DateMax(Constraint):
         use_upper_bound_reference: bool,
         column_type: str,
         name: Optional[str] = None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         max_value: Optional[str] = None,
@@ -94,7 +102,13 @@ class DateMax(Constraint):
         max_date: Optional[dt.date] = None
         if max_value is not None:
             max_date = dt.datetime.strptime(max_value, INPUT_DATE_FORMAT).date()
-        super().__init__(ref, ref2=ref2, ref_value=max_date, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=max_date,
+            name=name,
+            cache_size=cache_size,
+        )
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -133,8 +147,9 @@ class DateBetween(Constraint):
         lower_bound: str,
         upper_bound: str,
         name: Optional[str] = None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref_value=min_fraction, name=name)
+        super().__init__(ref, ref_value=min_fraction, name=name, cache_size=cache_size)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 

@@ -57,8 +57,7 @@ class Uniques(Constraint, abc.ABC):
     Cause (possibly often unintended) changes in behavior when the users adds a second column
     (filtering no longer can trigger at all).
     The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
-    To silence the warning, set ``filter_func`` explicitly..
-
+    To silence the warning, set ``filter_func`` explicitly.
 
     There are two ways to do some post processing of the data obtained from the
     database by providing a function to be executed. In general, no postprocessing
@@ -108,6 +107,7 @@ class Uniques(Constraint, abc.ABC):
         self,
         ref: DataReference,
         name: Optional[str] = None,
+        cache_size=None,
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
@@ -127,6 +127,7 @@ class Uniques(Constraint, abc.ABC):
             ref2=ref2,
             ref_value=ref_value,
             name=name,
+            cache_size=cache_size,
             output_processors=output_processors,
         )
 
@@ -146,6 +147,7 @@ class Uniques(Constraint, abc.ABC):
         uniques, selection = db_access.get_uniques(engine, ref)
         values = list(uniques.keys())
         values = self.filter_func(values)
+        values = self.filter_func(values)
         counts = [uniques[value] for value in values]
         if self.local_func:
             values = list(map(self.local_func, values))
@@ -159,7 +161,7 @@ class Uniques(Constraint, abc.ABC):
 
 
 class UniquesEquality(Uniques):
-    def __init__(self, args, name: Optional[str] = None, **kwargs):
+    def __init__(self, args, name: Optional[str] = None, cache_size=None, **kwargs):
         if kwargs.get("max_relative_violations"):
             raise RuntimeError(
                 "max_relative_violations is not supported for UniquesEquality."
@@ -250,7 +252,7 @@ class UniquesSubset(Uniques):
 
 
 class UniquesSuperset(Uniques):
-    def __init__(self, args, name: Optional[str] = None, **kwargs):
+    def __init__(self, args, name: Optional[str] = None, cache_size=None, **kwargs):
         if kwargs.get("compare_distinct"):
             raise RuntimeError("compare_distinct is not supported for UniquesSuperset.")
         super().__init__(args, name=name, **kwargs)
@@ -291,8 +293,15 @@ class NUniques(Constraint, abc.ABC):
         ref2: Optional[DataReference] = None,
         n_uniques: Optional[int] = None,
         name: Optional[str] = None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=n_uniques, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=n_uniques,
+            name=name,
+            cache_size=cache_size,
+        )
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -321,8 +330,9 @@ class NUniquesMaxLoss(NUniques):
         ref2: DataReference,
         max_relative_loss_getter: ToleranceGetter,
         name: Optional[str] = None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_loss_getter = max_relative_loss_getter
 
     def compare(
@@ -354,8 +364,9 @@ class NUniquesMaxGain(NUniques):
         ref2: DataReference,
         max_relative_gain_getter: ToleranceGetter,
         name: Optional[str] = None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref2=ref2, name=name)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_gain_getter = max_relative_gain_getter
 
     def compare(
@@ -411,12 +422,19 @@ class CategoricalBoundConstraint(Constraint):
         distribution: Dict[T, Tuple[float, float]],
         default_bounds: Tuple[float, float] = (0, 0),
         name: Optional[str] = None,
+        cache_size=None,
         max_relative_violations: float = 0,
         **kwargs,
     ):
         self.default_bounds = default_bounds
         self.max_relative_violations = max_relative_violations
-        super().__init__(ref, ref_value=distribution, name=name, **kwargs)
+        super().__init__(
+            ref,
+            ref_value=distribution,
+            name=name,
+            cache_size=cache_size,
+            **kwargs,
+        )
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference

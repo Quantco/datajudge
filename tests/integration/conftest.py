@@ -61,9 +61,9 @@ def get_engine(backend) -> sa.engine.Engine:
     return engine
 
 
-def _string_column(engine):
+def _string_column(engine, minlength_db2=40):
     if is_db2(engine):
-        return sa.String(40)
+        return sa.String(minlength_db2)
     return sa.String()
 
 
@@ -733,6 +733,28 @@ def unique_table_extralong(engine, metadata):
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(12345)]
+    _handle_table(engine, metadata, table_name, columns, data)
+    return TEST_DB_NAME, SCHEMA, table_name
+
+
+@pytest.fixture(scope="module")
+def unique_table_largesize(engine, metadata):
+    if is_impala(engine):
+        pytest.skip(
+            "Skipping this larger output check for impala due to it being quite brittle"
+        )
+    if is_bigquery(engine):
+        pytest.skip(
+            "Skipping this larger output check for bigquery since creating the table is very slow"
+        )
+    table_name = "unique_table_largesize"
+    columns = [
+        sa.Column("col_int", sa.Integer()),
+        sa.Column("col_varchar", _string_column(engine, minlength_db2=2000)),
+    ]
+    data = [
+        {"col_int": i // 2, "col_varchar": "hi" * min(i, 900)} for i in range(12345)
+    ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
 
