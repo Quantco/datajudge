@@ -30,7 +30,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/frozenlist-1.4.1-py38h01eb140_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.19.1-hd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.30.0-pyhff2d567_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.31.0-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.25.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.4.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/google-crc32c-1.1.2-py38hf9d55a7_5.conda
@@ -133,7 +133,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/frozenlist-1.4.1-py38h336bac9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.19.1-hd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.30.0-pyhff2d567_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.31.0-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.25.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.4.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-crc32c-1.1.2-py38h3c95ae1_5.conda
@@ -231,7 +231,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/frozenlist-1.4.1-py38h91455d4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.19.1-hd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.30.0-pyhff2d567_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.31.0-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.25.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.4.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/google-crc32c-1.1.2-py38h40ab01b_5.conda
@@ -245,7 +245,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libabseil-20240116.2-cxx17_h63175ca_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -345,7 +345,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/frozenlist-1.4.1-py312h98912ed_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.19.1-hd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.30.0-pyhff2d567_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.31.0-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.25.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.4.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/google-crc32c-1.1.2-py312h775cd15_5.conda
@@ -445,7 +445,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/frozenlist-1.4.1-py312he37b823_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.19.1-hd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.30.0-pyhff2d567_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.31.0-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.25.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.4.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/google-crc32c-1.1.2-py312h80a10bc_5.conda
@@ -540,7 +540,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/frozenlist-1.4.1-py312he70551f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-2.19.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-api-core-grpc-2.19.1-hd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.30.0-pyhff2d567_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.31.0-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-bigquery-core-3.25.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/google-cloud-core-2.4.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/google-crc32c-1.1.2-py312h3c140c2_5.conda
@@ -554,7 +554,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libabseil-20240116.2-cxx17_h63175ca_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -782,7 +782,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/ibm_db_sa-0.4.0-py310h49d8f73_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -995,7 +995,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/ibm_db_sa-0.4.0-py38h7009e46_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -1213,7 +1213,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/ibm_db_sa-0.4.0-py39h06d0557_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -1421,7 +1421,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/ibm_db_sa-0.4.0-py312hccf5f6b_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -1621,7 +1621,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -1865,7 +1865,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/imagesize-1.4.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.0.0-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/jinja2-3.1.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -2101,7 +2101,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/impyla-0.19.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -2321,7 +2321,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/impyla-0.19.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -2689,7 +2689,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -2906,7 +2906,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -3124,7 +3124,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -3342,7 +3342,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -3564,7 +3564,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -3777,7 +3777,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -3993,7 +3993,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -4203,7 +4203,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -4418,7 +4418,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.21.3-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -4631,7 +4631,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.21.3-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -4845,7 +4845,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.21.3-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -5059,7 +5059,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.21.3-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -5277,7 +5277,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.21.3-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -5486,7 +5486,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.21.3-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -5698,7 +5698,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/krb5-1.21.3-hdf4eb48_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
@@ -5901,7 +5901,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -6102,7 +6102,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -6304,7 +6304,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -6506,7 +6506,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -6712,7 +6712,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -6909,7 +6909,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -7109,7 +7109,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/hyperframe-6.0.1-pyhd8ed1ab_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -7324,7 +7324,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.0.0-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libffi-3.4.2-h8ffe710_5.tar.bz2
@@ -7565,7 +7565,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/idna-3.7-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/importlib-metadata-8.0.0-pyha770c72_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.0.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libcblas-3.9.0-22_win64_mkl.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libexpat-2.6.2-h63175ca_0.conda
@@ -9650,13 +9650,13 @@ packages:
   timestamp: 1719307114952
 - kind: conda
   name: google-auth
-  version: 2.30.0
+  version: 2.31.0
   build: pyhff2d567_0
   subdir: noarch
   noarch: python
-  url: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.30.0-pyhff2d567_0.conda
-  sha256: 5841c50e3f1616cba7e9b36b23e84accbe036d5dfc105482d84327cfc50de8ab
-  md5: 062983e5ce29637a42e891308a45e5c3
+  url: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.31.0-pyhff2d567_0.conda
+  sha256: 5a8352652f5ae5b2d1ac2d562fdf1fbf55528326eae3cfdc26a11b31983e8cee
+  md5: 7b2887b3b795d90b9ad2bac7e980c601
   depends:
   - aiohttp >=3.6.2,<4.0.0
   - cachetools >=2.0.0,<6.0
@@ -9669,8 +9669,8 @@ packages:
   - rsa >=3.1.4,<5
   license: Apache-2.0
   license_family: Apache
-  size: 109670
-  timestamp: 1717749279915
+  size: 110161
+  timestamp: 1719906204956
 - kind: conda
   name: google-cloud-bigquery-core
   version: 3.25.0
@@ -10867,17 +10867,17 @@ packages:
   timestamp: 1673103208955
 - kind: conda
   name: intel-openmp
-  version: 2024.1.0
-  build: h57928b3_966
-  build_number: 966
+  version: 2024.2.0
+  build: h57928b3_978
+  build_number: 978
   subdir: win-64
-  url: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.1.0-h57928b3_966.conda
-  sha256: 77465396f2636c8b3b3a587f1636ee35c17a73e2a2c7e0ea0957b05f84704cf3
-  md5: 35d7ea07ad6c878bd7240d2d6c1b8657
+  url: https://conda.anaconda.org/conda-forge/win-64/intel-openmp-2024.2.0-h57928b3_978.conda
+  sha256: 9b40e33d5dadf868f5a1b9356e523d6d24deea8a92dc51e49544e7c6f9afe99d
+  md5: e8931ff34113ed47febc4dfed92b12b1
   license: LicenseRef-IntelSimplifiedSoftwareOct2022
   license_family: Proprietary
-  size: 1616293
-  timestamp: 1716560867765
+  size: 1851716
+  timestamp: 1719978332446
 - kind: conda
   name: isort
   version: 5.13.2
