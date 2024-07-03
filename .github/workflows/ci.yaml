@@ -8,11 +8,10 @@ on:
   # to the main branches and tags.
   push:
     branches:
-      - 'main'
-      - 'pre-commit-autoupdate'
+      - "main"
+      - "pre-commit-autoupdate"
     tags:
-      - 'v*'
-
+      - "v*"
 
 jobs:
   pre-commit-checks:
@@ -148,7 +147,6 @@ jobs:
         uses: codecov/codecov-action@v3.1.3
         with:
           file: ./coverage.xml
-
 
   db2:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'db2') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}

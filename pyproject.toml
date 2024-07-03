@@ -47,6 +47,9 @@ select = [
   "UP",
 ]
 
+[tool.ruff.lint.isort]
+known-first-party = ["datajudge"]
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"

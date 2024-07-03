@@ -74,7 +74,7 @@ this growth limitation is expressed relative to the number of rows of the first 
 Generally, such relative limitations can be defined in two ways:
 
 - manually, based on domain knowledge (e.g. 'at least 5% growth')
-  
+
 - automatically, based on date ranges
 
 The former would translate to
@@ -205,4 +205,3 @@ The Snowflake behavior is due to an upstream `bug <https://github.com/snowflaked
 in snowflake-sqlalchemy.
 
 This behavior is subject to change.
-

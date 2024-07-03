@@ -241,5 +241,3 @@ could for instance be:
 
    Column 'col_varchar' has type 'varchar' in table1 and type 'varchar' in table2.
    Column 'col_int' has type 'integer' in table1 and type 'integer' in table2.
-
-

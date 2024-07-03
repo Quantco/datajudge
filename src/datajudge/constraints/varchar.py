@@ -32,9 +32,12 @@ class VarCharRegexDb(Constraint):
 
     def retrieve(self, engine: sa.engine.Engine, ref: DataReference):
         (
-            n_violations,
-            counterexamples,
-        ), violations_selections = db_access.get_regex_violations(
+            (
+                n_violations,
+                counterexamples,
+            ),
+            violations_selections,
+        ) = db_access.get_regex_violations(
             engine=engine,
             ref=ref,
             aggregated=self.aggregated,
@@ -114,7 +117,9 @@ class VarCharRegex(Constraint):
 
         pattern = re.compile(self.ref_value)
         uniques_mismatching = {
-            x for x in uniques_factual if not pattern.match(x)  # type: ignore
+            x
+            for x in uniques_factual
+            if not pattern.match(x)  # type: ignore
         }
 
         if self.aggregated:

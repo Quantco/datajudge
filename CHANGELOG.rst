@@ -130,4 +130,3 @@ Changelog
 **Bug fix:**
 
 - The method :meth:`is_deprecated` of :class:`~datajudge.Condition` was called despite not existing.
-

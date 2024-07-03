@@ -31,5 +31,4 @@ companies_between_req = BetweenRequirement.from_tables(
 companies_between_req.add_row_superset_constraint(
     columns1=["name"], columns2=["name"], constant_max_missing_fraction=0
 )
- ```
-
+```
