@@ -111,6 +111,10 @@ class Constraint(abc.ABC):
     In order to obtain such values, the `retrieve` method defines a mapping from DataReference,
     be it the DataReference of primary interest, `ref`, or a baseline DataReference, `ref2`, to
     value. If `ref_value` is already provided, usually no further mapping needs to be taken care of.
+
+    By default, retrieved arguments are cached indefinitely ``@lru_cache(maxsize=None)``.
+    This can be controlled by setting the `cache_size` argument to a different value.
+    ``0`` disables caching.
     """
 
     def __init__(
@@ -123,6 +127,7 @@ class Constraint(abc.ABC):
         output_processors: Optional[
             Union[OutputProcessor, List[OutputProcessor]]
         ] = output_processor_limit,
+        cache_size=None,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
         self.ref = ref
@@ -140,6 +145,16 @@ class Constraint(abc.ABC):
             output_processors = [output_processors]
         self.output_processors = output_processors
 
+        self.cache_size = cache_size
+        self._setup_caching()
+
+    def _setup_caching(self):
+        # this has an added benefit of allowing the class to be garbage collected
+        # according to https://rednafi.com/python/lru_cache_on_methods/
+        # and https://docs.astral.sh/ruff/rules/cached-instance-method/
+        self.get_factual_value = lru_cache(self.cache_size)(self.get_factual_value)  # type: ignore[method-assign]
+        self.get_target_value = lru_cache(self.cache_size)(self.get_target_value)  # type: ignore[method-assign]
+
     def _check_if_valid_between_or_within(
         self, ref2: Optional[DataReference], ref_value: Optional[Any]
     ):
@@ -156,13 +171,13 @@ class Constraint(abc.ABC):
                 f"{class_name}. Use exactly either of them."
             )
 
-    @lru_cache(maxsize=None)
+    # @lru_cache(maxsize=None), see _setup_caching()
     def get_factual_value(self, engine: sa.engine.Engine) -> Any:
         factual_value, factual_selections = self.retrieve(engine, self.ref)
         self.factual_selections = factual_selections
         return factual_value
 
-    @lru_cache(maxsize=None)
+    # @lru_cache(maxsize=None), see _setup_caching()
     def get_target_value(self, engine: sa.engine.Engine) -> Any:
         if self.ref2 is None:
             return self.ref_value

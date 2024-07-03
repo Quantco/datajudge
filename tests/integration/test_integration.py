@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import functools
 import textwrap
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy import event
 
 import datajudge.requirements as requirements
 from datajudge.db_access import (
@@ -35,6 +38,24 @@ def identity(boolean_value):
 
 def negation(boolean_value):
     return not boolean_value
+
+
+class QueryCollector:
+    def __init__(self):
+        self.queries = []
+
+    def __call__(self, conn, cursor, statement, parameters, context, executemany):
+        self.queries.append(statement)
+
+    def __enter__(self) -> QueryCollector:
+        event.listen(sa.engine.Engine, "before_cursor_execute", self)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        event.remove(sa.engine.Engine, "before_cursor_execute", self)
+
+    def __len__(self):
+        return len(self.queries)
 
 
 @pytest.mark.parametrize(
@@ -1038,6 +1059,114 @@ def test_uniques_subset_within_complex_with_outputcheck_extralong(
     assert test_result.failure_message.endswith(
         failure_message_suffix
     ), test_result.failure_message
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_any,
+            False,
+            [output_processor_sort, functools.partial(output_processor_limit, limit=5)],
+            None,
+            None,
+            None,
+        ),
+    ],
+)
+@pytest.mark.limit_memory(limit="60 MB")
+def test_memory_no_caching(engine, unique_table_largesize, data):
+    (
+        operation,
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func,
+        compare_distinct,
+        output_processors,
+        function,
+        condition,
+        failure_message_suffix,
+    ) = data
+
+    req = requirements.WithinRequirement.from_table(*unique_table_largesize)
+    for i in range(20):
+        # typical use-case of datajudge: many (possibly memory-intensive) constraints
+        # are added, and subsequently tested
+        # if the user specifies a cache_size of 0,
+        # this should work even if keeping the intermediate results of all checks in memory is infeasible
+        req.add_uniques_subset_constraint(
+            columns,
+            uniques,
+            max_relative_violations,
+            filter_func=filter_func,
+            compare_distinct=compare_distinct,
+            output_processors=output_processors,
+            condition=condition,
+            map_func=function,
+            cache_size=0,
+        )
+
+    with QueryCollector() as query_collector:
+        for constraint in req:
+            test_result = constraint.test(engine)
+            assert operation(test_result.outcome)
+        assert len(query_collector) > 20, query_collector.queries
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (
+            negation,
+            ["col_int", "col_varchar"],
+            [(0, "hi0"), (1, "hi0")],
+            0,
+            filternull_element_or_tuple_any,
+            False,
+            [functools.partial(output_processor_limit, limit=5)],
+            None,
+            None,
+            "column(s) 'col_int', 'col_varchar' has a fraction of 0.9997569866342649 > 0 DISTINCT values (8228 / 8230) not being an element of '[(0, 'hi0'), (1, 'hi0')]'. It has excess elements '[(2, 'hi1'), (3, 'hi2'), (5, 'hi3'), (6, 'hi4'), (8, 'hi5'), '<SHORTENED OUTPUT, displaying the first 5 / 8228 elements above>']' with counts [2, 2, 2, 2, 2, '<SHORTENED OUTPUT, displaying the first 5 / 8228 counts above>'].",
+        ),
+    ],
+)
+def test_caching(engine, unique_table_largesize, data):
+    (
+        operation,
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func,
+        compare_distinct,
+        output_processors,
+        function,
+        condition,
+        failure_message_suffix,
+    ) = data
+
+    req = requirements.WithinRequirement.from_table(*unique_table_largesize)
+    req.add_uniques_subset_constraint(
+        columns,
+        uniques,
+        max_relative_violations,
+        filter_func=filter_func,
+        compare_distinct=compare_distinct,
+        output_processors=output_processors,
+        condition=condition,
+        map_func=function,
+    )
+
+    with QueryCollector() as query_collector:
+        for constraint in req:
+            for i in range(20):
+                test_result = constraint.test(engine)
+                assert operation(test_result.outcome)
+        assert len(query_collector) < 20, query_collector.queries
 
 
 @pytest.mark.parametrize(

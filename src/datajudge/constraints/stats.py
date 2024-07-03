@@ -16,9 +16,10 @@ class KolmogorovSmirnov2Sample(Constraint):
         ref2: DataReference,
         significance_level: float = 0.05,
         name: Optional[str] = None,
+        cache_size=None,
     ):
         self.significance_level = significance_level
-        super().__init__(ref, ref2=ref2, name=name)
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
 
     @staticmethod
     def approximate_p_value(

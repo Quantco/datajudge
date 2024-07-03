@@ -13,11 +13,18 @@ class NumericMin(Constraint):
         self,
         ref: DataReference,
         name: Optional[str] = None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         min_value: Optional[float] = None,
     ):
-        super().__init__(ref, ref2=ref2, ref_value=min_value, name=name)
+        super().__init__(
+            ref,
+            ref2=ref2,
+            ref_value=min_value,
+            name=name,
+            cache_size=cache_size,
+        )
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
@@ -46,6 +53,7 @@ class NumericMax(Constraint):
         self,
         ref: DataReference,
         name: Optional[str] = None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         max_value: Optional[float] = None,
@@ -55,6 +63,7 @@ class NumericMax(Constraint):
             ref2=ref2,
             ref_value=max_value,
             name=name,
+            cache_size=cache_size,
         )
 
     def retrieve(
@@ -87,8 +96,9 @@ class NumericBetween(Constraint):
         lower_bound: float,
         upper_bound: float,
         name: Optional[str] = None,
+        cache_size=None,
     ):
-        super().__init__(ref, ref_value=min_fraction, name=name)
+        super().__init__(ref, ref_value=min_fraction, name=name, cache_size=cache_size)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
@@ -123,6 +133,7 @@ class NumericMean(Constraint):
         ref: DataReference,
         max_absolute_deviation: float,
         name: Optional[str] = None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         mean_value: Optional[float] = None,
@@ -132,6 +143,7 @@ class NumericMean(Constraint):
             ref2=ref2,
             ref_value=mean_value,
             name=name,
+            cache_size=cache_size,
         )
         self.max_absolute_deviation = max_absolute_deviation
 
@@ -169,6 +181,7 @@ class NumericPercentile(Constraint):
         max_absolute_deviation: Optional[float] = None,
         max_relative_deviation: Optional[float] = None,
         name: Optional[str] = None,
+        cache_size=None,
         *,
         ref2: Optional[DataReference] = None,
         expected_percentile: Optional[float] = None,
@@ -178,6 +191,7 @@ class NumericPercentile(Constraint):
             ref2=ref2,
             ref_value=expected_percentile,
             name=name,
+            cache_size=cache_size,
         )
         if not (0 <= percentage <= 100):
             raise ValueError(
