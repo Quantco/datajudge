@@ -17,35 +17,45 @@ classifiers = [
 ]
 readme = "README.md"
 dynamic = ["version", "description"]
-
-requires-python = ">=3.8.0"
+requires-python = ">=3.8"
 
 dependencies = ["sqlalchemy >=1.4", "setuptools", "scipy", "colorama"]
 
 [project.urls]
 Source = "https://github.com/quantco/datajudge"
 
-[tool.black]
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.venv
-  | build
-  | dist
-)/
-'''
+[tool.ruff]
+line-length = 88
 
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
-ensure_newline_before_comments = true
-line_length = 88
-known_first_party = "datajudge"
-skip_glob = '\.eggs/*,\.git/*,\.venv/*,build/*,dist/*'
-default_section = 'THIRDPARTY'
+[tool.ruff.lint]
+ignore = [
+  "N803", # https://docs.astral.sh/ruff/rules/invalid-argument-name
+  "N806", # https://docs.astral.sh/ruff/rules/non-lowercase-variable-in-function
+  "E501", # https://docs.astral.sh/ruff/faq/#is-the-ruff-linter-compatible-with-black
+]
+select = [
+  # pyflakes
+  "F",
+  # pycodestyle
+  "E",
+  "W",
+  # isort
+  "I",
+  # pep8-naming
+  "N",
+  # pyupgrade
+  "UP",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["datajudge"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.mypy]
+python_version = '3.8'
 no_implicit_optional = true
 allow_empty_bodies = true
 check_untyped_defs = true

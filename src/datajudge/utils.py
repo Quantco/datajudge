@@ -173,7 +173,7 @@ def sort_tuple_none_aware(
             # if all entries are None, just use a constant int() == 0
             dtypes_each_tupleelement[dtypeidx] = int
 
-    def replace_None_with_default(elem):
+    def replace_None_with_default(elem):  # noqa: N802
         return tuple(
             ((dtype() if dtype else None) if subelem is None else subelem)
             for dtype, subelem in zip(dtypes_each_tupleelement, elem)

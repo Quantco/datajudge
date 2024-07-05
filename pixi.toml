@@ -101,12 +101,12 @@ types-jinja2 = "*"
 
 [feature.lint.dependencies]
 pre-commit = "*"
-black = "*"
-flake8 = "*"
-isort = "*"
+docformatter = "*"
+ruff = "*"
+prettier = "*"
 taplo = "*"
+pre-commit-hooks = "*"
 typos = "*"
-pyupgrade = "*"
 
 [feature.lint.tasks]
 pre-commit-install = "pre-commit install"

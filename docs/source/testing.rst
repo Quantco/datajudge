@@ -321,4 +321,3 @@ an html report, this can look as follows:
 
 .. image:: report_failing_query2.png
   :width: 800
-

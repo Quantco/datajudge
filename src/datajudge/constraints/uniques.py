@@ -230,8 +230,9 @@ class UniquesSubset(Uniques):
             and (relative_violations := (n_violations / n_rows))
             > self.max_relative_violations
         ):
-            output_elemes, output_counts = list(remainder.keys()), list(
-                remainder.values()
+            output_elemes, output_counts = (
+                list(remainder.keys()),
+                list(remainder.values()),
             )
             if self.output_processors is not None:
                 for output_processor in self.output_processors:
