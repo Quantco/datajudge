@@ -1,7 +1,7 @@
 # Development
 
-``datajudge`` development relies on [pixi](https://pixi.sh/latest/).
-In order to work on ``datajudge``, you can create a development environment as follows:
+`datajudge` development relies on [pixi](https://pixi.sh/latest/).
+In order to work on `datajudge`, you can create a development environment as follows:
 
 ```bash
 git clone https://github.com/Quantco/datajudge
@@ -24,7 +24,7 @@ To run integration tests against Postgres, first start a docker container with a
 ./start_postgres.sh
 ```
 
-In your current environment, install the ``psycopg2`` package.
+In your current environment, install the `psycopg2` package.
 After this, you may execute integration tests as follows:
 
 ```bash

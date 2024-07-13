@@ -1,23 +1,23 @@
 # Testing
 
-While ``datajudge`` allows to express expectations via specifications, ``Requirement``s
-and ``Constraint``s, the execution of tests is delegated to pytest. As a
+While `datajudge` allows to express expectations via specifications, `Requirement`s
+and `Constraint`s, the execution of tests is delegated to pytest. As a
 consequence, one may use any functionalities that pytest has to offer. Here,
 we want to illustrate some of these advanced functionalities that might turn out useful.
 
-Yet, it should be noted that for most intents and purposes, using ``datajudge`` 's helper
+Yet, it should be noted that for most intents and purposes, using `datajudge` 's helper
 function :func:`~datajudge.pytest_integration.collect_data_tests` is a good starting
 point. It should work out of the box and hides some complexity. For exemplary applications
 see, the
 [companies example](examples/company-data.md) or the [twitch example](examples/twitch.md).
 
-Throughout this article we will not rely on ``collect_data_tests``. Instead we will more
-explicitly create a mechanism turning a List of ``Requirement`` objects into something
-that can be tested by pytest manually. Importantly, we want every ``Constraint`` of every
-``Requirement`` to be tested independently of each other. For instance, we would not like
+Throughout this article we will not rely on `collect_data_tests`. Instead we will more
+explicitly create a mechanism turning a List of `Requirement` objects into something
+that can be tested by pytest manually. Importantly, we want every `Constraint` of every
+`Requirement` to be tested independently of each other. For instance, we would not like
 one failing test to halt all others.
 
-Many of these approaches rely on adapting pytest's ``conftest.py``. If you are not familiar
+Many of these approaches rely on adapting pytest's `conftest.py`. If you are not familiar
 with this concept, you might want to read up on it
 [in the pytest docs](https://docs.pytest.org/en/latest/writing_plugins.html#conftest-py-plugins).
 
@@ -37,16 +37,16 @@ In this section, we present two approaches to do a subselection of tests.
 
 ### Ex-post: subselecting generated tests
 
-Instead of merely running  ``$ pytest specification.py`` one may add pytests's
-``-k`` flag and specify the ``Constraint`` (s) one cares about.
+Instead of merely running `$ pytest specification.py` one may add pytests's
+`-k` flag and specify the `Constraint` (s) one cares about.
 
-Importantly, every ``Constraint`` object can be identified via a name. If one wants
+Importantly, every `Constraint` object can be identified via a name. If one wants
 to figure out how this string is built, please refer to the implementation of
 :meth:`~datajudge.constraints.base.Constraint.get_description`.
 Otherwise, one could also just run all of the tests once and investigate
 the resulting test report to find the relevant names.
 
-When only caring about the ``UniquesEquality`` constraint in our
+When only caring about the `UniquesEquality` constraint in our
 :doc:`twitch example <examples/example_twitch>`.
 one might for instance use the following prefix the filter for it:
 
@@ -58,14 +58,14 @@ pytest twitch_specification.py -k "UniquesEquality::public.twitch_v1"
 
 Another option to subselect a certain set of tests is by use of
 [pytest markers](https://docs.pytest.org/en/latest/example/markers.html).
-The following is one way of using markers in conjunction with ``datajudge``.
+The following is one way of using markers in conjunction with `datajudge`.
 
 In this particular illustration we'll allow for two markers:
 
-* ``basic``: indicating that only truly fundamental tests should be run
-* ``all``: indicating that any available test should be run
+- `basic`: indicating that only truly fundamental tests should be run
+- `all`: indicating that any available test should be run
 
-For that matter we'll add a bit of pytest magic to the respective ``conftest.py``.
+For that matter we'll add a bit of pytest magic to the respective `conftest.py`.
 
 ```python title="conftest.py"
 def pytest_generate_tests(metafunc):
@@ -85,7 +85,7 @@ def pytest_generate_tests(metafunc):
         )
 ```
 
-Moreover, we'll have to register these markers in pytest's ``[tool.pytest.ini_options]`` in `pyproject.toml`.
+Moreover, we'll have to register these markers in pytest's `[tool.pytest.ini_options]` in `pyproject.toml`.
 You can read more about these files [here](https://docs.pytest.org/en/latest/customize.html).
 
 ```toml title="pyproject.toml"
@@ -139,13 +139,13 @@ Once these changes are taken care of, one may run
 pytest specification.py -m basic
 ```
 
-to only test the basic ``Requirement`` s or
+to only test the basic `Requirement` s or
 
 ```bash
 pytest specification.py -m all
 ```
 
-to test all ``Requirement``s.
+to test all `Requirement`s.
 
 ## Using parameters in a specification
 
@@ -160,10 +160,10 @@ those pointers or identifiers as parameters of the specification.
 For the sake of concreteness, we will assume here that we wish frame two
 identifiers as parameters:
 
-* ``new_db``: the name of the 'new database'
-* ``old_db``: the name of the 'old database'
+- `new_db`: the name of the 'new database'
+- `old_db`: the name of the 'old database'
 
-In light of that we will again adapt pytest's ``conftest.py``:
+In light of that we will again adapt pytest's `conftest.py`:
 
 ```python title="conftest.py"
 def pytest_addoption(parser):
@@ -183,7 +183,7 @@ def pytest_generate_tests(metafunc):
     )
 ```
 
-Now, we can make the creation of our ``Requirement``s and ``Constraint``s
+Now, we can make the creation of our `Requirement`s and `Constraint`s
 dependent on these parameters:
 
 ```python title="application.py"
@@ -218,17 +218,17 @@ pytest specification.py --new_db=db_v1 --old_db=db_v2
 
 ## Html reports
 
-By default, running ``pytest`` tests will output test results to one's respective shell.
+By default, running `pytest` tests will output test results to one's respective shell.
 Alternatively, one might want to generate an html report summarizing and expanding on
 all test results. This can be advantageous for
 
-* Sharing test results with colleagues
-* Archiving and tracking test results over time
-* Make underlying sql queries conveniently accessible
+- Sharing test results with colleagues
+- Archiving and tracking test results over time
+- Make underlying sql queries conveniently accessible
 
 Concretely, such an html report can be generated by
 [pytest-html](https://github.com/pytest-dev/pytest-html). Once installed, using it is as simple
-as appending ``--html=myreport.html`` to the pytest call.
+as appending `--html=myreport.html` to the pytest call.
 
 In our twitch example, this generates [this html report](https://github.com/Quantco/datajudge/tree/main/docs/examples/twitch_report.html).
 
@@ -238,14 +238,14 @@ Usually we not only care about knowing whether there is a problem with the data
 at hand and what it is. Rather, we would also like to fix it as fast and
 conveniently as possible.
 
-For that matter, ``datajudge`` makes the queries it uses to assert testing predicates
+For that matter, `datajudge` makes the queries it uses to assert testing predicates
 available via the :class:`datajudge.constraints.base.TestResult`
 class. Hence, if a test is failing, the user can jumpstart the investigation of the
 problem by reusing and potentially adapting the underlying queries.
 
-Instead of simply running ``assert constraint.test(engine).outcome``, one may add
-the ``TestResult``'s ``logging_message`` to e.g. a ``logger`` or add it to pytest
-``extra``:
+Instead of simply running `assert constraint.test(engine).outcome`, one may add
+the `TestResult`'s `logging_message` to e.g. a `logger` or add it to pytest
+`extra`:
 
 ```python
 from pytest_html import extras
@@ -271,7 +271,7 @@ def test_constraint(constraint: Constraint, engine, extra):
     assert test_result.outcome
 ```
 
-Such a ``logging_message`` - with ready to execute sql queries - can look as follows:
+Such a `logging_message` - with ready to execute sql queries - can look as follows:
 
 ```sql
 /*

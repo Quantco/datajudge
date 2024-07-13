@@ -8,8 +8,7 @@ def _fmt_diff_part(s, d):
 def format_difference(
     n1: Union[float, int], n2: Union[float, int], decimal_separator: bool = True
 ) -> Tuple[str, str]:
-    """
-    Given two numbers, n1 and n2, return a tuple of two strings,
+    """Given two numbers, n1 and n2, return a tuple of two strings,
     each representing one of the input numbers with the differing part highlighted.
     Highlighting is done using BBCode-like tags, which are replaced by the formatter.
 
@@ -55,8 +54,7 @@ class OutputProcessor(Protocol):
 def output_processor_sort(
     collection: Collection, counts: Optional[Collection] = None
 ) -> Tuple[Collection, Optional[Collection]]:
-    """
-    Sorts a collection of tuple elements in descending order of their counts,
+    """Sorts a collection of tuple elements in descending order of their counts,
     and for ties, makes use of the ascending order of the elements themselves.
 
     If the first element is not instanceof tuple,
@@ -90,8 +88,7 @@ def output_processor_sort(
 def output_processor_limit(
     collection: Collection, counts: Optional[Collection] = None, limit: int = 100
 ) -> Tuple[Collection, Optional[Collection]]:
-    """
-    Limits the collection to the first ``limit`` elements.
+    """Limits the collection to the first ``limit`` elements.
     If the list was shortened,
     will add a ``limit+1``-th string element,
     informing the user of the truncation.
@@ -142,8 +139,7 @@ def filternull_element_or_tuple_any(values: List) -> List:
 def sort_tuple_none_aware(
     collection: Collection[Tuple], ascending=True
 ) -> Collection[Tuple]:
-    """
-    Stable sort of a collection of tuples.
+    """Stable sort of a collection of tuples.
     Each tuple in the collection must have the same length,
     since they are treated as rows in a table,
     with ``elem[0]`` being the first column,

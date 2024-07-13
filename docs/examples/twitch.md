@@ -41,18 +41,18 @@ df_v2.to_sql("twitch_v2", engine, schema="public", if_exists="replace")
 df_v1.to_sql("twitch_v1", engine, schema="public", if_exists="replace")
 ```
 
-Once the tables are stored in a database, we can actually write a ``datajudge``
+Once the tables are stored in a database, we can actually write a `datajudge`
 specification against them. But first, we'll have a look at what the data roughly
 looks like by investigating a random sample of four rows:
 
 **A sample of the data**
 
-| channel  | watch_time | stream_time | peak_viewers | average_viewers | followers | followers_gained | views_gained | partnered | mature | language  |
-|----------|------------|-------------|--------------|-----------------|-----------|------------------|--------------|-----------|--------|-----------|
-| xQcOW    | 6196161750 | 215250      | 222720       | 27716           | 3246298   | 1734810          | 93036735     | True      | False  | English   |
-| summit1g | 6091677300 | 211845      | 310998       | 25610           | 5310163   | 1374810          | 89705964     | True      | False  | English   |
-| Gaules   | 5644590915 | 515280      | 387315       | 10976           | 1767635   | 1023779          | 102611607    | True      | True   | Portuguese|
-| ESL_CSGO | 3970318140 | 517740      | 300575       | 7714            | 3944850   | 703986           | 106546942    | True      | False  | English   |
+| channel  | watch_time | stream_time | peak_viewers | average_viewers | followers | followers_gained | views_gained | partnered | mature | language   |
+| -------- | ---------- | ----------- | ------------ | --------------- | --------- | ---------------- | ------------ | --------- | ------ | ---------- |
+| xQcOW    | 6196161750 | 215250      | 222720       | 27716           | 3246298   | 1734810          | 93036735     | True      | False  | English    |
+| summit1g | 6091677300 | 211845      | 310998       | 25610           | 5310163   | 1374810          | 89705964     | True      | False  | English    |
+| Gaules   | 5644590915 | 515280      | 387315       | 10976           | 1767635   | 1023779          | 102611607    | True      | True   | Portuguese |
+| ESL_CSGO | 3970318140 | 517740      | 300575       | 7714            | 3944850   | 703986           | 106546942    | True      | False  | English    |
 
 Note that we expect both version 1 and version 2 to follow this structure. Due to them
 being assembled at different points in time, merely their rows shows differ.
@@ -80,7 +80,7 @@ express expectations against them. In this example, we have two tables in the sa
 one table per version of the Twitch data.
 
 Yet, let's start with a straightforward example only using version 2. We want to use our
-domain knowledge that constrains the values of the ``language`` column only to contain letters
+domain knowledge that constrains the values of the `language` column only to contain letters
 and have a length strictly larger than 0.
 
 ```python
@@ -145,7 +145,7 @@ between_requirement_version.add_uniques_equality_constraint(
 Now having compared the 'same kind of data' between version 1 and version 2,
 we may as well compare 'different kind of data' within version 2, as a means of
 a sanity check. This sanity check consists of checking whether the mean
-``average_viewer`` value of mature channels should deviate at most 10% from
+`average_viewer` value of mature channels should deviate at most 10% from
 the overall mean.
 
 ```python
@@ -168,7 +168,7 @@ between_requirement_columns.add_numeric_mean_constraint(
 ```
 
 Lastly, we need to collect all of our requirements in a list and make sure
-``pytest`` can find them by calling ``collect_data_tests``.
+`pytest` can find them by calling `collect_data_tests`.
 
 ```python
 from datajudge.pytest_integration import collect_data_tests
@@ -268,9 +268,9 @@ to investigate what is wrong with the data, what this has been caused by and how
 
 Concretely, what exactly do we learn from the error messages?
 
-* The column ``language`` now has a row with value ``'Sw3d1zh'``. This break two of our
-  constraints. The ``VarCharRegex`` constraint compared the columns' values to a regular
-  expression. The ``UniquesEquality`` constraint expected the unique values of the
-  ``language`` column to not have changed between version 1 and version 2.
-* The mean value of ``average_viewers`` of ``mature`` channels is substantially - more
+- The column `language` now has a row with value `'Sw3d1zh'`. This break two of our
+  constraints. The `VarCharRegex` constraint compared the columns' values to a regular
+  expression. The `UniquesEquality` constraint expected the unique values of the
+  `language` column to not have changed between version 1 and version 2.
+- The mean value of `average_viewers` of `mature` channels is substantially - more
   than our 10% tolerance - lower than the global mean.

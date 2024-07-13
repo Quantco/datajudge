@@ -1,39 +1,38 @@
 # Dates
 
-This example concerns itself with expressing ``Constraint``\s against data revolving
-around dates. While date ``Constraint``\s between tables exist, we will only illustrate
-``Constraint``\s on a single table and reference values here. As a consequence, we will
-only use ``WithinRequirement``, as opposed to ``BetweenRequirement``.
+This example concerns itself with expressing `Constraint`\s against data revolving
+around dates. While date `Constraint`\s between tables exist, we will only illustrate
+`Constraint`\s on a single table and reference values here. As a consequence, we will
+only use `WithinRequirement`, as opposed to `BetweenRequirement`.
 
 Concretely, we will assume a table containing prices for a given product of id 1.
 Importantly, these prices are valid for a certain date range only. More precisely,
-we assume that the price for a product - identified via the ``preduct_id`` column -
-is indicated in the ``price`` column, the date from which it is valid - the date
-itself included - in ``date_from`` and the the until when it is valid - the date
-itself included - in the ``date_to`` column.
+we assume that the price for a product - identified via the `preduct_id` column -
+is indicated in the `price` column, the date from which it is valid - the date
+itself included - in `date_from` and the the until when it is valid - the date
+itself included - in the `date_to` column.
 
 Such a table might look as follows:
 
 **prices**
 
-| product_id | price | date_from | date_to |
-|------------|-------|-----------|---------|
-| 1          | 13.99 | 22/01/01  | 22/01/10|
-| 1          | 14.5  | 22/01/11  | 22/01/17|
-| 1          | 13.37 | 22/01/16  | 22/01/31|
+| product_id | price | date_from | date_to  |
+| ---------- | ----- | --------- | -------- |
+| 1          | 13.99 | 22/01/01  | 22/01/10 |
+| 1          | 14.5  | 22/01/11  | 22/01/17 |
+| 1          | 13.37 | 22/01/16  | 22/01/31 |
 
 Given this table, we would like to ensure - for the sake of illustrational purposes -
 that 6 constraints are satisfied:
 
-1. All values from column ``date_from`` should be in January 2022.
-2. All values from column ``date_to`` should be in January 2022.
-3. The minimum value in column ``date_from`` should be the first of January 2022.
-4. The maximum value in column ``date_to`` should be the 31st of January 2022.
-5. There is no gap between ``date_from`` and ``date_to``. In other words, every date
+1. All values from column `date_from` should be in January 2022.
+2. All values from column `date_to` should be in January 2022.
+3. The minimum value in column `date_from` should be the first of January 2022.
+4. The maximum value in column `date_to` should be the 31st of January 2022.
+5. There is no gap between `date_from` and `date_to`. In other words, every date
    of January has to be assigned to at least one row for a given product.
-6. There is no overlap between ``date_from`` and ``date_to``. In other words, every
+6. There is no overlap between `date_from` and `date_to`. In other words, every
    date of January has to be assigned to at most one row for a given product.
-
 
 Assuming that such a table exists in database, we can write a specification against it.
 
@@ -140,17 +139,17 @@ requirements = [prices_req]
 test_constraint = collect_data_tests(requirements)
 ```
 
-Please note that the ``DateNoOverlap`` and ``DateNoGap`` constraints also exist
-in a slightly different form: ``DateNoOverlap2d`` and ``DateNoGap2d``.
+Please note that the `DateNoOverlap` and `DateNoGap` constraints also exist
+in a slightly different form: `DateNoOverlap2d` and `DateNoGap2d`.
 As the names suggest, these can operate in 'two date dimensions'.
 
 For example, let's assume a table with four date columns, representing two
 ranges in distinct dimensions, respectively:
 
-* ``date_from``: Date from when a price is valid
-* ``date_to``: Date until when a price is valid
-* ``date_definition_from``: Date when a price definition was inserted
-* ``date_definition_to``: Date until when a price definition was used
+- `date_from`: Date from when a price is valid
+- `date_to`: Date until when a price is valid
+- `date_definition_from`: Date when a price definition was inserted
+- `date_definition_to`: Date until when a price definition was used
 
 Analogously to the unidimensional scenario illustrated here, one might care
 for certain constraints in two dimensions.

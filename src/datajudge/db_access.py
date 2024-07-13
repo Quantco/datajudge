@@ -42,10 +42,7 @@ def get_table_columns(table, column_names):
 
 
 def apply_patches(engine: sa.engine.Engine):
-    """
-    Apply patches to e.g. specific dialect not implemented by sqlalchemy
-    """
-
+    """Apply patches to e.g. specific dialect not implemented by sqlalchemy"""
     if is_bigquery(engine):
         # Patch for the EXCEPT operator (see BigQuery set operators
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
@@ -843,8 +840,7 @@ def get_column(
     *,
     aggregate_operator: Callable | None = None,
 ):
-    """
-    Queries the database for the values of the relevant column (as returned by `get_column(...)`).
+    """Queries the database for the values of the relevant column (as returned by `get_column(...)`).
     If an aggregation operation is passed, the results are aggregated accordingly
     and a single scalar value is returned.
     """
@@ -1267,8 +1263,7 @@ def get_ks_2sample(
     ref1: DataReference,
     ref2: DataReference,
 ):
-    """
-    Run the query for the two-sample Kolmogorov-Smirnov test and return the test statistic d.
+    """Run the query for the two-sample Kolmogorov-Smirnov test and return the test statistic d.
 
     For a raw-sql version of this query, please see this PR:
     https://github.com/Quantco/datajudge/pull/28/

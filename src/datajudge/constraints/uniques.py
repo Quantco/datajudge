@@ -393,8 +393,7 @@ class NUniquesMaxGain(NUniques):
 
 
 class CategoricalBoundConstraint(Constraint):
-    """
-    `CategoricalBoundConstraint` is a constraint class that checks if the share of specific values
+    """`CategoricalBoundConstraint` is a constraint class that checks if the share of specific values
     in a column falls within predefined bounds. It compares the actual distribution of values in a
     `DataSource` column with a target distribution, supplied as a dictionary.
 

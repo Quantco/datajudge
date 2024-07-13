@@ -6,22 +6,22 @@ The table "companies_archive" contains three entries:
 
 **companies_archive**
 
-| id | name    | num_employees |
-|----|---------|---------------|
-| 1  | QuantCo | 90            |
-| 2  | Google  | 140,000       |
-| 3  | BMW     | 110,000       |
+| id  | name    | num_employees |
+| --- | ------- | ------------- |
+| 1   | QuantCo | 90            |
+| 2   | Google  | 140,000       |
+| 3   | BMW     | 110,000       |
 
 While "companies" contains an additional entry:
 
 **companies**
 
-| id | name    | num_employees |
-|----|---------|---------------|
-| 1  | QuantCo | 100           |
-| 2  | Google  | 150,000       |
-| 3  | BMW     | 120,000       |
-| 4  | Apple   | 145,000       |
+| id  | name    | num_employees |
+| --- | ------- | ------------- |
+| 1   | QuantCo | 100           |
+| 2   | Google  | 150,000       |
+| 3   | BMW     | 120,000       |
+| 4   | Apple   | 145,000       |
 
 ```python
 import sqlalchemy as sa
@@ -108,7 +108,7 @@ requirements = [companies_req, companies_between_req]
 test_constraint = collect_data_tests(requirements)
 ```
 
-Saving this file as ``specification.py`` and running ``$ pytest specification.py``
+Saving this file as `specification.py` and running `$ pytest specification.py`
 will verify that all constraints are satisfied. The output you see in the terminal
 should be similar to this:
 
@@ -125,4 +125,4 @@ specification.py::test_constraint[RowSuperset::companies|companies_archive] PASS
 ==================================== 4 passed in 0.31s ====================================
 ```
 
-You can also use a formatted html report using the ``--html=report.html`` flag.
+You can also use a formatted html report using the `--html=report.html` flag.

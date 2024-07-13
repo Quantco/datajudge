@@ -1,5 +1,6 @@
 """datajudge allows to assess  whether data from database complies with reference
-information."""
+information.
+"""
 
 from .constraints.base import Constraint
 from .db_access import Condition
