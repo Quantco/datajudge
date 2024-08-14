@@ -6,7 +6,7 @@ consequence, one may use any functionalities that pytest has to offer. Here,
 we want to illustrate some of these advanced functionalities that might turn out useful.
 
 Yet, it should be noted that for most intents and purposes, using `datajudge` 's helper
-function :func:`~datajudge.pytest_integration.collect_data_tests` is a good starting
+function [`collect_data_tests`][datajudge.pytest_integration.collect_data_tests] is a good starting
 point. It should work out of the box and hides some complexity. For exemplary applications
 see, the
 [companies example](examples/company-data.md) or the [twitch example](examples/twitch.md).

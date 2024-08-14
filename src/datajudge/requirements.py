@@ -316,27 +316,27 @@ class WithinRequirement(Requirement):
     ):
         """Check if the data's unique values are equal to a given set of values.
 
-        The ``UniquesEquality`` constraint asserts if the values contained in a column
-        of a ``DataSource`` are strictly the ones of a reference set of expected values,
-        specified via the ``uniques`` parameter.
+        The `UniquesEquality` constraint asserts if the values contained in a column
+        of a `DataSource` are strictly the ones of a reference set of expected values,
+        specified via the `uniques` parameter.
 
-        Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
-        for ``WithinRequirement``.
+        Null values in the columns `columns` are ignored. To assert the non-existence of them use
+        the [add_null_absence_constraint][datajudge.requirements.WithinRequirement.add_null_absence_constraint] helper method
+        for `WithinRequirement`.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
-        It can be configured in more detail by supplying a custom ``filter_func`` function.
+        It can be configured in more detail by supplying a custom `filter_func` function.
         Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
-        :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
+        [filternull_never][datajudge.utils.filternull_never], :func:`~datajudge.utils.filternull_element_or_tuple_all`,
         :func:`~datajudge.utils.filternull_element_or_tuple_any`.
-        Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
+        Passing `None` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
         The current default of :func:`~datajudge.utils.filternull_element`
         Cause (possibly often unintended) changes in behavior when the users adds a second column
         (filtering no longer can trigger at all).
         The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
-        To silence the warning, set ``filter_func`` explicitly.
+        To silence the warning, set `filter_func` explicitly.
 
-        See the ``Uniques`` class for further parameter details on ``map_func`` and
-        ``reduce_func``, and ``output_processors``.
+        See the `Uniques` class for further parameter details on `map_func` and
+        `reduce_func`, and `output_processors`.
         """
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
@@ -972,6 +972,7 @@ class WithinRequirement(Requirement):
         cache_size=None,
     ):
         """Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
+
         This means that for each unique combination of values in the `key_columns`, there is exactly one corresponding combination of values in the `value_columns`.
 
         The ``add_unique_constraint`` constraint is a special case of this constraint, where the `key_columns` are a primary key,
@@ -1010,6 +1011,7 @@ class WithinRequirement(Requirement):
         cache_size=None,
     ):
         """Express that numeric interval rows have no gaps larger than some max value in-between them.
+
         The table under inspection must consist of at least one but up to many key columns,
         identifying an entity. Additionally, a ``start_column`` and an ``end_column``,
         indicating interval start and end values, should be provided.
@@ -1583,7 +1585,7 @@ class BetweenRequirement(Requirement):
         Given that ``column2``\'s underlying data has a fraction ``q`` of ``NULL`` values, the
         ``max_relative_deviation`` parameter allows ``column1``\'s underlying data to have a
         fraction ``(1 + max_relative_deviation) * q`` of ``NULL`` values.
-        """
+        """  # noqa: D301
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
@@ -2028,7 +2030,7 @@ class BetweenRequirement(Requirement):
         In other words,
         :math:`\\frac{|T1 - T2| + |T2 - T1|}{|T1 \\cup T2|} \\leq` ``max_missing_fraction``.
         Rows from T1 are indexed in ``columns1``, rows from T2 are indexed in ``columns2``.
-        """
+        """  # noqa: D301
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
@@ -2062,7 +2064,7 @@ class BetweenRequirement(Requirement):
         contrast to ``EXCEPT ALL``, this should lead to a set subtraction instead of
         a multiset subtraction. In other words, duplicates in T1 are treated as
         single occurrences.
-        """
+        """  # noqa: D301
         max_missing_fraction_getter = self.get_deviation_getter(
             constant_max_missing_fraction, date_range_loss_fraction
         )
@@ -2095,7 +2097,7 @@ class BetweenRequirement(Requirement):
         :math:`\\frac{|T2-T1|}{|T2|} \\leq` ``max_missing_fraction``.
         Rows from T1 are indexed in ``columns1``, rows from T2 are indexed in
         ``columns2``.
-        """
+        """  # noqa: D301
         max_missing_fraction_getter = self.get_deviation_getter(
             constant_max_missing_fraction, date_range_loss_fraction
         )
@@ -2168,6 +2170,7 @@ class BetweenRequirement(Requirement):
         cache_size=None,
     ):
         """Apply the so-called two-sample Kolmogorov-Smirnov test to the distributions of the two given columns.
+
         The constraint is fulfilled, when the resulting p-value of the test is higher than the significance level
         (default is 0.05, i.e., 5%).
         The signifance_level must be a value between 0.0 and 1.0.

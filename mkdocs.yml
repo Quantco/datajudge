@@ -48,6 +48,7 @@ plugins:
             docstring_section_style: spacy
             separate_signature: true
             merge_init_into_class: true
+            show_submodules: true # show *all* code contained in paths
 
 nav:
   - installation.md
