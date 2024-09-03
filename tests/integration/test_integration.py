@@ -1744,9 +1744,9 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
         # According to the definition of percentile in our doc string,
         # the 20th percentile should be the smallest value in our data
         # for which 20% of the data is less or equal that value.
-        # For the value 3, we have that |{1,2,3}|19 ~ .16 of the values
+        # For the value 3, we have that |{1,2,3}|/19 ~ .16 of the values
         # are less or equal.
-        # For the value 4, we have that |{1,2,3,4}|19 ~ .21 of the values
+        # For the value 4, we have that |{1,2,3,4}|/19 ~ .21 of the values
         # are less or equal.
         # Hence the expected 20th percentile should be 4.
         (identity, 20, 4, 0, 0, None),
