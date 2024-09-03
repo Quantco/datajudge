@@ -1864,7 +1864,7 @@ class BetweenRequirement(Requirement):
     ):
         """Assert that the ``percentage``-th percentile is approximately equal.
 
-        The percentile is defined as the value present in ``column1`` / ``column2``
+        The percentile is defined as the smallest value present in ``column1`` / ``column2``
         for which ``percentage`` % of the values in ``column1`` / ``column2`` are
         less or equal. ``NULL`` values are ignored.
 
