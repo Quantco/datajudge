@@ -887,29 +887,37 @@ def get_percentile(engine, ref, percentage):
     row_count = "dj_row_count"
     row_num = "dj_row_num"
     column_name = ref.get_column(engine)
-    column = ref.get_selection(engine).subquery().c[column_name]
-    counting_subquery = (
-        sa.select(
-            column,
-            sa.func.row_number().over(order_by=column).label(row_num),
-            sa.func.count().over(partition_by=None).label(row_count),
-        )
-        .where(column.is_not(None))
-        .subquery()
-    )
+    base_selection = ref.get_selection(engine)
+    column = base_selection.subquery().c[column_name]
 
-    inferior_selection = (
-        sa.select(*counting_subquery.columns)
-        .where(
-            counting_subquery.c[row_num] * 100.0 / counting_subquery.c[row_count]
-            < percentage
-        )
-        .subquery()
+    counting_selection = sa.select(
+        column,
+        sa.func.row_number().over(order_by=column).label(row_num),
+        sa.func.count().over(partition_by=None).label(row_count),
+    ).where(column.is_not(None))
+    counting_subquery = counting_selection.subquery()
+
+    inferior_selection = sa.select(*counting_subquery.columns).where(
+        counting_subquery.c[row_num] * 100.0 / counting_subquery.c[row_count]
+        < percentage
     )
+    inferior_subquery = inferior_selection.subquery()
 
     argmin_selection = sa.select(
-        sa.func.max(inferior_selection.c[row_num]) + 1
-    ).scalar_subquery()
+        sa.case(
+            # Case 1: We we pick the next value.
+            (
+                sa.func.count(inferior_subquery.c[row_num]) > 0,
+                sa.func.max(inferior_subquery.c[row_num]) + 1,
+            ),
+            # Case 2: We pick the first value since the inferior subquery
+            # is empty.
+            (sa.func.count(inferior_subquery.c[row_num]) == 0, 1),
+            # Case 3: We received a reference without numerical values.
+            else_=None,
+        )
+    )
+
     percentile_selection = sa.select(counting_subquery.c[column_name]).where(
         counting_subquery.c[row_num] == argmin_selection
     )
