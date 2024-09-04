@@ -888,7 +888,7 @@ def get_percentile(engine, ref, percentage):
     row_num = "dj_row_num"
     column_name = ref.get_column(engine)
     column = ref.get_selection(engine).subquery().c[column_name]
-    subquery = (
+    counting_subquery = (
         sa.select(
             column,
             sa.func.row_number().over(order_by=column).label(row_num),
@@ -898,20 +898,23 @@ def get_percentile(engine, ref, percentage):
         .subquery()
     )
 
-    constrained_selection = (
-        sa.select(*subquery.columns)
-        .where(subquery.c[row_num] * 100.0 / subquery.c[row_count] <= percentage)
+    inferior_selection = (
+        sa.select(*counting_subquery.columns)
+        .where(
+            counting_subquery.c[row_num] * 100.0 / counting_subquery.c[row_count]
+            < percentage
+        )
         .subquery()
     )
 
-    max_selection = sa.select(
-        sa.func.max(constrained_selection.c[row_num])
+    argmin_selection = sa.select(
+        sa.func.max(inferior_selection.c[row_num]) + 1
     ).scalar_subquery()
-    selection = sa.select(constrained_selection.c[column_name]).where(
-        constrained_selection.c[row_num] == max_selection
+    percentile_selection = sa.select(counting_subquery.c[column_name]).where(
+        counting_subquery.c[row_num] == argmin_selection
     )
-    result = engine.connect().execute(selection).scalar()
-    return result, [selection]
+    result = engine.connect().execute(percentile_selection).scalar()
+    return result, [percentile_selection]
 
 
 def get_min_length(engine, ref):
