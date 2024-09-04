@@ -1757,7 +1757,10 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
         (negation, 20, 3.8, 0, 0, None),
         (negation, 20, 3.2, 0, 0, None),
         # The expected percentile changes when conditioning.
-        (identity, 20, 2, 0, 0, Condition(raw_string="col_int <= 11")),
+        # |{1,2}|/11 ~ .18
+        # |{1,2,3}|/11 ~ .27
+        (identity, 20, 3, 0, 0, Condition(raw_string="col_int <= 11")),
+        (negation, 20, 2.8, 0, 0, Condition(raw_string="col_int <= 11")),
     ],
 )
 def test_numeric_percentile_within(engine, int_table1, data):
