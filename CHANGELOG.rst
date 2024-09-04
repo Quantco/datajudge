@@ -7,6 +7,15 @@
 Changelog
 =========
 
+1.9.1 - 2024.09-xx
+------------------
+
+**Bug fixes**
+
+- Fix a bug in :class:`datajudge.constraints.numeric.NumericPercentile` which
+  could lead to off-by-one errors in retrieving a percentile value.
+
+
 1.9.0 - 2024.06.25
 ------------------
 
