@@ -1788,7 +1788,17 @@ def test_numeric_percentile_within(engine, int_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
-        # With the following condition, we expect the values [0, 0, 1, 1, None].
+        # With the following condition, we expect the following values
+        # to be present in unique_table1's column col_int:
+        # [0, 0, 1, 1, None]
+        (
+            identity,
+            24,
+            0,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
         (
             identity,
             25,
@@ -1800,7 +1810,7 @@ def test_numeric_percentile_within(engine, int_table1, data):
         (
             identity,
             74,
-            0,
+            1,
             0,
             None,
             Condition(raw_string="col_int <= 1 or col_int IS NULL"),
