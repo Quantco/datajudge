@@ -1848,12 +1848,16 @@ def test_numeric_percentile_within_null(engine, unique_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
+        # The 20th percentile of int_table1 is 4.
+        # The 20th percentile of int_table2 is 5.
+        # Hence, the absolute deviation is 1 and
+        # the relative deviation is 1/5 = .2.
         (identity, 20, 1, None, None, None),
-        (identity, 20, None, 0.25, None, None),
-        (identity, 20, 1, 0.25, None, None),
+        (identity, 20, None, 0.20, None, None),
+        (identity, 20, 1, 0.20, None, None),
         (negation, 20, 0, 0, None, None),
         (negation, 20, 0.9, None, None, None),
-        (negation, 20, None, 0.20, None, None),
+        (negation, 20, None, 0.19, None, None),
         (identity, 20, 0, 0, Condition(raw_string="col_int >=2"), None),
     ],
 )
