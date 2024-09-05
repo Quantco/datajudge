@@ -143,7 +143,7 @@ class Uniques(Constraint, abc.ABC):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[Tuple[List[T], List[int]], OptionalSelections]:
+    ) -> Tuple[Tuple[List, List[int]], OptionalSelections]:
         uniques, selection = db_access.get_uniques(engine, ref)
         values = list(uniques.keys())
         values = self.filter_func(values)
