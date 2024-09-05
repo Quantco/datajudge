@@ -150,7 +150,6 @@ db2-py310 = ["db2", "py310", "test"]
 db2-sa1 = ["db2", "sa1", "test"]
 
 snowflake-py38 = ["snowflake", "py38", "test"]
-snowflake-sa1 = ["snowflake", "sa1", "test"]
 
 bigquery-py38 = ["bigquery", "py38", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
