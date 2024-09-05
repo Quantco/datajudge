@@ -208,7 +208,6 @@ jobs:
       matrix:
         env:
           - snowflake-py38
-          - snowflake-sa1
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
