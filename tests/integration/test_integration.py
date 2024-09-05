@@ -1740,14 +1740,27 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
 @pytest.mark.parametrize(
     "data",
     [
-        (identity, 20, 3, 0, 0, None),
-        (identity, 20, 2.8, 0.21, None, None),
-        (identity, 20, 2.8, None, 0.1, None),
-        (negation, 20, 2.8, 0, None, None),
-        (negation, 20, 2.8, None, 0, None),
-        (negation, 20, 2.8, 0, 0, None),
+        # The data at hand in int_table1 are [1, 2, ..., 19].
+        # According to the definition of percentile in our doc string,
+        # the 20th percentile should be the smallest value in our data
+        # for which 20% of the data is less or equal that value.
+        # For the value 3, we have that |{1,2,3}|/19 ~ .16 of the values
+        # are less or equal.
+        # For the value 4, we have that |{1,2,3,4}|/19 ~ .21 of the values
+        # are less or equal.
+        # Hence the expected 20th percentile should be 4.
+        (identity, 20, 4, 0, 0, None),
+        (identity, 20, 3.8, 0.21, None, None),
+        (identity, 20, 3.8, None, 0.1, None),
+        (negation, 20, 3.8, 0, None, None),
+        (negation, 20, 3.8, None, 0, None),
+        (negation, 20, 3.8, 0, 0, None),
         (negation, 20, 3.2, 0, 0, None),
-        (identity, 20, 2, 0, 0, Condition(raw_string="col_int <= 11")),
+        # The expected percentile changes when conditioning.
+        # |{1,2}|/11 ~ .18
+        # |{1,2,3}|/11 ~ .27
+        (identity, 20, 3, 0, 0, Condition(raw_string="col_int <= 11")),
+        (negation, 20, 2.8, 0, 0, Condition(raw_string="col_int <= 11")),
     ],
 )
 def test_numeric_percentile_within(engine, int_table1, data):
@@ -1775,7 +1788,17 @@ def test_numeric_percentile_within(engine, int_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
-        # With the following condition, we expect the values [0, 0, 1, 1, None].
+        # With the following condition, we expect the following values
+        # to be present in unique_table1's column col_int:
+        # [0, 0, 1, 1, None]
+        (
+            identity,
+            24,
+            0,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
         (
             identity,
             25,
@@ -1787,7 +1810,7 @@ def test_numeric_percentile_within(engine, int_table1, data):
         (
             identity,
             74,
-            0,
+            1,
             0,
             None,
             Condition(raw_string="col_int <= 1 or col_int IS NULL"),
@@ -1835,12 +1858,16 @@ def test_numeric_percentile_within_null(engine, unique_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
+        # The 20th percentile of int_table1 is 4.
+        # The 20th percentile of int_table2 is 5.
+        # Hence, the absolute deviation is 1 and
+        # the relative deviation is 1/5 = .2.
         (identity, 20, 1, None, None, None),
-        (identity, 20, None, 0.25, None, None),
-        (identity, 20, 1, 0.25, None, None),
+        (identity, 20, None, 0.20, None, None),
+        (identity, 20, 1, 0.20, None, None),
         (negation, 20, 0, 0, None, None),
         (negation, 20, 0.9, None, None, None),
-        (negation, 20, None, 0.20, None, None),
+        (negation, 20, None, 0.19, None, None),
         (identity, 20, 0, 0, Condition(raw_string="col_int >=2"), None),
     ],
 )
