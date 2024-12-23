@@ -41,7 +41,7 @@ def get_engine(backend) -> sa.engine.Engine:
             connection_string += "?driver=libtdsodbc.so&tds_version=7.4"
         else:
             msodbc_driver_name = urllib.parse.quote_plus(
-                "ODBC Driver 17 for SQL Server"
+                "ODBC Driver 18 for SQL Server"
             )
             connection_string += f"?driver={msodbc_driver_name}"
     elif "snowflake" in backend:
