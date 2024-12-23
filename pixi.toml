@@ -45,7 +45,7 @@ freetds = "*"
 [feature.mssql.tasks]
 test = "pytest tests/integration --backend=mssql"
 test_freetds = "pytest tests/integration --backend=mssql-freetds"
-coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=mssql"
+coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=mssql-freetds"
 
 [feature.postgres.dependencies]
 psycopg2 = "*"
