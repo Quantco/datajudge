@@ -4,7 +4,7 @@ Example: Dates
 This example concerns itself with expressing ``Constraint``\s against data revolving
 around dates. While date ``Constraint``\s between tables exist, we will only illustrate
 ``Constraint``\s on a single table and reference values here. As a consequence, we will
-only use ``WithinRequirement``, as opposed to ``BetweenRequirement``.
+only use :class:`~datajudge.WithinRequirement`, as opposed to :class:`datajudge.BetweenRequirement`.
 
 Concretely, we will assume a table containing prices for a given product of id 1.
 Importantly, these prices are valid for a certain date range only. More precisely,
@@ -153,17 +153,15 @@ Assuming that such a table exists in database, we can write a specification agai
     # up these tests.
     test_constraint = collect_data_tests(requirements)
 
-Please note that the ``DateNoOverlap`` and ``DateNoGap`` constraints also exist
-in a slightly different form: ``DateNoOverlap2d`` and ``DateNoGap2d``.
-As the names suggest, these can operate in 'two date dimensions'.
+Please note that the ``DateNoOverlap`` Constraints also exist
+in a slightly different form: ``DateNoOverlap2d``.
+As the names suggest, it can operate in 'two date dimensions'. Said constraint
+be added with :meth:`datajudge.WithinRequirement.add_date_no_overlap_2d_constraint`.
 
-For example, let's assume a table with four date columns, representing two
+For instance, we could imagine a table with four date columns, representing two
 ranges in distinct dimensions, respectively:
 
 * ``date_from``: Date from when a price is valid
 * ``date_to``: Date until when a price is valid
 * ``date_definition_from``: Date when a price definition was inserted
 * ``date_definition_to``: Date until when a price definition was used
-
-Analogously to the unidimensional scenario illustrated here, one might care
-for certain constraints in two dimensions.

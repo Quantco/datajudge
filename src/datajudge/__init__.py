@@ -2,13 +2,14 @@
 information."""
 
 from .constraints.base import Constraint
-from .db_access import Condition
+from .db_access import Condition, DataSource
 from .requirements import BetweenRequirement, Requirement, WithinRequirement
 
 __all__ = [
     "BetweenRequirement",
     "Condition",
     "Constraint",
+    "DataSource",
     "Requirement",
     "WithinRequirement",
 ]
