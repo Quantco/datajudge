@@ -484,7 +484,7 @@ def get_interval_overlaps_nd(
     We define the presence of 'overlap' as presence of a non-empty intersection
     between two intervals.
 
-    Given that we have an interval of a single dimension and two intervals t1 and t2,
+    Given that we have an interval of a single dimension and two intervals :math:`t1` and :math:`t2`,
     we define an overlap follows:
 
      .. math::
@@ -494,7 +494,7 @@ def get_interval_overlaps_nd(
             &(min(t_2) \\leq min(t_1) \\land max(t_2) \\geq min(t_1))
         \\end{align}
 
-    We can drop the second clause of the above disjunction if we define t1 to be the 'leftmost'
+    We can drop the second clause of the above disjunction if we define :math:`t_1` to be the 'leftmost'
     interval. We do so when building our query.
 
     Note that the above equations are representative of ``end_included=True`` and the second clause
