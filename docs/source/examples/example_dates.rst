@@ -153,7 +153,7 @@ Assuming that such a table exists in database, we can write a specification agai
     # up these tests.
     test_constraint = collect_data_tests(requirements)
 
-Please note that the ``DateNoOverlap`` Constraints also exist
+Please note that the ``DateNoOverlap`` Constraint also exists
 in a slightly different form: ``DateNoOverlap2d``.
 As the names suggest, it can operate in 'two date dimensions'. Said constraint
 be added with :meth:`datajudge.WithinRequirement.add_date_no_overlap_2d_constraint`.

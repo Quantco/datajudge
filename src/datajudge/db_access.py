@@ -484,7 +484,7 @@ def get_interval_overlaps_nd(
     We define the presence of 'overlap' as presence of a non-empty intersection
     between two intervals.
 
-    Given that we have an interval of a single dimension and two intervals :math:`t1` and :math:`t2`,
+    Given that we care about a single dimension and have two intervals :math:`t1` and :math:`t2`,
     we define an overlap follows:
 
      .. math::
