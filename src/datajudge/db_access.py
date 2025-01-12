@@ -479,6 +479,29 @@ def get_interval_overlaps_nd(
     end_columns: list[str],
     end_included: bool,
 ) -> tuple[sa.sql.selectable.Select, sa.sql.selectable.Select]:
+    """Create selectables for interval overlaps in n dimensions.
+
+    We define the presence of 'overlap' as presence of a non-empty intersection
+    between two intervals.
+
+    Given that we have an interval of a single dimension and two intervals t1 and t2,
+    we define an overlap follows:
+
+     .. math::
+        \\begin{align} \\text{overlap}(t_1, t_2) \\Leftrightarrow
+            &(min(t_1) \\leq min(t_2) \\land max(t_1) \\geq min(t_2)) \\\\
+            &\\lor \\\\
+            &(min(t_2) \\leq min(t_1) \\land max(t_2) \\geq min(t_1))
+        \\end{align}
+
+    We can drop the second clause of the above disjunction if we define t1 to be the 'leftmost'
+    interval. We do so when building our query.
+
+    Note that the above equations are representative of ``end_included=True`` and the second clause
+    of the conjunction would use a strict inequality if ``end_included=False``.
+
+    We define an overlap in several dimensions as the conjunction of overlaps in every single dimension.
+    """
     if is_snowflake(engine):
         if key_columns:
             key_columns = lowercase_column_names(key_columns)
