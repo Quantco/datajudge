@@ -2157,9 +2157,9 @@ def test_date_no_overlap_2d_within_varying_key_column(
     "data",
     [
         (identity, 0, Condition(raw_string="id1 IN (1, 2, 3, 4)")),
-        # 3/7 ids have violations.
-        (negation, 0.42, None),
-        (identity, 0.43, None),
+        # 4/8 ids have violations.
+        (negation, 0.49, None),
+        (identity, 0.50, None),
     ],
 )
 def test_date_no_overlap_2d_within_fixed_key_column(
