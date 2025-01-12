@@ -478,7 +478,7 @@ def get_interval_overlaps_nd(
     start_columns: list[str],
     end_columns: list[str],
     end_included: bool,
-):
+) -> tuple[sa.sql.selectable.Select, sa.sql.selectable.Select]:
     if is_snowflake(engine):
         if key_columns:
             key_columns = lowercase_column_names(key_columns)
@@ -505,7 +505,8 @@ def get_interval_overlaps_nd(
     violation_condition = sa.and_(
         *[
             sa.and_(
-                table1.c[start_columns[dimension]] < table2.c[start_columns[dimension]],
+                table1.c[start_columns[dimension]]
+                <= table2.c[start_columns[dimension]],
                 end_operator(
                     table1.c[end_columns[dimension]], table2.c[start_columns[dimension]]
                 ),
