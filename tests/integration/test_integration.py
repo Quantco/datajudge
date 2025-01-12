@@ -2130,6 +2130,8 @@ def test_date_no_overlap_within_inclusion_exclusion(engine, date_table_overlap, 
         (identity, 1, Condition(raw_string="id1 = 6")),
         (negation, 0, Condition(raw_string="id1 = 7")),
         (identity, 1, Condition(raw_string="id1 = 7")),
+        (negation, 0, Condition(raw_string="id1 = 8")),
+        (identity, 1, Condition(raw_string="id1 = 8")),
     ],
 )
 @pytest.mark.parametrize("key_columns", [["id1"], [], None])
