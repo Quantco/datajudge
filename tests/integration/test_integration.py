@@ -2004,6 +2004,8 @@ def test_date_between_within(engine, date_table1, data):
         (identity, 1, Condition(raw_string="id1 = 4")),
         (negation, 0, Condition(raw_string="id1 = 5")),
         (identity, 1, Condition(raw_string="id1 = 5")),
+        (negation, 0, Condition(raw_string="id1 = 6")),
+        (identity, 1, Condition(raw_string="id1 = 6")),
     ],
 )
 @pytest.mark.parametrize("key_columns", [["id1"], [], None])
@@ -2034,6 +2036,8 @@ def test_date_no_overlap_within_varying_key_columns(
         (identity, 1, Condition(raw_string="id1 = 4")),
         (negation, 0, Condition(raw_string="id1 = 5")),
         (identity, 1, Condition(raw_string="id1 = 5")),
+        (negation, 0, Condition(raw_string="id1 = 6")),
+        (identity, 1, Condition(raw_string="id1 = 6")),
     ],
 )
 @pytest.mark.parametrize("key_columns", [["id1"], [], None])
@@ -2056,8 +2060,9 @@ def test_integer_no_overlap_within_varying_key_columns(
 @pytest.mark.parametrize(
     "data",
     [
-        (negation, 0.59, None),
-        (identity, 0.6, None),
+        # 2/6 ids succeed
+        (negation, 0.66, None),
+        (identity, 0.67, None),
         (identity, 0, Condition(raw_string="id1 IN (1, 2)")),
     ],
 )

@@ -13,7 +13,8 @@ Changelog
 **Bug fixes**
 
 - Fix a bug in :meth:`datajudge.WithinRequirement.add_date_no_overlap_constraint`
-  and :meth:`datajudge.WithinRequirement.add_date_no_overlap2d_constraint` in which
+  and :meth:`datajudge.WithinRequirement.add_date_no_overlap2d_constraint` and
+  :meth:`datajudge.WithinRequirement.add_numeric_no_overlap_constraint` in which
   some overlaps were not detected due to equality of their leftmost bounds.
 
 
