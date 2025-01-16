@@ -21,3 +21,4 @@ Contents
    Examples <examples/examples.rst>
    development
    API Reference <api/datajudge.rst>
+   Change Log <CHANGELOG.rst>
