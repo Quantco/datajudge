@@ -478,7 +478,30 @@ def get_interval_overlaps_nd(
     start_columns: list[str],
     end_columns: list[str],
     end_included: bool,
-):
+) -> tuple[sa.sql.selectable.CompoundSelect, sa.sql.selectable.Select]:
+    """Create selectables for interval overlaps in n dimensions.
+
+    We define the presence of 'overlap' as presence of a non-empty intersection
+    between two intervals.
+
+    Given that we care about a single dimension and have two intervals :math:`t1` and :math:`t2`,
+    we define an overlap follows:
+
+     .. math::
+        \\begin{align} \\text{overlap}(t_1, t_2) \\Leftrightarrow
+            &(min(t_1) \\leq min(t_2) \\land max(t_1) \\geq min(t_2)) \\\\
+            &\\lor \\\\
+            &(min(t_2) \\leq min(t_1) \\land max(t_2) \\geq min(t_1))
+        \\end{align}
+
+    We can drop the second clause of the above disjunction if we define :math:`t_1` to be the 'leftmost'
+    interval. We do so when building our query.
+
+    Note that the above equations are representative of ``end_included=True`` and the second clause
+    of the conjunction would use a strict inequality if ``end_included=False``.
+
+    We define an overlap in several dimensions as the conjunction of overlaps in every single dimension.
+    """
     if is_snowflake(engine):
         if key_columns:
             key_columns = lowercase_column_names(key_columns)
@@ -502,10 +525,20 @@ def get_interval_overlaps_nd(
     table_key_columns = get_table_columns(table1, key_columns) if key_columns else []
 
     end_operator = operator.ge if end_included else operator.gt
-    violation_condition = sa.and_(
+
+    # We have a violation in two scenarios:
+    # 1. At least two entries are exactly equal in key and interval columns
+    # 2. Two entries are not exactly equal in key and interval_columns and fuilfill violation_condition
+
+    # Scenario 1
+    duplicate_selection = duplicates(table1)
+
+    # scenario 2
+    naive_violation_condition = sa.and_(
         *[
             sa.and_(
-                table1.c[start_columns[dimension]] < table2.c[start_columns[dimension]],
+                table1.c[start_columns[dimension]]
+                <= table2.c[start_columns[dimension]],
                 end_operator(
                     table1.c[end_columns[dimension]], table2.c[start_columns[dimension]]
                 ),
@@ -514,8 +547,24 @@ def get_interval_overlaps_nd(
         ]
     )
 
-    join_condition = sa.and_(*key_conditions, violation_condition)
-    violation_selection = sa.select(
+    interval_inequality_condition = sa.or_(
+        *[
+            sa.or_(
+                table1.c[start_columns[dimension]]
+                != table2.c[start_columns[dimension]],
+                table2.c[end_columns[dimension]] != table2.c[end_columns[dimension]],
+            )
+            for dimension in range(dimensionality)
+        ]
+    )
+
+    distinct_violation_condition = sa.and_(
+        naive_violation_condition,
+        interval_inequality_condition,
+    )
+
+    distinct_join_condition = sa.and_(*key_conditions, distinct_violation_condition)
+    distinct_violation_selection = sa.select(
         *table_key_columns,
         *[
             table.c[start_column]
@@ -527,7 +576,7 @@ def get_interval_overlaps_nd(
             for table in [table1, table2]
             for end_column in end_columns
         ],
-    ).select_from(table1.join(table2, join_condition))
+    ).select_from(table1.join(table2, distinct_join_condition))
 
     # Note, Kevin, 21/12/09
     # The following approach would likely be preferable to the approach used
@@ -543,6 +592,27 @@ def get_interval_overlaps_nd(
     # n_violations_selection = sa.select([sa.func.count(distincter)]).select_from(
     #     violation_subquery
     # )
+
+    # Merge scenarios 1 and 2.
+    # We need to 'impute' the missing columns for the duplicate selection in order for the union between
+    # both selections to work.
+    duplicate_selection = sa.select(
+        *(
+            # Already existing columns
+            [
+                duplicate_selection.c[column]
+                for column in distinct_violation_selection.columns.keys()
+                if column in duplicate_selection.columns.keys()
+            ]
+            # Fill all missing columns with NULLs.
+            + [
+                sa.null().label(column)
+                for column in distinct_violation_selection.columns.keys()
+                if column not in duplicate_selection.columns.keys()
+            ]
+        )
+    )
+    violation_selection = duplicate_selection.union(distinct_violation_selection)
 
     violation_subquery = violation_selection.subquery()
 
@@ -1102,12 +1172,11 @@ def get_row_mismatch(engine, ref, ref2, match_and_compare):
     return result_mismatch, result_n_rows, [selection_difference, selection_n_rows]
 
 
-def get_duplicate_sample(engine, ref):
-    initial_selection = ref.get_selection(engine).alias()
+def duplicates(subquery: sa.sql.selectable.Subquery) -> sa.sql.selectable.Select:
     aggregate_subquery = (
-        sa.select(initial_selection, sa.func.count().label("n_copies"))
-        .select_from(initial_selection)
-        .group_by(*initial_selection.columns)
+        sa.select(subquery, sa.func.count().label("n_copies"))
+        .select_from(subquery)
+        .group_by(*subquery.columns)
         .alias()
     )
     duplicate_selection = (
@@ -1121,6 +1190,12 @@ def get_duplicate_sample(engine, ref):
         .select_from(aggregate_subquery)
         .where(aggregate_subquery.c.n_copies > 1)
     )
+    return duplicate_selection
+
+
+def get_duplicate_sample(engine: sa.engine.Engine, ref: DataReference) -> tuple:
+    initial_selection = ref.get_selection(engine).alias()
+    duplicate_selection = duplicates(initial_selection)
     result = engine.connect().execute(duplicate_selection).first()
     return result, [duplicate_selection]
 

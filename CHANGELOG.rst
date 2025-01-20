@@ -7,6 +7,17 @@
 Changelog
 =========
 
+1.9.3 - 2025.01.13
+------------------
+
+**Bug fixes**
+
+- Fix a bug in :meth:`datajudge.WithinRequirement.add_date_no_overlap_constraint`
+  and :meth:`datajudge.WithinRequirement.add_date_no_overlap2d_constraint` and
+  :meth:`datajudge.WithinRequirement.add_numeric_no_overlap_constraint` in which
+  some overlaps were not detected due to equality of their leftmost bounds.
+
+
 1.9.2 - 2024.09.05
 ------------------
 

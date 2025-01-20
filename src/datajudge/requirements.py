@@ -789,11 +789,11 @@ class WithinRequirement(Requirement):
     ):
         """Constraint expressing that several date range rows may not overlap.
 
-        The ``DataSource`` under inspection must consist of at least one but up
+        The :class:`~datajudge.DataSource` under inspection must consist of at least one but up
         to many ``key_columns``, identifying an entity, a ``start_column`` and an
         ``end_column``.
 
-        For a given row in this ``DataSource``, ``start_column`` and ``end_column`` indicate a
+        For a given row in this :class:`~datajudge.DataSource`, ``start_column`` and ``end_column`` indicate a
         date range. Neither of those columns should contain NULL values. Also, it
         should hold that for a given row, the value of ``end_column`` is strictly greater
         than the value of ``start_column``.
@@ -847,26 +847,23 @@ class WithinRequirement(Requirement):
         condition: Optional[Condition] = None,
         name: Optional[str] = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Express that several date range rows do not overlap in two date dimensions.
 
         The table under inspection must consist of at least one but up to many key columns,
-        identifying an entity. Per date dimension, a ``start_column`` and an
-        ``end_column`` should be provided.
+        identifying an entity. Per date dimension, a start column (``start_column1``, ``start_column2``)
+        and end (``end_column1``, ``end_column2``) column should be provided in order to define
+        date ranges.
 
-        For a given row in this table, ``start_column1`` and ``end_column1``
-        indicate a date range. Moreoever, for that same row, ``start_column2``
-        and ``end_column2`` indicate a date range.
-        These date ranges are expected to represent different date 'dimensions'.
-        Example: A row indicates a forecasted value used in production. ``start_column1``
-        and ``end_column1`` represent the timespan that was forecasted, e.g. the
-        weather from next Saturday to next Sunday. ``end_column1`` and ``end_column2``
+        Date ranges in different date dimensions are expected to represent different kinds
+        of dates. For example, let's say that a row in a table indicates an averag temperature
+        forecast. ``start_column1`` and ``end_column1`` could the date span that was forecasted,
+        e.g. the weather from next Saturday to next Sunday. ``end_column1`` and ``end_column2``
         might indicate the timespan when this forceast was used, e.g. from the
         previous Monday to Wednesday.
 
-        Neither of those columns should contain ``NULL`` values. Also it should
-        hold that for a given row, the value of ``end_column`` is strictly greater
-        than the value of ``start_column``.
+        Neither of those columns should contain ``NULL`` values. Also, the value of ``end_column_k``
+        should be strictly greater than the value of ``start_column_k``.
 
         Note that the values of ``start_column1`` and ``start_column2`` are expected to be
         included in each date range. By default, the values of ``end_column1`` and

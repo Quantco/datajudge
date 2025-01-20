@@ -265,6 +265,19 @@ def date_table_overlap(engine, metadata):
             "date_end": datetime.datetime(2016, 1, 8),
         },
     ]
+    # Duplicate entries.
+    data += [
+        {
+            "id1": 6,
+            "date_start": datetime.datetime(2016, 1, 1),
+            "date_end": datetime.datetime(2016, 1, 10),
+        },
+        {
+            "id1": 6,
+            "date_start": datetime.datetime(2016, 1, 1),
+            "date_end": datetime.datetime(2016, 1, 10),
+        },
+    ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
 
@@ -382,6 +395,23 @@ def date_table_overlap_2d(engine, metadata):
             "date_end2": datetime.datetime(2017, 1, 7),
         },
     ]
+    # Duplication overlap.
+    data += [
+        {
+            "id1": 8,
+            "date_start1": datetime.datetime(2016, 1, 1),
+            "date_end1": datetime.datetime(2016, 1, 10),
+            "date_start2": datetime.datetime(2017, 1, 1),
+            "date_end2": datetime.datetime(2017, 1, 10),
+        },
+        {
+            "id1": 8,
+            "date_start1": datetime.datetime(2016, 1, 1),
+            "date_end1": datetime.datetime(2016, 1, 10),
+            "date_start2": datetime.datetime(2017, 1, 1),
+            "date_end2": datetime.datetime(2017, 1, 10),
+        },
+    ]
     _handle_table(engine, metadata, table_name, columns, data)
     return TEST_DB_NAME, SCHEMA, table_name
 
@@ -449,6 +479,19 @@ def integer_table_overlap(engine, metadata):
             "id1": 5,
             "range_start": 4,
             "range_end": 8,
+        },
+    ]
+    # Duplicate entries.
+    data += [
+        {
+            "id1": 6,
+            "range_start": 1,
+            "range_end": 10,
+        },
+        {
+            "id1": 6,
+            "range_start": 1,
+            "range_end": 10,
         },
     ]
     _handle_table(engine, metadata, table_name, columns, data)
