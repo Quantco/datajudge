@@ -921,13 +921,15 @@ def get_row_count(
 
     If `row_limit` is given, the number of rows is capped at the limit.
     """
-    subquery = ref.get_selection(engine)
+    selection = ref.get_selection(engine)
     if row_limit:
-        subquery = subquery.limit(row_limit)
-    subquery = subquery.alias()
-    selection = sa.select(sa.cast(sa.func.count(), sa.BigInteger)).select_from(subquery)
-    result = int(str(engine.connect().execute(selection).scalar()))
-    return result, [selection]
+        selection = selection.limit(row_limit)
+    subquery = selection.alias()
+    final_selection = sa.select(sa.cast(sa.func.count(), sa.BigInteger)).select_from(
+        subquery
+    )
+    result = int(str(engine.connect().execute(final_selection).scalar()))
+    return result, [final_selection]
 
 
 def get_column(
@@ -1080,10 +1082,10 @@ def get_uniques(
 ) -> tuple[Counter, list[sa.Select]]:
     if not ref.get_columns(engine):
         return Counter({}), []
-    selection = ref.get_selection(engine).alias()
+    subquery = ref.get_selection(engine).alias()
     if (column_names := ref.get_columns(engine)) is None:
         raise ValueError("Need columns for get_uniques.")
-    columns = [selection.c[column_name] for column_name in column_names]
+    columns = [subquery.c[column_name] for column_name in column_names]
     selection = sa.select(*columns, sa.func.count()).group_by(*columns)
 
     def _scalar_accessor(row):
@@ -1483,11 +1485,11 @@ def get_regex_violations(
     regex: str,
     n_counterexamples: int,
 ):
-    subquery = ref.get_selection(engine)
+    original_selection = ref.get_selection(engine)
     column = ref.get_column(engine)
     if aggregated:
-        subquery = subquery.distinct()
-    subquery = subquery.subquery()
+        original_selection = original_selection.distinct()
+    subquery = original_selection.subquery()
     if is_impala(engine):
         violation_selection = sa.select(subquery.c[column]).where(
             sa.not_(sa.func.regexp_like(subquery.c[column], regex))
