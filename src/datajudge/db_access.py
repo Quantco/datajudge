@@ -532,6 +532,7 @@ def get_interval_overlaps_nd(
 
     # Scenario 1
     duplicate_selection = duplicates(table1)
+    duplicate_subquery = duplicate_selection.subquery()
 
     # scenario 2
     naive_violation_condition = sa.and_(
@@ -577,6 +578,7 @@ def get_interval_overlaps_nd(
             for end_column in end_columns
         ],
     ).select_from(table1.join(table2, distinct_join_condition))
+    distinct_violation_subquery = distinct_violation_selection.subquery()
 
     # Note, Kevin, 21/12/09
     # The following approach would likely be preferable to the approach used
@@ -600,15 +602,15 @@ def get_interval_overlaps_nd(
         *(
             # Already existing columns
             [
-                duplicate_selection.c[column]
-                for column in distinct_violation_selection.columns.keys()
-                if column in duplicate_selection.columns.keys()
+                duplicate_subquery.c[column]
+                for column in distinct_violation_subquery.columns.keys()
+                if column in duplicate_subquery.columns.keys()
             ]
             # Fill all missing columns with NULLs.
             + [
                 sa.null().label(column)
-                for column in distinct_violation_selection.columns.keys()
-                if column not in duplicate_selection.columns.keys()
+                for column in distinct_violation_subquery.columns.keys()
+                if column not in duplicate_subquery.columns.keys()
             ]
         )
     )
@@ -989,7 +991,7 @@ def get_percentile(engine, ref, percentage):
     )
 
     percentile_selection = sa.select(counting_subquery.c[column_name]).where(
-        counting_subquery.c[row_num] == argmin_selection
+        counting_subquery.c[row_num] == argmin_selection.scalar_subquery()
     )
     result = engine.connect().execute(percentile_selection).scalar()
     return result, [percentile_selection]
