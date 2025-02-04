@@ -6,7 +6,7 @@ import operator
 from abc import ABC, abstractmethod
 from collections import Counter
 from dataclasses import dataclass
-from typing import Any, Callable, Sequence, final, overload
+from typing import Any, Callable, Iterator, Sequence, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable
@@ -176,10 +176,10 @@ class MatchAndCompare:
     comparison_columns1: Sequence[str]
     comparison_columns2: Sequence[str]
 
-    def _get_matching_columns(self):
+    def _get_matching_columns(self) -> Iterator[tuple[str, str]]:
         return zip(self.matching_columns1, self.matching_columns2)
 
-    def _get_comparison_columns(self):
+    def _get_comparison_columns(self) -> Iterator[tuple[str, str]]:
         return zip(self.comparison_columns1, self.comparison_columns2)
 
     def __str__(self) -> str:
@@ -368,21 +368,21 @@ class DataReference:
             return lowercase_column_names(self.columns)
         return self.columns
 
-    def get_columns_or_pk_columns(self, engine: sa.engine.Engine):
+    def get_columns_or_pk_columns(self, engine: sa.engine.Engine) -> list[str] | None:
         return (
             self.columns if self.columns is not None else get_primary_keys(engine, self)
         )
 
-    def get_column_selection_string(self):
+    def get_column_selection_string(self) -> str:
         if self.columns is None:
             return " * "
         return ", ".join(map(lambda x: f"'{x}'", self.columns))
 
-    def get_clause_string(self, *, return_where=True):
+    def get_clause_string(self, *, return_where=True) -> str:
         where_string = "WHERE " if return_where else ""
         return "" if self.condition is None else where_string + str(self.condition)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.columns is None:
             return str(self.data_source)
         return f"{self.data_source}'s column(s) {self.get_column_selection_string()}"
@@ -400,7 +400,9 @@ def merge_conditions(
     return Condition(conditions=[condition1, condition2], reduction_operator="and")
 
 
-def get_date_span(engine: sa.engine.Engine, ref: DataReference, date_column_name: str):
+def get_date_span(
+    engine: sa.engine.Engine, ref: DataReference, date_column_name: str
+) -> tuple[float, list[sa.Select]]:
     if is_snowflake(engine):
         date_column_name = lowercase_column_names(date_column_name)
     subquery = ref.get_selection(engine).alias()
@@ -478,9 +480,9 @@ def get_date_growth_rate(
     engine: sa.engine.Engine,
     ref: DataReference,
     ref2: DataReference,
-    date_column,
-    date_column2,
-):
+    date_column: str,
+    date_column2: str,
+) -> tuple[float, list[sa.Select]]:
     date_span, selections = get_date_span(engine, ref, date_column)
     date_span2, selections2 = get_date_span(engine, ref2, date_column2)
     if date_span2 == 0:
@@ -681,7 +683,7 @@ def _get_interval_gaps(
     make_gap_condition: Callable[
         [sa.Engine, sa.Subquery, sa.Subquery, str, str, float], sa.ColumnElement[bool]
     ],
-):
+) -> tuple[sa.Select, sa.Select]:
     if is_snowflake(engine):
         if key_columns:
             key_columns = lowercase_column_names(key_columns)
@@ -837,7 +839,7 @@ def get_date_gaps(
     start_column: str,
     end_column: str,
     legitimate_gap_size: float,
-):
+) -> tuple[sa.Select, sa.Select]:
     return _get_interval_gaps(
         engine,
         ref,
@@ -870,7 +872,7 @@ def get_numeric_gaps(
     start_column: str,
     end_column: str,
     legitimate_gap_size: float = 0,
-):
+) -> tuple[sa.Select, sa.Select]:
     return _get_interval_gaps(
         engine,
         ref,
@@ -931,7 +933,7 @@ def get_column(
     ref: DataReference,
     *,
     aggregate_operator: Callable | None = None,
-):
+) -> tuple[Any, list[sa.Select]]:
     """
     Queries the database for the values of the relevant column (as returned by `get_column(...)`).
     If an aggregation operation is passed, the results are aggregated accordingly
@@ -953,17 +955,23 @@ def get_column(
     return result, [selection]
 
 
-def get_min(engine: sa.engine.Engine, ref: DataReference):
+def get_min(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[Any, list[sa.Select]]:
     column_operator = sa.func.min
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_max(engine: sa.engine.Engine, ref: DataReference):
+def get_max(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[Any, list[sa.Select]]:
     column_operator = sa.func.max
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_mean(engine: sa.engine.Engine, ref: DataReference):
+def get_mean(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[Any, list[sa.Select]]:
     def column_operator(column):
         if is_impala(engine):
             return sa.func.avg(column)
@@ -972,7 +980,9 @@ def get_mean(engine: sa.engine.Engine, ref: DataReference):
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_percentile(engine: sa.engine.Engine, ref: DataReference, percentage: float):
+def get_percentile(
+    engine: sa.engine.Engine, ref: DataReference, percentage: float
+) -> tuple[float, list[sa.Select]]:
     row_count = "dj_row_count"
     row_num = "dj_row_num"
     column_name = ref.get_column(engine)
@@ -1010,18 +1020,25 @@ def get_percentile(engine: sa.engine.Engine, ref: DataReference, percentage: flo
     percentile_selection = sa.select(counting_subquery.c[column_name]).where(
         counting_subquery.c[row_num] == argmin_selection.scalar_subquery()
     )
-    result = engine.connect().execute(percentile_selection).scalar()
+    intermediate_result = engine.connect().execute(percentile_selection).scalar()
+    if intermediate_result is None:
+        raise ValueError("Percentile selection could not be fetched.")
+    result = float(intermediate_result)
     return result, [percentile_selection]
 
 
-def get_min_length(engine: sa.engine.Engine, ref: DataReference):
+def get_min_length(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[int, list[sa.Select]]:
     def column_operator(column):
         return sa.func.min(sa.func.length(column))
 
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_max_length(engine: sa.engine.Engine, ref: DataReference):
+def get_max_length(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[int, list[sa.Select]]:
     def column_operator(column):
         return sa.func.max(sa.func.length(column))
 
@@ -1033,7 +1050,7 @@ def get_fraction_between(
     ref: DataReference,
     lower_bound: str | float,
     upper_bound: str | float,
-):
+) -> tuple[float | None, list[sa.Select]]:
     column = ref.get_column(engine)
     new_condition = Condition(
         conditions=[
@@ -1049,7 +1066,11 @@ def get_fraction_between(
     n_all, selections_all = get_row_count(engine, ref)
     n_filtered, selections_filtered = get_row_count(engine, new_ref)
     selections = [*selections_all, *selections_filtered]
-    return (n_filtered / n_all) if n_all > 0 else None, selections
+    if n_all is None or n_all == 0:
+        return (None, selections)
+    if n_filtered is None:
+        return (0.0, selections)
+    return n_filtered / n_all, selections
 
 
 def get_uniques(
@@ -1098,16 +1119,21 @@ def get_unique_count(
 
 def get_unique_count_union(
     engine: sa.engine.Engine, ref: DataReference, ref2: DataReference
-):
+) -> tuple[int, list[sa.Select]]:
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     subquery = sa.sql.union(selection1, selection2).alias().select().distinct().alias()
     selection = sa.select(sa.func.count()).select_from(subquery)
-    result = engine.connect().execute(selection).scalar()
+    intermediate_result = engine.connect().execute(selection).scalar()
+    if intermediate_result is None:
+        raise ValueError("Unique count could not be fetched.")
+    result = int(intermediate_result)
     return result, [selection]
 
 
-def get_missing_fraction(engine: sa.engine.Engine, ref: DataReference):
+def get_missing_fraction(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[float, list[sa.Select]]:
     selection = ref.get_selection(engine).subquery()
     n_rows_total_selection = sa.select(sa.func.count()).select_from(selection)
     n_rows_missing_selection = (

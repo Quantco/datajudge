@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import datetime as dt
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Union
 
 import sqlalchemy as sa
 
@@ -38,15 +40,15 @@ class DateMin(Constraint):
         ref: DataReference,
         use_lower_bound_reference: bool,
         column_type: str,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
         *,
-        ref2: Optional[DataReference] = None,
-        min_value: Optional[str] = None,
+        ref2: DataReference | None = None,
+        min_value: str | None = None,
     ):
         self.format = get_format_from_column_type(column_type)
         self.use_lower_bound_reference = use_lower_bound_reference
-        min_date: Optional[dt.date] = None
+        min_date: dt.date | None = None
         if min_value is not None:
             min_date = dt.datetime.strptime(min_value, INPUT_DATE_FORMAT).date()
         super().__init__(
@@ -59,11 +61,11 @@ class DateMin(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[dt.date, OptionalSelections]:
+    ) -> tuple[dt.date, OptionalSelections]:
         result, selections = db_access.get_min(engine, ref)
         return convert_to_date(result, self.format), selections
 
-    def compare(self, min_factual: dt.date, min_target: dt.date) -> Tuple[bool, str]:
+    def compare(self, min_factual: dt.date, min_target: dt.date) -> tuple[bool, str]:
         if min_target is None:
             return TestResult(True, "")
         if min_factual is None:
@@ -91,15 +93,15 @@ class DateMax(Constraint):
         ref: DataReference,
         use_upper_bound_reference: bool,
         column_type: str,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
         *,
-        ref2: Optional[DataReference] = None,
-        max_value: Optional[str] = None,
+        ref2: DataReference | None = None,
+        max_value: str | None = None,
     ):
         self.format = get_format_from_column_type(column_type)
         self.use_upper_bound_reference = use_upper_bound_reference
-        max_date: Optional[dt.date] = None
+        max_date: dt.date | None = None
         if max_value is not None:
             max_date = dt.datetime.strptime(max_value, INPUT_DATE_FORMAT).date()
         super().__init__(
@@ -112,11 +114,11 @@ class DateMax(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[dt.date, OptionalSelections]:
+    ) -> tuple[dt.date, OptionalSelections]:
         value, selections = db_access.get_max(engine, ref)
         return convert_to_date(value, self.format), selections
 
-    def compare(self, max_factual: dt.date, max_target: dt.date) -> Tuple[bool, str]:
+    def compare(self, max_factual: dt.date, max_target: dt.date) -> tuple[bool, str]:
         if max_factual is None:
             return True, None
         if max_target is None:
@@ -146,7 +148,7 @@ class DateBetween(Constraint):
         min_fraction: float,
         lower_bound: str,
         upper_bound: str,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref_value=min_fraction, name=name, cache_size=cache_size)
@@ -155,14 +157,14 @@ class DateBetween(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[float, OptionalSelections]:
+    ) -> tuple[float | None, OptionalSelections]:
         return db_access.get_fraction_between(
             engine, ref, self.lower_bound, self.upper_bound
         )
 
     def compare(
         self, fraction_factual: float, fraction_target: float
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         assertion_text = (
             f"{self.ref} has {fraction_factual} < "
             f"{fraction_target} of values between {self.lower_bound} and "
@@ -175,7 +177,7 @@ class DateBetween(Constraint):
 class DateNoOverlap(NoOverlapConstraint):
     _DIMENSIONS = 1
 
-    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual
         if n_distinct_key_values == 0:
             return TestResult.success()
@@ -193,7 +195,7 @@ class DateNoOverlap(NoOverlapConstraint):
 class DateNoOverlap2d(NoOverlapConstraint):
     _DIMENSIONS = 2
 
-    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual
         if n_distinct_key_values == 0:
             return TestResult.success()
@@ -225,7 +227,7 @@ class DateNoGap(NoGapConstraint):
         # executing it, one would want to list this selection here as well.
         return sample_selection, n_violations_selection
 
-    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual
         if n_distinct_key_values == 0:
             return TestResult.success()
