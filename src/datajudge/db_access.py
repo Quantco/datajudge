@@ -988,8 +988,9 @@ def get_percentile(engine, ref, percentage):
         )
     )
 
+    # TODO: Address deprecation warning
     percentile_selection = sa.select(counting_subquery.c[column_name]).where(
-        counting_subquery.c[row_num] == argmin_selection
+        counting_subquery.c[row_num] == argmin_selection.scalar_subquery()
     )
     result = engine.connect().execute(percentile_selection).scalar()
     return result, [percentile_selection]
