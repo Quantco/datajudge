@@ -37,11 +37,13 @@ def is_db2(engine: sa.engine.Engine) -> bool:
     return engine.name == "ibm_db_sa"
 
 
-def get_table_columns(table, column_names):
+def get_table_columns(
+    table: sa.Table | sa.Subquery, column_names: Sequence[str]
+) -> list:
     return [table.c[column_name] for column_name in column_names]
 
 
-def apply_patches(engine: sa.engine.Engine):
+def apply_patches(engine: sa.engine.Engine) -> None:
     """
     Apply patches to e.g. specific dialect not implemented by sqlalchemy
     """
@@ -142,11 +144,18 @@ class Condition:
                 f"obtained {self.reduction_operator}."
             )
 
-    def _is_atomic(self):
+    def _is_atomic(self) -> bool:
         return self.raw_string is not None
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._is_atomic():
+            if self.raw_string is None:
+                raise ValueError(
+                    "Condition can either be instantiated atomically, with "
+                    "the raw_query parameter, or in a composite fashion, with "
+                    "the conditions parameter. "
+                    "Exactly one of them needs to be provided, yet none is."
+                )
             return self.raw_string
         if not self.conditions:
             raise ValueError("This should never happen thanks to __post__init.")
@@ -154,7 +163,7 @@ class Condition:
             f"({condition})" for condition in self.conditions
         )
 
-    def snowflake_str(self):
+    def snowflake_str(self) -> str:
         # Temporary method - should be removed as soon as snowflake-sqlalchemy
         # bug is fixed.
         return str(self)
@@ -173,7 +182,7 @@ class MatchAndCompare:
     def _get_comparison_columns(self):
         return zip(self.comparison_columns1, self.comparison_columns2)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"Matched on {self.matching_columns1} and "
             f"{self.matching_columns2}. Compared on "
@@ -181,7 +190,7 @@ class MatchAndCompare:
             f"{self.comparison_columns2}."
         )
 
-    def get_matching_string(self, table_variable1, table_variable2):
+    def get_matching_string(self, table_variable1: str, table_variable2: str) -> str:
         return " AND ".join(
             [
                 f"{table_variable1}.{column1} = {table_variable2}.{column2}"
@@ -189,7 +198,7 @@ class MatchAndCompare:
             ]
         )
 
-    def get_comparison_string(self, table_variable1, table_variable2):
+    def get_comparison_string(self, table_variable1: str, table_variable2: str) -> str:
         return " AND ".join(
             [
                 (
@@ -214,7 +223,7 @@ class DataSource(ABC):
 
 
 @functools.lru_cache(maxsize=1)
-def get_metadata():
+def get_metadata() -> sa.MetaData:
     return sa.MetaData()
 
 
@@ -334,7 +343,7 @@ class DataReference:
             selection = selection.with_hint(clause, "WITH (NOLOCK)")
         return selection
 
-    def get_column(self, engine: sa.engine.Engine):
+    def get_column(self, engine: sa.engine.Engine) -> str:
         """Fetch the only relevant column of a DataReference."""
         if self.columns is None:
             raise ValueError(
@@ -379,7 +388,9 @@ class DataReference:
         return f"{self.data_source}'s column(s) {self.get_column_selection_string()}"
 
 
-def merge_conditions(condition1, condition2):
+def merge_conditions(
+    condition1: Condition | None, condition2: Condition | None
+) -> Condition | None:
     if condition1 and condition2 is None:
         return None
     if condition1 is None:
@@ -389,7 +400,7 @@ def merge_conditions(condition1, condition2):
     return Condition(conditions=[condition1, condition2], reduction_operator="and")
 
 
-def get_date_span(engine: sa.engine.Engine, ref: DataReference, date_column_name):
+def get_date_span(engine: sa.engine.Engine, ref: DataReference, date_column_name: str):
     if is_snowflake(engine):
         date_column_name = lowercase_column_names(date_column_name)
     subquery = ref.get_selection(engine).alias()
@@ -961,7 +972,7 @@ def get_mean(engine: sa.engine.Engine, ref: DataReference):
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_percentile(engine: sa.engine.Engine, ref: DataReference, percentage):
+def get_percentile(engine: sa.engine.Engine, ref: DataReference, percentage: float):
     row_count = "dj_row_count"
     row_num = "dj_row_num"
     column_name = ref.get_column(engine)
@@ -1018,7 +1029,10 @@ def get_max_length(engine: sa.engine.Engine, ref: DataReference):
 
 
 def get_fraction_between(
-    engine: sa.engine.Engine, ref: DataReference, lower_bound, upper_bound
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    lower_bound: str | float,
+    upper_bound: str | float,
 ):
     column = ref.get_column(engine)
     new_condition = Condition(
@@ -1414,7 +1428,11 @@ def get_ks_2sample(
 
 
 def get_regex_violations(
-    engine: sa.engine.Engine, ref: DataReference, aggregated, regex, n_counterexamples
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    aggregated: bool,
+    regex: str,
+    n_counterexamples: int,
 ):
     subquery = ref.get_selection(engine)
     column = ref.get_column(engine)
