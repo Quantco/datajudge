@@ -22,6 +22,8 @@ class Row(Constraint, abc.ABC):
         self.max_missing_fraction_getter = max_missing_fraction_getter
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
+        if self.ref is None or self.ref2 is None:
+            raise ValueError()
         if db_access.is_impala(engine):
             raise NotImplementedError("Currently not implemented for impala.")
         self.max_missing_fraction = self.max_missing_fraction_getter(engine)
@@ -36,6 +38,8 @@ class Row(Constraint, abc.ABC):
 
 class RowEquality(Row):
     def get_factual_value(self, engine: sa.engine.Engine) -> Tuple[int, int]:
+        if self.ref is None or self.ref2 is None:
+            raise ValueError()
         n_rows_missing_left, selections_left = db_access.get_row_difference_count(
             engine, self.ref, self.ref2
         )
@@ -46,6 +50,8 @@ class RowEquality(Row):
         return n_rows_missing_left, n_rows_missing_right
 
     def get_target_value(self, engine: sa.engine.Engine) -> int:
+        if self.ref is None or self.ref2 is None:
+            raise ValueError()
         n_rows_total, selections = db_access.get_unique_count_union(
             engine, self.ref, self.ref2
         )
@@ -80,6 +86,8 @@ class RowEquality(Row):
 class RowSubset(Row):
     @lru_cache(maxsize=None)
     def get_factual_value(self, engine: sa.engine.Engine) -> int:
+        if self.ref is None or self.ref2 is None:
+            raise ValueError()
         n_rows_missing, selections = db_access.get_row_difference_count(
             engine,
             self.ref,
@@ -118,6 +126,8 @@ class RowSubset(Row):
 
 class RowSuperset(Row):
     def get_factual_value(self, engine: sa.engine.Engine) -> int:
+        if self.ref is None or self.ref2 is None:
+            raise ValueError()
         n_rows_missing, selections = db_access.get_row_difference_count(
             engine, self.ref2, self.ref
         )
@@ -125,6 +135,8 @@ class RowSuperset(Row):
         return n_rows_missing
 
     def get_target_value(self, engine: sa.engine.Engine) -> int:
+        if self.ref is None or self.ref2 is None:
+            raise ValueError()
         n_rows_total, selections = db_access.get_unique_count(engine, self.ref2)
         self.target_selections = selections
         return n_rows_total
@@ -180,6 +192,8 @@ class RowMatchingEquality(Row):
         )
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
+        if self.ref is None or self.ref2 is None:
+            raise ValueError()
         missing_fraction, n_rows_match, selections = db_access.get_row_mismatch(
             engine, self.ref, self.ref2, self.match_and_compare
         )

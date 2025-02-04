@@ -334,7 +334,7 @@ class DataReference:
             selection = selection.with_hint(clause, "WITH (NOLOCK)")
         return selection
 
-    def get_column(self, engine):
+    def get_column(self, engine: sa.engine.Engine):
         """Fetch the only relevant column of a DataReference."""
         if self.columns is None:
             raise ValueError(
@@ -351,7 +351,7 @@ class DataReference:
             )
         return columns[0]
 
-    def get_columns(self, engine) -> list[str] | None:
+    def get_columns(self, engine: sa.engine.Engine) -> list[str] | None:
         """Fetch all relevant columns of a DataReference."""
         if self.columns is None:
             return None
@@ -359,11 +359,9 @@ class DataReference:
             return lowercase_column_names(self.columns)
         return self.columns
 
-    def get_columns_or_pk_columns(self, engine):
+    def get_columns_or_pk_columns(self, engine: sa.engine.Engine):
         return (
-            self.columns
-            if self.columns is not None
-            else get_primary_keys(engine, self.data_source)
+            self.columns if self.columns is not None else get_primary_keys(engine, self)
         )
 
     def get_column_selection_string(self):
@@ -391,7 +389,7 @@ def merge_conditions(condition1, condition2):
     return Condition(conditions=[condition1, condition2], reduction_operator="and")
 
 
-def get_date_span(engine, ref, date_column_name):
+def get_date_span(engine: sa.engine.Engine, ref: DataReference, date_column_name):
     if is_snowflake(engine):
         date_column_name = lowercase_column_names(date_column_name)
     subquery = ref.get_selection(engine).alias()
@@ -452,6 +450,8 @@ def get_date_span(engine, ref, date_column_name):
         )
 
     date_span = engine.connect().execute(selection).scalar()
+    if date_span is None:
+        raise ValueError("Date span could not be fetched.")
     if date_span < 0:
         raise ValueError(
             f"Date span has negative value: {date_span}. It must be positive."
@@ -463,7 +463,13 @@ def get_date_span(engine, ref, date_column_name):
     return float(date_span), [selection]
 
 
-def get_date_growth_rate(engine, ref, ref2, date_column, date_column2):
+def get_date_growth_rate(
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    ref2: DataReference,
+    date_column,
+    date_column2,
+):
     date_span, selections = get_date_span(engine, ref, date_column)
     date_span2, selections2 = get_date_span(engine, ref2, date_column2)
     if date_span2 == 0:
@@ -894,7 +900,7 @@ def get_functional_dependency_violations(
 
 
 def get_row_count(
-    engine, ref, row_limit: int | None = None
+    engine: sa.engine.Engine, ref: DataReference, row_limit: int | None = None
 ) -> tuple[int, list[sa.Select]]:
     """Return the number of rows for a `DataReference`.
 
@@ -936,17 +942,17 @@ def get_column(
     return result, [selection]
 
 
-def get_min(engine, ref):
+def get_min(engine: sa.engine.Engine, ref: DataReference):
     column_operator = sa.func.min
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_max(engine, ref):
+def get_max(engine: sa.engine.Engine, ref: DataReference):
     column_operator = sa.func.max
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_mean(engine, ref):
+def get_mean(engine: sa.engine.Engine, ref: DataReference):
     def column_operator(column):
         if is_impala(engine):
             return sa.func.avg(column)
@@ -955,7 +961,7 @@ def get_mean(engine, ref):
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_percentile(engine, ref, percentage):
+def get_percentile(engine: sa.engine.Engine, ref: DataReference, percentage):
     row_count = "dj_row_count"
     row_num = "dj_row_num"
     column_name = ref.get_column(engine)
@@ -997,21 +1003,23 @@ def get_percentile(engine, ref, percentage):
     return result, [percentile_selection]
 
 
-def get_min_length(engine, ref):
+def get_min_length(engine: sa.engine.Engine, ref: DataReference):
     def column_operator(column):
         return sa.func.min(sa.func.length(column))
 
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_max_length(engine, ref):
+def get_max_length(engine: sa.engine.Engine, ref: DataReference):
     def column_operator(column):
         return sa.func.max(sa.func.length(column))
 
     return get_column(engine, ref, aggregate_operator=column_operator)
 
 
-def get_fraction_between(engine, ref, lower_bound, upper_bound):
+def get_fraction_between(
+    engine: sa.engine.Engine, ref: DataReference, lower_bound, upper_bound
+):
     column = ref.get_column(engine)
     new_condition = Condition(
         conditions=[
@@ -1061,15 +1069,22 @@ def get_uniques(
     return result, [selection]
 
 
-def get_unique_count(engine, ref) -> tuple[int, list[sa.Select]]:
+def get_unique_count(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[int, list[sa.Select]]:
     selection = ref.get_selection(engine)
     subquery = selection.distinct().alias()
     selection = sa.select(sa.func.count()).select_from(subquery)
-    result = int(engine.connect().execute(selection).scalar())
+    intermediate_result = engine.connect().execute(selection).scalar()
+    if intermediate_result is None:
+        raise ValueError("Unique count could not be fetched.")
+    result = int(intermediate_result)
     return result, [selection]
 
 
-def get_unique_count_union(engine, ref, ref2):
+def get_unique_count_union(
+    engine: sa.engine.Engine, ref: DataReference, ref2: DataReference
+):
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     subquery = sa.sql.union(selection1, selection2).alias().select().distinct().alias()
@@ -1078,7 +1093,7 @@ def get_unique_count_union(engine, ref, ref2):
     return result, [selection]
 
 
-def get_missing_fraction(engine, ref):
+def get_missing_fraction(engine: sa.engine.Engine, ref: DataReference):
     selection = ref.get_selection(engine).subquery()
     n_rows_total_selection = sa.select(sa.func.count()).select_from(selection)
     n_rows_missing_selection = (
@@ -1090,29 +1105,35 @@ def get_missing_fraction(engine, ref):
         n_rows_total = connection.execute(n_rows_total_selection).scalar()
         n_rows_missing = connection.execute(n_rows_missing_selection).scalar()
 
+    if n_rows_total is None or n_rows_missing is None:
+        return (0, [n_rows_total_selection, n_rows_missing_selection])
     return (
         n_rows_missing / n_rows_total,
         [n_rows_total_selection, n_rows_missing_selection],
     )
 
 
-def get_column_names(engine, ref):
+def get_column_names(engine: sa.engine.Engine, ref: DataReference):
     table = ref.data_source.get_clause(engine)
     return [column.name for column in table.columns], None
 
 
-def get_column_type(engine, ref):
+def get_column_type(engine: sa.engine.Engine, ref: DataReference):
     table = ref.get_selection(engine).alias()
     column_type = next(iter(table.columns)).type
     return column_type, None
 
 
-def get_primary_keys(engine, ref):
+def get_primary_keys(engine: sa.engine.Engine, ref: DataReference):
     table = ref.data_source.get_clause(engine)
-    return [column.name for column in table.primary_key.columns], None
+    # Kevin, 25/02/04
+    # Mypy complains about the following for a reason I can't follow.
+    return [column.name for column in table.primary_key.columns], None  # type: ignore
 
 
-def get_row_difference_sample(engine, ref, ref2):
+def get_row_difference_sample(
+    engine: sa.engine.Engine, ref: DataReference, ref2: DataReference
+):
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     selection = sa.sql.except_(selection1, selection2).alias().select()
@@ -1120,7 +1141,9 @@ def get_row_difference_sample(engine, ref, ref2):
     return result, [selection]
 
 
-def get_row_difference_count(engine, ref, ref2):
+def get_row_difference_count(
+    engine: sa.engine.Engine, ref: DataReference, ref2: DataReference
+):
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     subquery = (
@@ -1131,7 +1154,9 @@ def get_row_difference_count(engine, ref, ref2):
     return result, [selection]
 
 
-def get_row_mismatch(engine, ref, ref2, match_and_compare):
+def get_row_mismatch(
+    engine: sa.engine.Engine, ref: DataReference, ref2: DataReference, match_and_compare
+):
     subselection1 = ref.get_selection(engine).alias()
     subselection2 = ref2.get_selection(engine).alias()
 
@@ -1237,7 +1262,9 @@ def get_column_array_agg(
     return result, selections
 
 
-def _cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str):
+def _cdf_selection(
+    engine: sa.engine.Engine, ref: DataReference, cdf_label: str, value_label: str
+):
     """Create an empirical cumulative distribution function values.
 
     Concretely, create a selection with values from ``value_label`` as well as
@@ -1266,7 +1293,11 @@ def _cdf_selection(engine, ref: DataReference, cdf_label: str, value_label: str)
 
 
 def _cross_cdf_selection(
-    engine, ref1: DataReference, ref2: DataReference, cdf_label: str, value_label: str
+    engine: sa.engine.Engine,
+    ref1: DataReference,
+    ref2: DataReference,
+    cdf_label: str,
+    value_label: str,
 ):
     """Create a cross cumulative distribution function selection given two samples.
 
@@ -1382,7 +1413,9 @@ def get_ks_2sample(
     return d_statistic, [final_selection]
 
 
-def get_regex_violations(engine, ref, aggregated, regex, n_counterexamples):
+def get_regex_violations(
+    engine: sa.engine.Engine, ref: DataReference, aggregated, regex, n_counterexamples
+):
     subquery = ref.get_selection(engine)
     column = ref.get_column(engine)
     if aggregated:
