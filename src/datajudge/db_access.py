@@ -1210,7 +1210,7 @@ def get_row_mismatch(
     ref: DataReference,
     ref2: DataReference,
     match_and_compare: MatchAndCompare,
-) -> tuple[int, int, list[sa.Select]]:
+) -> tuple[float, int, list[sa.Select]]:
     subselection1 = ref.get_selection(engine).alias()
     subselection2 = ref2.get_selection(engine).alias()
 
@@ -1254,7 +1254,7 @@ def get_row_mismatch(
     result_n_rows_intermediate = engine.connect().execute(selection_n_rows).scalar()
     if result_mismatch_intermediate is None or result_n_rows_intermediate is None:
         raise ValueError("Could not fetch number of mismatches.")
-    result_mismatch = int(result_mismatch_intermediate)
+    result_mismatch = float(result_mismatch_intermediate)
     result_n_rows = int(result_n_rows_intermediate)
     return result_mismatch, result_n_rows, [selection_difference, selection_n_rows]
 
