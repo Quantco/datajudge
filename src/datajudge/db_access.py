@@ -602,8 +602,7 @@ def get_interval_overlaps_nd(
         *(
             # Already existing columns
             [
-                # TODO: Address deprecation warning
-                duplicate_selection.c[column]
+                duplicate_subquery.c[column]
                 for column in distinct_violation_subquery.columns.keys()
                 if column in duplicate_subquery.columns.keys()
             ]
