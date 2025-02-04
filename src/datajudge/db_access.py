@@ -600,14 +600,19 @@ def get_interval_overlaps_nd(
         *(
             # Already existing columns
             [
+                # TODO: Address deprecation warning
                 duplicate_selection.c[column]
+                # TODO: Address deprecation warning
                 for column in distinct_violation_selection.columns.keys()
+                # TODO: Address deprecation warning
                 if column in duplicate_selection.columns.keys()
             ]
             # Fill all missing columns with NULLs.
             + [
                 sa.null().label(column)
+                # TODO: Address deprecation warning
                 for column in distinct_violation_selection.columns.keys()
+                # TODO: Address deprecation warning
                 if column not in duplicate_selection.columns.keys()
             ]
         )
