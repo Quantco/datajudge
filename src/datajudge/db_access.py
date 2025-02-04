@@ -1484,7 +1484,7 @@ def get_regex_violations(
     aggregated: bool,
     regex: str,
     n_counterexamples: int,
-):
+) -> tuple[tuple[int, Any], list[sa.Select]]:
     original_selection = ref.get_selection(engine)
     column = ref.get_column(engine)
     if aggregated:
