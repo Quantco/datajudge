@@ -380,7 +380,7 @@ class DataReference:
             return " * "
         return ", ".join(map(lambda x: f"'{x}'", self.columns))
 
-    def get_clause_string(self, *, return_where=True) -> str:
+    def get_clause_string(self, *, return_where: bool = True) -> str:
         where_string = "WHERE " if return_where else ""
         return "" if self.condition is None else where_string + str(self.condition)
 
