@@ -54,7 +54,8 @@ test = "pytest tests/integration --backend=postgres"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=postgres"
 
 [feature.db2.dependencies]
-ibm_db = "*"
+# Upper bounded due to https://github.com/ibmdb/python-ibmdb/issues/986
+ibm_db = "<=3.2.4"
 ibm_db_sa = "*"
 [feature.db2.tasks]
 test = "pytest tests/integration --backend=db2"
@@ -73,7 +74,8 @@ test = "pytest tests/integration --backend=bigquery -v -n=16"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=bigquery -v -n=16"
 
 [feature.impala.dependencies]
-impyla = "*"
+# We encounter thrift related problems with impyla 0.20.
+impyla = "<0.20"
 [feature.impala.tasks]
 test = "pytest tests/integration --backend=impala"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=impala"

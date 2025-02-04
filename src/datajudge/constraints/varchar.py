@@ -139,7 +139,7 @@ class VarCharRegex(Constraint):
             )
 
         counterexample_string = (
-            ("Some counterexamples consist of the following: " f"{counterexamples}. ")
+            (f"Some counterexamples consist of the following: {counterexamples}. ")
             if counterexamples and len(counterexamples) > 0
             else ""
         )

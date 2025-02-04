@@ -371,9 +371,9 @@ def test_uniques_equality_within_with_outputcheck(engine, unique_table1, data):
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -479,9 +479,9 @@ def test_uniques_equality_between_with_outputcheck(
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -617,9 +617,9 @@ def test_uniques_superset_within_with_outputcheck(engine, unique_table1, data):
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -667,9 +667,9 @@ def test_uniques_superset_between_with_outputcheck(
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -991,9 +991,9 @@ def test_uniques_subset_within_complex_with_outputcheck(engine, unique_table1, d
     print(test_result)
     print(test_result.failure_message)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -1056,9 +1056,9 @@ def test_uniques_subset_within_complex_with_outputcheck_extralong(
     print(test_result)
     print(test_result.failure_message)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -1243,9 +1243,9 @@ def test_uniques_subset_between_with_outputcheck(
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -1400,9 +1400,9 @@ def test_functional_dependency_within_multi_key_with_outputcheck(
 
     test_result = req[0].test(engine)
     assert operation(test_result.outcome)
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 def _flatten_and_filter(data):
@@ -2820,9 +2820,9 @@ def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
     req.add_uniqueness_constraint(columns=selection_columns, infer_pk_columns=True)
     test_result = req[0].test(engine)
     # additional test: the PK columns are inferred during test time, i.e. we can check here if they were inferred correctly
-    assert (
-        req[0].ref.columns == target_columns
-    ), f"Incorrect columns were retrieved from table. {req[0].ref.columns} != {target_columns}"
+    assert req[0].ref.columns == target_columns, (
+        f"Incorrect columns were retrieved from table. {req[0].ref.columns} != {target_columns}"
+    )
     assert operation(test_result.outcome), test_result.failure_message
 
 
