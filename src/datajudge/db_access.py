@@ -39,7 +39,7 @@ def is_db2(engine: sa.engine.Engine) -> bool:
 
 def get_table_columns(
     table: sa.Table | sa.Subquery, column_names: Sequence[str]
-) -> list:
+) -> list[sa.ColumnElement]:
     return [table.c[column_name] for column_name in column_names]
 
 
@@ -318,7 +318,7 @@ class DataReference:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(data_source={self.data_source!r}, columns={self.columns!r}, condition={self.condition!r})"
 
-    def get_selection(self, engine: sa.engine.Engine):
+    def get_selection(self, engine: sa.engine.Engine) -> sa.Select:
         clause = self.data_source.get_clause(engine)
         if self.columns:
             column_names = self.get_columns(engine)
@@ -370,7 +370,9 @@ class DataReference:
 
     def get_columns_or_pk_columns(self, engine: sa.engine.Engine) -> list[str] | None:
         return (
-            self.columns if self.columns is not None else get_primary_keys(engine, self)
+            self.columns
+            if self.columns is not None
+            else get_primary_keys(engine, self)[0]
         )
 
     def get_column_selection_string(self) -> str:
@@ -650,13 +652,13 @@ def get_interval_overlaps_nd(
 
 
 def _not_in_interval_condition(
-    main_table: sa.Table,
-    helper_table: sa.Table,
+    main_table: sa.Table | sa.Subquery,
+    helper_table: sa.Table | sa.Subquery,
     date_column: str,
     key_columns: list[str],
     start_column: str,
     end_column: str,
-):
+) -> sa.ColumnElement:
     return sa.not_(
         sa.exists(
             sa.select(helper_table).where(
@@ -888,7 +890,7 @@ def get_functional_dependency_violations(
     engine: sa.engine.Engine,
     ref: DataReference,
     key_columns: list[str],
-):
+) -> tuple[Any, list[sa.Select]]:
     selection = ref.get_selection(engine)
     uniques = selection.distinct().cte()
 
@@ -1153,18 +1155,22 @@ def get_missing_fraction(
     )
 
 
-def get_column_names(engine: sa.engine.Engine, ref: DataReference):
+def get_column_names(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[list[str], None]:
     table = ref.data_source.get_clause(engine)
     return [column.name for column in table.columns], None
 
 
-def get_column_type(engine: sa.engine.Engine, ref: DataReference):
+def get_column_type(engine: sa.engine.Engine, ref: DataReference) -> tuple[Any, None]:
     table = ref.get_selection(engine).alias()
     column_type = next(iter(table.columns)).type
     return column_type, None
 
 
-def get_primary_keys(engine: sa.engine.Engine, ref: DataReference):
+def get_primary_keys(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[list[str], None]:
     table = ref.data_source.get_clause(engine)
     # Kevin, 25/02/04
     # Mypy complains about the following for a reason I can't follow.
@@ -1173,7 +1179,7 @@ def get_primary_keys(engine: sa.engine.Engine, ref: DataReference):
 
 def get_row_difference_sample(
     engine: sa.engine.Engine, ref: DataReference, ref2: DataReference
-):
+) -> tuple[Any, list[sa.Select]]:
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     selection = sa.sql.except_(selection1, selection2).alias().select()
@@ -1183,20 +1189,26 @@ def get_row_difference_sample(
 
 def get_row_difference_count(
     engine: sa.engine.Engine, ref: DataReference, ref2: DataReference
-):
+) -> tuple[int, list[sa.Select]]:
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     subquery = (
         sa.sql.except_(selection1, selection2).alias().select().distinct().alias()
     )
     selection = sa.select(sa.func.count()).select_from(subquery)
-    result = engine.connect().execute(selection).scalar()
+    result_intermediate = engine.connect().execute(selection).scalar()
+    if result_intermediate is None:
+        raise ValueError("Could not get the row difference count.")
+    result = int(result_intermediate)
     return result, [selection]
 
 
 def get_row_mismatch(
-    engine: sa.engine.Engine, ref: DataReference, ref2: DataReference, match_and_compare
-):
+    engine: sa.engine.Engine,
+    ref: DataReference,
+    ref2: DataReference,
+    match_and_compare: MatchAndCompare,
+) -> tuple[int, int, list[sa.Select]]:
     subselection1 = ref.get_selection(engine).alias()
     subselection2 = ref2.get_selection(engine).alias()
 
@@ -1234,12 +1246,18 @@ def get_row_mismatch(
     selection_n_rows = sa.select(sa.func.count()).select_from(
         subselection1.join(subselection2, match)
     )
-    result_mismatch = engine.connect().execute(selection_difference).scalar()
-    result_n_rows = engine.connect().execute(selection_n_rows).scalar()
+    result_mismatch_intermediate = (
+        engine.connect().execute(selection_difference).scalar()
+    )
+    result_n_rows_intermediate = engine.connect().execute(selection_n_rows).scalar()
+    if result_mismatch_intermediate is None or result_n_rows_intermediate is None:
+        raise ValueError("Could not fetch number of mismatches.")
+    result_mismatch = int(result_mismatch_intermediate)
+    result_n_rows = int(result_n_rows_intermediate)
     return result_mismatch, result_n_rows, [selection_difference, selection_n_rows]
 
 
-def duplicates(subquery: sa.sql.selectable.Subquery) -> sa.sql.selectable.Select:
+def duplicates(subquery: sa.sql.selectable.Subquery) -> sa.Select:
     aggregate_subquery = (
         sa.select(subquery, sa.func.count().label("n_copies"))
         .select_from(subquery)
@@ -1260,7 +1278,9 @@ def duplicates(subquery: sa.sql.selectable.Subquery) -> sa.sql.selectable.Select
     return duplicate_selection
 
 
-def get_duplicate_sample(engine: sa.engine.Engine, ref: DataReference) -> tuple:
+def get_duplicate_sample(
+    engine: sa.engine.Engine, ref: DataReference
+) -> tuple[Any, list[sa.Select]]:
     initial_selection = ref.get_selection(engine).alias()
     duplicate_selection = duplicates(initial_selection)
     result = engine.connect().execute(duplicate_selection).first()
@@ -1269,7 +1289,7 @@ def get_duplicate_sample(engine: sa.engine.Engine, ref: DataReference) -> tuple:
 
 def column_array_agg_query(
     engine: sa.engine.Engine, ref: DataReference, aggregation_column: str
-):
+) -> list[sa.Select]:
     clause = ref.data_source.get_clause(engine)
     if not (column_names := ref.get_columns(engine)):
         raise ValueError("There must be a column to group by")
@@ -1281,7 +1301,7 @@ def column_array_agg_query(
     return [selection]
 
 
-def snowflake_parse_variant_column(value: str):
+def snowflake_parse_variant_column(value: str) -> dict:
     # Snowflake returns non-primitive columns such as arrays as JSON string,
     # but we want them in their deserialized form.
     return json.loads(value)
@@ -1289,7 +1309,7 @@ def snowflake_parse_variant_column(value: str):
 
 def get_column_array_agg(
     engine: sa.engine.Engine, ref: DataReference, aggregation_column: str
-):
+) -> tuple[Any, list[sa.Select]]:
     selections = column_array_agg_query(engine, ref, aggregation_column)
     result: Sequence[sa.engine.row.Row[Any]] | list[tuple[Any, ...]] = (
         engine.connect().execute(selections[0]).fetchall()
@@ -1304,7 +1324,7 @@ def get_column_array_agg(
 
 def _cdf_selection(
     engine: sa.engine.Engine, ref: DataReference, cdf_label: str, value_label: str
-):
+) -> sa.Subquery:
     """Create an empirical cumulative distribution function values.
 
     Concretely, create a selection with values from ``value_label`` as well as
@@ -1338,7 +1358,7 @@ def _cross_cdf_selection(
     ref2: DataReference,
     cdf_label: str,
     value_label: str,
-):
+) -> tuple[sa.Select, str, str]:
     """Create a cross cumulative distribution function selection given two samples.
 
     Concretely, both ``DataReference``s are expected to have specified a single relevant column.
@@ -1425,7 +1445,7 @@ def get_ks_2sample(
     engine: sa.engine.Engine,
     ref1: DataReference,
     ref2: DataReference,
-):
+) -> tuple[float, list[sa.Select]]:
     """
     Run the query for the two-sample Kolmogorov-Smirnov test and return the test statistic d.
 
@@ -1449,6 +1469,9 @@ def get_ks_2sample(
 
     with engine.connect() as connection:
         d_statistic = connection.execute(final_selection).scalar()
+
+    if d_statistic is None:
+        raise ValueError("Could not compute d statistic.")
 
     return d_statistic, [final_selection]
 
@@ -1493,6 +1516,8 @@ def get_regex_violations(
 
     with engine.connect() as connection:
         n_violations_result = connection.execute(n_violations_selection).scalar()
+        if n_violations_result is None:
+            n_violations_result = 0
         if counterexamples_selection is None:
             counterexamples = []
         else:
