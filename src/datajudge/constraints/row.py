@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import abc
 from functools import lru_cache
-from typing import List, Optional, Tuple
 
 import sqlalchemy as sa
 
@@ -15,7 +16,7 @@ class Row(Constraint, abc.ABC):
         ref: DataReference,
         ref2: DataReference,
         max_missing_fraction_getter: ToleranceGetter,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
@@ -37,7 +38,7 @@ class Row(Constraint, abc.ABC):
 
 
 class RowEquality(Row):
-    def get_factual_value(self, engine: sa.engine.Engine) -> Tuple[int, int]:
+    def get_factual_value(self, engine: sa.engine.Engine) -> tuple[int, int]:
         if self.ref is None or self.ref2 is None:
             raise ValueError()
         n_rows_missing_left, selections_left = db_access.get_row_difference_count(
@@ -60,8 +61,8 @@ class RowEquality(Row):
 
     # fraction: (|T1 - T2| + |T2 - T1|) / |T1 U T2|
     def compare(
-        self, n_rows_missing_tuple: Tuple[int, int], n_rows_total: int
-    ) -> Tuple[bool, Optional[str]]:
+        self, n_rows_missing_tuple: tuple[int, int], n_rows_total: int
+    ) -> tuple[bool, str | None]:
         n_rows_missing_left, n_rows_missing_right = n_rows_missing_tuple
         missing_fraction = (n_rows_missing_left + n_rows_missing_right) / n_rows_total
         result = missing_fraction <= self.max_missing_fraction
@@ -105,7 +106,7 @@ class RowSubset(Row):
     @lru_cache(maxsize=None)
     def compare(
         self, n_rows_missing: int, n_rows_total: int
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         if n_rows_total == 0:
             return True, None
         missing_fraction = n_rows_missing / n_rows_total
@@ -143,7 +144,7 @@ class RowSuperset(Row):
 
     def compare(
         self, n_rows_missing: int, n_rows_total: int
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         if n_rows_total == 0:
             return True, None
         missing_fraction = n_rows_missing / n_rows_total
@@ -169,12 +170,12 @@ class RowMatchingEquality(Row):
         self,
         ref: DataReference,
         ref2: DataReference,
-        matching_columns1: List[str],
-        matching_columns2: List[str],
-        comparison_columns1: List[str],
-        comparison_columns2: List[str],
+        matching_columns1: list[str],
+        matching_columns2: list[str],
+        comparison_columns1: list[str],
+        comparison_columns2: list[str],
         max_missing_fraction_getter: ToleranceGetter,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(
