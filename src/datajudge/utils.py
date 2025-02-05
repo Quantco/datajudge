@@ -1,4 +1,6 @@
-from typing import Collection, List, Optional, Protocol, Tuple, Union
+from __future__ import annotations
+
+from typing import Collection, Protocol
 
 
 def _fmt_diff_part(s, d):
@@ -6,8 +8,8 @@ def _fmt_diff_part(s, d):
 
 
 def format_difference(
-    n1: Union[float, int], n2: Union[float, int], decimal_separator: bool = True
-) -> Tuple[str, str]:
+    n1: float | int, n2: float | int, decimal_separator: bool = True
+) -> tuple[str, str]:
     """
     Given two numbers, n1 and n2, return a tuple of two strings,
     each representing one of the input numbers with the differing part highlighted.
@@ -48,13 +50,13 @@ class OutputProcessor(Protocol):
     def __call__(  # noqa: E704
         self,
         collection: Collection,
-        counts: Optional[Collection] = None,
+        counts: Collection | None = None,
     ) -> Collection: ...
 
 
 def output_processor_sort(
-    collection: Collection, counts: Optional[Collection] = None
-) -> Tuple[Collection, Optional[Collection]]:
+    collection: Collection, counts: Collection | None = None
+) -> tuple[Collection, Collection | None]:
     """
     Sorts a collection of tuple elements in descending order of their counts,
     and for ties, makes use of the ascending order of the elements themselves.
@@ -88,8 +90,8 @@ def output_processor_sort(
 
 
 def output_processor_limit(
-    collection: Collection, counts: Optional[Collection] = None, limit: int = 100
-) -> Tuple[Collection, Optional[Collection]]:
+    collection: Collection, counts: Collection | None = None, limit: int = 100
+) -> tuple[Collection, Collection | None]:
     """
     Limits the collection to the first ``limit`` elements.
     If the list was shortened,
@@ -113,15 +115,15 @@ def output_processor_limit(
     return ret_collection, ret_counts
 
 
-def filternull_element(values: List) -> List:
+def filternull_element(values: list) -> list:
     return [value for value in values if value is not None]
 
 
-def filternull_never(values: List) -> List:
+def filternull_never(values: list) -> list:
     return values
 
 
-def filternull_element_or_tuple_all(values: List) -> List:
+def filternull_element_or_tuple_all(values: list) -> list:
     return [
         value
         for value in values
@@ -130,7 +132,7 @@ def filternull_element_or_tuple_all(values: List) -> List:
     ]
 
 
-def filternull_element_or_tuple_any(values: List) -> List:
+def filternull_element_or_tuple_any(values: list) -> list:
     return [
         value
         for value in values
@@ -140,8 +142,8 @@ def filternull_element_or_tuple_any(values: List) -> List:
 
 
 def sort_tuple_none_aware(
-    collection: Collection[Tuple], ascending=True
-) -> Collection[Tuple]:
+    collection: Collection[tuple], ascending=True
+) -> Collection[tuple]:
     """
     Stable sort of a collection of tuples.
     Each tuple in the collection must have the same length,
@@ -163,7 +165,7 @@ def sort_tuple_none_aware(
     if not all(isinstance(elem, tuple) and len(elem) == len(lst[0]) for elem in lst):
         raise ValueError("all elements must be tuples and have the same length")
 
-    dtypes_each_tupleelement: List[Optional[type]] = [None] * len(lst[0])
+    dtypes_each_tupleelement: list[type | None] = [None] * len(lst[0])
     for dtypeidx in range(len(dtypes_each_tupleelement)):
         for elem in lst:
             if elem[dtypeidx] is not None:
