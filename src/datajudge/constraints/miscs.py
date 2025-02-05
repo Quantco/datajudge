@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import warnings
-from typing import List, Optional, Set, Tuple
 
 import sqlalchemy as sa
 
@@ -12,15 +13,15 @@ class PrimaryKeyDefinition(Constraint):
     def __init__(
         self,
         ref,
-        primary_keys: List[str],
-        name: Optional[str] = None,
+        primary_keys: list[str],
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref_value=set(primary_keys), name=name)
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[Set[str], OptionalSelections]:
+    ) -> tuple[set[str], OptionalSelections]:
         if db_access.is_impala(engine):
             raise NotImplementedError("Primary key retrieval does not work for Impala.")
         values, selections = db_access.get_primary_keys(engine, self.ref)
@@ -28,8 +29,8 @@ class PrimaryKeyDefinition(Constraint):
 
     # Note: Exact equality!
     def compare(
-        self, primary_keys_factual: Set[str], primary_keys_target: Set[str]
-    ) -> Tuple[bool, Optional[str]]:
+        self, primary_keys_factual: set[str], primary_keys_target: set[str]
+    ) -> tuple[bool, str | None]:
         assertion_message = ""
         result = True
         # If both are true, just report one.
@@ -61,7 +62,7 @@ class Uniqueness(Constraint):
         max_duplicate_fraction: float = 0,
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns: bool = False,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         if max_duplicate_fraction != 0 and max_absolute_n_duplicates != 0:
@@ -125,7 +126,7 @@ class Uniqueness(Constraint):
 
 
 class FunctionalDependency(Constraint):
-    def __init__(self, ref: DataReference, key_columns: List[str], **kwargs):
+    def __init__(self, ref: DataReference, key_columns: list[str], **kwargs):
         super().__init__(ref, ref_value=object(), **kwargs)
         self.key_columns = key_columns
 
@@ -155,10 +156,10 @@ class MaxNullFraction(Constraint):
         self,
         ref,
         *,
-        ref2: Optional[DataReference] = None,
-        max_null_fraction: Optional[float] = None,
+        ref2: DataReference | None = None,
+        max_null_fraction: float | None = None,
         max_relative_deviation: float = 0,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(
@@ -184,7 +185,7 @@ class MaxNullFraction(Constraint):
 
     def compare(
         self, missing_fraction_factual: float, missing_fracion_target: float
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         threshold = missing_fracion_target * (1 + self.max_relative_deviation)
         result = missing_fraction_factual <= threshold
         assertion_text = (
