@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import itertools
 import re
-from typing import Optional, Tuple
+from typing import Any
 
 import sqlalchemy as sa
 
@@ -17,7 +19,7 @@ class VarCharRegexDb(Constraint):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(
@@ -30,7 +32,9 @@ class VarCharRegexDb(Constraint):
         self.aggregated = aggregated
         self.n_counterexamples = n_counterexamples
 
-    def retrieve(self, engine: sa.engine.Engine, ref: DataReference):
+    def retrieve(
+        self, engine: sa.engine.Engine, ref: DataReference
+    ) -> tuple[Any, OptionalSelections]:
         (
             (
                 n_violations,
@@ -56,7 +60,7 @@ class VarCharRegexDb(Constraint):
             counterexamples,
         ), violations_selections + n_rows_selections
 
-    def compare(self, violations_factual, violations_target):
+    def compare(self, violations_factual, violations_target) -> tuple[bool, str]:
         (
             factual_n_violations,
             factual_n_rows,
@@ -91,7 +95,7 @@ class VarCharRegex(Constraint):
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref_value=regex, name=name, cache_size=cache_size)
@@ -161,9 +165,9 @@ class VarCharMinLength(Constraint):
         self,
         ref,
         *,
-        ref2: Optional[DataReference] = None,
-        min_length: Optional[int] = None,
-        name: Optional[str] = None,
+        ref2: DataReference | None = None,
+        min_length: int | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(
@@ -176,12 +180,12 @@ class VarCharMinLength(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[int, OptionalSelections]:
+    ) -> tuple[int, OptionalSelections]:
         return db_access.get_min_length(engine, ref)
 
     def compare(
         self, length_factual: int, length_target: int
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         if length_target is None:
             return True, None
         if length_factual is None:
@@ -201,9 +205,9 @@ class VarCharMaxLength(Constraint):
         self,
         ref: DataReference,
         *,
-        ref2: Optional[DataReference] = None,
-        max_length: Optional[int] = None,
-        name: Optional[str] = None,
+        ref2: DataReference | None = None,
+        max_length: int | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(
@@ -216,12 +220,12 @@ class VarCharMaxLength(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[int, OptionalSelections]:
+    ) -> tuple[int, OptionalSelections]:
         return db_access.get_max_length(engine, ref)
 
     def compare(
         self, length_factual: int, length_target: int
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         if length_factual is None:
             return True, None
         if length_target is None:
