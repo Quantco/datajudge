@@ -1,4 +1,6 @@
-from typing import Any, Optional, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 import sqlalchemy as sa
 
@@ -13,11 +15,11 @@ class AggregateNumericRangeEquality(Constraint):
         ref: DataReference,
         aggregation_column: str,
         start_value: int = 0,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
         *,
         tolerance: float = 0,
-        ref2: Optional[DataReference] = None,
+        ref2: DataReference | None = None,
     ):
         super().__init__(ref, ref2=ref2, ref_value=object(), name=name)
         self.aggregation_column = aggregation_column
@@ -27,14 +29,14 @@ class AggregateNumericRangeEquality(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[Any, OptionalSelections]:
+    ) -> tuple[Any, OptionalSelections]:
         result, selections = db_access.get_column_array_agg(
             engine, ref, self.aggregation_column
         )
         result = {fact[:-1]: fact[-1] for fact in result}
         return result, selections
 
-    def compare(self, factual: Any, target: Any) -> Tuple[bool, Optional[str]]:
+    def compare(self, factual: Any, target: Any) -> tuple[bool, str | None]:
         def missing_from_range(values, start=0):
             return set(range(start, max(values) + start)) - set(values)
 

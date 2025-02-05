@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import abc
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Any, Callable, Collection, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Collection, List, Optional, TypeVar
 
 import sqlalchemy as sa
 
@@ -16,7 +18,7 @@ OptionalSelections = Optional[List[sa.sql.expression.Select]]
 ToleranceGetter = Callable[[sa.engine.Engine], float]
 
 
-def uncommon_substrings(string1: str, string2: str) -> Tuple[str, str]:
+def uncommon_substrings(string1: str, string2: str) -> tuple[str, str]:
     qualifiers1 = string1.split(".")
     qualifiers2 = string2.split(".")
     if qualifiers1[0] != qualifiers2[0]:
@@ -29,17 +31,17 @@ def uncommon_substrings(string1: str, string2: str) -> Tuple[str, str]:
 @dataclass(frozen=True)
 class TestResult:
     outcome: bool
-    _failure_message: Optional[str] = field(default=None, repr=False)
-    _constraint_description: Optional[str] = field(default=None, repr=False)
-    _factual_queries: Optional[str] = field(default=None, repr=False)
-    _target_queries: Optional[str] = field(default=None, repr=False)
+    _failure_message: str | None = field(default=None, repr=False)
+    _constraint_description: str | None = field(default=None, repr=False)
+    _factual_queries: str | None = field(default=None, repr=False)
+    _target_queries: str | None = field(default=None, repr=False)
 
-    def formatted_failure_message(self, formatter: Formatter) -> Optional[str]:
+    def formatted_failure_message(self, formatter: Formatter) -> str | None:
         return (
             formatter.fmt_str(self._failure_message) if self._failure_message else None
         )
 
-    def formatted_constraint_description(self, formatter: Formatter) -> Optional[str]:
+    def formatted_constraint_description(self, formatter: Formatter) -> str | None:
         return (
             formatter.fmt_str(self._constraint_description)
             if self._constraint_description
@@ -47,11 +49,11 @@ class TestResult:
         )
 
     @property
-    def failure_message(self) -> Optional[str]:
+    def failure_message(self) -> str | None:
         return self.formatted_failure_message(DEFAULT_FORMATTER)
 
     @property
-    def constraint_description(self) -> Optional[str]:
+    def constraint_description(self) -> str | None:
         return self.formatted_constraint_description(DEFAULT_FORMATTER)
 
     @property
@@ -121,12 +123,12 @@ class Constraint(abc.ABC):
         self,
         ref: DataReference,
         *,
-        ref2: Optional[DataReference] = None,
-        ref_value: Optional[Any] = None,
-        name: Optional[str] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
+        ref2: DataReference | None = None,
+        ref_value: Any = None,
+        name: str | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
         cache_size=None,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
@@ -136,8 +138,8 @@ class Constraint(abc.ABC):
         self.name = name
         self.factual_selections: OptionalSelections = None
         self.target_selections: OptionalSelections = None
-        self.factual_queries: Optional[List[str]] = None
-        self.target_queries: Optional[List[str]] = None
+        self.factual_queries: list[str] | None = None
+        self.target_queries: list[str] | None = None
 
         if (output_processors is not None) and (
             not isinstance(output_processors, list)
@@ -156,7 +158,9 @@ class Constraint(abc.ABC):
         self.get_target_value = lru_cache(self.cache_size)(self.get_target_value)  # type: ignore[method-assign]
 
     def _check_if_valid_between_or_within(
-        self, ref2: Optional[DataReference], ref_value: Optional[Any]
+        self,
+        ref2: DataReference | None,
+        ref_value: Any,
     ):
         """Check whether exactly one of ref2 and ref_value arguments have been used."""
         class_name = self.__class__.__name__
@@ -228,13 +232,11 @@ class Constraint(abc.ABC):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[Any, OptionalSelections]:
+    ) -> tuple[Any, OptionalSelections]:
         """Retrieve the value of interest for a DataReference from database."""
         pass
 
-    def compare(
-        self, value_factual: Any, value_target: Any
-    ) -> Tuple[bool, Optional[str]]:
+    def compare(self, value_factual: Any, value_target: Any) -> tuple[bool, str | None]:
         pass
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
