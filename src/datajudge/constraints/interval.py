@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import abc
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 import sqlalchemy as sa
 
@@ -14,11 +16,11 @@ class IntervalConstraint(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        key_columns: Optional[List[str]],
-        start_columns: List[str],
-        end_columns: List[str],
+        key_columns: list[str] | None,
+        start_columns: list[str],
+        end_columns: list[str],
         max_relative_n_violations: float,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref_value=object(), name=name)
@@ -44,7 +46,7 @@ class IntervalConstraint(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[Tuple[int, int], OptionalSelections]:
+    ) -> tuple[tuple[int, int], OptionalSelections]:
         keys_ref = DataReference(
             data_source=self.ref.data_source,
             columns=self.key_columns,
@@ -69,12 +71,12 @@ class NoOverlapConstraint(IntervalConstraint):
     def __init__(
         self,
         ref: DataReference,
-        key_columns: Optional[List[str]],
-        start_columns: List[str],
-        end_columns: List[str],
+        key_columns: list[str] | None,
+        start_columns: list[str],
+        end_columns: list[str],
         max_relative_n_violations: float,
         end_included: bool,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         self.end_included = end_included
@@ -110,12 +112,12 @@ class NoGapConstraint(IntervalConstraint):
     def __init__(
         self,
         ref: DataReference,
-        key_columns: Optional[List[str]],
-        start_columns: List[str],
-        end_columns: List[str],
+        key_columns: list[str] | None,
+        start_columns: list[str],
+        end_columns: list[str],
         max_relative_n_violations: float,
         legitimate_gap_size: float,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         self.legitimate_gap_size = legitimate_gap_size
@@ -134,5 +136,5 @@ class NoGapConstraint(IntervalConstraint):
         pass
 
     @abc.abstractmethod
-    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
         pass
