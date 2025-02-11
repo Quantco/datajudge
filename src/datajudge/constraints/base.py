@@ -101,18 +101,18 @@ class Constraint(abc.ABC):
     """Express a DataReference constraint against either another DataReference or a reference value.
 
     Constraints against other DataReferences are typically referred to as 'between' constraints.
-    Please use the the `ref2` argument to instantiate such a constraint.
+    Please use the the ``ref2`` argument to instantiate such a constraint.
     Constraints against a fixed reference value are typically referred to as 'within' constraints.
-    Please use the `ref_value` argument to instantiate such a constraint.
+    Please use the ``ref_value`` argument to instantiate such a constraint.
 
     A constraint typically relies on the comparison of factual and target values. The former
     represent the key quantity of interest as seen in the database, the latter the key quantity of
     interest as expected a priori. Such a comparison is meant to be carried out in the `test`
     method.
 
-    In order to obtain such values, the `retrieve` method defines a mapping from DataReference,
-    be it the DataReference of primary interest, `ref`, or a baseline DataReference, `ref2`, to
-    value. If `ref_value` is already provided, usually no further mapping needs to be taken care of.
+    In order to obtain such values, the ``retrieve`` method defines a mapping from DataReference,
+    be it the DataReference of primary interest, ``ref``, or a baseline DataReference, ``ref2``, to
+    value. If ``ref_value`` is already provided, usually no further mapping needs to be taken care of.
 
     By default, retrieved arguments are cached indefinitely ``@lru_cache(maxsize=None)``.
     This can be controlled by setting the `cache_size` argument to a different value.
