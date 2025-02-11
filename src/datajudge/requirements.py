@@ -162,15 +162,15 @@ class WithinRequirement(Requirement):
     ) -> None:
         """Columns should uniquely identify row.
 
-        Given a set of columns, satisfy conditions of a primary key, i.e.
-        uniqueness of tuples from said columns. This constraint has a tolerance
-        for inconsistencies, expressed via max_duplicate_fraction. The latter
+        Given a list of columns ``columns``, validate the condition of a primary key, i.e.
+        uniqueness of tuples in said columns. This constraint has a tolerance
+        for inconsistencies, expressed via ``max_duplicate_fraction``. The latter
         suggests that the number of uniques from said columns is larger or equal
-        to (1 - max_duplicate_fraction) the number of rows.
+        to ``1 - max_duplicate_fraction`` times the number of rows.
 
-        If infer_pk_columns is True, columns will be retrieved from the primary keys.
-        When columns=None and infer_pk_columns=False, the fallback is validating that all
-        rows in a table are unique.
+        If ``infer_pk_columns`` is ``True``, ``columns`` will be retrieved from the primary keys.
+        If ``columns`` is ``None`` and ``infer_pk_column`` is ``False``, the fallback is
+        validating that all rows in a table are unique.
         """
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
@@ -194,9 +194,9 @@ class WithinRequirement(Requirement):
         """
         Check if a column type matches the expected column_type.
 
-        The column_type can be provided as a string (backend-specific type name), a backend-specific SQLAlchemy type, or a SQLAlchemy's generic type.
+        The ``column_type`` can be provided as a string (backend-specific type name), a backend-specific SQLAlchemy type, or a SQLAlchemy's generic type.
 
-        If SQLAlchemy's generic types are used, the check is performed using `isinstance`, which means that the actual type can also be a subclass of the target type.
+        If SQLAlchemy's generic types are used, the check is performed using ``isinstance``, which means that the actual type can also be a subclass of the target type.
         For more information on SQLAlchemy's generic types, see https://docs.sqlalchemy.org/en/20/core/type_basics.html
 
         Parameters
@@ -319,7 +319,7 @@ class WithinRequirement(Requirement):
         specified via the ``uniques`` parameter.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -372,7 +372,7 @@ class WithinRequirement(Requirement):
         specified via ``uniques``, is contained in given columns of a ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -435,7 +435,7 @@ class WithinRequirement(Requirement):
         ``uniques``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -508,9 +508,9 @@ class WithinRequirement(Requirement):
         Check if the distribution of unique values in columns falls within the
         specified minimum and maximum bounds.
 
-        The `CategoricalBoundConstraint` is added to ensure the distribution of unique values
-        in the specified columns of a `DataSource` falls within the given minimum and maximum
-        bounds defined in the `distribution` parameter.
+        The ``CategoricalBoundConstraint`` is added to ensure the distribution of unique values
+        in the specified columns of a ``DataSource`` falls within the given minimum and maximum
+        bounds defined in the ``distribution`` parameter.
 
         Parameters
         ----------
@@ -571,7 +571,7 @@ class WithinRequirement(Requirement):
         condition: Condition | None = None,
         cache_size=None,
     ) -> None:
-        """All values in column are greater or equal min_value."""
+        """All values in ``column`` are greater or equal ``min_value``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericMin(
@@ -587,7 +587,7 @@ class WithinRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """All values in column are less or equal max_value."""
+        """All values in ``column`` are less or equal ``max_value``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericMax(
@@ -634,7 +634,7 @@ class WithinRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Assert the mean of the column deviates at most max_deviation from mean_value."""
+        """Assert the mean of the column ``column`` deviates at most ``max_deviation`` from ``mean_value``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericMean(
@@ -695,9 +695,9 @@ class WithinRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Ensure all dates to be superior than min_value.
+        """Ensure all dates to be superior than ``min_value``.
 
-        Use string format: min_value="'20121230'".
+        Use string format: ``min_value="'20121230'"``.
 
         For more information on ``column_type`` values, see ``add_column_type_constraint``.
 
@@ -728,16 +728,15 @@ class WithinRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Ensure all dates to be superior than max_value.
+        """Ensure all dates to be superior than ``max_value``.
 
-        Use string format: max_value="'20121230'".
+        Use string format: ``max_value="'20121230'"``
 
-        For more information on ``column_type`` values, see ``add_column_type_constraint``.
+        For more information on ``column_type`` values, see :meth:`~datajudge.requirements.WithinRequirement.add_column_type_constraint`.
 
-        If ``use_upper_bound_reference``, the max of the first table has to be
-        smaller or equal to ``max_value``.
-        If not ``use_upper_bound_reference``, the max of the first table has to
-        be greater or equal to ``max_value``.
+        If ``use_upper_bound_reference`` is ``True``, the maximum date in ``column`` has to be smaller or
+        equal to ``max_value``. Otherwise the maximum date in ``column`` has to be greater or equal
+        to ``max_value``.
         """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -761,7 +760,7 @@ class WithinRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Use string format: lower_bound="'20121230'"."""
+        """Use string format: ``lower_bound="'20121230'"``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             date_constraints.DateBetween(
@@ -935,7 +934,7 @@ class WithinRequirement(Requirement):
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
         several rows. Thereby, a key will often come with several date ranges.
 
-        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        If ``key_columns`` is ``None`` or ``[]``, all columns of the table will be
         considered as composing the key.
 
         In order to express a tolerance for some violations of this gap property, use the
@@ -973,12 +972,12 @@ class WithinRequirement(Requirement):
         cache_size=None,
     ):
         """
-        Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
-        This means that for each unique combination of values in the `key_columns`, there is exactly one corresponding combination of values in the `value_columns`.
+        Expresses a functional dependency, a constraint where the ``value_columns`` are uniquely determined by the ``key_columns``.
+        This means that for each unique combination of values in the ``key_columns``, there is exactly one corresponding combination of values in the ``value_columns``.
 
-        The ``add_unique_constraint`` constraint is a special case of this constraint, where the `key_columns` are a primary key,
-        and all other columns are included `value_columns`.
-        This constraint allows for a more general definition of functional dependencies, where the `key_columns` are not necessarily a primary key.
+        The ``add_unique_constraint`` constraint is a special case of this constraint, where the ``key_columns`` are a primary key,
+        and all other columns are included ``value_columns``.
+        This constraint allows for a more general definition of functional dependencies, where the ``key_columns`` are not necessarily a primary key.
 
         An additional configuration option (for details see the analogous parameter in for ``Uniques``-constraints)
         on how the output is sorted and how many counterexamples are shown is available as ``output_processors``.
@@ -1027,7 +1026,7 @@ class WithinRequirement(Requirement):
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
         several rows. Thereby, a key will often come with several intervals.
 
-        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        If ``key_columns`` is ``None`` or ``[]``, all columns of the table will be
         considered as composing the key.
 
         In order to express a tolerance for some violations of this gap property, use the
@@ -1648,7 +1647,7 @@ class BetweenRequirement(Requirement):
         columns.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -1704,7 +1703,7 @@ class BetweenRequirement(Requirement):
         is contained in given columns of a ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -1769,7 +1768,7 @@ class BetweenRequirement(Requirement):
         ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
