@@ -7,6 +7,14 @@
 Changelog
 =========
 
+1.10.0 - 2025.02.13
+------------------
+
+- Address deprecation warnings from ``sqlalchemy``.
+
+- Provide more type hints.
+
+
 1.9.3 - 2025.01.13
 ------------------
 
