@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import abc
-from typing import List, Optional, Tuple, Union
 
 import sqlalchemy as sa
 
@@ -11,7 +12,7 @@ from .base import Constraint, OptionalSelections
 class Column(Constraint, abc.ABC):
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[List[str], OptionalSelections]:
+    ) -> tuple[list[str], OptionalSelections]:
         # TODO: This does not 'belong' here. Rather, `retrieve` should be free of
         # side effects. This should be removed as soon as snowflake column capitalization
         # is fixed by snowflake-sqlalchemy.
@@ -24,20 +25,20 @@ class ColumnExistence(Column):
     def __init__(
         self,
         ref: DataReference,
-        columns: List[str],
-        name: Optional[str] = None,
+        columns: list[str],
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref_value=columns, name=name, cache_size=cache_size)
 
     def compare(
-        self, column_names_factual: List[str], column_names_target: List[str]
-    ) -> Tuple[bool, str]:
+        self, column_names_factual: list[str], column_names_target: list[str]
+    ) -> tuple[bool, str]:
         excluded_columns = list(
             filter(lambda c: c not in column_names_factual, column_names_target)
         )
         assertion_message = (
-            f"{self.ref} doesn't have column(s) " f"{', '.join(excluded_columns)}."
+            f"{self.ref} doesn't have column(s) {', '.join(excluded_columns)}."
         )
         result = len(excluded_columns) == 0
         return result, assertion_message
@@ -45,13 +46,13 @@ class ColumnExistence(Column):
 
 class ColumnSubset(Column):
     def compare(
-        self, column_names_factual: List[str], column_names_target: List[str]
-    ) -> Tuple[bool, str]:
+        self, column_names_factual: list[str], column_names_target: list[str]
+    ) -> tuple[bool, str]:
         missing_columns = list(
             filter(lambda c: c not in column_names_target, column_names_factual)
         )
         assertion_message = (
-            f"{self.ref2} doesn't have column(s) " f"{', '.join(missing_columns)}. "
+            f"{self.ref2} doesn't have column(s) {', '.join(missing_columns)}. "
         )
         result = len(missing_columns) == 0
         return result, assertion_message
@@ -59,13 +60,13 @@ class ColumnSubset(Column):
 
 class ColumnSuperset(Column):
     def compare(
-        self, column_names_factual: List[str], column_names_target: List[str]
-    ) -> Tuple[bool, str]:
+        self, column_names_factual: list[str], column_names_target: list[str]
+    ) -> tuple[bool, str]:
         missing_columns = list(
             filter(lambda c: c not in column_names_factual, column_names_target)
         )
         assertion_message = (
-            f"{self.ref} doesn't have column(s) " f"{', '.join(missing_columns)}."
+            f"{self.ref} doesn't have column(s) {', '.join(missing_columns)}."
         )
         result = len(missing_columns) == 0
         return result, assertion_message
@@ -86,9 +87,9 @@ class ColumnType(Constraint):
         self,
         ref: DataReference,
         *,
-        ref2: Optional[DataReference] = None,
-        column_type: Optional[Union[str, sa.types.TypeEngine]] = None,
-        name: Optional[str] = None,
+        ref2: DataReference | None = None,
+        column_type: str | sa.types.TypeEngine | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(
@@ -102,13 +103,13 @@ class ColumnType(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[sa.types.TypeEngine, OptionalSelections]:
+    ) -> tuple[sa.types.TypeEngine, OptionalSelections]:
         result, selections = db_access.get_column_type(engine, ref)
         return result, selections
 
-    def compare(self, column_type_factual, column_type_target) -> Tuple[bool, str]:
+    def compare(self, column_type_factual, column_type_target) -> tuple[bool, str]:
         assertion_message = (
-            f"{self.ref} is {column_type_factual} " f"instead of {column_type_target}."
+            f"{self.ref} is {column_type_factual} instead of {column_type_target}."
         )
 
         if isinstance(column_type_target, sa.types.TypeEngine):

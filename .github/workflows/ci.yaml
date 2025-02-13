@@ -56,7 +56,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.3.1
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -91,11 +91,6 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.8.1
         with:
           environments: ${{ matrix.env }}
-      # TODO: Consider removing this manual installation since the docker image already comes with a msodbc driver.
-      - name: Install msodbcsql17 driver
-        run: |
-          wget https://packages.microsoft.com/ubuntu/20.04/prod/pool/main/m/msodbcsql17/msodbcsql17_17.9.1.1-1_amd64.deb
-          ACCEPT_EULA=Y sudo apt install ./msodbcsql17_17.9.1.1-1_amd64.deb --allow-downgrades
       - name: Wait for SQL Server
         timeout-minutes: 1
         run: until docker logs "${{ job.services.db.id }}" 2>&1 | grep -q "SQL Server is now ready"; do sleep 10; done
@@ -103,7 +98,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.3.1
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -146,7 +141,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.3.1
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -190,7 +185,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.3.1
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -208,7 +203,6 @@ jobs:
       matrix:
         env:
           - snowflake-py38
-          - snowflake-sa1
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
@@ -220,7 +214,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.3.1
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -253,7 +247,7 @@ jobs:
   #         pixi run -e ${{ matrix.env }} postinstall
   #         pixi run -e ${{ matrix.env }} coverage
   #     - name: Generate code coverage report
-  #       uses: codecov/codecov-action@v4.5.0
+  #       uses: codecov/codecov-action@v5.3.1
   #       with:
   #         file: ./coverage.xml
   #         token: ${{ secrets.CODECOV_TOKEN }}
@@ -281,7 +275,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.3.1
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import math
 import warnings
-from typing import List, Optional, Tuple
 
 import sqlalchemy as sa
 
@@ -15,17 +16,17 @@ class KolmogorovSmirnov2Sample(Constraint):
         ref: DataReference,
         ref2: DataReference,
         significance_level: float = 0.05,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         self.significance_level = significance_level
         super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
 
     @staticmethod
-    def approximate_p_value(
-        d: float, n_samples: int, m_samples: int
-    ) -> Optional[float]:
-        """Calculates the approximate p-value according to
+    def approximate_p_value(d: float, n_samples: int, m_samples: int) -> float | None:
+        """
+        Calculates the approximate p-value according to
+
         'A procedure to find exact critical values of Kolmogorov-Smirnov Test', Silvia Fachinetti, 2009
 
         Note: For environments with `scipy` installed, this method will return a quasi-exact p-value.
@@ -72,10 +73,10 @@ class KolmogorovSmirnov2Sample(Constraint):
 
     @staticmethod
     def calculate_statistic(
-        engine,
+        engine: sa.engine.Engine,
         ref1: DataReference,
         ref2: DataReference,
-    ) -> Tuple[float, Optional[float], int, int, List]:
+    ) -> tuple[float, float | None, int, int, list[sa.Select]]:
         # retrieve test statistic d, as well as sample sizes m and n
         d_statistic, ks_selections = db_access.get_ks_2sample(
             engine,

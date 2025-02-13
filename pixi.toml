@@ -42,7 +42,7 @@ freetds = "*"
 [feature.mssql.tasks]
 test = "pytest tests/integration --backend=mssql"
 test_freetds = "pytest tests/integration --backend=mssql-freetds"
-coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=mssql"
+coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=mssql-freetds"
 
 [feature.postgres.dependencies]
 psycopg2 = "*"
@@ -51,7 +51,8 @@ test = "pytest tests/integration --backend=postgres"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=postgres"
 
 [feature.db2.dependencies]
-ibm_db = "*"
+# Upper bounded due to https://github.com/ibmdb/python-ibmdb/issues/986
+ibm_db = "<=3.2.4"
 ibm_db_sa = "*"
 [feature.db2.tasks]
 test = "pytest tests/integration --backend=db2"
@@ -70,7 +71,8 @@ test = "pytest tests/integration --backend=bigquery -v -n=16"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=bigquery -v -n=16"
 
 [feature.impala.dependencies]
-impyla = "*"
+# We encounter thrift related problems with impyla 0.20.
+impyla = "<0.20"
 [feature.impala.tasks]
 test = "pytest tests/integration --backend=impala"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=impala"
@@ -147,7 +149,6 @@ db2-py310 = ["db2", "py310", "test"]
 db2-sa1 = ["db2", "sa1", "test"]
 
 snowflake-py38 = ["snowflake", "py38", "test"]
-snowflake-sa1 = ["snowflake", "sa1", "test"]
 
 bigquery-py38 = ["bigquery", "py38", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]

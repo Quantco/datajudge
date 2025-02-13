@@ -1,15 +1,12 @@
+from __future__ import annotations
+
 from abc import ABC
 from collections.abc import MutableSequence
 from typing import (
     Callable,
     Collection,
-    Dict,
-    List,
-    Optional,
     Sequence,
-    Tuple,
     TypeVar,
-    Union,
 )
 
 import sqlalchemy as sa
@@ -65,7 +62,7 @@ class TableQualifier:
 
 class Requirement(ABC, MutableSequence):
     def __init__(self):
-        self._constraints: List[Constraint] = []
+        self._constraints: list[Constraint] = []
         self.data_source: DataSource
 
     def insert(self, index: int, value: Constraint) -> None:
@@ -83,7 +80,7 @@ class Requirement(ABC, MutableSequence):
     def __len__(self) -> int:
         return len(self._constraints)
 
-    def test(self, engine) -> List[TestResult]:
+    def test(self, engine) -> list[TestResult]:
         return [constraint.test(engine) for constraint in self]
 
 
@@ -101,7 +98,7 @@ class WithinRequirement(Requirement):
         )
 
     @classmethod
-    def from_raw_query(cls, query: str, name: str, columns: Optional[List[str]] = None):
+    def from_raw_query(cls, query: str, name: str, columns: list[str] | None = None):
         """Create a ``WithinRequirement`` based on a raw query string.
 
         The ``query`` parameter can be passed any query string returning rows, e.g.
@@ -128,8 +125,8 @@ class WithinRequirement(Requirement):
         return cls(data_source=ExpressionDataSource(expression, name))
 
     def add_column_existence_constraint(
-        self, columns: List[str], name: Optional[str] = None, cache_size=None
-    ):
+        self, columns: list[str], name: str | None = None, cache_size=None
+    ) -> None:
         # Note that columns are not meant to be part of the reference.
         ref = DataReference(self.data_source)
         self._constraints.append(
@@ -138,10 +135,10 @@ class WithinRequirement(Requirement):
 
     def add_primary_key_definition_constraint(
         self,
-        primary_keys: List[str],
-        name: Optional[str] = None,
+        primary_keys: list[str],
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Check that the primary key constraints in the database are exactly equal to the given column names.
 
         Note that this doesn't actually check that the primary key values are unique across the table.
@@ -155,25 +152,25 @@ class WithinRequirement(Requirement):
 
     def add_uniqueness_constraint(
         self,
-        columns: Optional[List[str]] = None,
+        columns: list[str] | None = None,
         max_duplicate_fraction: float = 0,
-        condition: Optional[Condition] = None,
+        condition: Condition | None = None,
         max_absolute_n_duplicates: int = 0,
         infer_pk_columns: bool = False,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Columns should uniquely identify row.
 
-        Given a set of columns, satisfy conditions of a primary key, i.e.
-        uniqueness of tuples from said columns. This constraint has a tolerance
-        for inconsistencies, expressed via max_duplicate_fraction. The latter
+        Given a list of columns ``columns``, validate the condition of a primary key, i.e.
+        uniqueness of tuples in said columns. This constraint has a tolerance
+        for inconsistencies, expressed via ``max_duplicate_fraction``. The latter
         suggests that the number of uniques from said columns is larger or equal
-        to (1 - max_duplicate_fraction) the number of rows.
+        to ``1 - max_duplicate_fraction`` times the number of rows.
 
-        If infer_pk_columns is True, columns will be retrieved from the primary keys.
-        When columns=None and infer_pk_columns=False, the fallback is validating that all
-        rows in a table are unique.
+        If ``infer_pk_columns`` is ``True``, ``columns`` will be retrieved from the primary keys.
+        If ``columns`` is ``None`` and ``infer_pk_column`` is ``False``, the fallback is
+        validating that all rows in a table are unique.
         """
         ref = DataReference(self.data_source, columns, condition)
         self._constraints.append(
@@ -190,15 +187,16 @@ class WithinRequirement(Requirement):
     def add_column_type_constraint(
         self,
         column: str,
-        column_type: Union[str, sa.types.TypeEngine],
-        name: Optional[str] = None,
+        column_type: str | sa.types.TypeEngine,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """Check if a column type matches the expected column_type.
+    ) -> None:
+        """
+        Check if a column type matches the expected column_type.
 
-        The column_type can be provided as a string (backend-specific type name), a backend-specific SQLAlchemy type, or a SQLAlchemy's generic type.
+        The ``column_type`` can be provided as a string (backend-specific type name), a backend-specific SQLAlchemy type, or a SQLAlchemy's generic type.
 
-        If SQLAlchemy's generic types are used, the check is performed using `isinstance`, which means that the actual type can also be a subclass of the target type.
+        If SQLAlchemy's generic types are used, the check is performed using ``isinstance``, which means that the actual type can also be a subclass of the target type.
         For more information on SQLAlchemy's generic types, see https://docs.sqlalchemy.org/en/20/core/type_basics.html
 
         Parameters
@@ -206,10 +204,10 @@ class WithinRequirement(Requirement):
         column : str
             The name of the column to which the constraint will be applied.
 
-        column_type : Union[str, sa.types.TypeEngine]
+        column_type : str | sa.types.TypeEngine
             The expected type of the column. This can be a string, a backend-specific SQLAlchemy type, or a generic SQLAlchemy type.
 
-        name : Optional[str]
+        name : str | None
             An optional name for the constraint. If not provided, a name will be generated automatically.
         """
         ref = DataReference(self.data_source, [column])
@@ -225,8 +223,8 @@ class WithinRequirement(Requirement):
     def add_null_absence_constraint(
         self,
         column: str,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         ref = DataReference(self.data_source, [column], condition)
@@ -240,8 +238,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         max_null_fraction: float,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         """Assert that ``column`` has less than a certain fraction of ``NULL`` values.
@@ -261,8 +259,8 @@ class WithinRequirement(Requirement):
     def add_n_rows_equality_constraint(
         self,
         n_rows: int,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         ref = DataReference(self.data_source, None, condition)
@@ -275,8 +273,8 @@ class WithinRequirement(Requirement):
     def add_n_rows_min_constraint(
         self,
         n_rows_min: int,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         ref = DataReference(self.data_source, None, condition)
@@ -289,8 +287,8 @@ class WithinRequirement(Requirement):
     def add_n_rows_max_constraint(
         self,
         n_rows_max: int,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         ref = DataReference(self.data_source, None, condition)
@@ -302,16 +300,16 @@ class WithinRequirement(Requirement):
 
     def add_uniques_equality_constraint(
         self,
-        columns: List[str],
+        columns: list[str],
         uniques: Collection[T],
-        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
-        map_func: Optional[Callable[[T], T]] = None,
-        reduce_func: Optional[Callable[[Collection], Collection]] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        filter_func: Callable[[list[T]], list[T]] | None = None,
+        map_func: Callable[[T], T] | None = None,
+        reduce_func: Callable[[Collection], Collection] | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         """Check if the data's unique values are equal to a given set of values.
@@ -323,6 +321,7 @@ class WithinRequirement(Requirement):
         Null values in the columns `columns` are ignored. To assert the non-existence of them use
         the [add_null_absence_constraint][datajudge.requirements.WithinRequirement.add_null_absence_constraint] helper method
         for `WithinRequirement`.
+
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom `filter_func` function.
         Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
@@ -354,17 +353,17 @@ class WithinRequirement(Requirement):
 
     def add_uniques_superset_constraint(
         self,
-        columns: List[str],
+        columns: list[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
-        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
-        map_func: Optional[Callable[[T], T]] = None,
-        reduce_func: Optional[Callable[[Collection], Collection]] = None,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
+        filter_func: Callable[[list[T]], list[T]] | None = None,
+        map_func: Callable[[T], T] | None = None,
+        reduce_func: Callable[[Collection], Collection] | None = None,
+        condition: Condition | None = None,
+        name: str | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
         cache_size=None,
     ):
         """Check if unique values of columns are contained in the reference data.
@@ -373,7 +372,7 @@ class WithinRequirement(Requirement):
         specified via ``uniques``, is contained in given columns of a ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -414,18 +413,18 @@ class WithinRequirement(Requirement):
 
     def add_uniques_subset_constraint(
         self,
-        columns: List[str],
+        columns: list[str],
         uniques: Collection[T],
         max_relative_violations: float = 0,
-        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        filter_func: Callable[[list[T]], list[T]] | None = None,
         compare_distinct: bool = False,
-        map_func: Optional[Callable[[T], T]] = None,
-        reduce_func: Optional[Callable[[Collection], Collection]] = None,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
+        map_func: Callable[[T], T] | None = None,
+        reduce_func: Callable[[Collection], Collection] | None = None,
+        condition: Condition | None = None,
+        name: str | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
         cache_size=None,
     ):
         """Check if the data's unique values are contained in a given set of values.
@@ -435,7 +434,7 @@ class WithinRequirement(Requirement):
         ``uniques``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -480,10 +479,10 @@ class WithinRequirement(Requirement):
 
     def add_n_uniques_equality_constraint(
         self,
-        columns: Optional[List[str]],
+        columns: list[str] | None,
         n_uniques: int,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         ref = DataReference(self.data_source, columns, condition)
@@ -495,19 +494,21 @@ class WithinRequirement(Requirement):
 
     def add_categorical_bound_constraint(
         self,
-        columns: List[str],
-        distribution: Dict[T, Tuple[float, float]],
-        default_bounds: Tuple[float, float] = (0, 0),
+        columns: list[str],
+        distribution: dict[T, tuple[float, float]],
+        default_bounds: tuple[float, float] = (0, 0),
         max_relative_violations: float = 0,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """Check if the distribution of unique values in columns falls within the specified minimum and maximum bounds.
+    ) -> None:
+        """
+        Check if the distribution of unique values in columns falls within the
+        specified minimum and maximum bounds.
 
-        The `CategoricalBoundConstraint` is added to ensure the distribution of unique values
-        in the specified columns of a `DataSource` falls within the given minimum and maximum
-        bounds defined in the `distribution` parameter.
+        The ``CategoricalBoundConstraint`` is added to ensure the distribution of unique values
+        in the specified columns of a ``DataSource`` falls within the given minimum and maximum
+        bounds defined in the ``distribution`` parameter.
 
         Parameters
         ----------
@@ -566,10 +567,10 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         min_value: float,
-        condition: Optional[Condition] = None,
+        condition: Condition | None = None,
         cache_size=None,
-    ):
-        """All values in column are greater or equal min_value."""
+    ) -> None:
+        """All values in ``column`` are greater or equal ``min_value``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericMin(
@@ -581,11 +582,11 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         max_value: float,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """All values in column are less or equal max_value."""
+    ) -> None:
+        """All values in ``column`` are less or equal ``max_value``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericMax(
@@ -599,10 +600,10 @@ class WithinRequirement(Requirement):
         lower_bound: float,
         upper_bound: float,
         min_fraction: float,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Assert that the column's values lie between ``lower_bound`` and ``upper_bound``.
 
         Note that both bounds are inclusive.
@@ -628,11 +629,11 @@ class WithinRequirement(Requirement):
         column: str,
         mean_value: float,
         max_absolute_deviation: float,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """Assert the mean of the column deviates at most max_deviation from mean_value."""
+    ) -> None:
+        """Assert the mean of the column ``column`` deviates at most ``max_deviation`` from ``mean_value``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             numeric_constraints.NumericMean(
@@ -649,15 +650,15 @@ class WithinRequirement(Requirement):
         column: str,
         percentage: float,
         expected_percentile: float,
-        max_absolute_deviation: Optional[float] = None,
-        max_relative_deviation: Optional[float] = None,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        max_absolute_deviation: float | None = None,
+        max_relative_deviation: float | None = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Assert that the ``percentage``-th percentile is approximately ``expected_percentile``.
 
-        The percentile is defined as the value present in ``column`` for which
+        The percentile is defined as the smallest value present in ``column`` for which
         ``percentage`` % of the values in ``column`` are less or equal. ``NULL`` values
         are ignored.
 
@@ -689,13 +690,13 @@ class WithinRequirement(Requirement):
         min_value: str,
         use_lower_bound_reference: bool = True,
         column_type: str = "date",
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """Ensure all dates to be superior than min_value.
+    ) -> None:
+        """Ensure all dates to be superior than ``min_value``.
 
-        Use string format: min_value="'20121230'".
+        Use string format: ``min_value="'20121230'"``.
 
         For more information on ``column_type`` values, see ``add_column_type_constraint``.
 
@@ -722,20 +723,19 @@ class WithinRequirement(Requirement):
         max_value: str,
         use_upper_bound_reference: bool = True,
         column_type: str = "date",
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """Ensure all dates to be superior than max_value.
+    ) -> None:
+        """Ensure all dates to be superior than ``max_value``.
 
-        Use string format: max_value="'20121230'".
+        Use string format: ``max_value="'20121230'"``
 
-        For more information on ``column_type`` values, see ``add_column_type_constraint``.
+        For more information on ``column_type`` values, see :meth:`~datajudge.requirements.WithinRequirement.add_column_type_constraint`.
 
-        If ``use_upper_bound_reference``, the max of the first table has to be
-        smaller or equal to ``max_value``.
-        If not ``use_upper_bound_reference``, the max of the first table has to
-        be greater or equal to ``max_value``.
+        If ``use_upper_bound_reference`` is ``True``, the maximum date in ``column`` has to be smaller or
+        equal to ``max_value``. Otherwise the maximum date in ``column`` has to be greater or equal
+        to ``max_value``.
         """
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
@@ -755,11 +755,11 @@ class WithinRequirement(Requirement):
         lower_bound: str,
         upper_bound: str,
         min_fraction: float,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """Use string format: lower_bound="'20121230'"."""
+    ) -> None:
+        """Use string format: ``lower_bound="'20121230'"``."""
         ref = DataReference(self.data_source, [column], condition)
         self._constraints.append(
             date_constraints.DateBetween(
@@ -775,20 +775,20 @@ class WithinRequirement(Requirement):
         self,
         start_column: str,
         end_column: str,
-        key_columns: Optional[List[str]] = None,
+        key_columns: list[str] | None = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Constraint expressing that several date range rows may not overlap.
 
-        The ``DataSource`` under inspection must consist of at least one but up
+        The :class:`~datajudge.DataSource` under inspection must consist of at least one but up
         to many ``key_columns``, identifying an entity, a ``start_column`` and an
         ``end_column``.
 
-        For a given row in this ``DataSource``, ``start_column`` and ``end_column`` indicate a
+        For a given row in this :class:`~datajudge.DataSource`, ``start_column`` and ``end_column`` indicate a
         date range. Neither of those columns should contain NULL values. Also, it
         should hold that for a given row, the value of ``end_column`` is strictly greater
         than the value of ``start_column``.
@@ -835,32 +835,29 @@ class WithinRequirement(Requirement):
         end_column1: str,
         start_column2: str,
         end_column2: str,
-        key_columns: Optional[List[str]] = None,
+        key_columns: list[str] | None = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Express that several date range rows do not overlap in two date dimensions.
 
         The table under inspection must consist of at least one but up to many key columns,
-        identifying an entity. Per date dimension, a ``start_column`` and an
-        ``end_column`` should be provided.
+        identifying an entity. Per date dimension, a start column (``start_column1``, ``start_column2``)
+        and end (``end_column1``, ``end_column2``) column should be provided in order to define
+        date ranges.
 
-        For a given row in this table, ``start_column1`` and ``end_column1``
-        indicate a date range. Moreoever, for that same row, ``start_column2``
-        and ``end_column2`` indicate a date range.
-        These date ranges are expected to represent different date 'dimensions'.
-        Example: A row indicates a forecasted value used in production. ``start_column1``
-        and ``end_column1`` represent the timespan that was forecasted, e.g. the
-        weather from next Saturday to next Sunday. ``end_column1`` and ``end_column2``
+        Date ranges in different date dimensions are expected to represent different kinds
+        of dates. For example, let's say that a row in a table indicates an averag temperature
+        forecast. ``start_column1`` and ``end_column1`` could the date span that was forecasted,
+        e.g. the weather from next Saturday to next Sunday. ``end_column1`` and ``end_column2``
         might indicate the timespan when this forceast was used, e.g. from the
         previous Monday to Wednesday.
 
-        Neither of those columns should contain ``NULL`` values. Also it should
-        hold that for a given row, the value of ``end_column`` is strictly greater
-        than the value of ``start_column``.
+        Neither of those columns should contain ``NULL`` values. Also, the value of ``end_column_k``
+        should be strictly greater than the value of ``start_column_k``.
 
         Note that the values of ``start_column1`` and ``start_column2`` are expected to be
         included in each date range. By default, the values of ``end_column1`` and
@@ -909,11 +906,11 @@ class WithinRequirement(Requirement):
         self,
         start_column: str,
         end_column: str,
-        key_columns: Optional[List[str]] = None,
+        key_columns: list[str] | None = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         """Express that date range rows have no gap in-between them.
@@ -934,7 +931,7 @@ class WithinRequirement(Requirement):
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
         several rows. Thereby, a key will often come with several date ranges.
 
-        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        If ``key_columns`` is ``None`` or ``[]``, all columns of the table will be
         considered as composing the key.
 
         In order to express a tolerance for some violations of this gap property, use the
@@ -962,22 +959,22 @@ class WithinRequirement(Requirement):
 
     def add_functional_dependency_constraint(
         self,
-        key_columns: List[str],
-        value_columns: List[str],
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
+        key_columns: list[str],
+        value_columns: list[str],
+        condition: Condition | None = None,
+        name: str | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
         cache_size=None,
     ):
         """Expresses a functional dependency, a constraint where the `value_columns` are uniquely determined by the `key_columns`.
 
         This means that for each unique combination of values in the `key_columns`, there is exactly one corresponding combination of values in the `value_columns`.
 
-        The ``add_unique_constraint`` constraint is a special case of this constraint, where the `key_columns` are a primary key,
-        and all other columns are included `value_columns`.
-        This constraint allows for a more general definition of functional dependencies, where the `key_columns` are not necessarily a primary key.
+        The ``add_unique_constraint`` constraint is a special case of this constraint, where the ``key_columns`` are a primary key,
+        and all other columns are included ``value_columns``.
+        This constraint allows for a more general definition of functional dependencies, where the ``key_columns`` are not necessarily a primary key.
 
         An additional configuration option (for details see the analogous parameter in for ``Uniques``-constraints)
         on how the output is sorted and how many counterexamples are shown is available as ``output_processors``.
@@ -1003,11 +1000,11 @@ class WithinRequirement(Requirement):
         self,
         start_column: str,
         end_column: str,
-        key_columns: Optional[List[str]] = None,
+        key_columns: list[str] | None = None,
         legitimate_gap_size: float = 0,
         max_relative_n_violations: float = 0,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         """Express that numeric interval rows have no gaps larger than some max value in-between them.
@@ -1026,7 +1023,7 @@ class WithinRequirement(Requirement):
         interest. A priori, a key is not a primary key, i.e., a key can have and often has
         several rows. Thereby, a key will often come with several intervals.
 
-        If`` key_columns`` is ``None`` or ``[]``, all columns of the table will be
+        If ``key_columns`` is ``None`` or ``[]``, all columns of the table will be
         considered as composing the key.
 
         In order to express a tolerance for some violations of this gap property, use the
@@ -1056,11 +1053,11 @@ class WithinRequirement(Requirement):
         self,
         start_column: str,
         end_column: str,
-        key_columns: Optional[List[str]] = None,
+        key_columns: list[str] | None = None,
         end_included: bool = True,
         max_relative_n_violations: float = 0,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         """Constraint expressing that several numeric interval rows may not overlap.
@@ -1114,8 +1111,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         regex: str,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         allow_none: bool = False,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
@@ -1158,8 +1155,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         regex: str,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         relative_tolerance: float = 0.0,
         aggregated: bool = True,
         n_counterexamples: int = 5,
@@ -1199,8 +1196,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         min_length: int,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         ref = DataReference(self.data_source, [column], condition)
@@ -1217,8 +1214,8 @@ class WithinRequirement(Requirement):
         self,
         column: str,
         max_length: int,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         ref = DataReference(self.data_source, [column], condition)
@@ -1237,8 +1234,8 @@ class WithinRequirement(Requirement):
         aggregation_column: str,
         start_value: int,
         tolerance: float = 0,
-        condition: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
     ):
         """Check whether array aggregate corresponds to an integer range.
@@ -1271,8 +1268,8 @@ class BetweenRequirement(Requirement):
         self,
         data_source: DataSource,
         data_source2: DataSource,
-        date_column: Optional[str] = None,
-        date_column2: Optional[str] = None,
+        date_column: str | None = None,
+        date_column2: str | None = None,
     ):
         self.data_source = data_source
         self.data_source2 = data_source2
@@ -1291,8 +1288,8 @@ class BetweenRequirement(Requirement):
         db_name2: str,
         schema_name2: str,
         table_name2: str,
-        date_column: Optional[str] = None,
-        date_column2: Optional[str] = None,
+        date_column: str | None = None,
+        date_column2: str | None = None,
     ):
         return cls(
             data_source=TableDataSource(
@@ -1316,10 +1313,10 @@ class BetweenRequirement(Requirement):
         query2: str,
         name1: str,
         name2: str,
-        columns1: Optional[List[str]] = None,
-        columns2: Optional[List[str]] = None,
-        date_column: Optional[str] = None,
-        date_column2: Optional[str] = None,
+        columns1: list[str] | None = None,
+        columns2: list[str] | None = None,
+        date_column: str | None = None,
+        date_column2: str | None = None,
     ):
         """Create a ``BetweenRequirement`` based on raw query strings.
 
@@ -1347,8 +1344,8 @@ class BetweenRequirement(Requirement):
         expression2,
         name1: str,
         name2: str,
-        date_column: Optional[str] = None,
-        date_column2: Optional[str] = None,
+        date_column: str | None = None,
+        date_column2: str | None = None,
     ):
         """Create a ``BetweenTableRequirement`` based on sqlalchemy expressions.
 
@@ -1367,7 +1364,7 @@ class BetweenRequirement(Requirement):
             date_column2=date_column2,
         )
 
-    def get_date_growth_rate(self, engine) -> float:
+    def get_date_growth_rate(self, engine: sa.engine.Engine) -> float:
         if self.date_column is None or self.date_column2 is None:
             raise ValueError("Date growth can't be computed without date column.")
         date_growth_rate, _ = get_date_growth_rate(
@@ -1376,25 +1373,32 @@ class BetweenRequirement(Requirement):
         return date_growth_rate
 
     def get_deviation_getter(
-        self, fix_value: Optional[float], deviation: Optional[float]
-    ):
+        self, fix_value: float | None, deviation: float | None
+    ) -> Callable[[sa.engine.Engine], float]:
         if fix_value is None and deviation is None:
-            return ValueError("No valid gain/loss/deviation given.")
-        if deviation is None:
+            raise ValueError("No valid gain/loss/deviation given.")
+        # The second predictate is redundant but appeases mypy since fix_value
+        # could, a priori, be None.
+        if deviation is None and fix_value is not None:
             return lambda engine: fix_value
-        if fix_value is None:
+        # The second predictate is redundant but appeases mypy since deviation
+        # could, a priori, be None.
+        if fix_value is None and deviation is not None:
             return lambda engine: self.get_date_growth_rate(engine) + deviation
-        return lambda engine: max(
-            fix_value, self.get_date_growth_rate(engine) + deviation
-        )
+        # This clause is redundant but appeases mypy.
+        if fix_value is not None and deviation is not None:
+            return lambda engine: max(
+                fix_value, self.get_date_growth_rate(engine) + deviation
+            )
+        raise ValueError("No valid gain/loss/deviation given.")
 
     def add_n_rows_equality_constraint(
         self,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         ref = DataReference(self.data_source, condition=condition1)
         ref2 = DataReference(self.data_source2, condition=condition2)
         self._constraints.append(
@@ -1405,13 +1409,13 @@ class BetweenRequirement(Requirement):
 
     def add_n_rows_max_gain_constraint(
         self,
-        constant_max_relative_gain: Optional[float] = None,
-        date_range_gain_deviation: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        constant_max_relative_gain: float | None = None,
+        date_range_gain_deviation: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """#rows from first table <= #rows from second table * (1 + max_growth).
 
         See readme for more information on max_growth.
@@ -1433,13 +1437,13 @@ class BetweenRequirement(Requirement):
 
     def add_n_rows_min_gain_constraint(
         self,
-        constant_min_relative_gain: Optional[float] = None,
-        date_range_gain_deviation: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        constant_min_relative_gain: float | None = None,
+        date_range_gain_deviation: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """#rows from first table  >= #rows from second table * (1 + min_growth).
 
         See readme for more information on min_growth.
@@ -1461,13 +1465,13 @@ class BetweenRequirement(Requirement):
 
     def add_n_rows_max_loss_constraint(
         self,
-        constant_max_relative_loss: Optional[float] = None,
-        date_range_loss_deviation: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        constant_max_relative_loss: float | None = None,
+        date_range_loss_deviation: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """#rows from first table >= #rows from second table * (1 - max_loss).
 
         See readme for more information on max_loss.
@@ -1489,13 +1493,13 @@ class BetweenRequirement(Requirement):
 
     def add_n_uniques_equality_constraint(
         self,
-        columns1: Optional[List[str]],
-        columns2: Optional[List[str]],
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        columns1: list[str] | None,
+        columns2: list[str] | None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         ref = DataReference(self.data_source, columns1, condition1)
         ref2 = DataReference(self.data_source2, columns2, condition2)
         self._constraints.append(
@@ -1506,15 +1510,15 @@ class BetweenRequirement(Requirement):
 
     def add_n_uniques_max_gain_constraint(
         self,
-        columns1: Optional[List[str]],
-        columns2: Optional[List[str]],
-        constant_max_relative_gain: Optional[float] = None,
-        date_range_gain_deviation: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        columns1: list[str] | None,
+        columns2: list[str] | None,
+        constant_max_relative_gain: float | None = None,
+        date_range_gain_deviation: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """#uniques or first table <= #uniques of second table* (1 + max_growth).
 
         #uniques in first table are defined based on columns1, #uniques in second
@@ -1539,15 +1543,15 @@ class BetweenRequirement(Requirement):
 
     def add_n_uniques_max_loss_constraint(
         self,
-        columns1: Optional[List[str]],
-        columns2: Optional[List[str]],
-        constant_max_relative_loss: Optional[float] = None,
-        date_range_loss_deviation: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        columns1: list[str] | None,
+        columns2: list[str] | None,
+        constant_max_relative_loss: float | None = None,
+        date_range_loss_deviation: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """#uniques in first table <= #uniques in second table * (1 - max_loss).
 
         #uniques in first table are defined based on columns1, #uniques in second
@@ -1575,11 +1579,11 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         max_relative_deviation: float,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Assert that the fraction of ``NULL`` values of one is at most that of the other.
 
         Given that ``column2``\'s underlying data has a fraction ``q`` of ``NULL`` values, the
@@ -1601,11 +1605,11 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
@@ -1616,19 +1620,19 @@ class BetweenRequirement(Requirement):
 
     def add_uniques_equality_constraint(
         self,
-        columns1: List[str],
-        columns2: List[str],
-        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
-        map_func: Optional[Callable[[T], T]] = None,
-        reduce_func: Optional[Callable[[Collection], Collection]] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        columns1: list[str],
+        columns2: list[str],
+        filter_func: Callable[[list[T]], list[T]] | None = None,
+        map_func: Callable[[T], T] | None = None,
+        reduce_func: Callable[[Collection], Collection] | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Check if the data's unique values in given columns are equal.
 
         The ``UniquesEquality`` constraint asserts if the values contained in a column
@@ -1636,7 +1640,7 @@ class BetweenRequirement(Requirement):
         columns.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -1670,20 +1674,20 @@ class BetweenRequirement(Requirement):
 
     def add_uniques_superset_constraint(
         self,
-        columns1: List[str],
-        columns2: List[str],
+        columns1: list[str],
+        columns2: list[str],
         max_relative_violations: float = 0,
-        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
-        map_func: Optional[Callable[[T], T]] = None,
-        reduce_func: Optional[Callable[[Collection], Collection]] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
+        filter_func: Callable[[list[T]], list[T]] | None = None,
+        map_func: Callable[[T], T] | None = None,
+        reduce_func: Callable[[Collection], Collection] | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
         cache_size=None,
-    ):
+    ) -> None:
         """Check if unique values of columns are contained in the reference data.
 
         The ``UniquesSuperset`` constraint asserts that reference set of expected values,
@@ -1691,7 +1695,7 @@ class BetweenRequirement(Requirement):
         is contained in given columns of a ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -1733,21 +1737,21 @@ class BetweenRequirement(Requirement):
 
     def add_uniques_subset_constraint(
         self,
-        columns1: List[str],
-        columns2: List[str],
+        columns1: list[str],
+        columns2: list[str],
         max_relative_violations: float = 0,
-        filter_func: Optional[Callable[[List[T]], List[T]]] = None,
+        filter_func: Callable[[list[T]], list[T]] | None = None,
         compare_distinct: bool = False,
-        map_func: Optional[Callable[[T], T]] = None,
-        reduce_func: Optional[Callable[[Collection], Collection]] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
-        output_processors: Optional[
-            Union[OutputProcessor, List[OutputProcessor]]
-        ] = output_processor_limit,
+        map_func: Callable[[T], T] | None = None,
+        reduce_func: Callable[[Collection], Collection] | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
+        output_processors: OutputProcessor
+        | list[OutputProcessor]
+        | None = output_processor_limit,
         cache_size=None,
-    ):
+    ) -> None:
         """Check if the given columns's unique values in are contained in reference data.
 
         The ``UniquesSubset`` constraint asserts if the values contained in given column of
@@ -1755,7 +1759,7 @@ class BetweenRequirement(Requirement):
         ``DataSource``.
 
         Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+        the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint` helper method
         for ``WithinRequirement``.
         By default, the null filtering does not trigger if multiple columns are fetched at once.
         It can be configured in more detail by supplying a custom ``filter_func`` function.
@@ -1801,11 +1805,11 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
@@ -1819,11 +1823,11 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         max_absolute_deviation: float,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
@@ -1841,16 +1845,16 @@ class BetweenRequirement(Requirement):
         column1: str,
         column2: str,
         percentage: float,
-        max_absolute_deviation: Optional[float] = None,
-        max_relative_deviation: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        max_absolute_deviation: float | None = None,
+        max_relative_deviation: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Assert that the ``percentage``-th percentile is approximately equal.
 
-        The percentile is defined as the value present in ``column1`` / ``column2``
+        The percentile is defined as the smallest value present in ``column1`` / ``column2``
         for which ``percentage`` % of the values in ``column1`` / ``column2`` are
         less or equal. ``NULL`` values are ignored.
 
@@ -1883,11 +1887,11 @@ class BetweenRequirement(Requirement):
         column2: str,
         use_lower_bound_reference: bool = True,
         column_type: str = "date",
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Ensure date min of first table is greater or equal date min of second table.
 
         The used columns of both tables need to be of the same type.
@@ -1918,11 +1922,11 @@ class BetweenRequirement(Requirement):
         column2: str,
         use_upper_bound_reference: bool = True,
         column_type: str = "date",
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Compare date max of first table to date max of second table.
 
         The used columns of both tables need to be of the same type.
@@ -1951,11 +1955,11 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
@@ -1968,11 +1972,11 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         ref = DataReference(self.data_source, [column1], condition1)
         ref2 = DataReference(self.data_source2, [column2], condition2)
         self._constraints.append(
@@ -1981,7 +1985,9 @@ class BetweenRequirement(Requirement):
             )
         )
 
-    def add_column_subset_constraint(self, name: Optional[str] = None, cache_size=None):
+    def add_column_subset_constraint(
+        self, name: str | None = None, cache_size=None
+    ) -> None:
         """Columns of first table are subset of second table."""
         self._constraints.append(
             column_constraints.ColumnSubset(
@@ -1990,8 +1996,8 @@ class BetweenRequirement(Requirement):
         )
 
     def add_column_superset_constraint(
-        self, name: Optional[str] = None, cache_size=None
-    ):
+        self, name: str | None = None, cache_size=None
+    ) -> None:
         """Columns of first table are superset of columns of second table."""
         self._constraints.append(
             column_constraints.ColumnSuperset(
@@ -2003,10 +2009,10 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
-    ):
-        """Check that the columns have the same type."""
+    ) -> None:
+        "Check that the columns have the same type."
         ref1 = DataReference(self.data_source, [column1])
         ref2 = DataReference(self.data_source2, [column2])
         self._constraints.append(
@@ -2017,14 +2023,14 @@ class BetweenRequirement(Requirement):
 
     def add_row_equality_constraint(
         self,
-        columns1: Optional[List[str]],
-        columns2: Optional[List[str]],
+        columns1: list[str] | None,
+        columns2: list[str] | None,
         max_missing_fraction: float,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """At most ``max_missing_fraction`` of rows in T1 and T2 are absent in either.
 
         In other words,
@@ -2045,15 +2051,15 @@ class BetweenRequirement(Requirement):
 
     def add_row_subset_constraint(
         self,
-        columns1: Optional[List[str]],
-        columns2: Optional[List[str]],
-        constant_max_missing_fraction: Optional[float],
-        date_range_loss_fraction: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        columns1: list[str] | None,
+        columns2: list[str] | None,
+        constant_max_missing_fraction: float | None,
+        date_range_loss_fraction: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """At most ``max_missing_fraction`` of rows in T1 are not in T2.
 
         In other words,
@@ -2082,15 +2088,15 @@ class BetweenRequirement(Requirement):
 
     def add_row_superset_constraint(
         self,
-        columns1: Optional[List[str]],
-        columns2: Optional[List[str]],
+        columns1: list[str] | None,
+        columns2: list[str] | None,
         constant_max_missing_fraction: float,
-        date_range_loss_fraction: Optional[float] = None,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        date_range_loss_fraction: float | None = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """At most ``max_missing_fraction`` of rows in T2 are not in T1.
 
         In other words,
@@ -2115,16 +2121,16 @@ class BetweenRequirement(Requirement):
 
     def add_row_matching_equality_constraint(
         self,
-        matching_columns1: List[str],
-        matching_columns2: List[str],
-        comparison_columns1: List[str],
-        comparison_columns2: List[str],
+        matching_columns1: list[str],
+        matching_columns2: list[str],
+        comparison_columns1: list[str],
+        comparison_columns2: list[str],
         max_missing_fraction: float,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         cache_size=None,
-    ):
+    ) -> None:
         """Match tables in matching_columns, compare for equality in comparison_columns.
 
         This constraint is similar to the nature of the ``RowEquality``
@@ -2163,13 +2169,14 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Optional[Condition] = None,
-        condition2: Optional[Condition] = None,
-        name: Optional[str] = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
+        name: str | None = None,
         significance_level: float = 0.05,
         cache_size=None,
-    ):
-        """Apply the so-called two-sample Kolmogorov-Smirnov test to the distributions of the two given columns.
+    ) -> None:
+        """
+        Apply the so-called two-sample Kolmogorov-Smirnov test to the distributions of the two given columns.
 
         The constraint is fulfilled, when the resulting p-value of the test is higher than the significance level
         (default is 0.05, i.e., 5%).

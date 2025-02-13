@@ -66,11 +66,11 @@ def test_ks_2sample_calculate_statistic(engine, random_normal_table, configurati
         engine, ref, ref2
     )
 
-    assert (
-        abs(d_statistic - expected_d) <= 1e-10
-    ), f"The test statistic does not match: {expected_d} vs {d_statistic}"
+    assert abs(d_statistic - expected_d) <= 1e-10, (
+        f"The test statistic does not match: {expected_d} vs {d_statistic}"
+    )
 
     # 1e-05 should cover common p_values; if scipy is installed, a very accurate p_value is automatically calculated
-    assert (
-        abs(p_value - expected_p) <= 1e-05
-    ), f"The approx. p-value does not match: {expected_p} vs {p_value}"
+    assert abs(p_value - expected_p) <= 1e-05, (
+        f"The approx. p-value does not match: {expected_p} vs {p_value}"
+    )

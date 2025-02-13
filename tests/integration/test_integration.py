@@ -371,9 +371,9 @@ def test_uniques_equality_within_with_outputcheck(engine, unique_table1, data):
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -479,9 +479,9 @@ def test_uniques_equality_between_with_outputcheck(
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -617,9 +617,9 @@ def test_uniques_superset_within_with_outputcheck(engine, unique_table1, data):
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -667,9 +667,9 @@ def test_uniques_superset_between_with_outputcheck(
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -991,9 +991,9 @@ def test_uniques_subset_within_complex_with_outputcheck(engine, unique_table1, d
     print(test_result)
     print(test_result.failure_message)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -1056,9 +1056,9 @@ def test_uniques_subset_within_complex_with_outputcheck_extralong(
     print(test_result)
     print(test_result.failure_message)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -1243,9 +1243,9 @@ def test_uniques_subset_between_with_outputcheck(
     )
     test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 @pytest.mark.parametrize(
@@ -1400,9 +1400,9 @@ def test_functional_dependency_within_multi_key_with_outputcheck(
 
     test_result = req[0].test(engine)
     assert operation(test_result.outcome)
-    assert test_result.failure_message.endswith(
-        failure_message_suffix
-    ), test_result.failure_message
+    assert test_result.failure_message.endswith(failure_message_suffix), (
+        test_result.failure_message
+    )
 
 
 def _flatten_and_filter(data):
@@ -1740,14 +1740,27 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
 @pytest.mark.parametrize(
     "data",
     [
-        (identity, 20, 3, 0, 0, None),
-        (identity, 20, 2.8, 0.21, None, None),
-        (identity, 20, 2.8, None, 0.1, None),
-        (negation, 20, 2.8, 0, None, None),
-        (negation, 20, 2.8, None, 0, None),
-        (negation, 20, 2.8, 0, 0, None),
+        # The data at hand in int_table1 are [1, 2, ..., 19].
+        # According to the definition of percentile in our doc string,
+        # the 20th percentile should be the smallest value in our data
+        # for which 20% of the data is less or equal that value.
+        # For the value 3, we have that |{1,2,3}|/19 ~ .16 of the values
+        # are less or equal.
+        # For the value 4, we have that |{1,2,3,4}|/19 ~ .21 of the values
+        # are less or equal.
+        # Hence the expected 20th percentile should be 4.
+        (identity, 20, 4, 0, 0, None),
+        (identity, 20, 3.8, 0.21, None, None),
+        (identity, 20, 3.8, None, 0.1, None),
+        (negation, 20, 3.8, 0, None, None),
+        (negation, 20, 3.8, None, 0, None),
+        (negation, 20, 3.8, 0, 0, None),
         (negation, 20, 3.2, 0, 0, None),
-        (identity, 20, 2, 0, 0, Condition(raw_string="col_int <= 11")),
+        # The expected percentile changes when conditioning.
+        # |{1,2}|/11 ~ .18
+        # |{1,2,3}|/11 ~ .27
+        (identity, 20, 3, 0, 0, Condition(raw_string="col_int <= 11")),
+        (negation, 20, 2.8, 0, 0, Condition(raw_string="col_int <= 11")),
     ],
 )
 def test_numeric_percentile_within(engine, int_table1, data):
@@ -1775,7 +1788,17 @@ def test_numeric_percentile_within(engine, int_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
-        # With the following condition, we expect the values [0, 0, 1, 1, None].
+        # With the following condition, we expect the following values
+        # to be present in unique_table1's column col_int:
+        # [0, 0, 1, 1, None]
+        (
+            identity,
+            24,
+            0,
+            0,
+            None,
+            Condition(raw_string="col_int <= 1 or col_int IS NULL"),
+        ),
         (
             identity,
             25,
@@ -1787,7 +1810,7 @@ def test_numeric_percentile_within(engine, int_table1, data):
         (
             identity,
             74,
-            0,
+            1,
             0,
             None,
             Condition(raw_string="col_int <= 1 or col_int IS NULL"),
@@ -1835,12 +1858,16 @@ def test_numeric_percentile_within_null(engine, unique_table1, data):
 @pytest.mark.parametrize(
     "data",
     [
+        # The 20th percentile of int_table1 is 4.
+        # The 20th percentile of int_table2 is 5.
+        # Hence, the absolute deviation is 1 and
+        # the relative deviation is 1/5 = .2.
         (identity, 20, 1, None, None, None),
-        (identity, 20, None, 0.25, None, None),
-        (identity, 20, 1, 0.25, None, None),
+        (identity, 20, None, 0.20, None, None),
+        (identity, 20, 1, 0.20, None, None),
         (negation, 20, 0, 0, None, None),
         (negation, 20, 0.9, None, None, None),
-        (negation, 20, None, 0.20, None, None),
+        (negation, 20, None, 0.19, None, None),
         (identity, 20, 0, 0, Condition(raw_string="col_int >=2"), None),
     ],
 )
@@ -1977,6 +2004,8 @@ def test_date_between_within(engine, date_table1, data):
         (identity, 1, Condition(raw_string="id1 = 4")),
         (negation, 0, Condition(raw_string="id1 = 5")),
         (identity, 1, Condition(raw_string="id1 = 5")),
+        (negation, 0, Condition(raw_string="id1 = 6")),
+        (identity, 1, Condition(raw_string="id1 = 6")),
     ],
 )
 @pytest.mark.parametrize("key_columns", [["id1"], [], None])
@@ -2007,6 +2036,8 @@ def test_date_no_overlap_within_varying_key_columns(
         (identity, 1, Condition(raw_string="id1 = 4")),
         (negation, 0, Condition(raw_string="id1 = 5")),
         (identity, 1, Condition(raw_string="id1 = 5")),
+        (negation, 0, Condition(raw_string="id1 = 6")),
+        (identity, 1, Condition(raw_string="id1 = 6")),
     ],
 )
 @pytest.mark.parametrize("key_columns", [["id1"], [], None])
@@ -2029,8 +2060,9 @@ def test_integer_no_overlap_within_varying_key_columns(
 @pytest.mark.parametrize(
     "data",
     [
-        (negation, 0.59, None),
-        (identity, 0.6, None),
+        # 2/6 ids succeed
+        (negation, 0.66, None),
+        (identity, 0.67, None),
         (identity, 0, Condition(raw_string="id1 IN (1, 2)")),
     ],
 )
@@ -2103,6 +2135,8 @@ def test_date_no_overlap_within_inclusion_exclusion(engine, date_table_overlap, 
         (identity, 1, Condition(raw_string="id1 = 6")),
         (negation, 0, Condition(raw_string="id1 = 7")),
         (identity, 1, Condition(raw_string="id1 = 7")),
+        (negation, 0, Condition(raw_string="id1 = 8")),
+        (identity, 1, Condition(raw_string="id1 = 8")),
     ],
 )
 @pytest.mark.parametrize("key_columns", [["id1"], [], None])
@@ -2128,9 +2162,9 @@ def test_date_no_overlap_2d_within_varying_key_column(
     "data",
     [
         (identity, 0, Condition(raw_string="id1 IN (1, 2, 3, 4)")),
-        # 3/7 ids have violations.
-        (negation, 0.42, None),
-        (identity, 0.43, None),
+        # 4/8 ids have violations.
+        (negation, 0.49, None),
+        (identity, 0.50, None),
     ],
 )
 def test_date_no_overlap_2d_within_fixed_key_column(
@@ -2786,9 +2820,9 @@ def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
     req.add_uniqueness_constraint(columns=selection_columns, infer_pk_columns=True)
     test_result = req[0].test(engine)
     # additional test: the PK columns are inferred during test time, i.e. we can check here if they were inferred correctly
-    assert (
-        req[0].ref.columns == target_columns
-    ), f"Incorrect columns were retrieved from table. {req[0].ref.columns} != {target_columns}"
+    assert req[0].ref.columns == target_columns, (
+        f"Incorrect columns were retrieved from table. {req[0].ref.columns} != {target_columns}"
+    )
     assert operation(test_result.outcome), test_result.failure_message
 
 

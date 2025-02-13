@@ -1,4 +1,6 @@
-from typing import Any, Optional, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 import sqlalchemy as sa
 
@@ -12,11 +14,11 @@ class NumericMin(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
         *,
-        ref2: Optional[DataReference] = None,
-        min_value: Optional[float] = None,
+        ref2: DataReference | None = None,
+        min_value: float | None = None,
     ):
         super().__init__(
             ref,
@@ -28,12 +30,10 @@ class NumericMin(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[float, OptionalSelections]:
+    ) -> tuple[float, OptionalSelections]:
         return db_access.get_min(engine, ref)
 
-    def compare(
-        self, min_factual: float, min_target: float
-    ) -> Tuple[bool, Optional[str]]:
+    def compare(self, min_factual: float, min_target: float) -> tuple[bool, str | None]:
         if min_target is None:
             return True, None
         if min_factual is None:
@@ -52,11 +52,11 @@ class NumericMax(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
         *,
-        ref2: Optional[DataReference] = None,
-        max_value: Optional[float] = None,
+        ref2: DataReference | None = None,
+        max_value: float | None = None,
     ):
         super().__init__(
             ref,
@@ -68,12 +68,10 @@ class NumericMax(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[float, OptionalSelections]:
+    ) -> tuple[float, OptionalSelections]:
         return db_access.get_max(engine, ref)
 
-    def compare(
-        self, max_factual: float, max_target: float
-    ) -> Tuple[bool, Optional[str]]:
+    def compare(self, max_factual: float, max_target: float) -> tuple[bool, str | None]:
         if max_factual is None:
             return True, None
         if max_target is None:
@@ -95,7 +93,7 @@ class NumericBetween(Constraint):
         min_fraction: float,
         lower_bound: float,
         upper_bound: float,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref_value=min_fraction, name=name, cache_size=cache_size)
@@ -104,7 +102,7 @@ class NumericBetween(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[float, OptionalSelections]:
+    ) -> tuple[float | None, OptionalSelections]:
         return db_access.get_fraction_between(
             engine,
             ref,
@@ -114,7 +112,7 @@ class NumericBetween(Constraint):
 
     def compare(
         self, fraction_factual: float, fraction_target: float
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         if fraction_factual is None:
             return True, "Empty selection."
         assertion_text = (
@@ -132,11 +130,11 @@ class NumericMean(Constraint):
         self,
         ref: DataReference,
         max_absolute_deviation: float,
-        name: Optional[str] = None,
+        name: str | None = None,
         cache_size=None,
         *,
-        ref2: Optional[DataReference] = None,
-        mean_value: Optional[float] = None,
+        ref2: DataReference | None = None,
+        mean_value: float | None = None,
     ):
         super().__init__(
             ref,
@@ -149,7 +147,7 @@ class NumericMean(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[float, OptionalSelections]:
+    ) -> tuple[float, OptionalSelections]:
         result, selections = db_access.get_mean(engine, ref)
         return result, selections
 
@@ -178,13 +176,13 @@ class NumericPercentile(Constraint):
         self,
         ref: DataReference,
         percentage: float,
-        max_absolute_deviation: Optional[float] = None,
-        max_relative_deviation: Optional[float] = None,
-        name: Optional[str] = None,
+        max_absolute_deviation: float | None = None,
+        max_relative_deviation: float | None = None,
+        name: str | None = None,
         cache_size=None,
         *,
-        ref2: Optional[DataReference] = None,
-        expected_percentile: Optional[float] = None,
+        ref2: DataReference | None = None,
+        expected_percentile: float | None = None,
     ):
         super().__init__(
             ref,
@@ -216,13 +214,13 @@ class NumericPercentile(Constraint):
 
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> Tuple[float, OptionalSelections]:
+    ) -> tuple[float, OptionalSelections]:
         result, selections = db_access.get_percentile(engine, ref, self.percentage)
         return result, selections
 
     def compare(
         self, percentile_factual: float, percentile_target: float
-    ) -> Tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         abs_diff = abs(percentile_factual - percentile_target)
         if (
             self.max_absolute_deviation is not None
@@ -269,7 +267,7 @@ class NumericNoGap(NoGapConstraint):
         # executing it, one would want to list this selection here as well.
         return sample_selection, n_violations_selection
 
-    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual
         if n_distinct_key_values == 0:
             return TestResult.success()
@@ -287,7 +285,7 @@ class NumericNoGap(NoGapConstraint):
 class NumericNoOverlap(NoOverlapConstraint):
     _DIMENSIONS = 1
 
-    def compare(self, factual: Tuple[int, int], target: Any) -> Tuple[bool, str]:
+    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
         n_violation_keys, n_distinct_key_values = factual
         if n_distinct_key_values == 0:
             return TestResult.success()
