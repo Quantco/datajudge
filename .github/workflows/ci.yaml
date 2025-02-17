@@ -21,7 +21,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@v0.8.2
         with:
           environments: default lint
       - name: pre-commit
@@ -49,7 +49,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@v0.8.2
         with:
           environments: ${{ matrix.env }}
       - run: |
@@ -88,7 +88,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@v0.8.2
         with:
           environments: ${{ matrix.env }}
       - name: Wait for SQL Server
@@ -134,7 +134,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@v0.8.2
         with:
           environments: ${{ matrix.env }}
       - run: |
@@ -175,7 +175,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@v0.8.2
         with:
           environments: ${{ matrix.env }}
       - name: Wait for db2 to load
@@ -207,7 +207,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@v0.8.2
         with:
           environments: ${{ matrix.env }}
       - run: |
@@ -240,7 +240,7 @@ jobs:
   #     - name: Checkout branch
   #       uses: actions/checkout@v4
   #     - name: Set up pixi
-  #       uses: prefix-dev/setup-pixi@v0.8.1
+  #       uses: prefix-dev/setup-pixi@v0.8.2
   #       with:
   #         environments: ${{ matrix.env }}
   #     - run: |
@@ -268,7 +268,7 @@ jobs:
       - name: Set up container
         run: docker compose up --wait impala
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@v0.8.2
         with:
           environments: ${{ matrix.env }}
       - run: |
