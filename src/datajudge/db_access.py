@@ -47,7 +47,6 @@ def apply_patches(engine: sa.engine.Engine) -> None:
     """
     Apply patches to e.g. specific dialect not implemented by sqlalchemy
     """
-
     if is_bigquery(engine):
         # Patch for the EXCEPT operator (see BigQuery set operators
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
@@ -940,6 +939,7 @@ def get_column(
 ) -> tuple[Any, list[sa.Select]]:
     """
     Queries the database for the values of the relevant column (as returned by `get_column(...)`).
+
     If an aggregation operation is passed, the results are aggregated accordingly
     and a single scalar value is returned.
     """

@@ -146,6 +146,7 @@ def sort_tuple_none_aware(
 ) -> Collection[tuple]:
     """
     Stable sort of a collection of tuples.
+
     Each tuple in the collection must have the same length,
     since they are treated as rows in a table,
     with ``elem[0]`` being the first column,
