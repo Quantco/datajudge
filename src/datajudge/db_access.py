@@ -44,9 +44,7 @@ def get_table_columns(
 
 
 def apply_patches(engine: sa.engine.Engine) -> None:
-    """
-    Apply patches to e.g. specific dialect not implemented by sqlalchemy
-    """
+    """Apply patches to e.g. specific dialect not implemented by sqlalchemy."""
     if is_bigquery(engine):
         # Patch for the EXCEPT operator (see BigQuery set operators
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
@@ -499,7 +497,7 @@ def get_interval_overlaps_nd(
     end_columns: list[str],
     end_included: bool,
 ) -> tuple[sa.sql.selectable.CompoundSelect, sa.sql.selectable.Select]:
-    """Create selectables for interval overlaps in n dimensions.
+    r"""Create selectables for interval overlaps in n dimensions.
 
     We define the presence of 'overlap' as presence of a non-empty intersection
     between two intervals.
@@ -938,7 +936,7 @@ def get_column(
     aggregate_operator: Callable | None = None,
 ) -> tuple[Any, list[sa.Select]]:
     """
-    Queries the database for the values of the relevant column (as returned by `get_column(...)`).
+    Query the database for the values of the relevant column (as returned by `get_column(...)`).
 
     If an aggregation operation is passed, the results are aggregated accordingly
     and a single scalar value is returned.

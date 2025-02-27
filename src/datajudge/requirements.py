@@ -502,9 +502,7 @@ class WithinRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """
-        Check if the distribution of unique values in columns falls within the
-        specified minimum and maximum bounds.
+        """Check if the distribution of unique values in columns falls within the specified minimum and maximum bounds.
 
         The ``CategoricalBoundConstraint`` is added to ensure the distribution of unique values
         in the specified columns of a ``DataSource`` falls within the given minimum and maximum
@@ -2012,7 +2010,7 @@ class BetweenRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        "Check that the columns have the same type."
+        """Check that the columns have the same type."""
         ref1 = DataReference(self.data_source, [column1])
         ref2 = DataReference(self.data_source2, [column2])
         self._constraints.append(

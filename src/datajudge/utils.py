@@ -11,11 +11,14 @@ def format_difference(
     n1: float | int, n2: float | int, decimal_separator: bool = True
 ) -> tuple[str, str]:
     """
+    Format and highlight how two numbers differ.
+
     Given two numbers, n1 and n2, return a tuple of two strings,
     each representing one of the input numbers with the differing part highlighted.
     Highlighting is done using BBCode-like tags, which are replaced by the formatter.
 
-    Examples:
+    Examples
+    --------
         123, 123.0
         -> 123, 123[numDiff].0[/numDiff]
         122593859432, 122593859432347
@@ -26,7 +29,8 @@ def format_difference(
     - n2: The second number to compare.
     - decimal_separator: Whether to separate the decimal part of the numbers with commas.
 
-    Returns:
+    Returns
+    -------
     - A tuple of two strings, each representing one of the input numbers with the differing part highlighted.
     """
     if decimal_separator:
@@ -58,8 +62,9 @@ def output_processor_sort(
     collection: Collection, counts: Collection | None = None
 ) -> tuple[Collection, Collection | None]:
     """
-    Sorts a collection of tuple elements in descending order of their counts,
-    and for ties, makes use of the ascending order of the elements themselves.
+    Sorts a collection of tuple elements in descending order of their counts.
+
+    If ties exist, the ascending order of the elements themselves is used.
 
     If the first element is not instanceof tuple,
     each element will be transparently packaged into a 1-tuple for processing;
@@ -93,11 +98,12 @@ def output_processor_limit(
     collection: Collection, counts: Collection | None = None, limit: int = 100
 ) -> tuple[Collection, Collection | None]:
     """
-    Limits the collection to the first ``limit`` elements.
-    If the list was shortened,
-    will add a ``limit+1``-th string element,
+    Limits the collection to the first `limit` elements.
+
+    If the list was shortened, will add a `limit+1`-th string element,
     informing the user of the truncation.
-    The default limit of ``100`` can be adjusted using ``functools.partial``
+
+    The default limit of ``100`` can be adjusted using `functools.partial`.
     """
     collection = list(collection)
 
