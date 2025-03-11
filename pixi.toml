@@ -54,7 +54,7 @@ test = "pytest tests/integration --backend=postgres"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=postgres"
 
 [feature.db2.dependencies]
-ibm_db = "*"
+ibm_db = "!=3.2.5"
 ibm_db_sa = "*"
 [feature.db2.tasks]
 test = "pytest tests/integration --backend=db2"
