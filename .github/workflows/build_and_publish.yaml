@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.4
+        uses: prefix-dev/setup-pixi@v0.8.5
       - name: Build
         # It seems as though flit publish expects a .pypirc file as compared to
         # only a token passed as an argument.
