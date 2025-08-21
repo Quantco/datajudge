@@ -157,7 +157,6 @@ jobs:
           - db2-py38
           - db2-py39
           - db2-py310
-          - db2-sa1
     services:
       DB:
         image: ibmcom/db2:11.5.5.1
