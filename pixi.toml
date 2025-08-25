@@ -56,6 +56,9 @@ coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-appe
 [feature.db2.dependencies]
 ibm_db = "!=3.2.5"
 ibm_db_sa = "*"
+# sqlalchemy 1.0 is (temporarily) not compatible with ibm_db_sa, see
+# https://github.com/ibmdb/python-ibmdbsa/issues/165
+sqlalchemy = ">=2.0"
 [feature.db2.tasks]
 test = "pytest tests/integration --backend=db2"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=db2"
@@ -148,7 +151,6 @@ postgres-sa2 = ["postgres", "sa2", "test"]
 db2-py38 = ["db2", "py38", "test"]
 db2-py39 = ["db2", "py39", "test"]
 db2-py310 = ["db2", "py310", "test"]
-db2-sa1 = ["db2", "sa1", "test"]
 
 snowflake-py38 = ["snowflake", "py38", "test"]
 
