@@ -188,8 +188,8 @@ jobs:
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
-  # Currently we're having issues with Snowflake account.
-  
+
+  # We are currently experiencing issues with our Snowflake account.
   # snowflake:
   #   if: ${{ contains(github.event.pull_request.labels.*.name, 'snowflake') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
   #   name: "Snowflake"
