@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
@@ -47,7 +47,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
@@ -86,7 +86,7 @@ jobs:
           - 1433:1433
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
@@ -132,7 +132,7 @@ jobs:
           - 5432:5432
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
@@ -172,7 +172,7 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
@@ -204,7 +204,7 @@ jobs:
           - snowflake-py38
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
@@ -237,7 +237,7 @@ jobs:
   #       with:
   #         credentials_json: '${{ secrets.GCP_KEY }}'
   #     - name: Checkout branch
-  #       uses: actions/checkout@v5
+  #       uses: actions/checkout@v6
   #     - name: Set up pixi
   #       uses: prefix-dev/setup-pixi@v0.9.3
   #       with:
@@ -263,7 +263,7 @@ jobs:
           - impala-sa1
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up container
         run: docker compose up --wait impala
       - name: Set up pixi
