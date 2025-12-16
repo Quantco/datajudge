@@ -5,8 +5,9 @@ import json
 import operator
 from abc import ABC, abstractmethod
 from collections import Counter
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Iterator, Sequence, final, overload
+from typing import Any, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable

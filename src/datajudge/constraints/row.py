@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from functools import lru_cache
+from functools import cache
 
 import sqlalchemy as sa
 
@@ -85,7 +85,7 @@ class RowEquality(Row):
 
 
 class RowSubset(Row):
-    @lru_cache(maxsize=None)
+    @cache
     def get_factual_value(self, engine: sa.engine.Engine) -> int:
         if self.ref is None or self.ref2 is None:
             raise ValueError()
@@ -97,13 +97,13 @@ class RowSubset(Row):
         self.factual_selections = selections
         return n_rows_missing
 
-    @lru_cache(maxsize=None)
+    @cache
     def get_target_value(self, engine: sa.engine.Engine) -> int:
         n_rows_total, selections = db_access.get_unique_count(engine, self.ref)
         self.target_selections = selections
         return n_rows_total
 
-    @lru_cache(maxsize=None)
+    @cache
     def compare(
         self, n_rows_missing: int, n_rows_total: int
     ) -> tuple[bool, str | None]:

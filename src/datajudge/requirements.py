@@ -1,11 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC
-from collections.abc import MutableSequence
+from collections.abc import Callable, Collection, MutableSequence, Sequence
 from typing import (
-    Callable,
-    Collection,
-    Sequence,
     TypeVar,
 )
 
