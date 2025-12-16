@@ -7,8 +7,14 @@
 Changelog
 =========
 
+1.11.0 - 2025.12.17
+-------------------
+
+- Drop support for Python 3.8 and Python 3.9.
+
+
 1.10.0 - 2025.02.13
-------------------
+-------------------
 
 - Address deprecation warnings from ``sqlalchemy``.
 
