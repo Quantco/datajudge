@@ -152,7 +152,8 @@ jobs:
       matrix:
         env:
           - db2-py310
-          - db2-py311
+          # Environment can't be solved.
+          # - db2-py311
           - db2-py312
           - db2-py313
     services:
