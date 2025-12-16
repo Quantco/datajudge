@@ -75,7 +75,7 @@ def engine(backend):
     return engine
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def metadata():
     return sa.MetaData()
 
