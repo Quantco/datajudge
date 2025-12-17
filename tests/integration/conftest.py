@@ -15,6 +15,7 @@ SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
 
 def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
+    connect_args = {}
 
     if backend == "impala":
         from impala.dbapi import connect
@@ -44,16 +45,42 @@ def get_engine(backend) -> sa.engine.Engine:
             )
             connection_string += f"?driver={msodbc_driver_name}"
     elif "snowflake" in backend:
+        # cryptography is a dependency of snowflake-connector,
+        # which is not present in the default environment
+        from cryptography.hazmat.primitives import serialization  # type: ignore
+
+        if not (private_key_env := os.getenv("SNOWFLAKE_PRIVATE_KEY")):
+            raise ValueError("SNOWFLAKE_PRIVATE_KEY environment variable is not set")
+
+        try:
+            private_key = serialization.load_pem_private_key(
+                private_key_env.encode(),
+                password=None,
+            )
+        except ValueError:
+            raise ValueError(
+                "SNOWFLAKE_PRIVATE_KEY value is invalid or corrupted"
+            ) from None
+
+        pkb = private_key.private_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
         user = os.environ.get("SNOWFLAKE_USER", "datajudge")
-        password = os.environ.get("SNOWFLAKE_PASSWORD")
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
-        connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
+        connection_string = f"snowflake://{user}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
+        connect_args["private_key"] = pkb
     elif "bigquery" in backend:
         # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = "bigquery://"
 
     engine = sa.create_engine(
-        connection_string, echo=True, pool_size=10, max_overflow=20
+        connection_string,
+        echo=True,
+        pool_size=10,
+        max_overflow=20,
+        connect_args=connect_args,
     )
     apply_patches(engine)
 
