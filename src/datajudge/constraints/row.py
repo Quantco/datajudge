@@ -25,8 +25,6 @@ class Row(Constraint, abc.ABC):
     def test(self, engine: sa.engine.Engine) -> TestResult:
         if self.ref is None or self.ref2 is None:
             raise ValueError()
-        if db_access.is_impala(engine):
-            raise NotImplementedError("Currently not implemented for impala.")
         self.max_missing_fraction = self.max_missing_fraction_getter(engine)
         self.ref1_minus_ref2_sample, _ = db_access.get_row_difference_sample(
             engine, self.ref, self.ref2

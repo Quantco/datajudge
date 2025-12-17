@@ -1,9 +1,7 @@
 import pytest
 
 from datajudge import Condition, WithinRequirement
-from datajudge.db_access import is_bigquery, is_db2, is_impala, is_mssql, is_postgresql
-
-# These tests
+from datajudge.db_access import is_bigquery, is_db2, is_mssql, is_postgresql
 
 
 @pytest.mark.parametrize("use_uppercase_column", [True, False])
@@ -13,15 +11,11 @@ def test_column_existence(
 ):
     if is_mssql(engine) and use_uppercase_column != use_uppercase_query:
         pytest.skip("Mssql interface expects exact capitalization.")
-    if is_bigquery(engine) and use_uppercase_column != use_uppercase_query:
+    elif is_bigquery(engine) and use_uppercase_column != use_uppercase_query:
         pytest.skip("BigQuery interface expects exact capitalization.")
-    if is_impala(engine) and use_uppercase_query:
-        pytest.skip(
-            "Impala interface transforms writes to lower-case, expects lower-case reads."
-        )
-    if is_postgresql(engine):
+    elif is_postgresql(engine):
         pytest.skip("Postgres interface always expects lower-cased columns.")
-    if is_db2(engine) and use_uppercase_query:
+    elif is_db2(engine) and use_uppercase_query:
         pytest.skip(
             "Db2 interface transforms writes to lower-case, expects lower-case reads."
         )
