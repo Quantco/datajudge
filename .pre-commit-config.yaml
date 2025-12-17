@@ -27,7 +27,7 @@ repos:
       # mypy
       - id: ty
         name: ty
-        entry: pixi run -e default ty check
+        entry: pixi run -e default ty check --no-progress
         language: system
         types: [python]
         require_serial: true
