@@ -34,6 +34,8 @@ python = "3.11.*"
 python = "3.12.*"
 [feature.py313.dependencies]
 python = "3.13.*"
+[feature.py314.dependencies]
+python = "3.14.*"
 
 [feature.unit.tasks]
 test = "pytest tests/unit"
@@ -124,13 +126,15 @@ py310 = ["test", "py310", "unit"]
 py311 = ["test", "py311", "unit"]
 py312 = ["test", "py312", "unit"]
 py313 = ["test", "py313", "unit"]
+py314 = ["test", "py314", "unit"]
 sa1 = ["sa1", "test", "unit"]
 sa2 = ["sa2", "test", "unit"]
 
 mssql-py310 = ["mssql", "py310", "test"]
 mssql-py311 = ["mssql", "py311", "test"]
 mssql-py312 = ["mssql", "py312", "test"]
-mssql-py313 = ["mssql", "py312", "test"]
+mssql-py313 = ["mssql", "py313", "test"]
+mssql-py314 = ["mssql", "py314", "test"]
 mssql-sa1 = ["mssql", "sa1", "test"]
 mssql-sa2 = ["mssql", "sa2", "test"]
 
@@ -138,6 +142,7 @@ postgres-py310 = ["postgres", "py310", "test"]
 postgres-py311 = ["postgres", "py311", "test"]
 postgres-py312 = ["postgres", "py312", "test"]
 postgres-py313 = ["postgres", "py313", "test"]
+postgres-py314 = ["postgres", "py314", "test"]
 postgres-sa1 = ["postgres", "sa1", "test"]
 postgres-sa2 = ["postgres", "sa2", "test"]
 
@@ -146,6 +151,8 @@ db2-py310 = ["db2", "py310", "test"]
 # db2-py311 = ["db2", "py311", "test"]
 db2-py312 = ["db2", "py312", "test"]
 db2-py313 = ["db2", "py313", "test"]
+# Can't be solved.
+# db2-py314 = ["db2", "py314", "test"]
 
 snowflake-py310 = ["snowflake", "py310", "test"]
 
