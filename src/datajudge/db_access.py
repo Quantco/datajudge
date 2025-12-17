@@ -1261,9 +1261,7 @@ def get_row_mismatch(
         subselection1.join(subselection2, match)
     )
     with engine.connect() as connection:
-        result_mismatch_intermediate = (
-            connection.execute(selection_difference).scalar()
-        )
+        result_mismatch_intermediate = connection.execute(selection_difference).scalar()
         result_n_rows_intermediate = connection.execute(selection_n_rows).scalar()
     if result_mismatch_intermediate is None or result_n_rows_intermediate is None:
         raise ValueError("Could not fetch number of mismatches.")
