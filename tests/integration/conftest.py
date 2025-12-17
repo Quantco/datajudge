@@ -57,9 +57,10 @@ def get_engine(backend) -> sa.engine.Engine:
                 private_key_env.encode(),
                 password=None,
             )
-        except Exception as exc:
-            # Avoid leaking sensitive key material or low-level error details
-            raise ValueError("SNOWFLAKE_PRIVATE_KEY value is invalid or corrupted") from None
+        except ValueError:
+            raise ValueError(
+                "SNOWFLAKE_PRIVATE_KEY value is invalid or corrupted"
+            ) from None
 
         pkb = private_key.private_bytes(
             encoding=serialization.Encoding.DER,
