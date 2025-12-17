@@ -98,9 +98,8 @@ pytest-xdist = "*"
 pytest-memray = "*"
 memray = "*"
 
-[feature.mypy.dependencies]
-mypy = "*"
-types-setuptools = "*"
+[feature.ty.dependencies]
+ty = "*"
 types-colorama = "*"
 pandas-stubs = "*"
 types-jinja2 = "*"
@@ -166,4 +165,4 @@ impala-sa1 = ["impala", "sa1", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
 
-mypy = ["mypy"]
+ty = ["ty"]

@@ -1185,8 +1185,7 @@ def get_primary_keys(
 ) -> tuple[list[str], None]:
     table = ref.data_source.get_clause(engine)
     # Kevin, 25/02/04
-    # Mypy complains about the following for a reason I can't follow.
-    return [column.name for column in table.primary_key.columns], None  # type: ignore
+    return [column.name for column in table.primary_key.columns], None
 
 
 def get_row_difference_sample(

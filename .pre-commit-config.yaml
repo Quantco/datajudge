@@ -25,9 +25,9 @@ repos:
         types_or: [python, pyi]
         require_serial: true
       # mypy
-      - id: mypy
-        name: mypy
-        entry: pixi run -e mypy mypy
+      - id: ty
+        name: ty
+        entry: pixi run -e ty ty check
         language: system
         types: [python]
         require_serial: true
