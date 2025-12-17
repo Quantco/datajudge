@@ -15,6 +15,7 @@ SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
 
 def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
+    connect_args = {}
 
     if backend == "impala":
         from impala.dbapi import connect
