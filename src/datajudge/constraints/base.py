@@ -3,7 +3,7 @@ from __future__ import annotations
 import abc
 from collections.abc import Callable, Collection
 from dataclasses import dataclass, field
-from functools import lru_cache
+from functools import cache
 from typing import Any, TypeVar
 
 import sqlalchemy as sa
@@ -149,14 +149,6 @@ class Constraint(abc.ABC):
         self.output_processors = output_processors
 
         self.cache_size = cache_size
-        self._setup_caching()
-
-    def _setup_caching(self):
-        # this has an added benefit of allowing the class to be garbage collected
-        # according to https://rednafi.com/python/lru_cache_on_methods/
-        # and https://docs.astral.sh/ruff/rules/cached-instance-method/
-        self.get_factual_value = lru_cache(self.cache_size)(self.get_factual_value)  # type: ignore[method-assign]
-        self.get_target_value = lru_cache(self.cache_size)(self.get_target_value)  # type: ignore[method-assign]
 
     def _check_if_valid_between_or_within(
         self,
@@ -176,13 +168,13 @@ class Constraint(abc.ABC):
                 f"{class_name}. Use exactly either of them."
             )
 
-    # @lru_cache(maxsize=None), see _setup_caching()
+    @cache
     def get_factual_value(self, engine: sa.engine.Engine) -> Any:
         factual_value, factual_selections = self.retrieve(engine, self.ref)
         self.factual_selections = factual_selections
         return factual_value
 
-    # @lru_cache(maxsize=None), see _setup_caching()
+    @cache
     def get_target_value(self, engine: sa.engine.Engine) -> Any:
         if self.ref2 is None:
             return self.ref_value
@@ -231,14 +223,17 @@ class Constraint(abc.ABC):
             f"Condition on second table: {ref2_clause}. "
         )
 
+    @abc.abstractmethod
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> tuple[Any, OptionalSelections]:
         """Retrieve the value of interest for a DataReference from database."""
-        pass
+        ...
 
-    def compare(self, value_factual: Any, value_target: Any) -> tuple[bool, str | None]:
-        pass
+    @abc.abstractmethod
+    def compare(
+        self, value_factual: Any, value_target: Any
+    ) -> tuple[bool, str | None]: ...
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         value_factual = self.get_factual_value(engine)
@@ -276,8 +271,11 @@ class Constraint(abc.ABC):
 
     def apply_output_formatting(self, values: Collection) -> Collection:
         if self.output_processors is not None:
-            for output_processor in self.output_processors:
-                values, _ = output_processor(values)
+            if isinstance(self.output_processors, list):
+                for output_processor in self.output_processors:
+                    values, _ = output_processor(values)
+            else:
+                values = self.output_processors(values)
         return values
 
 
