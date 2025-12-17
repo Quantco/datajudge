@@ -93,16 +93,15 @@ sqlalchemy = "2.*"
 [feature.test.dependencies]
 pytest-cov = "*"
 pytest-xdist = "*"
-
-[feature.test.target.unix.dependencies]
-pytest-memray = "*"
-memray = "*"
-
-[feature.ty.dependencies]
 ty = "*"
 types-colorama = "*"
 pandas-stubs = "*"
 types-jinja2 = "*"
+pytest-html = "*"
+
+[feature.test.target.unix.dependencies]
+pytest-memray = "*"
+memray = "*"
 
 [feature.lint.dependencies]
 pre-commit = "*"
@@ -118,7 +117,7 @@ pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
 [environments]
-default = ["test"]
+default = ["test", "impala"]
 docs = ["docs"]
 
 py310 = ["test", "py310", "unit"]
@@ -164,5 +163,3 @@ impala-py310 = ["impala", "py310", "sa1", "test"]
 impala-sa1 = ["impala", "sa1", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
-
-ty = ["ty"]

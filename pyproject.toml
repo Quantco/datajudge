@@ -55,3 +55,8 @@ known-first-party = ["datajudge"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.ty.terminal]
+error-on-warning = true
+[tool.ty.rules]
+invalid-method-override = "ignore"
