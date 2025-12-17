@@ -199,8 +199,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SNOWFLAKE_USER: DATAJUDGE
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
     strategy:
       fail-fast: false
       matrix:
