@@ -62,7 +62,6 @@ def get_engine(backend) -> sa.engine.Engine:
             encryption_algorithm=serialization.NoEncryption(),
         )
         user = os.environ.get("SNOWFLAKE_USER", "datajudge")
-        password = os.environ.get("SNOWFLAKE_PASSWORD")
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
         connection_string = f"snowflake://{user}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
         connect_args["private_key"] = pkb
