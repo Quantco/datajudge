@@ -52,9 +52,14 @@ def get_engine(backend) -> sa.engine.Engine:
         if not (private_key_env := os.getenv("SNOWFLAKE_PRIVATE_KEY")):
             raise ValueError("SNOWFLAKE_PRIVATE_KEY environment variable is not set")
 
-        private_key = serialization.load_pem_private_key(
-            private_key_env.encode(), password=None
-        )
+        try:
+            private_key = serialization.load_pem_private_key(
+                private_key_env.encode(),
+                password=None,
+            )
+        except Exception as exc:
+            # Avoid leaking sensitive key material or low-level error details
+            raise ValueError("SNOWFLAKE_PRIVATE_KEY value is invalid or corrupted") from None
 
         pkb = private_key.private_bytes(
             encoding=serialization.Encoding.DER,
