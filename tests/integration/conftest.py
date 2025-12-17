@@ -45,23 +45,36 @@ def get_engine(backend) -> sa.engine.Engine:
             )
             connection_string += f"?driver={msodbc_driver_name}"
     elif "snowflake" in backend:
-        from cryptography.hazmat.primitives import serialization
+        # cryptography is a dependency of snowflake-connector,
+        # which is not present in the default environment
+        from cryptography.hazmat.primitives import serialization  # type: ignore
 
-        private_key_env = os.getenv("SNOWFLAKE_PRIVATE_KEY")
-        p_key = serialization.load_pem_private_key(
-            private_key_env.encode(),
-            password=None
+        if not (private_key_env := os.getenv("SNOWFLAKE_PRIVATE_KEY")):
+            raise ValueError("SNOWFLAKE_PRIVATE_KEY environment variable is not set")
+
+        private_key = serialization.load_pem_private_key(
+            private_key_env.encode(), password=None
+        )
+
+        pkb = private_key.private_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
         )
         user = os.environ.get("SNOWFLAKE_USER", "datajudge")
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
         connection_string = f"snowflake://{user}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
-        connect_args["private_key"] = p_key
+        connect_args["private_key"] = pkb
     elif "bigquery" in backend:
         # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = "bigquery://"
 
     engine = sa.create_engine(
-        connection_string, echo=True, pool_size=10, max_overflow=20, connect_args=connect_args
+        connection_string,
+        echo=True,
+        pool_size=10,
+        max_overflow=20,
+        connect_args=connect_args,
     )
     apply_patches(engine)
 
