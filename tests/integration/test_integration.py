@@ -12,7 +12,6 @@ from datajudge.db_access import (
     Condition,
     is_bigquery,
     is_db2,
-    is_impala,
     is_mssql,
     is_postgresql,
     is_snowflake,
@@ -2572,7 +2571,6 @@ def test_backend_dependent_condition(engine, mix_table1):
         is_postgresql(engine)
         or is_snowflake(engine)
         or is_bigquery(engine)
-        or is_impala(engine)
         or is_db2(engine)
     ):
         condition = Condition(raw_string="LENGTH(col_varchar) = 3")
@@ -2750,8 +2748,6 @@ def test_column_type_between(engine, get_fixture, data):
 def test_primary_key_definition_within(engine, pk_table, data):
     if is_bigquery(engine):
         pytest.skip("No primary key concept in BigQuery")
-    if is_impala(engine):
-        pytest.skip("Currently not implemented for impala.")
 
     (operation, columns) = data
     req = requirements.WithinRequirement.from_table(*pk_table)
@@ -2786,7 +2782,7 @@ def test_uniqueness_within(engine, mix_table2, data):
     # is not correctly compiled when dealing with snowflake or bigquery.
     # Use the mod function instead
     if (
-        (is_snowflake(engine) or is_bigquery(engine) or is_impala(engine))
+        (is_snowflake(engine) or is_bigquery(engine))
         and condition is not None
         and condition.raw_string is not None
         and "% 2 = 0" in condition.raw_string
@@ -2809,8 +2805,6 @@ def test_uniqueness_within(engine, mix_table2, data):
     ],
 )
 def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
-    if is_impala(engine):
-        pytest.skip("Primary key retrieval currently not implemented for impala.")
     if is_bigquery(engine):
         pytest.skip("No primary key concept in BigQuery")
     # We purposefully select a non-unique column ["col_date"] to validate
@@ -2891,8 +2885,6 @@ def test_max_null_fraction_between(engine, unique_table1, data):
 )
 def test_column_type_within(engine, mix_table1, data):
     (operation, col_name, type_name) = data
-    if is_impala(engine) and isinstance(type_name, str):
-        type_name = {"VARCHAR": "string", "INTEGER": "int"}[type_name]
     req = requirements.WithinRequirement.from_table(*mix_table1)
     req.add_column_type_constraint(col_name, type_name)
     test_result = req[0].test(engine)
@@ -2933,8 +2925,6 @@ def test_column_type_within(engine, mix_table1, data):
     ],
 )
 def test_row_equality_between(engine, mix_table1, mix_table2, data):
-    if is_impala(engine):
-        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (operation, columns, max_missing_fraction, condition1, condition2) = data
     req = requirements.BetweenRequirement.from_tables(*mix_table1, *mix_table2)
     req.add_row_equality_constraint(
@@ -2976,8 +2966,6 @@ def test_row_equality_between(engine, mix_table1, mix_table2, data):
     ],
 )
 def test_row_subset_between(engine, mix_table1, mix_table2, data):
-    if is_impala(engine):
-        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (
         operation,
         columns,
@@ -3030,8 +3018,6 @@ def test_row_subset_between(engine, mix_table1, mix_table2, data):
     ],
 )
 def test_row_superset_between(engine, mix_table2, mix_table1, data):
-    if is_impala(engine):
-        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (
         operation,
         columns,
@@ -3078,8 +3064,6 @@ def test_row_matching_equality(engine, row_match_table1, row_match_table2, data)
     # TODO: Not sure why this doesn't work
     if is_db2(engine):
         pytest.skip()
-    if is_impala(engine):
-        pytest.skip("Currently not implemented for Impala. EXCEPT throws syntax error.")
     (
         operation,
         matching_columns,
@@ -3110,8 +3094,6 @@ def test_groupby_aggregation_within(engine, groupby_aggregation_table_correct, k
     # TODO: This should actually work for db2
     if is_db2(engine):
         pytest.skip()
-    if is_impala(engine):
-        pytest.skip("array_agg does not exist for Impala.")
     req = requirements.WithinRequirement.from_table(*groupby_aggregation_table_correct)
     req.add_groupby_aggregation_constraint(key, "value", 1)
     test_result = req[0].test(engine)
@@ -3126,8 +3108,6 @@ def test_groupby_aggregation_within_with_failures(
     skip_if_mssql(engine)
     if is_db2(engine):
         pytest.skip()
-    if is_impala(engine):
-        pytest.skip("array_agg does not exist for Impala.")
     req = requirements.WithinRequirement.from_table(
         *groupby_aggregation_table_incorrect
     )
@@ -3250,7 +3230,7 @@ def test_ks_2sample_constraint_wrong_between(
     ],
 )
 def test_ks_2sample_random(engine, random_normal_table, configuration):
-    if is_bigquery(engine) or is_impala(engine) or is_db2(engine):
+    if is_bigquery(engine) or is_db2(engine):
         pytest.skip("It takes too long to insert the table.")
 
     (operation, col_1, col_2, min_p_value) = configuration
