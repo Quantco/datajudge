@@ -7,7 +7,7 @@ import urllib.parse
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_impala, is_mssql
+from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -17,21 +17,9 @@ def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
     connect_args = {}
 
-    if backend == "impala":
-        from impala.dbapi import connect
-
-        def conn_creator():
-            return connect(
-                host=address,
-                port=21050,
-                database="default",
-            )
-
-        return sa.create_engine("impala://", creator=conn_creator)
-
     if backend == "postgres":
         connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
-    if backend == "db2":
+    elif backend == "db2":
         connection_string = f"db2+ibm_db://db2inst1:password@{address}:50000/testdb"
     elif "mssql" in backend:
         connection_string = (
@@ -74,6 +62,8 @@ def get_engine(backend) -> sa.engine.Engine:
     elif "bigquery" in backend:
         # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = "bigquery://"
+    else:
+        raise NotImplementedError(f"Backend {backend} not supported.")
 
     engine = sa.create_engine(
         connection_string,
@@ -97,7 +87,7 @@ def _string_column(engine, minlength_db2=40):
 def engine(backend):
     engine = get_engine(backend)
     with engine.begin() as conn:
-        if engine.name in ("postgresql", "bigquery", "impala"):
+        if engine.name in ("postgresql", "bigquery"):
             conn.execute(sa.text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}"))
     return engine
 
@@ -788,10 +778,6 @@ def unique_table2(engine, metadata):
 
 @pytest.fixture(scope="module")
 def unique_table_extralong(engine, metadata):
-    if is_impala(engine):
-        pytest.skip(
-            "Skipping this larger output check for impala due to it being quite brittle"
-        )
     if is_bigquery(engine):
         pytest.skip(
             "Skipping this larger output check for bigquery since creating the table is very slow"
@@ -808,10 +794,6 @@ def unique_table_extralong(engine, metadata):
 
 @pytest.fixture(scope="module")
 def unique_table_largesize(engine, metadata):
-    if is_impala(engine):
-        pytest.skip(
-            "Skipping this larger output check for impala due to it being quite brittle"
-        )
     if is_bigquery(engine):
         pytest.skip(
             "Skipping this larger output check for bigquery since creating the table is very slow"
@@ -1108,7 +1090,7 @@ def random_normal_table(engine, metadata):
     Table with normally distributed values of varying means and sd 1.
     """
 
-    if is_bigquery(engine) or is_impala(engine):
+    if is_bigquery(engine):
         # It takes too long to insert the table into BigQuery,
         # test using this fixture must be disabled for BigQuery
         return None, None, None
@@ -1152,10 +1134,6 @@ def capitalization_table(engine, metadata):
     elif is_bigquery(engine):
         str_datatype = "STRING"
         primary_key = ""  # there is no primary key in BigQuery
-    elif is_impala(engine):
-        str_datatype = "STRING"
-        # Impala supports primary keys but uses a different grammar.
-        primary_key = ""
     elif is_db2(engine):
         str_datatype = "VARCHAR(20)"
         # Primary key needs to be non-nullable.
@@ -1215,7 +1193,6 @@ def pytest_addoption(parser):
                 "postgres",
                 "snowflake",
                 "bigquery",
-                "impala",
                 "db2",
             )
         ),

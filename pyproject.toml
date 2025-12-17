@@ -63,5 +63,5 @@ allow_empty_bodies = true
 check_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["scipy.*", "impala.*", "pytest_html"]
+module = ["scipy.*", "pytest_html"]
 ignore_missing_imports = true

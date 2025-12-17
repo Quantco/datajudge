@@ -30,10 +30,6 @@ def is_bigquery(engine: sa.engine.Engine) -> bool:
     return engine.name == "bigquery"
 
 
-def is_impala(engine: sa.engine.Engine) -> bool:
-    return engine.name == "impala"
-
-
 def is_db2(engine: sa.engine.Engine) -> bool:
     return engine.name == "ibm_db_sa"
 
@@ -442,15 +438,6 @@ def get_date_span(
                 )
             ]
         )
-    elif is_impala(engine):
-        selection = sa.select(
-            *[
-                sa.func.datediff(
-                    sa.func.to_date(sa.func.max(column)),
-                    sa.func.to_date(sa.func.min(column)),
-                )
-            ]
-        )
     elif is_db2(engine):
         selection = sa.select(
             *[
@@ -794,14 +781,6 @@ def _date_gap_condition(
             )
             > legitimate_gap_size
         )
-    elif is_impala(engine):
-        gap_condition = (
-            sa.func.datediff(
-                sa.func.to_date(start_table.c[start_column]),
-                sa.func.to_date(end_table.c[end_column]),
-            )
-            > legitimate_gap_size
-        )
     elif is_bigquery(engine):
         # see https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_diff
         # Note that to have a gap (positive date_diff), the first date (start table)
@@ -983,8 +962,6 @@ def get_mean(
     engine: sa.engine.Engine, ref: DataReference
 ) -> tuple[Any, list[sa.Select]]:
     def column_operator(column):
-        if is_impala(engine):
-            return sa.func.avg(column)
         return sa.func.avg(sa.cast(column, sa.DECIMAL))
 
     return get_column(engine, ref, aggregate_operator=column_operator)
@@ -1503,14 +1480,10 @@ def get_regex_violations(
     if aggregated:
         original_selection = original_selection.distinct()
     subquery = original_selection.subquery()
-    if is_impala(engine):
-        violation_selection = sa.select(subquery.c[column]).where(
-            sa.not_(sa.func.regexp_like(subquery.c[column], regex))
-        )
-    else:
-        violation_selection = sa.select(subquery.c[column]).where(
-            sa.not_(subquery.c[column].regexp_match(regex))
-        )
+
+    violation_selection = sa.select(subquery.c[column]).where(
+        sa.not_(subquery.c[column].regexp_match(regex))
+    )
     n_violations_selection = sa.select(sa.func.count()).select_from(
         violation_selection.subquery()
     )

@@ -77,13 +77,6 @@ sqlalchemy-bigquery = "*"
 test = "pytest tests/integration --backend=bigquery -v -n=16"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=bigquery -v -n=16"
 
-[feature.impala.dependencies]
-# We encounter thrift related problems with impyla 0.20.
-impyla = "<0.20"
-[feature.impala.tasks]
-test = "pytest tests/integration --backend=impala"
-coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=impala"
-
 [feature.sa1.dependencies]
 sqlalchemy = "1.*"
 
@@ -158,11 +151,6 @@ snowflake-py310 = ["snowflake", "py310", "test"]
 
 bigquery-py310 = ["bigquery", "py310", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
-
-# We specify sqlalchemy 1 due to this bug:
-# https://github.com/cloudera/impyla/issues/512
-impala-py310 = ["impala", "py310", "sa1", "test"]
-impala-sa1 = ["impala", "sa1", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
 
