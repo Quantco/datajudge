@@ -3,7 +3,6 @@ import itertools
 import os
 import random
 import urllib.parse
-from typing import Dict, List, Optional, Union
 
 import pytest
 import sqlalchemy as sa
@@ -76,7 +75,7 @@ def engine(backend):
     return engine
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def metadata():
     return sa.MetaData()
 
@@ -631,7 +630,7 @@ def float_table_gap(engine, metadata):
         sa.Column("range_start", sa.Float()),
         sa.Column("range_end", sa.Float()),
     ]
-    data: List[Dict[str, Union[int, float]]] = []
+    data: list[dict[str, int | float]] = []
     # Single entry should not be considered a gap.
     data += [
         {
@@ -805,7 +804,7 @@ def unique_table_largesize(engine, metadata):
 @pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("nested_varchar", _string_column(engine))
     ]
     data = [
@@ -890,10 +889,10 @@ def functional_dependency_table_multi_key(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table1(engine, metadata):
     table_name = "varchar_table1"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
-    data: List[Dict[str, Optional[str]]] = [
+    data: list[dict[str, str | None]] = [
         {"col_varchar": "qq" * i} for i in range(1, 10)
     ]
     data.append({"col_varchar": None})
@@ -904,7 +903,7 @@ def varchar_table1(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table2(engine, metadata):
     table_name = "varchar_table2"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(2, 11)]
@@ -915,7 +914,7 @@ def varchar_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table_real(engine, metadata):
     table_name = "varchar_table_real"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [

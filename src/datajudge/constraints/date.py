@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import Any, Union
+from typing import Any
 
 import sqlalchemy as sa
 
@@ -12,7 +12,7 @@ from .interval import NoGapConstraint, NoOverlapConstraint
 
 INPUT_DATE_FORMAT = "'%Y-%m-%d'"
 
-Date = Union[str, dt.date, dt.datetime]
+Date = str | dt.date | dt.datetime
 
 
 def get_format_from_column_type(column_type: str) -> str:

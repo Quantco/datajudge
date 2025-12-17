@@ -33,11 +33,11 @@ jobs:
       fail-fast: true
       matrix:
         env:
-          - py38
-          - py39
           - py310
           - py311
           - py312
+          - py313
+          - py314
           - sa1
           - sa2
         os:
@@ -69,11 +69,11 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - mssql-py38
-          - mssql-py39
           - mssql-py310
           - mssql-py311
           - mssql-py312
+          - mssql-py313
+          - mssql-py314
           - mssql-sa1
           - mssql-sa2
     services:
@@ -114,11 +114,11 @@ jobs:
           - latest
           - 11
         env:
-          - postgres-py38
-          - postgres-py39
           - postgres-py310
           - postgres-py311
           - postgres-py312
+          - postgres-py313
+          - postgres-py313
           - postgres-sa1
           - postgres-sa2
     services:
@@ -154,9 +154,13 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - db2-py38
-          - db2-py39
           - db2-py310
+          # Environment can't be solved.
+          # - db2-py311
+          - db2-py312
+          - db2-py313
+          # Environment can't be solved.
+          # - db2-py314
     services:
       DB:
         image: ibmcom/db2:11.5.5.1
@@ -201,7 +205,7 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - snowflake-py38
+          - snowflake-py310
     steps:
       - name: Checkout branch
         uses: actions/checkout@v6
@@ -259,7 +263,7 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - impala-py38
+          - impala-py310
           - impala-sa1
     steps:
       - name: Checkout branch

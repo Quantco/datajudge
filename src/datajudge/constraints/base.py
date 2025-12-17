@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Callable, Collection
 from dataclasses import dataclass, field
 from functools import lru_cache
-from typing import Any, Callable, Collection, List, Optional, TypeVar
+from typing import Any, TypeVar
 
 import sqlalchemy as sa
 
@@ -14,7 +15,7 @@ from ..utils import OutputProcessor, output_processor_limit
 DEFAULT_FORMATTER = Formatter()
 
 T = TypeVar("T")
-OptionalSelections = Optional[List[sa.sql.expression.Select]]
+OptionalSelections = list[sa.sql.expression.Select] | None
 ToleranceGetter = Callable[[sa.engine.Engine], float]
 
 
