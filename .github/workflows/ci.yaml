@@ -37,6 +37,7 @@ jobs:
           - py311
           - py312
           - py313
+          - py314
           - sa1
           - sa2
         os:
@@ -72,6 +73,7 @@ jobs:
           - mssql-py311
           - mssql-py312
           - mssql-py313
+          - mssql-py314
           - mssql-sa1
           - mssql-sa2
     services:
@@ -116,6 +118,7 @@ jobs:
           - postgres-py311
           - postgres-py312
           - postgres-py313
+          - postgres-py314
           - postgres-sa1
           - postgres-sa2
     services:
@@ -156,6 +159,7 @@ jobs:
           # - db2-py311
           - db2-py312
           - db2-py313
+          - db2-py314
     services:
       DB:
         image: ibmcom/db2:11.5.5.1
