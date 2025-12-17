@@ -223,17 +223,14 @@ class Constraint(abc.ABC):
             f"Condition on second table: {ref2_clause}. "
         )
 
-    @abc.abstractmethod
     def retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> tuple[Any, OptionalSelections]:
         """Retrieve the value of interest for a DataReference from database."""
-        ...
+        raise NotImplementedError()
 
-    @abc.abstractmethod
-    def compare(
-        self, value_factual: Any, value_target: Any
-    ) -> tuple[bool, str | None]: ...
+    def compare(self, value_factual: Any, value_target: Any) -> tuple[bool, str | None]:
+        raise NotImplementedError()
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         value_factual = self.get_factual_value(engine)
