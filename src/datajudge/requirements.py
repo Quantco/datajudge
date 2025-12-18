@@ -65,13 +65,13 @@ class Requirement(ABC, MutableSequence):
     def insert(self, index: int, value: Constraint) -> None:
         self._constraints.insert(index, value)
 
-    def __getitem__(self, i):  # type: ignore[invalid-method-override]
+    def __getitem__(self, i):
         return self._constraints[i]
 
-    def __setitem__(self, i, o) -> None:  # type: ignore[invalid-method-override]
+    def __setitem__(self, i, o) -> None:
         self._constraints[i] = o
 
-    def __delitem__(self, i) -> None:  # type: ignore[invalid-method-override]
+    def __delitem__(self, i) -> None:
         del self._constraints[i]
 
     def __len__(self) -> int:

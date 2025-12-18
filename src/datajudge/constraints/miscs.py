@@ -101,7 +101,7 @@ class Uniqueness(Constraint):
         self.target_selections = unique_selections
         if row_count == 0:
             return TestResult(True, "No occurrences.")
-        tolerance_kind, tolerance_value = self.ref_value  # type: ignore
+        tolerance_kind, tolerance_value = self.ref_value
         if tolerance_kind == "relative":
             result = unique_count >= row_count * (1 - tolerance_value)
         elif tolerance_kind == "absolute":
