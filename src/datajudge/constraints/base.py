@@ -146,7 +146,7 @@ class Constraint(abc.ABC):
             not isinstance(output_processors, list)
         ):
             output_processors = [output_processors]
-        self.output_processors = output_processors
+        self.output_processors: list[OutputProcessor] | None = output_processors
 
         self.cache_size = cache_size
 
@@ -268,11 +268,8 @@ class Constraint(abc.ABC):
 
     def apply_output_formatting(self, values: Collection) -> Collection:
         if self.output_processors is not None:
-            if isinstance(self.output_processors, list):
-                for output_processor in self.output_processors:
-                    values, _ = output_processor(values)
-            else:
-                values = self.output_processors(values)
+            for output_processor in self.output_processors:
+                values, _ = output_processor(values)
         return values
 
 
