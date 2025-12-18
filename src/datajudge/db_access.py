@@ -11,7 +11,6 @@ from typing import Any, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable
-from sqlalchemy.sql.expression import FromClause
 
 
 def is_mssql(engine: sa.engine.Engine) -> bool:
@@ -211,12 +210,10 @@ class MatchAndCompare:
 
 class DataSource(ABC):
     @abstractmethod
-    def __str__(self) -> str:
-        pass
+    def __str__(self) -> str: ...
 
     @abstractmethod
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        pass
+    def get_clause(self, engine: sa.engine.Engine) -> sa.FromClause: ...
 
 
 @functools.lru_cache(maxsize=1)
@@ -241,10 +238,10 @@ class TableDataSource(DataSource):
             return f"{self.db_name}.{self.schema_name}.{self.table_name}"
         return self.table_name
 
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
+    def get_clause(self, engine: sa.engine.Engine) -> sa.Table:
         schema = self.schema_name
-        if is_mssql(engine):
-            schema = self.db_name + "." + self.schema_name  # type: ignore
+        if is_mssql(engine) and self.schema_name:
+            schema = self.db_name + "." + self.schema_name
 
         return sa.Table(
             self.table_name,
@@ -256,7 +253,7 @@ class TableDataSource(DataSource):
 
 @final
 class ExpressionDataSource(DataSource):
-    def __init__(self, expression: FromClause | sa.Select, name: str):
+    def __init__(self, expression: sa.FromClause | sa.Select, name: str):
         self.expression = expression
         self.name = name
 
@@ -266,7 +263,7 @@ class ExpressionDataSource(DataSource):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(expression={self.expression!r}, name={self.name})"
 
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
+    def get_clause(self, engine: sa.engine.Engine) -> sa.FromClause:
         return self.expression.alias()
 
 
@@ -294,7 +291,7 @@ class RawQueryDataSource(DataSource):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(query_string={self.query_string}, name={self.name}, columns={self.columns})"
 
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
+    def get_clause(self, engine: sa.engine.Engine) -> sa.FromClause:
         return self.clause
 
 
@@ -488,7 +485,7 @@ def get_interval_overlaps_nd(
     start_columns: list[str],
     end_columns: list[str],
     end_included: bool,
-) -> tuple[sa.sql.selectable.CompoundSelect, sa.sql.selectable.Select]:
+) -> tuple[sa.CompoundSelect, sa.Select]:
     """Create selectables for interval overlaps in n dimensions.
 
     We define the presence of 'overlap' as presence of a non-empty intersection
@@ -1161,7 +1158,6 @@ def get_primary_keys(
     engine: sa.engine.Engine, ref: DataReference
 ) -> tuple[list[str], None]:
     table = ref.data_source.get_clause(engine)
-    # Kevin, 25/02/04
     return [column.name for column in table.primary_key.columns], None
 
 
@@ -1246,7 +1242,7 @@ def get_row_mismatch(
     return result_mismatch, result_n_rows, [selection_difference, selection_n_rows]
 
 
-def duplicates(subquery: sa.sql.selectable.Subquery) -> sa.Select:
+def duplicates(subquery: sa.Subquery) -> sa.Select:
     aggregate_subquery = (
         sa.select(subquery, sa.func.count().label("n_copies"))
         .select_from(subquery)
