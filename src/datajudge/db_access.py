@@ -1157,8 +1157,15 @@ def get_column_type(engine: sa.engine.Engine, ref: DataReference) -> tuple[Any, 
 def get_primary_keys(
     engine: sa.engine.Engine, ref: DataReference
 ) -> tuple[list[str], None]:
-    table = ref.data_source.get_clause(engine)
-    return [column.name for column in table.primary_key.columns], None
+    data_source = ref.data_source
+
+    if isinstance(data_source, TableDataSource):
+        table = data_source.get_clause(engine)
+        return [column.name for column in table.primary_key.columns], None
+
+    raise NotImplementedError(
+        f"Cannot determine primary keys of a data source of type {type(data_source)}."
+    )
 
 
 def get_row_difference_sample(
