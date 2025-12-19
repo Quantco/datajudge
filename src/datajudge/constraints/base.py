@@ -240,8 +240,8 @@ class Constraint(abc.ABC):
         raise NotImplementedError()
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        value_factual = self.get_factual_value(engine)
-        value_target = self.get_target_value(engine)
+        value_factual = self.get_factual_value(engine=engine)
+        value_target = self.get_target_value(engine=engine)
         is_success, assertion_message = self.compare(value_factual, value_target)
         if is_success:
             return TestResult.success()

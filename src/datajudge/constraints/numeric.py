@@ -152,8 +152,8 @@ class NumericMean(Constraint):
         return result, selections
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        mean_factual = self.get_factual_value(engine)
-        mean_target = self.get_target_value(engine)
+        mean_factual = self.get_factual_value(engine=engine)
+        mean_target = self.get_target_value(engine=engine)
         if mean_factual is None or mean_target is None:
             return TestResult(
                 mean_factual is None and mean_target is None,
