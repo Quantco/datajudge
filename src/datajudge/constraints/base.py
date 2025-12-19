@@ -1,9 +1,7 @@
-from __future__ import annotations
-
 import abc
 from collections.abc import Callable, Collection
 from dataclasses import dataclass, field
-from functools import cache
+from functools import lru_cache
 from typing import Any, TypeVar
 
 import sqlalchemy as sa
@@ -149,6 +147,17 @@ class Constraint(abc.ABC):
         self.output_processors: list[OutputProcessor] | None = output_processors
 
         self.cache_size = cache_size
+        self._setup_caching()
+
+    def _setup_caching(self):
+        # We don't use cache or lru_cache decorators since those would lead
+        # to class-based, not instance-based caching.
+        #
+        # Using this approach has the added benefit of allowing the class to be garbage collected
+        # according to https://rednafi.com/python/lru_cache_on_methods/
+        # and https://docs.astral.sh/ruff/rules/cached-instance-method/
+        self.get_factual_value = lru_cache(self.cache_size)(self.get_factual_value)  # type: ignore[method-assign]
+        self.get_target_value = lru_cache(self.cache_size)(self.get_target_value)  # type: ignore[method-assign]
 
     def _check_if_valid_between_or_within(
         self,
@@ -168,13 +177,11 @@ class Constraint(abc.ABC):
                 f"{class_name}. Use exactly either of them."
             )
 
-    @cache
     def get_factual_value(self, engine: sa.engine.Engine) -> Any:
         factual_value, factual_selections = self.retrieve(engine, self.ref)
         self.factual_selections = factual_selections
         return factual_value
 
-    @cache
     def get_target_value(self, engine: sa.engine.Engine) -> Any:
         if self.ref2 is None:
             return self.ref_value
