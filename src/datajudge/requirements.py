@@ -1381,20 +1381,13 @@ class BetweenRequirement(Requirement):
     ) -> Callable[[sa.engine.Engine], float]:
         if fix_value is None and deviation is None:
             raise ValueError("No valid gain/loss/deviation given.")
-        # The second predictate is redundant but appeases mypy since fix_value
-        # could, a priori, be None.
-        if deviation is None and fix_value is not None:
+        if deviation is None:
             return lambda engine: fix_value
-        # The second predictate is redundant but appeases mypy since deviation
-        # could, a priori, be None.
-        if fix_value is None and deviation is not None:
+        if fix_value is None:
             return lambda engine: self.get_date_growth_rate(engine) + deviation
-        # This clause is redundant but appeases mypy.
-        if fix_value is not None and deviation is not None:
-            return lambda engine: max(
-                fix_value, self.get_date_growth_rate(engine) + deviation
-            )
-        raise ValueError("No valid gain/loss/deviation given.")
+        return lambda engine: max(
+            fix_value, self.get_date_growth_rate(engine) + deviation
+        )
 
     def add_n_rows_equality_constraint(
         self,

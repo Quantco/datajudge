@@ -152,8 +152,12 @@ class NumericMean(Constraint):
         return result, selections
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        mean_factual = self.get_factual_value(engine=engine)
-        mean_target = self.get_target_value(engine=engine)
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        mean_factual = self.get_factual_value(engine=engine)  # type: ignore[missing-argument]
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        mean_target = self.get_target_value(engine=engine)  # type: ignore[missing-argument]
         if mean_factual is None or mean_target is None:
             return TestResult(
                 mean_factual is None and mean_target is None,

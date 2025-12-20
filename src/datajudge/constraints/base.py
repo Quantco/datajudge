@@ -156,8 +156,12 @@ class Constraint(abc.ABC):
         # Using this approach has the added benefit of allowing the class to be garbage collected
         # according to https://rednafi.com/python/lru_cache_on_methods/
         # and https://docs.astral.sh/ruff/rules/cached-instance-method/
-        self.get_factual_value = lru_cache(self.cache_size)(self.get_factual_value)  # type: ignore[method-assign]
-        self.get_target_value = lru_cache(self.cache_size)(self.get_target_value)  # type: ignore[method-assign]
+        self.get_factual_value: Callable[[Constraint, sa.engine.Engine], Any] = (
+            lru_cache(self.cache_size)(self.get_factual_value)
+        )
+        self.get_target_value: Callable[[Constraint, sa.engine.Engine], Any] = (
+            lru_cache(self.cache_size)(self.get_target_value)
+        )
 
     def _check_if_valid_between_or_within(
         self,
@@ -240,8 +244,12 @@ class Constraint(abc.ABC):
         raise NotImplementedError()
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        value_factual = self.get_factual_value(engine=engine)
-        value_target = self.get_target_value(engine=engine)
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        value_factual = self.get_factual_value(engine=engine)  # type: ignore[missing-argument]
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        value_target = self.get_target_value(engine=engine)  # type: ignore[missing-argument]
         is_success, assertion_message = self.compare(value_factual, value_target)
         if is_success:
             return TestResult.success()
