@@ -120,11 +120,7 @@ class VarCharRegex(Constraint):
             return TestResult.failure("No regex pattern given")
 
         pattern = re.compile(self.ref_value)
-        uniques_mismatching = {
-            x
-            for x in uniques_factual
-            if not pattern.match(x)  # type: ignore
-        }
+        uniques_mismatching = {x for x in uniques_factual if not pattern.match(x)}
 
         if self.aggregated:
             n_violations = len(uniques_mismatching)

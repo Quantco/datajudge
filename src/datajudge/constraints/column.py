@@ -17,7 +17,7 @@ class Column(Constraint, abc.ABC):
         # side effects. This should be removed as soon as snowflake column capitalization
         # is fixed by snowflake-sqlalchemy.
         if is_snowflake(engine) and self.ref_value is not None:
-            self.ref_value = lowercase_column_names(self.ref_value)  # type: ignore
+            self.ref_value = lowercase_column_names(self.ref_value)
         return db_access.get_column_names(engine, ref)
 
 

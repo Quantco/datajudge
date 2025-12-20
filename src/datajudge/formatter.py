@@ -12,7 +12,7 @@ class Formatter(abc.ABC):
         self.known_bb_pattern = re.compile(STYLING_CODES)
 
     # Just ignore styling in the default formatter
-    def apply_formatting(self, _: str, inner: str) -> str:
+    def apply_formatting(self, code: str, inner: str) -> str:
         return inner
 
     def fmt_str(self, string: str) -> str:

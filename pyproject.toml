@@ -56,12 +56,7 @@ known-first-party = ["datajudge"]
 quote-style = "double"
 indent-style = "space"
 
-[tool.mypy]
-python_version = '3.10'
-no_implicit_optional = true
-allow_empty_bodies = true
-check_untyped_defs = true
-
-[[tool.mypy.overrides]]
-module = ["scipy.*", "pytest_html"]
-ignore_missing_imports = true
+[tool.ty.terminal]
+error-on-warning = true
+[tool.ty.rules]
+invalid-method-override = "ignore"

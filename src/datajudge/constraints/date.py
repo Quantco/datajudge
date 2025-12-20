@@ -118,7 +118,9 @@ class DateMax(Constraint):
         value, selections = db_access.get_max(engine, ref)
         return convert_to_date(value, self.format), selections
 
-    def compare(self, max_factual: dt.date, max_target: dt.date) -> tuple[bool, str]:
+    def compare(
+        self, max_factual: dt.date, max_target: dt.date
+    ) -> tuple[bool, str | None]:
         if max_factual is None:
             return True, None
         if max_target is None:
