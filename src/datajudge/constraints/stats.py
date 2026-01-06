@@ -24,13 +24,13 @@ class KolmogorovSmirnov2Sample(Constraint):
 
     @staticmethod
     def approximate_p_value(d: float, n_samples: int, m_samples: int) -> float | None:
-        """
-        Calculates the approximate p-value according to
+        """Calculate the approximate p-value.
+
+        The computation is according to
         'A procedure to find exact critical values of Kolmogorov-Smirnov Test', Silvia Fachinetti, 2009
 
         Note: For environments with `scipy` installed, this method will return a quasi-exact p-value.
         """
-
         # approximation does not work for small sample sizes
         samples = min(n_samples, m_samples)
         if samples < 35:
@@ -58,8 +58,10 @@ class KolmogorovSmirnov2Sample(Constraint):
         d_statistic: float, n_samples: int, m_samples: int, accepted_level: float
     ) -> bool:
         """
-        For a given test statistic, d, and the respective sample sizes `n` and `m`, this function
-        checks whether the null hypothesis can be rejected for an accepted significance level.
+        Check whether the null hypothesis can be rejected for an accepted significance level.
+
+        `d_statistic is the test statistic of interest, and `n_samples` and `m_samples`
+        correspond to the respective sample sizes.
 
         For more information, check out the `Wikipedia entry <https://w.wiki/5May>`_.
         """
