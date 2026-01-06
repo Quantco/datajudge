@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Collection, Protocol
+from collections.abc import Collection
+from typing import Protocol
 
 
 def _fmt_diff_part(s, d):
@@ -51,7 +52,7 @@ def format_difference(
 
 
 class OutputProcessor(Protocol):
-    def __call__(  # noqa: E704
+    def __call__(
         self,
         collection: Collection,
         counts: Collection | None = None,

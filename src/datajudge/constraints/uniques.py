@@ -3,9 +3,9 @@ from __future__ import annotations
 import abc
 import warnings
 from collections import Counter
+from collections.abc import Callable, Collection
 from itertools import zip_longest
 from math import ceil, floor
-from typing import Callable, Collection
 
 import sqlalchemy as sa
 

@@ -19,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.3
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
           environments: default lint
       - name: pre-commit
@@ -33,11 +33,11 @@ jobs:
       fail-fast: true
       matrix:
         env:
-          - py38
-          - py39
           - py310
           - py311
           - py312
+          - py313
+          - py314
           - sa1
           - sa2
         os:
@@ -47,16 +47,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.3
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
           environments: ${{ matrix.env }}
       - run: |
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v5.3.1
+        uses: codecov/codecov-action@v5.5.2
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -69,11 +69,11 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - mssql-py38
-          - mssql-py39
           - mssql-py310
           - mssql-py311
           - mssql-py312
+          - mssql-py313
+          - mssql-py314
           - mssql-sa1
           - mssql-sa2
     services:
@@ -86,9 +86,9 @@ jobs:
           - 1433:1433
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.3
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
           environments: ${{ matrix.env }}
       - name: Wait for SQL Server
@@ -98,7 +98,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v5.3.1
+        uses: codecov/codecov-action@v5.5.2
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -114,11 +114,11 @@ jobs:
           - latest
           - 11
         env:
-          - postgres-py38
-          - postgres-py39
           - postgres-py310
           - postgres-py311
           - postgres-py312
+          - postgres-py313
+          - postgres-py313
           - postgres-sa1
           - postgres-sa2
     services:
@@ -132,16 +132,16 @@ jobs:
           - 5432:5432
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.3
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
           environments: ${{ matrix.env }}
       - run: |
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v5.3.1
+        uses: codecov/codecov-action@v5.5.2
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -154,10 +154,13 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - db2-py38
-          - db2-py39
           - db2-py310
-          - db2-sa1
+          # Environment can't be solved.
+          # - db2-py311
+          - db2-py312
+          - db2-py313
+          # Environment can't be solved.
+          # - db2-py314
     services:
       DB:
         image: ibmcom/db2:11.5.5.1
@@ -173,9 +176,9 @@ jobs:
 
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.3
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
           environments: ${{ matrix.env }}
       - name: Wait for db2 to load
@@ -185,7 +188,7 @@ jobs:
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v5.3.1
+        uses: codecov/codecov-action@v5.5.2
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -196,25 +199,25 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SNOWFLAKE_USER: DATAJUDGE
-      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
     strategy:
       fail-fast: false
       matrix:
         env:
-          - snowflake-py38
+          - snowflake-py310
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.3
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
           environments: ${{ matrix.env }}
       - run: |
           pixi run -e ${{ matrix.env }} postinstall
           pixi run -e ${{ matrix.env }} coverage --color=yes
       - name: Generate code coverage report
-        uses: codecov/codecov-action@v5.3.1
+        uses: codecov/codecov-action@v5.5.2
         with:
           file: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -238,44 +241,16 @@ jobs:
   #       with:
   #         credentials_json: '${{ secrets.GCP_KEY }}'
   #     - name: Checkout branch
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@v6
   #     - name: Set up pixi
-  #       uses: prefix-dev/setup-pixi@v0.8.3
+  #       uses: prefix-dev/setup-pixi@v0.9.3
   #       with:
   #         environments: ${{ matrix.env }}
   #     - run: |
   #         pixi run -e ${{ matrix.env }} postinstall
   #         pixi run -e ${{ matrix.env }} coverage
   #     - name: Generate code coverage report
-  #       uses: codecov/codecov-action@v5.3.1
+  #       uses: codecov/codecov-action@v5.5.2
   #       with:
   #         file: ./coverage.xml
   #         token: ${{ secrets.CODECOV_TOKEN }}
-
-  impala:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'impala') || contains(github.event.pull_request.labels.*.name, 'ready') || github.ref == 'refs/heads/main' }}
-    name: "Impala"
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        env:
-          - impala-py38
-          - impala-sa1
-    steps:
-      - name: Checkout branch
-        uses: actions/checkout@v4
-      - name: Set up container
-        run: docker compose up --wait impala
-      - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.3
-        with:
-          environments: ${{ matrix.env }}
-      - run: |
-          pixi run -e ${{ matrix.env }} postinstall
-          pixi run -e ${{ matrix.env }} coverage
-      - name: Generate code coverage report
-        uses: codecov/codecov-action@v5.3.1
-        with:
-          file: ./coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}

@@ -5,8 +5,9 @@ import json
 import operator
 from abc import ABC, abstractmethod
 from collections import Counter
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Iterator, Sequence, final, overload
+from typing import Any, final, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable
@@ -27,10 +28,6 @@ def is_snowflake(engine: sa.engine.Engine) -> bool:
 
 def is_bigquery(engine: sa.engine.Engine) -> bool:
     return engine.name == "bigquery"
-
-
-def is_impala(engine: sa.engine.Engine) -> bool:
-    return engine.name == "impala"
 
 
 def is_db2(engine: sa.engine.Engine) -> bool:
@@ -438,15 +435,6 @@ def get_date_span(
                 )
             ]
         )
-    elif is_impala(engine):
-        selection = sa.select(
-            *[
-                sa.func.datediff(
-                    sa.func.to_date(sa.func.max(column)),
-                    sa.func.to_date(sa.func.min(column)),
-                )
-            ]
-        )
     elif is_db2(engine):
         selection = sa.select(
             *[
@@ -461,7 +449,8 @@ def get_date_span(
             "Date spans not yet implemented for this sql dialect."
         )
 
-    date_span = engine.connect().execute(selection).scalar()
+    with engine.connect() as connection:
+        date_span = connection.execute(selection).scalar()
     if date_span is None:
         raise ValueError("Date span could not be fetched.")
     if date_span < 0:
@@ -789,14 +778,6 @@ def _date_gap_condition(
             )
             > legitimate_gap_size
         )
-    elif is_impala(engine):
-        gap_condition = (
-            sa.func.datediff(
-                sa.func.to_date(start_table.c[start_column]),
-                sa.func.to_date(end_table.c[end_column]),
-            )
-            > legitimate_gap_size
-        )
     elif is_bigquery(engine):
         # see https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#date_diff
         # Note that to have a gap (positive date_diff), the first date (start table)
@@ -907,7 +888,8 @@ def get_functional_dependency_violations(
         uniques.join(violations_stmt, join_condition)
     )
 
-    result = engine.connect().execute(violation_tuples).fetchall()
+    with engine.connect() as connection:
+        result = connection.execute(violation_tuples).fetchall()
     return result, [violation_tuples]
 
 
@@ -925,7 +907,8 @@ def get_row_count(
     final_selection = sa.select(sa.cast(sa.func.count(), sa.BigInteger)).select_from(
         subquery
     )
-    result = int(str(engine.connect().execute(final_selection).scalar()))
+    with engine.connect() as connection:
+        result = int(str(connection.execute(final_selection).scalar()))
     return result, [final_selection]
 
 
@@ -948,11 +931,13 @@ def get_column(
 
     if not aggregate_operator:
         selection = sa.select(column)
-        result = engine.connect().execute(selection).scalars().all()
+        with engine.connect() as connection:
+            result = connection.execute(selection).scalars().all()
 
     else:
         selection = sa.select(aggregate_operator(column))
-        result = engine.connect().execute(selection).scalar()
+        with engine.connect() as connection:
+            result = connection.execute(selection).scalar()
 
     return result, [selection]
 
@@ -975,8 +960,6 @@ def get_mean(
     engine: sa.engine.Engine, ref: DataReference
 ) -> tuple[Any, list[sa.Select]]:
     def column_operator(column):
-        if is_impala(engine):
-            return sa.func.avg(column)
         return sa.func.avg(sa.cast(column, sa.DECIMAL))
 
     return get_column(engine, ref, aggregate_operator=column_operator)
@@ -1022,7 +1005,8 @@ def get_percentile(
     percentile_selection = sa.select(counting_subquery.c[column_name]).where(
         counting_subquery.c[row_num] == argmin_selection.scalar_subquery()
     )
-    intermediate_result = engine.connect().execute(percentile_selection).scalar()
+    with engine.connect() as connection:
+        intermediate_result = connection.execute(percentile_selection).scalar()
     if intermediate_result is None:
         raise ValueError("Percentile selection could not be fetched.")
     result = float(intermediate_result)
@@ -1097,12 +1081,13 @@ def get_uniques(
     if len(columns) == 1:
         unique_from_row = _scalar_accessor
 
-    result = Counter(
-        {
-            unique_from_row(row): row[-1]
-            for row in engine.connect().execute(selection).fetchall()
-        }
-    )
+    with engine.connect() as connection:
+        result = Counter(
+            {
+                unique_from_row(row): row[-1]
+                for row in connection.execute(selection).fetchall()
+            }
+        )
     return result, [selection]
 
 
@@ -1112,7 +1097,8 @@ def get_unique_count(
     selection = ref.get_selection(engine)
     subquery = selection.distinct().alias()
     selection = sa.select(sa.func.count()).select_from(subquery)
-    intermediate_result = engine.connect().execute(selection).scalar()
+    with engine.connect() as connection:
+        intermediate_result = connection.execute(selection).scalar()
     if intermediate_result is None:
         raise ValueError("Unique count could not be fetched.")
     result = int(intermediate_result)
@@ -1126,7 +1112,8 @@ def get_unique_count_union(
     selection2 = ref2.get_selection(engine)
     subquery = sa.sql.union(selection1, selection2).alias().select().distinct().alias()
     selection = sa.select(sa.func.count()).select_from(subquery)
-    intermediate_result = engine.connect().execute(selection).scalar()
+    with engine.connect() as connection:
+        intermediate_result = connection.execute(selection).scalar()
     if intermediate_result is None:
         raise ValueError("Unique count could not be fetched.")
     result = int(intermediate_result)
@@ -1183,7 +1170,8 @@ def get_row_difference_sample(
     selection1 = ref.get_selection(engine)
     selection2 = ref2.get_selection(engine)
     selection = sa.sql.except_(selection1, selection2).alias().select()
-    result = engine.connect().execute(selection).first()
+    with engine.connect() as connection:
+        result = connection.execute(selection).first()
     return result, [selection]
 
 
@@ -1196,7 +1184,8 @@ def get_row_difference_count(
         sa.sql.except_(selection1, selection2).alias().select().distinct().alias()
     )
     selection = sa.select(sa.func.count()).select_from(subquery)
-    result_intermediate = engine.connect().execute(selection).scalar()
+    with engine.connect() as connection:
+        result_intermediate = connection.execute(selection).scalar()
     if result_intermediate is None:
         raise ValueError("Could not get the row difference count.")
     result = int(result_intermediate)
@@ -1246,10 +1235,9 @@ def get_row_mismatch(
     selection_n_rows = sa.select(sa.func.count()).select_from(
         subselection1.join(subselection2, match)
     )
-    result_mismatch_intermediate = (
-        engine.connect().execute(selection_difference).scalar()
-    )
-    result_n_rows_intermediate = engine.connect().execute(selection_n_rows).scalar()
+    with engine.connect() as connection:
+        result_mismatch_intermediate = connection.execute(selection_difference).scalar()
+        result_n_rows_intermediate = connection.execute(selection_n_rows).scalar()
     if result_mismatch_intermediate is None or result_n_rows_intermediate is None:
         raise ValueError("Could not fetch number of mismatches.")
     result_mismatch = float(result_mismatch_intermediate)
@@ -1283,7 +1271,8 @@ def get_duplicate_sample(
 ) -> tuple[Any, list[sa.Select]]:
     initial_selection = ref.get_selection(engine).alias()
     duplicate_selection = duplicates(initial_selection)
-    result = engine.connect().execute(duplicate_selection).first()
+    with engine.connect() as connection:
+        result = connection.execute(duplicate_selection).first()
     return result, [duplicate_selection]
 
 
@@ -1311,9 +1300,10 @@ def get_column_array_agg(
     engine: sa.engine.Engine, ref: DataReference, aggregation_column: str
 ) -> tuple[Any, list[sa.Select]]:
     selections = column_array_agg_query(engine, ref, aggregation_column)
-    result: Sequence[sa.engine.row.Row[Any]] | list[tuple[Any, ...]] = (
-        engine.connect().execute(selections[0]).fetchall()
-    )
+    with engine.connect() as connection:
+        result: Sequence[sa.engine.row.Row[Any]] | list[tuple[Any, ...]] = (
+            connection.execute(selections[0]).fetchall()
+        )
     if is_snowflake(engine):
         result = [
             (*t[:-1], list(map(int, snowflake_parse_variant_column(t[-1]))))
@@ -1488,14 +1478,10 @@ def get_regex_violations(
     if aggregated:
         original_selection = original_selection.distinct()
     subquery = original_selection.subquery()
-    if is_impala(engine):
-        violation_selection = sa.select(subquery.c[column]).where(
-            sa.not_(sa.func.regexp_like(subquery.c[column], regex))
-        )
-    else:
-        violation_selection = sa.select(subquery.c[column]).where(
-            sa.not_(subquery.c[column].regexp_match(regex))
-        )
+
+    violation_selection = sa.select(subquery.c[column]).where(
+        sa.not_(subquery.c[column].regexp_match(regex))
+    )
     n_violations_selection = sa.select(sa.func.count()).select_from(
         violation_selection.subquery()
     )

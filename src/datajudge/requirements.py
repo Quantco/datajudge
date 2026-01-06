@@ -1,11 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC
-from collections.abc import MutableSequence
+from collections.abc import Callable, Collection, MutableSequence, Sequence
 from typing import (
-    Callable,
-    Collection,
-    Sequence,
     TypeVar,
 )
 
@@ -2178,7 +2175,7 @@ class BetweenRequirement(Requirement):
 
         The constraint is fulfilled, when the resulting p-value of the test is higher than the significance level
         (default is 0.05, i.e., 5%).
-        The signifance_level must be a value between 0.0 and 1.0.
+        The significance_level must be a value between 0.0 and 1.0.
         """
         if not column1 or not column2:
             raise ValueError(

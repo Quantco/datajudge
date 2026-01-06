@@ -3,12 +3,11 @@ import itertools
 import os
 import random
 import urllib.parse
-from typing import Dict, List, Optional, Union
 
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_impala, is_mssql
+from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -16,22 +15,11 @@ SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
 
 def get_engine(backend) -> sa.engine.Engine:
     address = os.environ.get("DB_ADDR", "localhost")
-
-    if backend == "impala":
-        from impala.dbapi import connect
-
-        def conn_creator():
-            return connect(
-                host=address,
-                port=21050,
-                database="default",
-            )
-
-        return sa.create_engine("impala://", creator=conn_creator)
+    connect_args = {}
 
     if backend == "postgres":
         connection_string = f"postgresql://datajudge:datajudge@{address}:5432/datajudge"
-    if backend == "db2":
+    elif backend == "db2":
         connection_string = f"db2+ibm_db://db2inst1:password@{address}:50000/testdb"
     elif "mssql" in backend:
         connection_string = (
@@ -45,16 +33,44 @@ def get_engine(backend) -> sa.engine.Engine:
             )
             connection_string += f"?driver={msodbc_driver_name}"
     elif "snowflake" in backend:
+        # cryptography is a dependency of snowflake-connector,
+        # which is not present in the default environment
+        from cryptography.hazmat.primitives import serialization  # type: ignore
+
+        if not (private_key_env := os.getenv("SNOWFLAKE_PRIVATE_KEY")):
+            raise ValueError("SNOWFLAKE_PRIVATE_KEY environment variable is not set")
+
+        try:
+            private_key = serialization.load_pem_private_key(
+                private_key_env.encode(),
+                password=None,
+            )
+        except ValueError:
+            raise ValueError(
+                "SNOWFLAKE_PRIVATE_KEY value is invalid or corrupted"
+            ) from None
+
+        pkb = private_key.private_bytes(
+            encoding=serialization.Encoding.DER,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
         user = os.environ.get("SNOWFLAKE_USER", "datajudge")
-        password = os.environ.get("SNOWFLAKE_PASSWORD")
         account = os.environ.get("SNOWFLAKE_ACCOUNT", "")
-        connection_string = f"snowflake://{user}:{password}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
+        connection_string = f"snowflake://{user}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
+        connect_args["private_key"] = pkb
     elif "bigquery" in backend:
         # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = "bigquery://"
+    else:
+        raise NotImplementedError(f"Backend {backend} not supported.")
 
     engine = sa.create_engine(
-        connection_string, echo=True, pool_size=10, max_overflow=20
+        connection_string,
+        echo=True,
+        pool_size=10,
+        max_overflow=20,
+        connect_args=connect_args,
     )
     apply_patches(engine)
 
@@ -71,12 +87,12 @@ def _string_column(engine, minlength_db2=40):
 def engine(backend):
     engine = get_engine(backend)
     with engine.begin() as conn:
-        if engine.name in ("postgresql", "bigquery", "impala"):
+        if engine.name in ("postgresql", "bigquery"):
             conn.execute(sa.text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}"))
     return engine
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def metadata():
     return sa.MetaData()
 
@@ -631,7 +647,7 @@ def float_table_gap(engine, metadata):
         sa.Column("range_start", sa.Float()),
         sa.Column("range_end", sa.Float()),
     ]
-    data: List[Dict[str, Union[int, float]]] = []
+    data: list[dict[str, int | float]] = []
     # Single entry should not be considered a gap.
     data += [
         {
@@ -762,10 +778,6 @@ def unique_table2(engine, metadata):
 
 @pytest.fixture(scope="module")
 def unique_table_extralong(engine, metadata):
-    if is_impala(engine):
-        pytest.skip(
-            "Skipping this larger output check for impala due to it being quite brittle"
-        )
     if is_bigquery(engine):
         pytest.skip(
             "Skipping this larger output check for bigquery since creating the table is very slow"
@@ -782,10 +794,6 @@ def unique_table_extralong(engine, metadata):
 
 @pytest.fixture(scope="module")
 def unique_table_largesize(engine, metadata):
-    if is_impala(engine):
-        pytest.skip(
-            "Skipping this larger output check for impala due to it being quite brittle"
-        )
     if is_bigquery(engine):
         pytest.skip(
             "Skipping this larger output check for bigquery since creating the table is very slow"
@@ -805,7 +813,7 @@ def unique_table_largesize(engine, metadata):
 @pytest.fixture(scope="module")
 def nested_table(engine, metadata):
     table_name = "nested_table"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("nested_varchar", _string_column(engine))
     ]
     data = [
@@ -890,10 +898,10 @@ def functional_dependency_table_multi_key(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table1(engine, metadata):
     table_name = "varchar_table1"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
-    data: List[Dict[str, Optional[str]]] = [
+    data: list[dict[str, str | None]] = [
         {"col_varchar": "qq" * i} for i in range(1, 10)
     ]
     data.append({"col_varchar": None})
@@ -904,7 +912,7 @@ def varchar_table1(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table2(engine, metadata):
     table_name = "varchar_table2"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [{"col_varchar": "qq" * i} for i in range(2, 11)]
@@ -915,7 +923,7 @@ def varchar_table2(engine, metadata):
 @pytest.fixture(scope="module")
 def varchar_table_real(engine, metadata):
     table_name = "varchar_table_real"
-    columns: List[Union[sa.Column, str]] = [
+    columns: list[sa.Column | str] = [
         sa.Column("col_varchar", _string_column(engine)),
     ]
     data = [
@@ -1082,7 +1090,7 @@ def random_normal_table(engine, metadata):
     Table with normally distributed values of varying means and sd 1.
     """
 
-    if is_bigquery(engine) or is_impala(engine):
+    if is_bigquery(engine):
         # It takes too long to insert the table into BigQuery,
         # test using this fixture must be disabled for BigQuery
         return None, None, None
@@ -1126,10 +1134,6 @@ def capitalization_table(engine, metadata):
     elif is_bigquery(engine):
         str_datatype = "STRING"
         primary_key = ""  # there is no primary key in BigQuery
-    elif is_impala(engine):
-        str_datatype = "STRING"
-        # Impala supports primary keys but uses a different grammar.
-        primary_key = ""
     elif is_db2(engine):
         str_datatype = "VARCHAR(20)"
         # Primary key needs to be non-nullable.
@@ -1189,7 +1193,6 @@ def pytest_addoption(parser):
                 "postgres",
                 "snowflake",
                 "bigquery",
-                "impala",
                 "db2",
             )
         ),
