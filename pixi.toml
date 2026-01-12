@@ -158,11 +158,7 @@ db2-py313 = ["db2", "py313", "test"]
 snowflake-py310 = ["snowflake", "py310", "test"]
 
 duckdb-py310 = ["duckdb", "py310", "test"]
-duckdb-py311 = ["duckdb", "py311", "test"]
-duckdb-py312 = ["duckdb", "py312", "test"]
-duckdb-py313 = ["duckdb", "py313", "test"]
 duckdb-py314 = ["duckdb", "py314", "test"]
-duckdb-sa1 = ["duckdb", "sa1", "test"]
 duckdb-sa2 = ["duckdb", "sa2", "test"]
 
 bigquery-py310 = ["bigquery", "py310", "test"]

@@ -231,11 +231,7 @@ jobs:
       matrix:
         env:
           - duckdb-py310
-          - duckdb-py311
-          - duckdb-py312
-          - duckdb-py313
           - duckdb-py314
-          - duckdb-sa1
           - duckdb-sa2
     steps:
       - name: Checkout branch
