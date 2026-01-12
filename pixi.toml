@@ -71,6 +71,14 @@ snowflake-sqlalchemy = "*"
 test = "pytest tests/integration --backend=snowflake"
 coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=snowflake"
 
+[feature.duckdb.dependencies]
+duckdb-engine = "*"
+# See https://github.com/Mause/duckdb_engine/issues/1379
+sqlalchemy = "<2.0.45"
+[feature.duckdb.tasks]
+test = "pytest tests/integration --backend=duckdb"
+coverage = "pytest tests/integration --cov=datajudge --cov-report=xml --cov-append --backend=duckdb"
+
 [feature.bigquery.dependencies]
 sqlalchemy-bigquery = "*"
 [feature.bigquery.tasks]
@@ -148,6 +156,10 @@ db2-py313 = ["db2", "py313", "test"]
 # db2-py314 = ["db2", "py314", "test"]
 
 snowflake-py310 = ["snowflake", "py310", "test"]
+
+duckdb-py310 = ["duckdb", "py310", "test"]
+duckdb-py314 = ["duckdb", "py314", "test"]
+duckdb-sa2 = ["duckdb", "sa2", "test"]
 
 bigquery-py310 = ["bigquery", "py310", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
