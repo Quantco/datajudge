@@ -118,7 +118,7 @@ jobs:
           - postgres-py311
           - postgres-py312
           - postgres-py313
-          - postgres-py313
+          - postgres-py314
           - postgres-sa1
           - postgres-sa2
     services:
