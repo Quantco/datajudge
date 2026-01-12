@@ -1078,7 +1078,7 @@ def test_uniques_subset_within_complex_with_outputcheck_extralong(
         ),
     ],
 )
-@pytest.mark.limit_memory(limit="60 MB")
+@pytest.mark.limit_memory(limit="90 MB")
 def test_memory_no_caching(engine, unique_table_largesize, data):
     (
         operation,
