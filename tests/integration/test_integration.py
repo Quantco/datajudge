@@ -12,6 +12,7 @@ from datajudge.db_access import (
     Condition,
     is_bigquery,
     is_db2,
+    is_duckdb,
     is_mssql,
     is_postgresql,
     is_snowflake,
@@ -2572,6 +2573,7 @@ def test_backend_dependent_condition(engine, mix_table1):
         or is_snowflake(engine)
         or is_bigquery(engine)
         or is_db2(engine)
+        or is_duckdb(engine)
     ):
         condition = Condition(raw_string="LENGTH(col_varchar) = 3")
     else:
@@ -2748,6 +2750,8 @@ def test_column_type_between(engine, get_fixture, data):
 def test_primary_key_definition_within(engine, pk_table, data):
     if is_bigquery(engine):
         pytest.skip("No primary key concept in BigQuery")
+    if is_duckdb(engine):
+        pytest.skip("DuckDB engine doesn't support reflection on primary keys")
 
     (operation, columns) = data
     req = requirements.WithinRequirement.from_table(*pk_table)
@@ -2807,6 +2811,8 @@ def test_uniqueness_within(engine, mix_table2, data):
 def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
     if is_bigquery(engine):
         pytest.skip("No primary key concept in BigQuery")
+    if is_duckdb(engine):
+        pytest.skip("DuckDB engine doesn't support SERIAL type or PK reflection")
     # We purposefully select a non-unique column ["col_date"] to validate
     # that the reference columns are overwritten.
     operation, target_columns, selection_columns = data

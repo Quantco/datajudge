@@ -34,6 +34,10 @@ def is_db2(engine: sa.engine.Engine) -> bool:
     return engine.name == "ibm_db_sa"
 
 
+def is_duckdb(engine: sa.engine.Engine) -> bool:
+    return engine.name == "duckdb"
+
+
 def get_table_columns(
     table: sa.Table | sa.Subquery, column_names: Sequence[str]
 ) -> list[sa.ColumnElement]:
@@ -428,6 +432,16 @@ def get_date_span(
                 )
             ]
         )
+    elif is_duckdb(engine):
+        selection = sa.select(
+            *[
+                sa.func.datediff(
+                    sa.literal("day"),
+                    sa.func.min(column),
+                    sa.func.max(column),
+                )
+            ]
+        )
     elif is_bigquery(engine):
         selection = sa.select(
             *[
@@ -776,6 +790,15 @@ def _date_gap_condition(
         gap_condition = (
             sa.func.datediff(
                 sa.text("day"),
+                end_table.c[end_column],
+                start_table.c[start_column],
+            )
+            > legitimate_gap_size
+        )
+    elif is_duckdb(engine):
+        gap_condition = (
+            sa.func.datediff(
+                sa.literal("day"),
                 end_table.c[end_column],
                 start_table.c[start_column],
             )
