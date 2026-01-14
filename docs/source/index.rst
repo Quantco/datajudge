@@ -8,6 +8,8 @@ While meant to be as agnostic to concrete database management systems as possibl
 - Postgres
 - MSSQL
 - Snowflake
+- Google BigQuery
+- DuckDB
 
 Contents
 --------

@@ -7,10 +7,11 @@
 Changelog
 =========
 
-1.12.0 - 2025.12.xx
+1.12.0 - 2026.01.12
 -------------------
 
 - Drop support impala as a backend.
+- Add support for DuckDB as a backend.
 
 
 1.11.0 - 2025.12.17
