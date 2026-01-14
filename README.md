@@ -10,11 +10,19 @@ Express and test specifications against data from database.
 
 [Documentation](https://datajudge.readthedocs.io/en/latest/index.html)
 
+# Supported backends
+
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Microsoft SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?logo=microsoftsqlserver&logoColor=white)
+![Snowflake](https://img.shields.io/badge/Snowflake-29B5E8?logo=snowflake&logoColor=white)
+![Google BigQuery](https://img.shields.io/badge/BigQuery-669DF6?logo=googlebigquery&logoColor=white)
+![DuckDB](https://img.shields.io/badge/DuckDB-FFF000?logo=duckdb&logoColor=black)
+
 # Usage
 
 `datajudge` can either be installed via pypi with `pip install datajudge` or via conda-forge with `conda install datajudge -c conda-forge`.
 
-Please refer to the [Getting Started](https://datajugde.readthedocs.io/en/latest/getting_started.html) section of our documentation for details.
+Please refer to the [Getting Started](https://datajudge.readthedocs.io/en/latest/getting_started.html) section of our documentation for details.
 
 Expressing an expectations between different tables from a database may look as such:
 

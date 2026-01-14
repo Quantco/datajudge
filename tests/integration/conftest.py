@@ -7,7 +7,7 @@ import urllib.parse
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_mssql
+from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_duckdb, is_mssql
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql
@@ -64,14 +64,17 @@ def get_engine(backend) -> sa.engine.Engine:
     elif "bigquery" in backend:
         # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = "bigquery://"
+    elif backend == "duckdb":
+        connection_string = "duckdb:///:memory:"
     else:
         raise NotImplementedError(f"Backend {backend} not supported.")
 
+    # DuckDB uses SingletonThreadPool which doesn't support pool_size/max_overflow
+    pool_kwargs = {} if backend == "duckdb" else {"pool_size": 10, "max_overflow": 20}
     engine = sa.create_engine(
         connection_string,
         echo=True,
-        pool_size=10,
-        max_overflow=20,
+        **pool_kwargs,
         connect_args=connect_args,
     )
     apply_patches(engine)
@@ -89,12 +92,12 @@ def _string_column(engine, minlength_db2=40):
 def engine(backend):
     engine = get_engine(backend)
     with engine.begin() as conn:
-        if engine.name in ("postgresql", "bigquery"):
+        if engine.name in ("postgresql", "bigquery", "duckdb"):
             conn.execute(sa.text(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}"))
     return engine
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def metadata():
     return sa.MetaData()
 
@@ -178,6 +181,8 @@ def mix_table2(engine, metadata):
 
 @pytest.fixture(scope="module")
 def mix_table2_pk(engine, metadata):
+    if is_duckdb(engine):
+        pytest.skip("DuckDB doesn't support SERIAL type for primary keys")
     table_name = "mix_table2_pk"
     columns = [
         sa.Column("col_int", sa.Integer(), primary_key=True),
@@ -1196,6 +1201,7 @@ def pytest_addoption(parser):
                 "snowflake",
                 "bigquery",
                 "db2",
+                "duckdb",
             )
         ),
         help="which database backend to use to run the integration tests",

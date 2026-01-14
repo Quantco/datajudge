@@ -1,7 +1,7 @@
 import pytest
 
 from datajudge import Condition, WithinRequirement
-from datajudge.db_access import is_bigquery, is_db2, is_mssql, is_postgresql
+from datajudge.db_access import is_bigquery, is_db2, is_duckdb, is_mssql, is_postgresql
 
 
 @pytest.mark.parametrize("use_uppercase_column", [True, False])
@@ -13,6 +13,9 @@ def test_column_existence(
         pytest.skip("Mssql interface expects exact capitalization.")
     elif is_bigquery(engine) and use_uppercase_column != use_uppercase_query:
         pytest.skip("BigQuery interface expects exact capitalization.")
+    elif is_duckdb(engine) and use_uppercase_column != use_uppercase_query:
+        # See https://duckdb.org/docs/stable/sql/dialect/keywords_and_identifiers#case-sensitivity-of-identifiers
+        pytest.skip("DuckDB interface expects exact capitalization.")
     elif is_postgresql(engine):
         pytest.skip("Postgres interface always expects lower-cased columns.")
     elif is_db2(engine) and use_uppercase_query:
