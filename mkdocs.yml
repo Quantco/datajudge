@@ -62,6 +62,7 @@ nav:
       - examples/exploration.md
   - development.md
   - api-documentation.md
+  - Changlog: CHANGELOG.md
 markdown_extensions:
   - admonition
   - pymdownx.highlight
