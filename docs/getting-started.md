@@ -6,7 +6,7 @@
 
 - A `Constraint` captures a concrete expectation between either two `DataSource` s or a single `DataSource` and a reference value.
 
-- A `Requirement` captures all `Constraint` s between two given `DataSource` s or all `Constraint` s within a single `DataSource`. If a `Requirement` refers links to two `DataSource` s, it is a `BetweenRequirement`. If a `Requirement` merely refers to a single `DataSource`, it is a `WithinRequirement`.
+- A `Requirement` captures all `Constraint` s between two given `DataSource` s or all `Constraint` s within a single `DataSource`. If a `Requirement` refers links to two `DataSource` s, it is a [`BetweenRequirement`][datajudge.requirements.BetweenRequirement]. If a `Requirement` merely refers to a single `DataSource`, it is a [`WithinRequirement`][datajudge.requirements.WithinRequirement].
 
 - Conceptually, a 'specification' captures all `Requirement` s against a database. In practice that means it is usually a separate python file which:
   - gathers all relevant `Requirement` s
@@ -43,7 +43,7 @@ In case you haven't worked with sqlalchemy engines before, you might need to ins
 ## Specifying Constraints
 
 In order to discover possible `Constraint` s, please investigate the `_add_*_constraint` methods
-for [`BetweenRequirement`](datajudge.requirements.BetweenRequirement) and [`WithinRequirement`](datajudge.requirements.WithinRequirement) respectively.
+for [[`BetweenRequirement`][datajudge.requirements.BetweenRequirement]](datajudge.requirements.BetweenRequirement) and [[`WithinRequirement`][datajudge.requirements.WithinRequirement]](datajudge.requirements.WithinRequirement) respectively.
 TODO: FIX LINKS
 
 These methods are meant to be mostly self-documenting through the usage of expressive parameters.
@@ -58,7 +58,7 @@ available columns will be used.
 
 ## Defining limitations of change
 
-`BetweenRequirement` s allow for `Constraint` s expressing the limitation of a loss or gain. For example, the `NRowsMinGain` `Constraint`
+[`BetweenRequirement`][datajudge.requirements.BetweenRequirement] s allow for `Constraint` s expressing the limitation of a loss or gain. For example, the `NRowsMinGain` `Constraint`
 expresses by how much the number of rows must at least grow from the first `DataSource` to the second. In the example of `NRowsMinGain` ,
 this growth limitation is expressed relative to the number of rows of the first `DataSource`.
 
@@ -81,7 +81,7 @@ date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_d
 #rows_table_2 > (1 + date_growth) * #rows_table_1
 ```
 
-In the latter case a date column must be passed during the instantiation of the `BetweenRequirement`. Moreover, the `date_range_*` must be passed
+In the latter case a date column must be passed during the instantiation of the [`BetweenRequirement`][datajudge.requirements.BetweenRequirement]. Moreover, the `date_range_*` must be passed
 in the respective `add_*_constraint` method. When using date ranges as an indicator of change, the `constant_max_*` argument can safely be ignored. Additionally,
 an additional buffer to the date growth can be added with help of the `date_range_gain_deviation` parameter:
 
@@ -166,10 +166,10 @@ TODO: FIX TABLE
 -->
 
 Typically, a user does not need to instantiate a corresponding `DataSource` themselves. Rather, this is taken care
-of by using the appropriate constructor for `WithinRequirement` or `BetweenRequirement`.
+of by using the appropriate constructor for [`WithinRequirement`][datajudge.requirements.WithinRequirement] or [`BetweenRequirement`][datajudge.requirements.BetweenRequirement].
 
 Note that in principle, several tables can be combined to make up for a single `DataSource`. Yet, most of
-the time when trying to compare two tables, it is more convenient to create a `BetweenRequirement` and use
+the time when trying to compare two tables, it is more convenient to create a [`BetweenRequirement`][datajudge.requirements.BetweenRequirement] and use
 the `from_tables` constructor.
 
 ## Column capitalization

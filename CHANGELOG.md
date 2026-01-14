@@ -19,9 +19,9 @@
 **Bug fixes**
 
 - Fix a bug in
-  `datajudge.WithinRequirement.add_date_no_overlap_constraint` and
-  `datajudge.WithinRequirement.add_date_no_overlap2d_constraint` and
-  `datajudge.WithinRequirement.add_numeric_no_overlap_constraint` in
+  [`datajudge.WithinRequirement.add_date_no_overlap_constraint`][datajudge.requirements.WithinRequirement.add_date_no_overlap_constraint] and
+  [`datajudge.WithinRequirement.add_date_no_overlap_2d_constraint`][datajudge.requirements.WithinRequirement.add_date_no_overlap_2d_constraint] and
+  [`datajudge.WithinRequirement.add_numeric_no_overlap_constraint`][datajudge.requirements.WithinRequirement.add_numeric_no_overlap_constraint] in
   which some overlaps were not detected due to equality of their
   leftmost bounds.
 
@@ -29,7 +29,7 @@
 
 **Bug fixes**
 
-- Fix a bug in `datajudge.constraints.numeric.NumericPercentile` which
+- Fix a bug in [`datajudge.constraints.numeric.NumericPercentile`][datajudge.constraints.numeric.NumericPercentile] which
   could lead to off-by-one errors in retrieving a percentile value.
 
 ## 1.9.0 - 2024.06.25
@@ -39,18 +39,18 @@
 - Add styling for assertion messages. See `assertion-message-styling`
   for more information.
 - Add `output_processors` and `filter_func` parameters to
-  `datajudge.requirements.WithinRequirement.add_uniques_equality_constraint`,
-  `datajudge.requirements.WithinRequirement.add_uniques_superset_constraint`
+  [`datajudge.WithinRequiremen.tadd_uniques_equality_constraint`][datajudge.requirements.WithinRequirement.add_uniques_equality_constraint],
+  [`datajudge.WithinRequirement.add_uniques_superset_constraint`][datajudge.requirements.WithinRequirement.add_uniques_superset_constraint]
   and
-  `datajudge.requirements.WithinRequirement.add_uniques_subset_constraint`.
+  [`datajudge.WithinRequirement.add_uniques_subset_constraint`][datajudge.requirements.WithinRequirement.add_uniques_subset_constraint].
 - Add `output_processors`, `filter_func` and `compare_distinct`
   parameters to
-  `datajudge.requirements.BetweenRequirement.add_uniques_equality_constraint`,
-  `datajudge.requirements.BetweenRequirement.add_uniques_superset_constraint`
+  [`datajudge.BetweenRequirement.add_uniques_equality_constraint`][datajudge.requirements.BetweenRequirement.add_uniques_equality_constraint],
+  [`datajudge.BetweenRequirement.add_uniques_superset_constraint`][datajudge.requirements.BetweenRequirement.add_uniques_superset_constraint]
   and
-  `datajudge.requirements.BetweenRequirement.add_uniques_subset_constraint`.
+  [`datajudge.BetweenRequirement.add_uniques_subset_constraint`][datajudge.requirements.BetweenRequirement.add_uniques_subset_constraint].
 - Add `output_processors` parameter to
-  `datajudge.requirements.BetweenRequirement.add_functional_dependency_constraint`.
+  [`datajudge.WithinRequirement.add_functional_dependency_constraint`][datajudge.requirements.WithinRequirement.add_functional_dependency_constraint].
 
 **Other changes**
 
@@ -62,11 +62,11 @@
 **New features**
 
 - Implement
-  `datajudge.WithinRequirement.add_functional_dependency_constraint`.
+  [`datajudge.WithinRequirement.add_functional_dependency_constraint`][datajudge.requirements.WithinRequirement.add_functional_dependency_constraint].
 
 **Other changes**
 
-- Improve error message when a `~datajudge.DataReference` is constructed
+- Improve error message when a [`datajudge.DataReference`][datajudge.DataReference] is constructed
   with a single column name instead of specifying a list of columns.
 
 ## 1.7.0 - 2023.05.11
@@ -74,12 +74,12 @@
 **New features**
 
 - Implement
-  `datajudge.WithinRequirement.add_categorical_bound_constraint`.
-- Extended `datajudge.WithinRequirement.add_column_type_constraint` to
+  [`datajudge.WithinRequirement.add_categorical_bound_constraint`][datajudge.requirements.WithinRequirement.add_categorical_bound_constraint].
+- Extended [`datajudge.WithinRequirement.add_column_type_constraint`][datajudge.requirements.WithinRequirement.add_column_type_constraint] to
   support column type specification using string format,
   backend-specific SQLAlchemy types, and SQLAlchemy's generic types.
-- Implement `datajudge.WithinRequirement.add_numeric_no_gap_constraint`,
-  `datajudge.WithinRequirement.add_numeric_no_overlap_constraint`,
+- Implement [`datajudge.WithinRequirement.add_numeric_no_gap_constraint`][datajudge.requirements.WithinRequirement.add_numeric_no_gap_constraint],
+  [`datajudge.WithinRequirement.add_numeric_no_overlap_constraint`][datajudge.requirements.WithinRequirement.add_numeric_no_overlap_constraint],
 
 ## 1.6.0 - 2023.04.12
 
@@ -92,11 +92,11 @@
 **New features**
 
 - Implement
-  `datajudge.BetweenRequirement.add_max_null_fraction_constraint` and
-  `datajudge.WithinRequirement.add_max_null_fraction_constraint`.
+  [`datajudge.BetweenRequirement.add_max_null_fraction_constraint`][datajudge.requirements.BetweenRequirement.add_max_null_fraction_constraint] and
+  [`datajudge.WithinRequirement.add_max_null_fraction_constraint`][datajudge.requirements.WithinRequirement.add_max_null_fraction_constraint].
 - Implement
-  `datajudge.BetweenRequirement.add_numeric_percentile_constraint` and
-  `datajudge.WithinRequirement.add_numeric_percentile_constraint`.
+  [`datajudge.BetweenRequirement.add_numeric_percentile_constraint`][datajudge.requirements.BetweenRequirement.add_numeric_percentile_constraint] and
+  [`datajudge.WithinRequirement.add_numeric_percentile_constraint`][datajudge.requirements.WithinRequirement.add_numeric_percentile_constraint].
 
 ## 1.4.0 - 2023.02.24
 
@@ -108,11 +108,11 @@
 
 **New features**
 
-- Implement `~datajudge.BetweenRequirement.add_column_type_constraint`.
+- Implement [`datajudge.BetweenRequirement.add_column_type_constraint`][datajudge.requirements.BetweenRequirement.add_column_type_constraint].
   Previously, only the `WithinRequirement` method existed.
 - Implemented an option `infer_pk` to automatically retrieve and primary
   key definition as part of
-  `datajudge.WithinRequirement.add_uniqueness_constraint`.
+  [`datajudge.WithinRequirement.add_uniqueness_constraint`][datajudge.requirements.WithinRequirement.add_uniqueness_constraint].
 - Added a `name` parameter to all `add_x_constraint` methods of
   `WithinRequirement` and `BetweenRequirement`. This will give pytest
   test a custom name.
@@ -121,17 +121,17 @@
 **Other changes**
 
 - Improve assertion error for
-  `~datajudge.WithinRequirement.add_row_matching_equality_constraint`.
+  [`datajudge.BetweenRequirement.add_row_matching_equality_constraint`][datajudge.requirements.BetweenRequirement.add_row_matching_equality_constraint].
 
 ## 1.2.0 - 2022.10.21
 
 **New features**
 
 - Implemented specification of number of counterexamples in
-  `~datajudge.WithinRequirement.add_varchar_regex_constraint`.
+  [`datajudge.WithinRequirement.add_varchar_regex_constraint`][datajudge.requirements.WithinRequirement.add_varchar_regex_constraint].
 - Implemented in-database regex matching for some dialects via
   `computation_in_db` parameter in
-  `~datajudge.WithinRequirement.add_varchar_regex_constraint`.
+  [`datajudge.WithinRequirement.add_varchar_regex_constraint`][datajudge.requirements.WithinRequirement.add_varchar_regex_constraint].
 - Added support for BigQuery backends.
 
 **Bug fix**
@@ -153,8 +153,8 @@
 **New feature: Statistical Tests**
 
 - Implemented a new constraint
-  `~datajudge.constraints.stats.KolmogorovSmirnov2Sample` for
-  `~datajudge.BetweenRequirement` that performs a [Kolmogorov Smirnov
+  [`datajudge.constraints.stats.KolmogorovSmirnov2Sample`][datajudge.constraints.stats.KolmogorovSmirnov2Sample] for
+  [`datajudge.BetweenRequirement`][datajudge.requirements.BetweenRequirement] that performs a [Kolmogorov Smirnov
   Test](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test)
   between two data sources.
 
@@ -162,5 +162,5 @@
 
 **Bug fix:**
 
-- The method `is_deprecated` of `~datajudge.Condition` was called
+- The method `is_deprecated` of [`datajudge.Condition`][datajudge.Condition] was called
   despite not existing.
