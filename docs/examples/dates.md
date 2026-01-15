@@ -1,9 +1,9 @@
 # Dates
 
-This example concerns itself with expressing `Constraint`\s against data revolving
-around dates. While date `Constraint`\s between tables exist, we will only illustrate
-`Constraint`\s on a single table and reference values here. As a consequence, we will
-only use `WithinRequirement`, as opposed to `BetweenRequirement`.
+This example concerns itself with expressing `Constraint`s against data revolving
+around dates. While date `Constraint`s between tables exist, we will only illustrate
+`Constraint`s on a single table and reference values here. As a consequence, we will
+only use [`WithinRequirement`][datajudge.requirements.WithinRequirement], as opposed to [`BetweenRequirement`][datajudge.requirements.BetweenRequirement].
 
 Concretely, we will assume a table containing prices for a given product of id 1.
 Importantly, these prices are valid for a certain date range only. More precisely,

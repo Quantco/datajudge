@@ -66,7 +66,7 @@
 
 **Other changes**
 
-- Improve error message when a [`datajudge.DataReference`][datajudge.DataReference] is constructed
+- Improve error message when a `DataReference` is constructed
   with a single column name instead of specifying a list of columns.
 
 ## 1.7.0 - 2023.05.11

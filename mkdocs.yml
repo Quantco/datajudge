@@ -15,14 +15,14 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-      primary: deep purple
+      primary: indigo
     # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       toggle:
         icon: material/brightness-4
         name: Switch to system preference
-      primary: deep purple
+      primary: indigo
   features:
     - content.action.edit
     - search.suggest
@@ -40,15 +40,21 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [src]
+          paths:
+            - src
+            - "!src/datajudge/db_access.py"
           options:
             unwrap_annotated: true
+            show_if_no_docstring: true
             show_symbol_type_heading: true
             docstring_style: numpy
             docstring_section_style: spacy
             separate_signature: true
             merge_init_into_class: true
-            show_submodules: true # show *all* code contained in paths
+            show_submodules: true
+            filters:
+              - "!^_" # exclude private and dunder elements
+              - "!db_access"
 
 nav:
   - installation.md
@@ -68,3 +74,15 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
   - pymdownx.inlinehilite
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/katex.js
+  - javascripts/external_links.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+
+extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
+  - styles/custom.css

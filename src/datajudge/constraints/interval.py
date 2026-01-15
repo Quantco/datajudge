@@ -7,7 +7,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from .base import Constraint, OptionalSelections
+from .base import Constraint, _OptionalSelections
 
 
 class IntervalConstraint(Constraint):
@@ -24,10 +24,10 @@ class IntervalConstraint(Constraint):
         cache_size=None,
     ):
         super().__init__(ref, ref_value=object(), name=name)
-        self.key_columns = key_columns
-        self.start_columns = start_columns
-        self.end_columns = end_columns
-        self.max_relative_n_violations = max_relative_n_violations
+        self._key_columns = key_columns
+        self._start_columns = start_columns
+        self._end_columns = end_columns
+        self._max_relative_n_violations = max_relative_n_violations
         self._validate_dimensions()
 
     @abc.abstractmethod
@@ -35,22 +35,22 @@ class IntervalConstraint(Constraint):
         pass
 
     def _validate_dimensions(self):
-        if (length := len(self.start_columns)) != self._DIMENSIONS:
+        if (length := len(self._start_columns)) != self._DIMENSIONS:
             raise ValueError(
                 f"Expected {self._DIMENSIONS} start_column(s), got {length}."
             )
-        if (length := len(self.end_columns)) != self._DIMENSIONS:
+        if (length := len(self._end_columns)) != self._DIMENSIONS:
             raise ValueError(
                 f"Expected {self._DIMENSIONS} end_column(s), got {length}."
             )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[tuple[int, int], OptionalSelections]:
+    ) -> tuple[tuple[int, int], _OptionalSelections]:
         keys_ref = DataReference(
-            data_source=self.ref.data_source,
-            columns=self.key_columns,
-            condition=self.ref.condition,
+            data_source=self._ref.data_source,
+            columns=self._key_columns,
+            condition=self._ref.condition,
         )
         n_distinct_key_values, n_keys_selections = db_access.get_unique_count(
             engine, keys_ref
@@ -79,7 +79,7 @@ class NoOverlapConstraint(IntervalConstraint):
         name: str | None = None,
         cache_size=None,
     ):
-        self.end_included = end_included
+        self._end_included = end_included
         super().__init__(
             ref,
             key_columns,
@@ -94,17 +94,19 @@ class NoOverlapConstraint(IntervalConstraint):
         sample_selection, n_violations_selection = db_access.get_interval_overlaps_nd(
             engine,
             ref,
-            self.key_columns,
-            start_columns=self.start_columns,
-            end_columns=self.end_columns,
-            end_included=self.end_included,
+            self._key_columns,
+            start_columns=self._start_columns,
+            end_columns=self._end_columns,
+            end_included=self._end_included,
         )
         # TODO: Once get_unique_count also only returns a selection without
         # executing it, one would want to list this selection here as well.
         return sample_selection, n_violations_selection
 
     @abc.abstractmethod
-    def compare(self, factual: Any, target: Any):
+    def _compare(
+        self, value_factual: Any, value_target: Any
+    ) -> tuple[bool, str | None]:
         pass
 
 
@@ -120,7 +122,7 @@ class NoGapConstraint(IntervalConstraint):
         name: str | None = None,
         cache_size=None,
     ):
-        self.legitimate_gap_size = legitimate_gap_size
+        self._legitimate_gap_size = legitimate_gap_size
         super().__init__(
             ref,
             key_columns,
@@ -136,5 +138,7 @@ class NoGapConstraint(IntervalConstraint):
         pass
 
     @abc.abstractmethod
-    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
+    def _compare(
+        self, value_factual: tuple[int, int], value_target: Any
+    ) -> tuple[bool, str | None]:
         pass

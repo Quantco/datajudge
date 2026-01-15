@@ -43,14 +43,13 @@ In case you haven't worked with sqlalchemy engines before, you might need to ins
 ## Specifying Constraints
 
 In order to discover possible `Constraint` s, please investigate the `_add_*_constraint` methods
-for [[`BetweenRequirement`][datajudge.requirements.BetweenRequirement]](datajudge.requirements.BetweenRequirement) and [[`WithinRequirement`][datajudge.requirements.WithinRequirement]](datajudge.requirements.WithinRequirement) respectively.
-TODO: FIX LINKS
+for [`BetweenRequirement`][datajudge.requirements.BetweenRequirement] and [`WithinRequirement`][datajudge.requirements.WithinRequirement] respectively.
 
 These methods are meant to be mostly self-documenting through the usage of expressive parameters.
 
-Note that most `Constraint` s will allow for at least one `Condition`. A `Condition`
+Note that most `Constraint` s will allow for at least one [`Condition`][datajudge.condition.Condition]. A [`Condition`][datajudge.condition.Condition]
 can be thought of as a conditional event in probability theory or a filter/clause in a database
-query. Please consult the doc string of `Condition` for greater detail. For examples, please
+query. Please consult the doc string of [`Condition`][datajudge.condition.Condition] for greater detail. For examples, please
 see `tests/unit/test_condition.py`.
 
 Many `Constraint` s have optional `columns` parameters. If no argument is given, all
@@ -111,12 +110,12 @@ As the testing relies on [pytest](https://docs.pytest.org/en/latest), all of `py
 
 ## Test information
 
-When calling a `Constraint`'s `test` method, a `TestResult` is returned. The latter comes with a
+When calling a `Constraint`'s `test` method, a [`TestResult`][datajudge.constraints.base.TestResult] is returned. The latter comes with a
 `logging_message` field. This field comprises information about the test failure, the constraint at hand
 as well as the underlying database queries.
 
 Depending on the use case at hand, it might make sense to rely on this information for logging or data investigation
-purposes. Again, more on this in the article on :doc:`testing <testing>`.
+purposes. Again, more on this in the article on [testing](testing.md).
 
 ## Assertion Message Styling
 
@@ -138,32 +137,13 @@ The following table lists all the supported codes, along with their descriptions
 A `Requirement` is instantiated with either one or two fixed `DataSource`s.
 
 While the most typical example of a `DataSource` would be a table in a database, `datajudge` allows
-for other `DataSource` s as well. These are often derived from primitive tables of a database.
+for other `DataSource`s as well. These are often derived from primitive tables of a database.
 
-TODO: FIX TABLE
-
-<!--
-.. list-table:: DataSources
-   :header-rows: 1
-
-   * - :class:`~datajudge.db_access.DataSource`
-     - explanation
-     - :class:`~datajudge.requirements.WithinRequirement` constructor
-     - :class:`~datajudge.requirements.BetweenRequirement` constructor
-   * - :class:`~datajudge.db_access.TableDataSource`
-     - represents a table in a database
-     - :meth:`~datajudge.requirements.WithinRequirement.from_table`
-     - :meth:`~datajudge.requirements.BetweenRequirement.from_tables`
-   * - :class:`~datajudge.db_access.ExpressionDataSource`
-     - represents the result of a ``sqlalchemy`` expression
-     - :meth:`~datajudge.requirements.WithinRequirement.from_expression`
-     - :meth:`~datajudge.requirements.BetweenRequirement.from_expressions`
-   * - :class:`~datajudge.db_access.RawQueryDataSource`
-     - represents the result of a sql query expressed via a string
-     - :meth:`~datajudge.requirements.WithinRequirement.from_raw_query`
-     - :meth:`~datajudge.requirements.BetweenRequirement.from_raw_queries`
-
--->
+| [`DataSource`][datajudge.data_source.DataSource]                     | explanation                                                 | `WithinRequirement` constructor                                                                 | `BetweenRequirement` constructor                                                                    |
+| -------------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [`TableDataSource`][datajudge.data_source.TableDataSource]           | represents a table in a database                            | [`WithinRequirement.from_table`][datajudge.requirements.WithinRequirement.from_table]           | [`BetweenRequirement.from_tables`][datajudge.requirements.BetweenRequirement.from_tables]           |
+| [`ExpressionDataSource`][datajudge.data_source.ExpressionDataSource] | represents the result of a `sqlalchemy` expression          | [`WithinRequirement.from_expression`][datajudge.requirements.WithinRequirement.from_expression] | [`BetweenRequirement.from_expressions`][datajudge.requirements.BetweenRequirement.from_expressions] |
+| [`RawQueryDataSource`][datajudge.data_source.RawQueryDataSource]     | represents the result of a SQL query expressed via a string | [`WithinRequirement.from_raw_query`][datajudge.requirements.WithinRequirement.from_raw_query]   | [`BetweenRequirement.from_raw_queries`][datajudge.requirements.BetweenRequirement.from_raw_queries] |
 
 Typically, a user does not need to instantiate a corresponding `DataSource` themselves. Rather, this is taken care
 of by using the appropriate constructor for [`WithinRequirement`][datajudge.requirements.WithinRequirement] or [`BetweenRequirement`][datajudge.requirements.BetweenRequirement].
@@ -182,6 +162,6 @@ For the time being:
 - Snowflake: `datajudge` will lowercase independently of the capitalization provided.
 
 The Snowflake behavior is due to an upstream [bug](https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157)
-in snowflake-sqlalchemy.
+in `snowflake-sqlalchemy`.
 
 This behavior is subject to change.

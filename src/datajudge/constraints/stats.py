@@ -19,11 +19,11 @@ class KolmogorovSmirnov2Sample(Constraint):
         name: str | None = None,
         cache_size=None,
     ):
-        self.significance_level = significance_level
+        self._significance_level = significance_level
         super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
 
     @staticmethod
-    def approximate_p_value(d: float, n_samples: int, m_samples: int) -> float | None:
+    def _approximate_p_value(d: float, n_samples: int, m_samples: int) -> float | None:
         """Calculate the approximate p-value.
 
         The computation is according to
@@ -54,7 +54,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         return 1.0 if approx_p > 1.0 else 0.0 if approx_p < 0.0 else approx_p
 
     @staticmethod
-    def check_acceptance(
+    def _check_acceptance(
         d_statistic: float, n_samples: int, m_samples: int, accepted_level: float
     ) -> bool:
         """
@@ -75,7 +75,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         return d_statistic <= threshold
 
     @staticmethod
-    def calculate_statistic(
+    def _calculate_statistic(
         engine: sa.engine.Engine,
         ref1: DataReference,
         ref2: DataReference,
@@ -91,7 +91,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         m_samples, m_selections = db_access.get_row_count(engine, ref2)
 
         # calculate approximate p-value
-        p_value = KolmogorovSmirnov2Sample.approximate_p_value(
+        p_value = KolmogorovSmirnov2Sample._approximate_p_value(
             d_statistic, n_samples, m_samples
         )
 
@@ -99,7 +99,7 @@ class KolmogorovSmirnov2Sample(Constraint):
         return d_statistic, p_value, n_samples, m_samples, selections
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        if self.ref2 is None:
+        if self._ref2 is None:
             raise ValueError("KolmogorovSmirnov2Sample requires ref2.")
         (
             d_statistic,
@@ -107,18 +107,18 @@ class KolmogorovSmirnov2Sample(Constraint):
             n_samples,
             m_samples,
             selections,
-        ) = self.calculate_statistic(
+        ) = self._calculate_statistic(
             engine,
-            self.ref,
-            self.ref2,
+            self._ref,
+            self._ref2,
         )
-        result = self.check_acceptance(
-            d_statistic, n_samples, m_samples, self.significance_level
+        result = self._check_acceptance(
+            d_statistic, n_samples, m_samples, self._significance_level
         )
 
         assertion_text = (
             f"Null hypothesis (H0) for the 2-sample Kolmogorov-Smirnov test was rejected, i.e., "
-            f"the two samples ({self.ref} and {self.target_prefix}) "
+            f"the two samples ({self._ref} and {self._target_prefix}) "
             f"do not originate from the same distribution. "
             f"The test results are d={d_statistic}"
         )

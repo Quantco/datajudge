@@ -6,7 +6,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from .base import Constraint, OptionalSelections, TestResult
+from .base import Constraint, TestResult, _OptionalSelections
 from .interval import NoGapConstraint, NoOverlapConstraint
 
 
@@ -28,23 +28,25 @@ class NumericMin(Constraint):
             cache_size=cache_size,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[float, OptionalSelections]:
+    ) -> tuple[float, _OptionalSelections]:
         return db_access.get_min(engine, ref)
 
-    def compare(self, min_factual: float, min_target: float) -> tuple[bool, str | None]:
-        if min_target is None:
+    def _compare(
+        self, value_factual: float, value_target: float
+    ) -> tuple[bool, str | None]:
+        if value_target is None:
             return True, None
-        if min_factual is None:
-            return min_target == 0, "Empty set."
+        if value_factual is None:
+            return value_target == 0, "Empty set."
         assertion_text = (
-            f"{self.ref} has min "
-            f"{min_factual} instead of {self.target_prefix}"
-            f"{min_target} . "
-            f"{self.condition_string}"
+            f"{self._ref} has min "
+            f"{value_factual} instead of {self._target_prefix}"
+            f"{value_target} . "
+            f"{self._condition_string}"
         )
-        result = min_factual >= min_target
+        result = value_factual >= value_target
         return result, assertion_text
 
 
@@ -66,23 +68,25 @@ class NumericMax(Constraint):
             cache_size=cache_size,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[float, OptionalSelections]:
+    ) -> tuple[float, _OptionalSelections]:
         return db_access.get_max(engine, ref)
 
-    def compare(self, max_factual: float, max_target: float) -> tuple[bool, str | None]:
-        if max_factual is None:
+    def _compare(
+        self, value_factual: float, value_target: float
+    ) -> tuple[bool, str | None]:
+        if value_factual is None:
             return True, None
-        if max_target is None:
-            return max_factual == 0, "Empty reference set."
+        if value_target is None:
+            return value_factual == 0, "Empty reference set."
         assertion_text = (
-            f"{self.ref} has max "
-            f"{max_factual} instead of {self.target_prefix}"
-            f"{max_target}. "
-            f"{self.condition_string}"
+            f"{self._ref} has max "
+            f"{value_factual} instead of {self._target_prefix}"
+            f"{value_target}. "
+            f"{self._condition_string}"
         )
-        result = max_factual <= max_target
+        result = value_factual <= value_target
         return result, assertion_text
 
 
@@ -97,31 +101,31 @@ class NumericBetween(Constraint):
         cache_size=None,
     ):
         super().__init__(ref, ref_value=min_fraction, name=name, cache_size=cache_size)
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
+        self._lower_bound = lower_bound
+        self._upper_bound = upper_bound
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[float | None, OptionalSelections]:
+    ) -> tuple[float | None, _OptionalSelections]:
         return db_access.get_fraction_between(
             engine,
             ref,
-            self.lower_bound,
-            self.upper_bound,
+            self._lower_bound,
+            self._upper_bound,
         )
 
-    def compare(
-        self, fraction_factual: float, fraction_target: float
+    def _compare(
+        self, value_factual: float, value_target: float
     ) -> tuple[bool, str | None]:
-        if fraction_factual is None:
+        if value_factual is None:
             return True, "Empty selection."
         assertion_text = (
-            f"{self.ref} "
-            f"has {fraction_factual} < {fraction_target} of rows "
-            f"between {self.lower_bound} and {self.upper_bound}. "
-            f"{self.condition_string}"
+            f"{self._ref} "
+            f"has {value_factual} < {value_target} of rows "
+            f"between {self._lower_bound} and {self._upper_bound}. "
+            f"{self._condition_string}"
         )
-        result = fraction_factual >= fraction_target
+        result = value_factual >= value_target
         return result, assertion_text
 
 
@@ -143,17 +147,17 @@ class NumericMean(Constraint):
             name=name,
             cache_size=cache_size,
         )
-        self.max_absolute_deviation = max_absolute_deviation
+        self._max_absolute_deviation = max_absolute_deviation
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[float, OptionalSelections]:
+    ) -> tuple[float, _OptionalSelections]:
         result, selections = db_access.get_mean(engine, ref)
         return result, selections
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        mean_factual = self.get_factual_value(engine)
-        mean_target = self.get_target_value(engine)
+        mean_factual = self._get_factual_value(engine)
+        mean_target = self._get_target_value(engine)
         if mean_factual is None or mean_target is None:
             return TestResult(
                 mean_factual is None and mean_target is None,
@@ -161,13 +165,13 @@ class NumericMean(Constraint):
             )
         deviation = abs(mean_factual - mean_target)
         assertion_text = (
-            f"{self.ref} "
+            f"{self._ref} "
             f"has mean {mean_factual}, deviating more than "
-            f"{self.max_absolute_deviation} from "
-            f"{self.target_prefix} {mean_target}. "
-            f"{self.condition_string}"
+            f"{self._max_absolute_deviation} from "
+            f"{self._target_prefix} {mean_target}. "
+            f"{self._condition_string}"
         )
-        result = deviation <= self.max_absolute_deviation
+        result = deviation <= self._max_absolute_deviation
         return TestResult(result, assertion_text)
 
 
@@ -209,43 +213,43 @@ class NumericPercentile(Constraint):
             raise ValueError(
                 f"max_relative_deviation must be at least 0 but is {max_relative_deviation}."
             )
-        self.max_absolute_deviation = max_absolute_deviation
-        self.max_relative_deviation = max_relative_deviation
+        self._max_absolute_deviation = max_absolute_deviation
+        self._max_relative_deviation = max_relative_deviation
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[float, OptionalSelections]:
+    ) -> tuple[float, _OptionalSelections]:
         result, selections = db_access.get_percentile(engine, ref, self.percentage)
         return result, selections
 
-    def compare(
-        self, percentile_factual: float, percentile_target: float
+    def _compare(
+        self, value_factual: float, value_target: float
     ) -> tuple[bool, str | None]:
-        abs_diff = abs(percentile_factual - percentile_target)
+        abs_diff = abs(value_factual - value_target)
         if (
-            self.max_absolute_deviation is not None
-            and abs_diff > self.max_absolute_deviation
+            self._max_absolute_deviation is not None
+            and abs_diff > self._max_absolute_deviation
         ):
             assertion_message = (
-                f"The {self.percentage}-th percentile of {self.ref} was "
-                f"expected to be {self.target_prefix}{percentile_target} but was "
-                f"{percentile_factual}, resulting in an absolute difference of "
+                f"The {self.percentage}-th percentile of {self._ref} was "
+                f"expected to be {self._target_prefix}{value_target} but was "
+                f"{value_factual}, resulting in an absolute difference of "
                 f"{abs_diff}. The maximally allowed absolute deviation would've been "
-                f"{self.max_absolute_deviation}."
+                f"{self._max_absolute_deviation}."
             )
             return False, assertion_message
-        if self.max_relative_deviation is not None:
-            if percentile_target == 0:
+        if self._max_relative_deviation is not None:
+            if value_target == 0:
                 raise ValueError("Cannot compute relative deviation wrt 0.")
             if (
-                rel_diff := abs_diff / abs(percentile_target)
-            ) > self.max_relative_deviation:
+                rel_diff := abs_diff / abs(value_target)
+            ) > self._max_relative_deviation:
                 assertion_message = (
-                    f"The {self.percentage}-th percentile of {self.ref}  was "
-                    f"expected to be {self.target_prefix}{percentile_target} but "
-                    f"was {percentile_factual}, resulting in a relative difference of "
+                    f"The {self.percentage}-th percentile of {self._ref}  was "
+                    f"expected to be {self._target_prefix}{value_target} but "
+                    f"was {value_factual}, resulting in a relative difference of "
                     f"{rel_diff}. The maximally allowed relative deviation would've been "
-                    f"{self.max_relative_deviation}."
+                    f"{self._max_relative_deviation}."
                 )
                 return False, assertion_message
         return True, None
@@ -258,43 +262,47 @@ class NumericNoGap(NoGapConstraint):
         sample_selection, n_violations_selection = db_access.get_numeric_gaps(
             engine,
             ref,
-            self.key_columns,
-            self.start_columns[0],
-            self.end_columns[0],
-            self.legitimate_gap_size,
+            self._key_columns,
+            self._start_columns[0],
+            self._end_columns[0],
+            self._legitimate_gap_size,
         )
         # TODO: Once get_unique_count also only returns a selection without
         # executing it, one would want to list this selection here as well.
         return sample_selection, n_violations_selection
 
-    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
-        n_violation_keys, n_distinct_key_values = factual
+    def _compare(
+        self, value_factual: tuple[int, int], value_target: Any
+    ) -> tuple[bool, str]:
+        n_violation_keys, n_distinct_key_values = value_factual
         if n_distinct_key_values == 0:
-            return TestResult.success()
+            return True, "No key values found."
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref} has a ratio of {violation_fraction} > "
-            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
-            f"with a gap in the range in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"{self._ref} has a ratio of {violation_fraction} > "
+            f"{self._max_relative_n_violations} keys in columns {self._key_columns} "
+            f"with a gap in the range in {self._start_columns[0]} and {self._end_columns[0]}."
             f"E.g. for: {self.sample}."
         )
-        result = violation_fraction <= self.max_relative_n_violations
+        result = violation_fraction <= self._max_relative_n_violations
         return result, assertion_text
 
 
 class NumericNoOverlap(NoOverlapConstraint):
     _DIMENSIONS = 1
 
-    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
-        n_violation_keys, n_distinct_key_values = factual
+    def _compare(
+        self, value_factual: tuple[int, int], value_target: Any
+    ) -> tuple[bool, str]:
+        n_violation_keys, n_distinct_key_values = value_factual
         if n_distinct_key_values == 0:
-            return TestResult.success()
+            return True, "No key values found."
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref} has a ratio of {violation_fraction} > "
-            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
-            f"with overlapping ranges in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"{self._ref} has a ratio of {violation_fraction} > "
+            f"{self._max_relative_n_violations} keys in columns {self._key_columns} "
+            f"with overlapping ranges in {self._start_columns[0]} and {self._end_columns[0]}."
             f"E.g. for: {self.sample}."
         )
-        result = violation_fraction <= self.max_relative_n_violations
+        result = violation_fraction <= self._max_relative_n_violations
         return result, assertion_text
