@@ -3,19 +3,16 @@ from abc import ABC, abstractmethod
 from typing import final
 
 import sqlalchemy as sa
-from sqlalchemy.sql.expression import FromClause
 
 from ._engines import is_mssql
 
 
 class DataSource(ABC):
     @abstractmethod
-    def __str__(self) -> str:
-        pass
+    def __str__(self) -> str: ...
 
     @abstractmethod
-    def _get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        pass
+    def _get_clause(self, engine: sa.engine.Engine) -> sa.FromClause: ...
 
 
 @functools.lru_cache(maxsize=1)
@@ -33,22 +30,22 @@ class TableDataSource(DataSource):
         table_name: str,
         schema_name: str | None = None,
     ):
-        self.db_name = db_name
-        self.table_name = table_name
-        self.schema_name = schema_name
+        self._db_name = db_name
+        self._table_name = table_name
+        self._schema_name = schema_name
 
     def __str__(self) -> str:
-        if self.schema_name:
-            return f"{self.db_name}.{self.schema_name}.{self.table_name}"
-        return self.table_name
+        if self._schema_name:
+            return f"{self._db_name}.{self._schema_name}.{self._table_name}"
+        return self._table_name
 
-    def _get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        schema = self.schema_name
-        if is_mssql(engine):
-            schema = self.db_name + "." + self.schema_name  # type: ignore
+    def _get_clause(self, engine: sa.engine.Engine) -> sa.Table:
+        schema = self._schema_name
+        if is_mssql(engine) and self._schema_name:
+            schema = self._db_name + "." + self._schema_name
 
         return sa.Table(
-            self.table_name,
+            self._table_name,
             _get_metadata(),
             autoload_with=engine,
             schema=schema,
@@ -59,18 +56,18 @@ class TableDataSource(DataSource):
 class ExpressionDataSource(DataSource):
     """A ``DataSource`` based on a sqlalchemy expression."""
 
-    def __init__(self, expression: FromClause | sa.Select, name: str):
-        self.expression = expression
+    def __init__(self, expression: sa.FromClause | sa.Select, name: str):
+        self._expression = expression
         self.name = name
 
     def __str__(self) -> str:
         return self.name
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(expression={self.expression!r}, name={self.name})"
+        return f"{self.__class__.__name__}(expression={self._expression!r}, name={self.name})"
 
-    def _get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        return self.expression.alias()
+    def _get_clause(self, engine: sa.engine.Engine) -> sa.FromClause:
+        return self._expression.alias()
 
 
 @final
@@ -99,5 +96,5 @@ class RawQueryDataSource(DataSource):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(query_string={self._query_string}, name={self.name}, columns={self._columns})"
 
-    def _get_clause(self, engine: sa.engine.Engine) -> FromClause:
+    def _get_clause(self, engine: sa.engine.Engine) -> sa.FromClause:
         return self.clause

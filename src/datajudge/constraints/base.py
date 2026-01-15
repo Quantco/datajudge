@@ -149,7 +149,7 @@ class Constraint(abc.ABC):
             not isinstance(output_processors, list)
         ):
             output_processors = [output_processors]
-        self._output_processorss = output_processors
+        self._output_processors = output_processors
 
         self._cache_size = cache_size
         self._setup_caching()
@@ -238,12 +238,12 @@ class Constraint(abc.ABC):
         self, engine: sa.engine.Engine, ref: DataReference
     ) -> tuple[Any, _OptionalSelections]:
         """Retrieve the value of interest for a DataReference from database."""
-        pass
+        raise NotImplementedError()
 
     def _compare(
         self, value_factual: Any, value_target: Any
     ) -> tuple[bool, str | None]:
-        pass
+        raise NotImplementedError()
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         value_factual = self._get_factual_value(engine)
@@ -280,8 +280,8 @@ class Constraint(abc.ABC):
         )
 
     def _apply_output_formatting(self, values: Collection) -> Collection:
-        if self._output_processorss is not None:
-            for output_processor in self._output_processorss:
+        if self._output_processors is not None:
+            for output_processor in self._output_processors:
                 values, _ = output_processor(values)
         return values
 

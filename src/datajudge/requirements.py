@@ -1416,11 +1416,11 @@ class BetweenRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Assert that the number of rows hasn't grown by more than expected.
+        r"""Assert that the number of rows hasn't grown by more than expected.
 
         In particular, assert that
 
-        $$n^{rows}_1 \\leq n^{rows}_2 \\cdot (1 + \\text{cmrg})$$
+        $$n^{rows}_1 \leq n^{rows}_2 \cdot (1 + \text{cmrg})$$
 
         See readme for more information on ``constant_max_relative_gain``.
         """
@@ -1448,11 +1448,11 @@ class BetweenRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Assert that the number of rows hasn't grown less than expected.
+        r"""Assert that the number of rows hasn't grown less than expected.
 
         In particular, assert that
 
-        $$n^{rows}_1 \\geq n^{rows}_2 \\cdot (1 + \\text{cmrg})$$
+        $$n^{rows}_1 \geq n^{rows}_2 \cdot (1 + \text{cmrg})$$
 
         See readme for more information on ``constant_min_relative_gain``.
         """
@@ -1480,11 +1480,11 @@ class BetweenRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Assert that the number of rows hasn't decreased too much.
+        r"""Assert that the number of rows hasn't decreased too much.
 
         In particular, assert that
 
-        $$n^{rows}_1 \\geq n^{rows}_2 \\cdot (1 - \\text{cmrl})$$
+        $$n^{rows}_1 \geq n^{rows}_2 \cdot (1 - \text{cmrl})$$
 
         See readme for more information on ``constant_max_relative_loss``.
         """
@@ -1531,11 +1531,11 @@ class BetweenRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Assert that the number of uniques hasn't grown by too much.
+        r"""Assert that the number of uniques hasn't grown by too much.
 
         In particular, assert that
 
-        $$n^{uniques}_1 \\leq n^{uniques}_2 \\cdot (1 - \\text{cmrg})$$
+        $$n^{uniques}_1 \leq n^{uniques}_2 \cdot (1 - \text{cmrg})$$
 
         The number of uniques in first table are defined based on ``columns1``, the
         number of uniques in second table are defined based on ``columns2``.
@@ -1568,11 +1568,11 @@ class BetweenRequirement(Requirement):
         name: str | None = None,
         cache_size=None,
     ) -> None:
-        """Assert that the number of uniques hasn't decreased too much.
+        r"""Assert that the number of uniques hasn't decreased too much.
 
         In particular, assert that
 
-        $$n^{uniques}_1 \\geq n^{uniques}_2 \\cdot (1 - \\text{cmrl})$$
+        $$n^{uniques}_1 \geq n^{uniques}_2 \cdot (1 - \text{cmrl})$$
 
         The number of uniques in first table are defined based on ``columns1``, the
         number of uniques in second table are defined based on ``columns2``.
@@ -1606,8 +1606,8 @@ class BetweenRequirement(Requirement):
     ) -> None:
         """Assert that the fraction of ``NULL`` values of one is at most that of the other.
 
-        Given that ``column2``\'s underlying data has a fraction ``q`` of ``NULL`` values, the
-        ``max_relative_deviation`` parameter allows ``column1``\'s underlying data to have a
+        Given that ``column2``'s underlying data has a fraction ``q`` of ``NULL`` values, the
+        ``max_relative_deviation`` parameter allows ``column1``'s underlying data to have a
         fraction ``(1 + max_relative_deviation) * q`` of ``NULL`` values.
         """  # noqa: D301
         ref = DataReference(self._data_source, [column1], condition1)
