@@ -56,7 +56,11 @@ class TableDataSource(DataSource):
 class ExpressionDataSource(DataSource):
     """A ``DataSource`` based on a sqlalchemy expression."""
 
-    def __init__(self, expression: sa.sql.selectable.FromClause | sa.sql.selectable.Select, name: str):
+    def __init__(
+        self,
+        expression: sa.sql.selectable.FromClause | sa.sql.selectable.Select,
+        name: str,
+    ):
         self._expression = expression
         self.name = name
 
