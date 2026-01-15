@@ -12,7 +12,7 @@ class DataSource(ABC):
     def __str__(self) -> str: ...
 
     @abstractmethod
-    def _get_clause(self, engine: sa.engine.Engine) -> sa.FromClause: ...
+    def _get_clause(self, engine: sa.engine.Engine) -> sa.sql.selectable.FromClause: ...
 
 
 @functools.lru_cache(maxsize=1)
@@ -56,7 +56,7 @@ class TableDataSource(DataSource):
 class ExpressionDataSource(DataSource):
     """A ``DataSource`` based on a sqlalchemy expression."""
 
-    def __init__(self, expression: sa.FromClause | sa.Select, name: str):
+    def __init__(self, expression: sa.sql.selectable.FromClause | sa.sql.selectable.Select, name: str):
         self._expression = expression
         self.name = name
 
@@ -66,7 +66,7 @@ class ExpressionDataSource(DataSource):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(expression={self._expression!r}, name={self.name})"
 
-    def _get_clause(self, engine: sa.engine.Engine) -> sa.FromClause:
+    def _get_clause(self, engine: sa.engine.Engine) -> sa.sql.selectable.FromClause:
         return self._expression.alias()
 
 
@@ -96,5 +96,5 @@ class RawQueryDataSource(DataSource):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(query_string={self._query_string}, name={self.name}, columns={self._columns})"
 
-    def _get_clause(self, engine: sa.engine.Engine) -> sa.FromClause:
+    def _get_clause(self, engine: sa.engine.Engine) -> sa.sql.selectable.FromClause:
         return self.clause
