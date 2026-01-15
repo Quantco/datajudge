@@ -7,17 +7,5 @@ While meant to be as agnostic to concrete database management systems as possibl
 - Postgres
 - MSSQL
 - Snowflake
-
-[API Documentation](api-documentation.md)
-
-## Contents
-
-TODO: Proper table of contents
-
-installation
-Getting Started <getting_started.rst>
-testing
-motivation
-Examples <examples/examples.rst>
-development
-API Reference <api/datajudge.rst>
+- BigQuery
+- DuckDB
