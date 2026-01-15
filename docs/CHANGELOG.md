@@ -1,1 +1,1 @@
-/Users/kevin.klein/Code/qc/datajudge/CHANGELOG.md
+../CHANGELOG.md
