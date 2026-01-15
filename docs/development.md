@@ -28,7 +28,7 @@ In your current environment, install the `psycopg2` package.
 After this, you may execute integration tests as follows:
 
 ```bash
-pixi run -e postgres-py38 test
+pixi run -e postgres-py312 test
 ```
 
 Analogously, for MSSQL, run
@@ -40,13 +40,13 @@ Analogously, for MSSQL, run
 and
 
 ```bash
-pixi run -e mssql-py310 test
+pixi run -e mssql-py312 test
 ```
 
 or
 
 ```bash
-pixi run -e mssql-py310 test_freetds
+pixi run -e mssql-py312 test_freetds
 ```
 
 depending on the driver you'd like to use.
