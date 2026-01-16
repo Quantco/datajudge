@@ -29,6 +29,7 @@ theme:
     - search.highlight
     - content.code.annotate
     - content.code.copy
+    - navigation.tabs
   icon:
     repo: fontawesome/brands/github-alt
     edit: material/pencil
@@ -44,14 +45,15 @@ plugins:
             - src
             - "!src/datajudge/db_access.py"
           options:
-            unwrap_annotated: true
-            show_if_no_docstring: true
-            show_symbol_type_heading: true
-            docstring_style: numpy
             docstring_section_style: spacy
-            separate_signature: true
+            docstring_style: numpy
             merge_init_into_class: true
+            unwrap_annotated: true
+            separate_signature: true
+            show_if_no_docstring: true
+            show_signature_annotations: true
             show_submodules: true
+            show_symbol_type_heading: true
             filters:
               - "!^_" # exclude private and dunder elements
               - "!db_access"
@@ -69,6 +71,7 @@ nav:
   - development.md
   - api-documentation.md
   - Changelog: CHANGELOG.md
+
 markdown_extensions:
   - admonition
   - pymdownx.highlight
