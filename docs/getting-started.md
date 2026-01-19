@@ -36,7 +36,7 @@ requirements = []
 test_constraints = collect_data_tests(requirements)
 ```
 
-This file will eventually lead as an input to pytest. More on that in the section 'Testing a specification'.
+This file will eventually lead as an input to pytest. More on that in the section [Testing a specification](testing.md).
 
 In case you haven't worked with sqlalchemy engines before, you might need to install drivers to connect to your database. You might want to install snowflake-sqlalchemy when using Snowflake, pyscopg when using Postgres and platform-specific drivers ([Windows](https://docs.microsoft.com/en-us/sql/connect/odbc/windows/microsoft-odbc-driver-for-sql-server-on-windows?view=sql-server-ver15), [Linux](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15), [macOS](https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15)) when using MSSQL.
 
