@@ -7,15 +7,15 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from .base import Constraint, OptionalSelections, TestResult
+from .base import Constraint, _OptionalSelections
 from .interval import NoGapConstraint, NoOverlapConstraint
 
-INPUT_DATE_FORMAT = "'%Y-%m-%d'"
+_INPUT_DATE_FORMAT = "'%Y-%m-%d'"
 
 Date = str | dt.date | dt.datetime
 
 
-def get_format_from_column_type(column_type: str) -> str:
+def _get_format_from_column_type(column_type: str) -> str:
     if column_type.lower() == "date":
         return "%Y-%m-%d"
     if column_type.lower() in ["datetime", "datetime2", "smalldatetime"]:
@@ -23,7 +23,7 @@ def get_format_from_column_type(column_type: str) -> str:
     raise ValueError(f"Illegal date column type: {column_type}")
 
 
-def convert_to_date(db_result: Date, format: str) -> dt.date:
+def _convert_to_date(db_result: Date, format: str) -> dt.date:
     if isinstance(db_result, dt.datetime):
         return db_result.date()
     if isinstance(db_result, dt.date):
@@ -46,11 +46,11 @@ class DateMin(Constraint):
         ref2: DataReference | None = None,
         min_value: str | None = None,
     ):
-        self.format = get_format_from_column_type(column_type)
-        self.use_lower_bound_reference = use_lower_bound_reference
+        self._format = _get_format_from_column_type(column_type)
+        self._use_lower_bound_reference = use_lower_bound_reference
         min_date: dt.date | None = None
         if min_value is not None:
-            min_date = dt.datetime.strptime(min_value, INPUT_DATE_FORMAT).date()
+            min_date = dt.datetime.strptime(min_value, _INPUT_DATE_FORMAT).date()
         super().__init__(
             ref,
             ref2=ref2,
@@ -59,31 +59,33 @@ class DateMin(Constraint):
             cache_size=cache_size,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[dt.date, OptionalSelections]:
+    ) -> tuple[dt.date, _OptionalSelections]:
         result, selections = db_access.get_min(engine, ref)
-        return convert_to_date(result, self.format), selections
+        return _convert_to_date(result, self._format), selections
 
-    def compare(self, min_factual: dt.date, min_target: dt.date) -> tuple[bool, str]:
-        if min_target is None:
-            return TestResult(True, "")
-        if min_factual is None:
-            return TestResult(min_target == 0, "Empty set.")
-        if self.use_lower_bound_reference:
+    def _compare(
+        self, value_factual: dt.date, value_target: dt.date
+    ) -> tuple[bool, str | None]:
+        if value_target is None:
+            return True, None
+        if value_factual is None:
+            return value_target == 0, "Empty set."
+        if self._use_lower_bound_reference:
             assertion_text = (
-                f"{self.ref} has min {min_factual} < "
-                f"{self.target_prefix} {min_target}. "
-                f"{self.condition_string}"
+                f"{self._ref} has min {value_factual} < "
+                f"{self._target_prefix} {value_target}. "
+                f"{self._condition_string}"
             )
-            result = min_factual >= min_target
+            result = value_factual >= value_target
         else:
             assertion_text = (
-                f"{self.ref} has min {min_factual} > "
-                f"{self.target_prefix} {min_target}. "
-                f"{self.condition_string}"
+                f"{self._ref} has min {value_factual} > "
+                f"{self._target_prefix} {value_target}. "
+                f"{self._condition_string}"
             )
-            result = min_factual <= min_target
+            result = value_factual <= value_target
         return result, assertion_text
 
 
@@ -99,11 +101,11 @@ class DateMax(Constraint):
         ref2: DataReference | None = None,
         max_value: str | None = None,
     ):
-        self.format = get_format_from_column_type(column_type)
-        self.use_upper_bound_reference = use_upper_bound_reference
+        self._format = _get_format_from_column_type(column_type)
+        self._use_upper_bound_reference = use_upper_bound_reference
         max_date: dt.date | None = None
         if max_value is not None:
-            max_date = dt.datetime.strptime(max_value, INPUT_DATE_FORMAT).date()
+            max_date = dt.datetime.strptime(max_value, _INPUT_DATE_FORMAT).date()
         super().__init__(
             ref,
             ref2=ref2,
@@ -112,33 +114,33 @@ class DateMax(Constraint):
             cache_size=cache_size,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[dt.date, OptionalSelections]:
+    ) -> tuple[dt.date, _OptionalSelections]:
         value, selections = db_access.get_max(engine, ref)
-        return convert_to_date(value, self.format), selections
+        return _convert_to_date(value, self._format), selections
 
-    def compare(
-        self, max_factual: dt.date, max_target: dt.date
+    def _compare(
+        self, value_factual: dt.date, value_target: dt.date
     ) -> tuple[bool, str | None]:
-        if max_factual is None:
+        if value_factual is None:
             return True, None
-        if max_target is None:
-            return max_factual == 0, "Empty reference set."
-        if self.use_upper_bound_reference:
+        if value_target is None:
+            return value_factual == 0, "Empty reference set."
+        if self._use_upper_bound_reference:
             assertion_text = (
-                f"{self.ref} has max {max_factual} > "
-                f"{self.target_prefix} {max_target}. "
-                f"{self.condition_string}"
+                f"{self._ref} has max {value_factual} > "
+                f"{self._target_prefix} {value_target}. "
+                f"{self._condition_string}"
             )
-            result = max_factual <= max_target
+            result = value_factual <= value_target
         else:
             assertion_text = (
-                f"{self.ref} has max {max_factual} < "
-                f"{self.target_prefix} {max_target}. "
-                f"{self.condition_string}"
+                f"{self._ref} has max {value_factual} < "
+                f"{self._target_prefix} {value_target}. "
+                f"{self._condition_string}"
             )
-            result = max_factual >= max_target
+            result = value_factual >= value_target
 
         return result, assertion_text
 
@@ -154,91 +156,95 @@ class DateBetween(Constraint):
         cache_size=None,
     ):
         super().__init__(ref, ref_value=min_fraction, name=name, cache_size=cache_size)
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
+        self._lower_bound = lower_bound
+        self._upper_bound = upper_bound
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[float | None, OptionalSelections]:
+    ) -> tuple[float | None, _OptionalSelections]:
         return db_access.get_fraction_between(
-            engine, ref, self.lower_bound, self.upper_bound
+            engine, ref, self._lower_bound, self._upper_bound
         )
 
-    def compare(
-        self, fraction_factual: float, fraction_target: float
-    ) -> tuple[bool, str]:
+    def _compare(self, value_factual: float, value_target: float) -> tuple[bool, str]:
         assertion_text = (
-            f"{self.ref} has {fraction_factual} < "
-            f"{fraction_target} of values between {self.lower_bound} and "
-            f"{self.upper_bound}. {self.condition_string} "
+            f"{self._ref} has {value_factual} < "
+            f"{value_target} of values between {self._lower_bound} and "
+            f"{self._upper_bound}. {self._condition_string} "
         )
-        result = fraction_factual >= fraction_target
+        result = value_factual >= value_target
         return result, assertion_text
 
 
 class DateNoOverlap(NoOverlapConstraint):
     _DIMENSIONS = 1
 
-    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
-        n_violation_keys, n_distinct_key_values = factual
+    def _compare(
+        self, value_factual: tuple[int, int], value_target: Any
+    ) -> tuple[bool, str | None]:
+        n_violation_keys, n_distinct_key_values = value_factual
         if n_distinct_key_values == 0:
-            return TestResult.success()
+            return True, None
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref} has a ratio of {violation_fraction} > "
-            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
-            f"with overlapping date ranges in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"{self._ref} has a ratio of {violation_fraction} > "
+            f"{self._max_relative_n_violations} keys in columns {self._key_columns} "
+            f"with overlapping date ranges in {self._start_columns[0]} and {self._end_columns[0]}."
             f"E.g. for: {self.sample}."
         )
-        result = violation_fraction <= self.max_relative_n_violations
+        result = violation_fraction <= self._max_relative_n_violations
         return result, assertion_text
 
 
 class DateNoOverlap2d(NoOverlapConstraint):
     _DIMENSIONS = 2
 
-    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
-        n_violation_keys, n_distinct_key_values = factual
+    def _compare(
+        self, value_factual: tuple[int, int], value_target: Any
+    ) -> tuple[bool, str | None]:
+        n_violation_keys, n_distinct_key_values = value_factual
         if n_distinct_key_values == 0:
-            return TestResult.success()
+            return True, None
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref} has a ratio of {violation_fraction} > "
-            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
-            f"with overlapping date ranges in {self.start_columns[0]} and {self.end_columns[0]}."
-            f"and {self.start_columns[1]} and {self.end_columns[1]}."
+            f"{self._ref} has a ratio of {violation_fraction} > "
+            f"{self._max_relative_n_violations} keys in columns {self._key_columns} "
+            f"with overlapping date ranges in {self._start_columns[0]} and {self._end_columns[0]}."
+            f"and {self._start_columns[1]} and {self._end_columns[1]}."
             f"E.g. for: {self.sample}."
         )
-        result = violation_fraction <= self.max_relative_n_violations
+        result = violation_fraction <= self._max_relative_n_violations
         return result, assertion_text
 
 
 class DateNoGap(NoGapConstraint):
     _DIMENSIONS = 1
 
-    def select(self, engine: sa.engine.Engine, ref: DataReference):
+    def _select(self, engine: sa.engine.Engine, ref: DataReference):
         sample_selection, n_violations_selection = db_access.get_date_gaps(
             engine,
             ref,
-            self.key_columns,
-            self.start_columns[0],
-            self.end_columns[0],
-            self.legitimate_gap_size,
+            self._key_columns,
+            self._start_columns[0],
+            self._end_columns[0],
+            self._legitimate_gap_size,
         )
         # TODO: Once get_unique_count also only returns a selection without
         # executing it, one would want to list this selection here as well.
         return sample_selection, n_violations_selection
 
-    def compare(self, factual: tuple[int, int], target: Any) -> tuple[bool, str]:
-        n_violation_keys, n_distinct_key_values = factual
+    def _compare(
+        self, value_factual: tuple[int, int], value_target: Any
+    ) -> tuple[bool, str | None]:
+        n_violation_keys, n_distinct_key_values = value_factual
         if n_distinct_key_values == 0:
-            return TestResult.success()
+            return True, None
         violation_fraction = n_violation_keys / n_distinct_key_values
         assertion_text = (
-            f"{self.ref} has a ratio of {violation_fraction} > "
-            f"{self.max_relative_n_violations} keys in columns {self.key_columns} "
-            f"with a gap in the date range in {self.start_columns[0]} and {self.end_columns[0]}."
+            f"{self._ref} has a ratio of {violation_fraction} > "
+            f"{self._max_relative_n_violations} keys in columns {self._key_columns} "
+            f"with a gap in the date range in {self._start_columns[0]} and {self._end_columns[0]}."
             f"E.g. for: {self.sample}."
         )
-        result = violation_fraction <= self.max_relative_n_violations
+        result = violation_fraction <= self._max_relative_n_violations
         return result, assertion_text

@@ -8,7 +8,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from .base import Constraint, OptionalSelections, TestResult
+from .base import Constraint, TestResult, _OptionalSelections
 
 
 class VarCharRegexDb(Constraint):
@@ -28,13 +28,13 @@ class VarCharRegexDb(Constraint):
             name=name,
             cache_size=cache_size,
         )
-        self.regex = regex
-        self.aggregated = aggregated
-        self.n_counterexamples = n_counterexamples
+        self._regex = regex
+        self._aggregated = aggregated
+        self._n_counterexamples = n_counterexamples
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[Any, OptionalSelections]:
+    ) -> tuple[Any, _OptionalSelections]:
         (
             (
                 n_violations,
@@ -44,11 +44,11 @@ class VarCharRegexDb(Constraint):
         ) = db_access.get_regex_violations(
             engine=engine,
             ref=ref,
-            aggregated=self.aggregated,
-            regex=self.regex,
-            n_counterexamples=self.n_counterexamples,
+            aggregated=self._aggregated,
+            regex=self._regex,
+            n_counterexamples=self._n_counterexamples,
         )
-        if self.aggregated:
+        if self._aggregated:
             n_rows, n_rows_selections = db_access.get_unique_count(
                 engine=engine, ref=ref
             )
@@ -60,14 +60,14 @@ class VarCharRegexDb(Constraint):
             counterexamples,
         ), violations_selections + n_rows_selections
 
-    def compare(self, violations_factual, violations_target) -> tuple[bool, str]:
+    def _compare(self, value_factual, value_target) -> tuple[bool, str]:
         (
             factual_n_violations,
             factual_n_rows,
             factual_counterexamples,
-        ) = violations_factual
+        ) = value_factual
         factual_relative_violations = factual_n_violations / factual_n_rows
-        result = factual_relative_violations <= violations_target
+        result = factual_relative_violations <= value_target
         counterexample_string = (
             (
                 "Some counterexamples consist of the following: "
@@ -77,11 +77,11 @@ class VarCharRegexDb(Constraint):
             else ""
         )
         assertion_text = (
-            f"{self.ref} "
-            f"breaks regex '{self.regex}' in {factual_relative_violations} > "
-            f"{violations_target} of the cases. "
+            f"{self._ref} "
+            f"breaks regex '{self._regex}' in {factual_relative_violations} > "
+            f"{value_target} of the cases. "
             f"In absolute terms, {factual_n_violations} of the {factual_n_rows} samples "
-            f"violated the regex. {counterexample_string}{self.condition_string}"
+            f"violated the regex. {counterexample_string}{self._condition_string}"
         )
         return result, assertion_text
 
@@ -99,15 +99,15 @@ class VarCharRegex(Constraint):
         cache_size=None,
     ):
         super().__init__(ref, ref_value=regex, name=name, cache_size=cache_size)
-        self.allow_none = allow_none
-        self.relative_tolerance = relative_tolerance
-        self.aggregated = aggregated
-        self.n_counterexamples = n_counterexamples
+        self._allow_none = allow_none
+        self._relative_tolerance = relative_tolerance
+        self._aggregated = aggregated
+        self._n_counterexamples = n_counterexamples
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        uniques_counter, selections = db_access.get_uniques(engine, self.ref)
+        uniques_counter, selections = db_access.get_uniques(engine, self._ref)
         self.factual_selections = selections
-        if not self.allow_none and uniques_counter.get(None):
+        if not self._allow_none and uniques_counter.get(None):
             return TestResult.failure(
                 "The column contains a None value when it's not allowed. "
                 "To ignore None values, please use `allow_none=True` option."
@@ -116,13 +116,13 @@ class VarCharRegex(Constraint):
             uniques_counter.pop(None)
 
         uniques_factual = list(uniques_counter.keys())
-        if not self.ref_value:
+        if not self._ref_value:
             return TestResult.failure("No regex pattern given")
 
-        pattern = re.compile(self.ref_value)
+        pattern = re.compile(self._ref_value)
         uniques_mismatching = {x for x in uniques_factual if not pattern.match(x)}
 
-        if self.aggregated:
+        if self._aggregated:
             n_violations = len(uniques_mismatching)
             n_total = len(uniques_factual)
         else:
@@ -131,11 +131,11 @@ class VarCharRegex(Constraint):
 
         n_relative_violations = n_violations / n_total
 
-        if self.n_counterexamples == -1:
+        if self._n_counterexamples == -1:
             counterexamples = list(uniques_mismatching)
         else:
             counterexamples = list(
-                itertools.islice(uniques_mismatching, self.n_counterexamples)
+                itertools.islice(uniques_mismatching, self._n_counterexamples)
             )
 
         counterexample_string = (
@@ -144,13 +144,13 @@ class VarCharRegex(Constraint):
             else ""
         )
 
-        if n_relative_violations > self.relative_tolerance:
+        if n_relative_violations > self._relative_tolerance:
             assertion_text = (
-                f"{self.ref} "
-                f"breaks regex '{self.ref_value}' in {n_relative_violations} > "
-                f"{self.relative_tolerance} of the cases. "
+                f"{self._ref} "
+                f"breaks regex '{self._ref_value}' in {n_relative_violations} > "
+                f"{self._relative_tolerance} of the cases. "
                 f"In absolute terms, {n_violations} of the {n_total} samples violated the regex. "
-                f"{counterexample_string}{self.condition_string}"
+                f"{counterexample_string}{self._condition_string}"
             )
             return TestResult.failure(assertion_text)
         return TestResult.success()
@@ -174,25 +174,25 @@ class VarCharMinLength(Constraint):
             cache_size=cache_size,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[int, OptionalSelections]:
+    ) -> tuple[int, _OptionalSelections]:
         return db_access.get_min_length(engine, ref)
 
-    def compare(
-        self, length_factual: int, length_target: int
+    def _compare(
+        self, value_factual: int, value_target: int
     ) -> tuple[bool, str | None]:
-        if length_target is None:
+        if value_target is None:
             return True, None
-        if length_factual is None:
-            return length_target == 0, "Empty set."
+        if value_factual is None:
+            return value_target == 0, "Empty set."
         assertion_text = (
-            f"{self.ref} "
-            f"has min length {length_factual} instead of "
-            f"{self.target_prefix} {length_target}. "
-            f"{self.condition_string}"
+            f"{self._ref} "
+            f"has min length {value_factual} instead of "
+            f"{self._target_prefix} {value_target}. "
+            f"{self._condition_string}"
         )
-        result = length_factual >= length_target
+        result = value_factual >= value_target
         return result, assertion_text
 
 
@@ -214,23 +214,23 @@ class VarCharMaxLength(Constraint):
             cache_size=cache_size,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[int, OptionalSelections]:
+    ) -> tuple[int, _OptionalSelections]:
         return db_access.get_max_length(engine, ref)
 
-    def compare(
-        self, length_factual: int, length_target: int
+    def _compare(
+        self, value_factual: int, value_target: int
     ) -> tuple[bool, str | None]:
-        if length_factual is None:
+        if value_factual is None:
             return True, None
-        if length_target is None:
-            return length_factual == 0, "Reference value is None."
+        if value_target is None:
+            return value_factual == 0, "Reference value is None."
         assertion_text = (
-            f"{self.ref} "
-            f"has max length {length_factual} instead of "
-            f"{self.target_prefix} {length_target}. "
-            f"{self.condition_string}"
+            f"{self._ref} "
+            f"has max length {value_factual} instead of "
+            f"{self._target_prefix} {value_target}. "
+            f"{self._condition_string}"
         )
-        result = length_factual <= length_target
+        result = value_factual <= value_target
         return result, assertion_text

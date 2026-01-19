@@ -2820,8 +2820,8 @@ def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
     req.add_uniqueness_constraint(columns=selection_columns, infer_pk_columns=True)
     test_result = req[0].test(engine)
     # additional test: the PK columns are inferred during test time, i.e. we can check here if they were inferred correctly
-    assert req[0].ref.columns == target_columns, (
-        f"Incorrect columns were retrieved from table. {req[0].ref.columns} != {target_columns}"
+    assert req[0]._ref.columns == target_columns, (
+        f"Incorrect columns were retrieved from table. {req[0]._ref.columns} != {target_columns}"
     )
     assert operation(test_result.outcome), test_result.failure_message
 

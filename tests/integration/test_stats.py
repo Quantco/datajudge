@@ -1,9 +1,9 @@
 import pytest
 
 from datajudge.constraints.stats import KolmogorovSmirnov2Sample
+from datajudge.data_source import TableDataSource
 from datajudge.db_access import (
     DataReference,
-    TableDataSource,
     _cross_cdf_selection,
     is_bigquery,
     is_db2,
@@ -60,7 +60,7 @@ def test_ks_2sample_calculate_statistic(engine, random_normal_table, configurati
         n_samples,
         m_samples,
         _,
-    ) = KolmogorovSmirnov2Sample.calculate_statistic(engine, ref, ref2)
+    ) = KolmogorovSmirnov2Sample._calculate_statistic(engine, ref, ref2)
 
     assert abs(d_statistic - expected_d) <= 1e-10, (
         f"The test statistic does not match: {expected_d} vs {d_statistic}"

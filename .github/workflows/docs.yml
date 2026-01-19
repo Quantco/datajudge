@@ -1,0 +1,23 @@
+name: Docs
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659
+        with:
+          environments: docs
+      - name: Build docs
+        run: pixi run -e docs docs-build
+      - name: Deploy docs
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: pixi run -e docs mkdocs gh-deploy --force

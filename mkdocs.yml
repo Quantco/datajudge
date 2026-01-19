@@ -1,0 +1,91 @@
+site_name: datajudge
+site_description: Assessing whether data from database complies with reference information.
+site_url: https://quantco.github.io/datajudge
+theme:
+  name: material
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: indigo
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+      primary: indigo
+  features:
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+    - content.code.copy
+    - navigation.tabs
+  icon:
+    repo: fontawesome/brands/github-alt
+    edit: material/pencil
+repo_name: quantco/datajudge
+repo_url: https://github.com/quantco/datajudge
+edit_uri: edit/main/docs/
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - src
+            - "!src/datajudge/db_access.py"
+          options:
+            docstring_section_style: spacy
+            docstring_style: numpy
+            merge_init_into_class: true
+            unwrap_annotated: true
+            separate_signature: true
+            show_if_no_docstring: true
+            show_signature_annotations: true
+            show_submodules: true
+            show_symbol_type_heading: true
+            filters:
+              - "!^_" # exclude private and dunder elements
+              - "!db_access"
+
+nav:
+  - installation.md
+  - getting-started.md
+  - testing.md
+  - motivation.md
+  - Examples:
+      - examples/company-data.md
+      - examples/twitch.md
+      - examples/dates.md
+      - examples/exploration.md
+  - development.md
+  - api-documentation.md
+  - Changelog: CHANGELOG.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/katex.js
+  - javascripts/external_links.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+
+extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
+  - styles/custom.css

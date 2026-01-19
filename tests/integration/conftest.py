@@ -7,7 +7,8 @@ import urllib.parse
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import apply_patches, is_bigquery, is_db2, is_duckdb, is_mssql
+from datajudge._engines import is_bigquery, is_db2, is_duckdb, is_mssql
+from datajudge.db_access import apply_patches
 
 TEST_DB_NAME = "tempdb"
 SCHEMA = "dbo"  # 'dbo' is the standard schema in mssql

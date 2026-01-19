@@ -6,7 +6,7 @@ import sqlalchemy as sa
 
 from .. import db_access
 from ..db_access import DataReference
-from .base import Constraint, OptionalSelections, TestResult, format_sample
+from .base import Constraint, TestResult, _format_sample, _OptionalSelections
 
 
 class PrimaryKeyDefinition(Constraint):
@@ -19,14 +19,14 @@ class PrimaryKeyDefinition(Constraint):
     ):
         super().__init__(ref, ref_value=set(primary_keys), name=name)
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[set[str], OptionalSelections]:
-        values, selections = db_access.get_primary_keys(engine, self.ref)
+    ) -> tuple[set[str], _OptionalSelections]:
+        values, selections = db_access.get_primary_keys(engine, self._ref)
         return set(values), selections
 
     # Note: Exact equality!
-    def compare(
+    def _compare(
         self, primary_keys_factual: set[str], primary_keys_target: set[str]
     ) -> tuple[bool, str | None]:
         assertion_message = ""
@@ -37,7 +37,7 @@ class PrimaryKeyDefinition(Constraint):
                 iter(primary_keys_factual.difference(primary_keys_target))
             )
             assertion_message = (
-                f"{self.ref} incorrectly includes {example_key} as primary key."
+                f"{self._ref} incorrectly includes {example_key} as primary key."
             )
             result = False
         if len(primary_keys_target.difference(primary_keys_factual)) > 0:
@@ -45,7 +45,7 @@ class PrimaryKeyDefinition(Constraint):
                 iter(primary_keys_target.difference(primary_keys_factual))
             )
             assertion_message = (
-                f"{self.ref} doesn't include {example_key} as primary key."
+                f"{self._ref} doesn't include {example_key} as primary key."
             )
             result = False
         return result, assertion_message
@@ -86,22 +86,24 @@ class Uniqueness(Constraint):
         # only check for primary keys when actually defined
         # otherwise default back to searching the whole table
         if self.infer_pk_columns and (
-            pk_columns := db_access.get_primary_keys(engine, self.ref)[0]
+            pk_columns := db_access.get_primary_keys(engine, self._ref)[0]
         ):
-            self.ref.columns = pk_columns
+            self._ref.columns = pk_columns
             if not pk_columns:  # there were no primary keys found
                 warnings.warn(
-                    f"""No primary keys found in {self.ref}.
+                    f"""No primary keys found in {self._ref}.
                     Uniqueness will be tested for all columns."""
                 )
 
-        unique_count, unique_selections = db_access.get_unique_count(engine, self.ref)
-        row_count, row_selections = db_access.get_row_count(engine, self.ref)
+        unique_count, unique_selections = db_access.get_unique_count(engine, self._ref)
+        row_count, row_selections = db_access.get_row_count(engine, self._ref)
         self.factual_selections = row_selections
         self.target_selections = unique_selections
         if row_count == 0:
             return TestResult(True, "No occurrences.")
-        tolerance_kind, tolerance_value = self.ref_value
+
+        tolerance_kind, tolerance_value = self._ref_value
+
         if tolerance_kind == "relative":
             result = unique_count >= row_count * (1 - tolerance_value)
         elif tolerance_kind == "absolute":
@@ -112,12 +114,12 @@ class Uniqueness(Constraint):
             )
         if result:
             return TestResult.success()
-        sample, _ = db_access.get_duplicate_sample(engine, self.ref)
-        sample_string = format_sample(sample, self.ref)
+        sample, _ = db_access.get_duplicate_sample(engine, self._ref)
+        sample_string = _format_sample(sample, self._ref)
         assertion_text = (
-            f"{self.ref} has {row_count} rows > {unique_count} "
+            f"{self._ref} has {row_count} rows > {unique_count} "
             f"uniques. This surpasses the max_duplicate_fraction of "
-            f"{self.ref_value}. An example tuple breaking the "
+            f"{self._ref_value}. An example tuple breaking the "
             f"uniqueness condition is: {sample_string}."
         )
         return TestResult.failure(assertion_text)
@@ -130,17 +132,17 @@ class FunctionalDependency(Constraint):
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         violations, _ = db_access.get_functional_dependency_violations(
-            engine, self.ref, self.key_columns
+            engine, self._ref, self.key_columns
         )
         if not violations:
             return TestResult.success()
 
         assertion_text = (
-            f"{self.ref} has violations of functional dependence (in total {len(violations)} rows):\n"
+            f"{self._ref} has violations of functional dependence (in total {len(violations)} rows):\n"
             + "\n".join(
                 [
                     f"{violation}"
-                    for violation in self.apply_output_formatting(
+                    for violation in self._apply_output_formatting(
                         [tuple(elem) for elem in violations]
                     )
                 ]
@@ -178,16 +180,16 @@ class MaxNullFraction(Constraint):
             )
         self.max_relative_deviation = max_relative_deviation
 
-    def retrieve(self, engine: sa.engine.Engine, ref: DataReference):
+    def _retrieve(self, engine: sa.engine.Engine, ref: DataReference):
         return db_access.get_missing_fraction(engine=engine, ref=ref)
 
-    def compare(
-        self, missing_fraction_factual: float, missing_fracion_target: float
+    def _compare(
+        self, value_factual: float, value_target: float
     ) -> tuple[bool, str | None]:
-        threshold = missing_fracion_target * (1 + self.max_relative_deviation)
-        result = missing_fraction_factual <= threshold
+        threshold = value_target * (1 + self.max_relative_deviation)
+        result = value_factual <= threshold
         assertion_text = (
-            f"{missing_fraction_factual} of {self.ref} values are NULL "
-            f"while only {self.target_prefix}{threshold} were allowed to be NULL."
+            f"{value_factual} of {self._ref} values are NULL "
+            f"while only {self._target_prefix}{threshold} were allowed to be NULL."
         )
         return result, assertion_text

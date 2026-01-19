@@ -32,7 +32,7 @@ def datajudge_engine():
 
 
 ref = DataReference(
-    data_source=example_req.data_source,
+    data_source=example_req._data_source,
     columns=["example"],
     condition=None,
 )
