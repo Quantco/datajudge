@@ -1005,7 +1005,7 @@ def get_primary_keys(
     data_source = ref.data_source
 
     if isinstance(data_source, TableDataSource):
-        table = data_source.get_clause(engine)
+        table = data_source._get_clause(engine)
         return [column.name for column in table.primary_key.columns], None
 
     raise NotImplementedError(

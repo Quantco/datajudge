@@ -148,7 +148,7 @@ class Constraint(abc.ABC):
         ):
             output_processors = [output_processors]
 
-        self._output_processors = output_processors
+        self._output_processors: list[OutputProcessor] | None = output_processors
 
         self._cache_size = cache_size
         self._setup_caching()
