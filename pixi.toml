@@ -16,15 +16,13 @@ flit-core = "*"
 flit = "*"
 
 [feature.docs.dependencies]
-make = "*"
-numpydoc = "*"
-sphinx = "*"
-sphinx_rtd_theme = "*"
-sphinxcontrib-apidoc = "*"
-sphinx-autodoc-typehints = "*"
+mkdocs-material = "*"
+mkdocstrings = "*"
+mkdocstrings-python = ">=2.0"
 [feature.docs.tasks]
-docs = "cd docs && make html "
-readthedocs = "rm -rf $READTHEDOCS_OUTPUT/html && cp -r docs/build/html $READTHEDOCS_OUTPUT/html"
+docs = "mkdocs serve"
+docs-build = "mkdocs build --strict"
+readthedocs = "rm -rf $READTHEDOCS_OUTPUT/html && cp -r site/ $READTHEDOCS_OUTPUT/html"
 
 [feature.py310.dependencies]
 python = "3.10.*"

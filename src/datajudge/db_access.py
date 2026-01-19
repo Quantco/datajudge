@@ -1,41 +1,25 @@
 from __future__ import annotations
 
-import functools
 import json
 import operator
-from abc import ABC, abstractmethod
 from collections import Counter
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Any, final, overload
+from typing import Any, overload
 
 import sqlalchemy as sa
 from sqlalchemy.sql import selectable
-from sqlalchemy.sql.expression import FromClause
 
-
-def is_mssql(engine: sa.engine.Engine) -> bool:
-    return engine.name == "mssql"
-
-
-def is_postgresql(engine: sa.engine.Engine) -> bool:
-    return engine.name == "postgresql"
-
-
-def is_snowflake(engine: sa.engine.Engine) -> bool:
-    return engine.name == "snowflake"
-
-
-def is_bigquery(engine: sa.engine.Engine) -> bool:
-    return engine.name == "bigquery"
-
-
-def is_db2(engine: sa.engine.Engine) -> bool:
-    return engine.name == "ibm_db_sa"
-
-
-def is_duckdb(engine: sa.engine.Engine) -> bool:
-    return engine.name == "duckdb"
+from ._engines import (
+    is_bigquery,
+    is_db2,
+    is_duckdb,
+    is_mssql,
+    is_postgresql,
+    is_snowflake,
+)
+from .condition import Condition
+from .data_source import DataSource, TableDataSource
 
 
 def get_table_columns(
@@ -45,10 +29,7 @@ def get_table_columns(
 
 
 def apply_patches(engine: sa.engine.Engine) -> None:
-    """
-    Apply patches to e.g. specific dialect not implemented by sqlalchemy
-    """
-
+    """Apply patches to e.g. specific dialect not implemented by sqlalchemy."""
     if is_bigquery(engine):
         # Patch for the EXCEPT operator (see BigQuery set operators
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#set_operators)
@@ -96,82 +77,8 @@ def lowercase_column_names(column_names: str | list[str]) -> str | list[str]:
     return [column_name.lower() for column_name in column_names]
 
 
-@dataclass(frozen=True)
-class Condition:
-    """Condition allows for further narrowing down of a DataSource in a Constraint.
-
-    A ``Condition`` can be thought of as a filter, the content of a sql 'where' clause
-    or a condition as known from probability theory.
-
-    While a ``DataSource`` is expressed more generally, one might be interested
-    in testing properties of a specific part of said ``DataSource`` in light
-    of a particular constraint. Hence using ``Condition`` allows for the reusage
-    of a ``DataSource``, in lieu of creating a new custom ``DataSource`` with
-    the ``Condition`` implicitly built in.
-
-    A ``Condition`` can either be 'atomic', i.e. not further reducible to sub-conditions
-    or 'composite', i.e. combining multiple subconditions. In the former case, it can
-    be instantiated with help of the ``raw_string`` parameter, e.g. ``"col1 > 0"``. In the
-    latter case, it can be instantiated with help of the ``conditions`` and
-    ``reduction_operator`` parameters. ``reduction_operator`` allows for two values: ``"and"`` (logical
-    conjunction) and ``"or"`` (logical disjunction). Note that composition of ``Condition``
-    supports arbitrary degrees of nesting.
-    """
-
-    raw_string: str | None = None
-    conditions: Sequence[Condition] | None = None
-    reduction_operator: str | None = None
-
-    def __post_init__(self):
-        if self._is_atomic() and self.conditions is not None:
-            raise ValueError(
-                "Condition can either be instantiated atomically, with "
-                "the raw_query parameter, or in a composite fashion, with "
-                "the conditions parameter. "
-                "Exactly one of them needs to be provided, yet both are."
-            )
-        if not self._is_atomic() and (
-            self.conditions is None or len(self.conditions) == 0
-        ):
-            raise ValueError(
-                "Condition can either be instantiated atomically, with "
-                "the raw_query parameter, or in a composite fashion, with "
-                "the conditions parameter. "
-                "Exactly one of them needs to be provided, yet none is."
-            )
-        if not self._is_atomic() and self.reduction_operator not in ["and", "or"]:
-            raise ValueError(
-                "reuction_operator has to be either 'and' or 'or' but "
-                f"obtained {self.reduction_operator}."
-            )
-
-    def _is_atomic(self) -> bool:
-        return self.raw_string is not None
-
-    def __str__(self) -> str:
-        if self._is_atomic():
-            if self.raw_string is None:
-                raise ValueError(
-                    "Condition can either be instantiated atomically, with "
-                    "the raw_query parameter, or in a composite fashion, with "
-                    "the conditions parameter. "
-                    "Exactly one of them needs to be provided, yet none is."
-                )
-            return self.raw_string
-        if not self.conditions:
-            raise ValueError("This should never happen thanks to __post__init.")
-        return f" {self.reduction_operator} ".join(
-            f"({condition})" for condition in self.conditions
-        )
-
-    def snowflake_str(self) -> str:
-        # Temporary method - should be removed as soon as snowflake-sqlalchemy
-        # bug is fixed.
-        return str(self)
-
-
 @dataclass
-class MatchAndCompare:
+class _MatchAndCompare:
     matching_columns1: Sequence[str]
     matching_columns2: Sequence[str]
     comparison_columns1: Sequence[str]
@@ -213,95 +120,6 @@ class MatchAndCompare:
         )
 
 
-class DataSource(ABC):
-    @abstractmethod
-    def __str__(self) -> str:
-        pass
-
-    @abstractmethod
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        pass
-
-
-@functools.lru_cache(maxsize=1)
-def get_metadata() -> sa.MetaData:
-    return sa.MetaData()
-
-
-@final
-class TableDataSource(DataSource):
-    def __init__(
-        self,
-        db_name: str,
-        table_name: str,
-        schema_name: str | None = None,
-    ):
-        self.db_name = db_name
-        self.table_name = table_name
-        self.schema_name = schema_name
-
-    def __str__(self) -> str:
-        if self.schema_name:
-            return f"{self.db_name}.{self.schema_name}.{self.table_name}"
-        return self.table_name
-
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        schema = self.schema_name
-        if is_mssql(engine):
-            schema = self.db_name + "." + self.schema_name  # type: ignore
-
-        return sa.Table(
-            self.table_name,
-            get_metadata(),
-            autoload_with=engine,
-            schema=schema,
-        )
-
-
-@final
-class ExpressionDataSource(DataSource):
-    def __init__(self, expression: FromClause | sa.Select, name: str):
-        self.expression = expression
-        self.name = name
-
-    def __str__(self) -> str:
-        return self.name
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(expression={self.expression!r}, name={self.name})"
-
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        return self.expression.alias()
-
-
-@final
-class RawQueryDataSource(DataSource):
-    def __init__(self, query_string: str, name: str, columns: list[str] | None = None):
-        self.query_string = query_string
-        self.name = name
-        self.columns = columns
-        wrapped_query = f"({query_string}) as t"
-        if columns is not None and len(columns) > 0:
-            subquery = (
-                sa.text(query_string)
-                .columns(*[sa.column(column_name) for column_name in columns])
-                .subquery()
-            )
-            self.clause = subquery
-        else:
-            wrapped_query = f"({query_string}) as t"
-            self.clause = sa.select("*").select_from(sa.text(wrapped_query)).alias()
-
-    def __str__(self) -> str:
-        return self.name
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(query_string={self.query_string}, name={self.name}, columns={self.columns})"
-
-    def get_clause(self, engine: sa.engine.Engine) -> FromClause:
-        return self.clause
-
-
 class DataReference:
     def __init__(
         self,
@@ -320,7 +138,7 @@ class DataReference:
         return f"{self.__class__.__name__}(data_source={self.data_source!r}, columns={self.columns!r}, condition={self.condition!r})"
 
     def get_selection(self, engine: sa.engine.Engine) -> sa.Select:
-        clause = self.data_source.get_clause(engine)
+        clause = self.data_source._get_clause(engine)
         if self.columns:
             column_names = self.get_columns(engine)
             if column_names is None:
@@ -333,7 +151,7 @@ class DataReference:
         if self.condition is not None:
             text = str(self.condition)
             if is_snowflake(engine):
-                text = self.condition.snowflake_str()
+                text = self.condition._snowflake_str()
             selection = selection.where(sa.text(text))
         if is_mssql(engine) and isinstance(self.data_source, TableDataSource):
             # Allow dirty reads when using MSSQL.
@@ -381,7 +199,7 @@ class DataReference:
             return " * "
         return ", ".join(map(lambda x: f"'{x}'", self.columns))
 
-    def get_clause_string(self, *, return_where: bool = True) -> str:
+    def _get_clause_string(self, *, return_where: bool = True) -> str:
         where_string = "WHERE " if return_where else ""
         return "" if self.condition is None else where_string + str(self.condition)
 
@@ -481,7 +299,7 @@ def get_date_span(
     return float(date_span), [selection]
 
 
-def get_date_growth_rate(
+def _get_date_growth_rate(
     engine: sa.engine.Engine,
     ref: DataReference,
     ref2: DataReference,
@@ -503,7 +321,7 @@ def get_interval_overlaps_nd(
     end_columns: list[str],
     end_included: bool,
 ) -> tuple[sa.sql.selectable.CompoundSelect, sa.sql.selectable.Select]:
-    """Create selectables for interval overlaps in n dimensions.
+    r"""Create selectables for interval overlaps in n dimensions.
 
     We define the presence of 'overlap' as presence of a non-empty intersection
     between two intervals.
@@ -945,7 +763,8 @@ def get_column(
     aggregate_operator: Callable | None = None,
 ) -> tuple[Any, list[sa.Select]]:
     """
-    Queries the database for the values of the relevant column (as returned by `get_column(...)`).
+    Query the database for the values of the relevant column (as returned by `get_column(...)`).
+
     If an aggregation operation is passed, the results are aggregated accordingly
     and a single scalar value is returned.
     """
@@ -1170,7 +989,7 @@ def get_missing_fraction(
 def get_column_names(
     engine: sa.engine.Engine, ref: DataReference
 ) -> tuple[list[str], None]:
-    table = ref.data_source.get_clause(engine)
+    table = ref.data_source._get_clause(engine)
     return [column.name for column in table.columns], None
 
 
@@ -1183,7 +1002,7 @@ def get_column_type(engine: sa.engine.Engine, ref: DataReference) -> tuple[Any, 
 def get_primary_keys(
     engine: sa.engine.Engine, ref: DataReference
 ) -> tuple[list[str], None]:
-    table = ref.data_source.get_clause(engine)
+    table = ref.data_source._get_clause(engine)
     # Kevin, 25/02/04
     # Mypy complains about the following for a reason I can't follow.
     return [column.name for column in table.primary_key.columns], None  # type: ignore
@@ -1221,7 +1040,7 @@ def get_row_mismatch(
     engine: sa.engine.Engine,
     ref: DataReference,
     ref2: DataReference,
-    match_and_compare: MatchAndCompare,
+    match_and_compare: _MatchAndCompare,
 ) -> tuple[float, int, list[sa.Select]]:
     subselection1 = ref.get_selection(engine).alias()
     subselection2 = ref2.get_selection(engine).alias()
@@ -1304,7 +1123,7 @@ def get_duplicate_sample(
 def column_array_agg_query(
     engine: sa.engine.Engine, ref: DataReference, aggregation_column: str
 ) -> list[sa.Select]:
-    clause = ref.data_source.get_clause(engine)
+    clause = ref.data_source._get_clause(engine)
     if not (column_names := ref.get_columns(engine)):
         raise ValueError("There must be a column to group by")
     group_columns = [clause.c[column] for column in column_names]

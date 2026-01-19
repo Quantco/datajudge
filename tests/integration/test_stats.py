@@ -61,7 +61,7 @@ def test_ks_2sample_calculate_statistic(engine, random_normal_table, configurati
         n_samples,
         m_samples,
         _,
-    ) = datajudge.constraints.stats.KolmogorovSmirnov2Sample.calculate_statistic(
+    ) = datajudge.constraints.stats.KolmogorovSmirnov2Sample._calculate_statistic(
         engine, ref, ref2
     )
 

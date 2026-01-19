@@ -1,6 +1,6 @@
 import pytest
 
-from datajudge.db_access import Condition
+from datajudge.condition import Condition
 
 
 def test_equality():

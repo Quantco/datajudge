@@ -12,24 +12,28 @@ import sqlalchemy as sa
 from .. import db_access
 from ..db_access import DataReference
 from ..utils import OutputProcessor, filternull_element, output_processor_limit
-from .base import Constraint, OptionalSelections, T, TestResult, ToleranceGetter
+from .base import _T, Constraint, TestResult, _OptionalSelections, _ToleranceGetter
 
 
-def _is_superset(values1: Collection[T], values2: Collection[T]) -> tuple[bool, set[T]]:
+def _is_superset(
+    values1: Collection[_T], values2: Collection[_T]
+) -> tuple[bool, set[_T]]:
     """Check whether values1 is a superset of values2."""
     remainder = set(values2) - set(values1)
     return len(remainder) == 0, remainder
 
 
-def _is_subset(values1: Collection[T], values2: Collection[T]) -> tuple[bool, set[T]]:
+def _is_subset(
+    values1: Collection[_T], values2: Collection[_T]
+) -> tuple[bool, set[_T]]:
     """Check whether values1 is a subset of values2."""
     remainder = set(values1) - set(values2)
     return len(remainder) == 0, remainder
 
 
 def _subset_violation_counts(
-    values1: Collection[T], counts: list[int], values2: Collection[T]
-) -> tuple[bool, dict[T | int, int]]:
+    values1: Collection[_T], counts: list[int], values2: Collection[_T]
+) -> tuple[bool, dict[_T | int, int]]:
     """Count frequencies of elements from values1 not in values2."""
     remainder = {
         value: count
@@ -47,18 +51,18 @@ class Uniques(Constraint, abc.ABC):
     through parameter `uniques` or obtained from another `DataSource`.
 
     Null values in the columns ``columns`` are ignored. To assert the non-existence of them use
-    the :meth:`~datajudge.requirements.WithinRequirement.add_null_absence_constraint`` helper method
+    the [add_null_absence_constraint][datajudge.requirements.WithinRequirement.add_null_absence_constraint] helper method
     for ``WithinRequirement``.
     By default, the null filtering does not trigger if multiple columns are fetched at once.
     It can be configured in more detail by supplying a custom ``filter_func`` function.
-    Some exemplary implementations are available as :func:`~datajudge.utils.filternull_element`,
-    :func:`~datajudge.utils.filternull_never`, :func:`~datajudge.utils.filternull_element_or_tuple_all`,
-    :func:`~datajudge.utils.filternull_element_or_tuple_any`.
-    Passing ``None`` as the argument is equivalent to :func:`~datajudge.utils.filternull_element` but triggers a warning.
-    The current default of :func:`~datajudge.utils.filternull_element`
+    Some exemplary implementations are available as [filternull_element][datajudge.utils.filternull_element],
+    [filternull_never][datajudge.utils.filternull_never], [filternull_element_or_tuple_all][datajudge.utils.filternull_element_or_tuple_all],
+    [filternull_element_or_tuple_any][datajudge.utils.filternull_element_or_tuple_any].
+    Passing ``None`` as the argument is equivalent to [filternull_element][datajudge.utils.filternull_element] but triggers a warning.
+    The current default of [filternull_element][datajudge.utils.filternull_element]
     Cause (possibly often unintended) changes in behavior when the users adds a second column
     (filtering no longer can trigger at all).
-    The default will be changed to :func:`~datajudge.utils.filternull_element_or_tuple_all` in future versions.
+    The default will be changed to [filternull_element_or_tuple_all][datajudge.utils.filternull_element_or_tuple_all] in future versions.
     To silence the warning, set ``filter_func`` explicitly.
 
     There are two ways to do some post processing of the data obtained from the
@@ -93,12 +97,12 @@ class Uniques(Constraint, abc.ABC):
     thus, they may differ from run to run despite the exact same situation being present,
     and can have an arbitrary length.
     To enforce a reproducible, limited output via (e.g.) sorting and slicing,
-    set `output_processors` to a callable or a list of callables. By default, only the first 100 elements are displayed (:func:`~datajudge.utils.output_processor_limit`).
+    set `output_processors` to a callable or a list of callables. By default, only the first 100 elements are displayed ([output_processor_limit][datajudge.utils.output_processor_limit]).
 
     Each callable takes in two collections, and returns modified (e.g. sorted) versions of them.
     In most cases, the second argument is simply None,
     but for `UniquesSubset` it is the counts of each of the elements.
-    The suggested functions are :func:`~datajudge.utils.output_processor_sort` and :func:`~datajudge.utils.output_processor_limit`
+    The suggested functions are [output_processor_sort][datajudge.utils.output_processor_sort] and [output_processor_limit][datajudge.utils.output_processor_limit]
     - see their respective docstrings for details.
 
     One use is of this constraint is to test for consistency in columns with expected
@@ -116,8 +120,8 @@ class Uniques(Constraint, abc.ABC):
         *,
         ref2: DataReference | None = None,
         uniques: Collection | None = None,
-        filter_func: Callable[[list[T]], list[T]] | None = None,
-        map_func: Callable[[T], T] | None = None,
+        filter_func: Callable[[list[_T]], list[_T]] | None = None,
+        map_func: Callable[[_T], _T] | None = None,
         reduce_func: Callable[[Collection], Collection] | None = None,
         max_relative_violations=0,
         compare_distinct=False,
@@ -137,24 +141,23 @@ class Uniques(Constraint, abc.ABC):
             warnings.warn("Using deprecated default null filter function.")
             filter_func = filternull_element
 
-        self.filter_func = filter_func
-        self.local_func = map_func
-        self.global_func = reduce_func
-        self.max_relative_violations = max_relative_violations
-        self.compare_distinct = compare_distinct
+        self._filter_func = filter_func
+        self._local_func = map_func
+        self._global_func = reduce_func
+        self._max_relative_violations = max_relative_violations
+        self._compare_distinct = compare_distinct
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[tuple[list, list[int]], OptionalSelections]:
+    ) -> tuple[tuple[list, list[int]], _OptionalSelections]:
         uniques, selection = db_access.get_uniques(engine, ref)
         values = list(uniques.keys())
-        values = self.filter_func(values)
-        values = self.filter_func(values)
+        values = self._filter_func(values)
         counts = [uniques[value] for value in values]
-        if self.local_func:
-            values = list(map(self.local_func, values))
-        if self.global_func:
-            values = list(self.global_func(values))
+        if self._local_func:
+            values = list(map(self._local_func, values))
+        if self._global_func:
+            values = list(self._global_func(values))
             if not isinstance(values, Collection):
                 raise ValueError(
                     "The return value from `reduce_func` is not a Collection."
@@ -172,10 +175,10 @@ class UniquesEquality(Uniques):
             raise RuntimeError("compare_distinct is not supported for UniquesEquality.")
         super().__init__(args, name=name, **kwargs)
 
-    def compare(
+    def _compare(
         self,
-        factual: tuple[list[T], list[int]],
-        target: tuple[Collection[T], list[int]],
+        factual: tuple[list[_T], list[int]],
+        target: tuple[Collection[_T], list[int]],
     ) -> tuple[bool, str | None]:
         factual_values_list, _ = factual
         factual_values = set(factual_values_list)
@@ -185,34 +188,34 @@ class UniquesEquality(Uniques):
         is_superset, lacking_values = _is_superset(factual_values, target_values)
         if not is_subset and not is_superset:
             assertion_text = (
-                f"{self.ref} doesn't have the element(s) "
-                f"'{self.apply_output_formatting(lacking_values)}' and has the excess element(s) "
-                f"'{self.apply_output_formatting(excess_values)}' when compared with the reference values. "
-                f"{self.condition_string}"
+                f"{self._ref} doesn't have the element(s) "
+                f"'{self._apply_output_formatting(lacking_values)}' and has the excess element(s) "
+                f"'{self._apply_output_formatting(excess_values)}' when compared with the reference values. "
+                f"{self._condition_string}"
             )
             return False, assertion_text
         if not is_subset:
             assertion_text = (
-                f"{self.ref} has the excess element(s) "
-                f"'{self.apply_output_formatting(excess_values)}' when compared with the reference values. "
-                f"{self.condition_string}"
+                f"{self._ref} has the excess element(s) "
+                f"'{self._apply_output_formatting(excess_values)}' when compared with the reference values. "
+                f"{self._condition_string}"
             )
             return False, assertion_text
         if not is_superset:
             assertion_text = (
-                f"{self.ref} doesn't have the element(s) "
-                f"'{self.apply_output_formatting(lacking_values)}' when compared with the reference values. "
-                f"{self.condition_string}"
+                f"{self._ref} doesn't have the element(s) "
+                f"'{self._apply_output_formatting(lacking_values)}' when compared with the reference values. "
+                f"{self._condition_string}"
             )
             return False, assertion_text
         return True, None
 
 
 class UniquesSubset(Uniques):
-    def compare(
+    def _compare(
         self,
-        factual: tuple[list[T], list[int]],
-        target: tuple[Collection[T], list[int]],
+        factual: tuple[list[_T], list[int]],
+        target: tuple[Collection[_T], list[int]],
     ) -> tuple[bool, str | None]:
         factual_values, factual_counts = factual
         target_values, _ = target
@@ -220,7 +223,7 @@ class UniquesSubset(Uniques):
         is_subset, remainder = _subset_violation_counts(
             factual_values, factual_counts, target_values
         )
-        if not self.compare_distinct:
+        if not self._compare_distinct:
             n_rows = sum(factual_counts)
             n_violations = sum(remainder.values())
         else:
@@ -230,25 +233,25 @@ class UniquesSubset(Uniques):
         if (
             n_rows > 0
             and (relative_violations := (n_violations / n_rows))
-            > self.max_relative_violations
+            > self._max_relative_violations
         ):
             output_elemes, output_counts = (
                 list(remainder.keys()),
                 list(remainder.values()),
             )
-            if self.output_processors is not None:
-                for output_processor in self.output_processors:
+            if self._output_processors is not None:
+                for output_processor in self._output_processors:
                     output_elemes, output_counts = output_processor(
                         output_elemes, output_counts
                     )
 
             assertion_text = (
-                f"{self.ref} has a fraction of {relative_violations} > "
-                f"{self.max_relative_violations} {'DISTINCT ' if self.compare_distinct else ''}values ({n_violations} / {n_rows}) not being an element of "
-                f"'{self.apply_output_formatting(set(target_values))}'. It has excess elements "
+                f"{self._ref} has a fraction of {relative_violations} > "
+                f"{self._max_relative_violations} {'DISTINCT ' if self._compare_distinct else ''}values ({n_violations} / {n_rows}) not being an element of "
+                f"'{self._apply_output_formatting(set(target_values))}'. It has excess elements "
                 f"'{output_elemes}' "
                 f"with counts {output_counts}."
-                f"{self.condition_string}"
+                f"{self._condition_string}"
             )
             return False, assertion_text
         return True, None
@@ -260,10 +263,10 @@ class UniquesSuperset(Uniques):
             raise RuntimeError("compare_distinct is not supported for UniquesSuperset.")
         super().__init__(args, name=name, **kwargs)
 
-    def compare(
+    def _compare(
         self,
-        factual: tuple[list[T], list[int]],
-        target: tuple[Collection[T], list[int]],
+        factual: tuple[list[_T], list[int]],
+        target: tuple[Collection[_T], list[int]],
     ) -> tuple[bool, str | None]:
         factual_values, _ = factual
         target_values, _ = target
@@ -275,14 +278,14 @@ class UniquesSuperset(Uniques):
                     (n_violations := (len(remainder))) / (n_rows := len(target_values))
                 )
             )
-            > self.max_relative_violations
+            > self._max_relative_violations
         ):
             assertion_text = (
-                f"{self.ref} has a fraction of "
-                f"{relative_violations} > {self.max_relative_violations} ({n_violations} / {n_rows}) "
-                f"lacking unique values of '{self.apply_output_formatting(set(target_values))}'. It "
-                f"doesn't have the unique value(s) '{self.apply_output_formatting(list(remainder))}'."
-                f"{self.condition_string}"
+                f"{self._ref} has a fraction of "
+                f"{relative_violations} > {self._max_relative_violations} ({n_violations} / {n_rows}) "
+                f"lacking unique values of '{self._apply_output_formatting(set(target_values))}'. It "
+                f"doesn't have the unique value(s) '{self._apply_output_formatting(list(remainder))}'."
+                f"{self._condition_string}"
             )
             return False, assertion_text
         return True, None
@@ -306,22 +309,22 @@ class NUniques(Constraint, abc.ABC):
             cache_size=cache_size,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[int, OptionalSelections]:
+    ) -> tuple[int, _OptionalSelections]:
         return db_access.get_unique_count(engine, ref)
 
 
 class NUniquesEquality(NUniques):
-    def compare(
+    def _compare(
         self, n_uniques_factual: int, n_uniques_target: int
     ) -> tuple[bool, str | None]:
         result = n_uniques_factual == n_uniques_target
         assertion_text = (
-            f"{self.ref} has {n_uniques_factual} "
-            f"unique(s) instead of {self.target_prefix}"
+            f"{self._ref} has {n_uniques_factual} "
+            f"unique(s) instead of {self._target_prefix}"
             f"{n_uniques_target}. "
-            f"{self.condition_string}"
+            f"{self._condition_string}"
         )
         return result, assertion_text
 
@@ -331,29 +334,28 @@ class NUniquesMaxLoss(NUniques):
         self,
         ref: DataReference,
         ref2: DataReference,
-        max_relative_loss_getter: ToleranceGetter,
+        max_relative_loss_getter: _ToleranceGetter,
         name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_loss_getter = max_relative_loss_getter
 
-    def compare(
+    def _compare(
         self, n_uniques_factual: int, n_uniques_target: int
     ) -> tuple[bool, str | None]:
         if n_uniques_target == 0 or n_uniques_factual > n_uniques_target:
             return True, None
         relative_loss = (n_uniques_target - n_uniques_factual) / n_uniques_target
         assertion_text = (
-            f"{self.ref} has lost {relative_loss} "
-            f"of #uniques of table {self.ref2}. It "
+            f"{self._ref} has lost {relative_loss} "
+            f"of #uniques of table {self._ref2}. It "
             f"was only allowed to decrease "
             f"{self.max_relative_loss}. "
-            f"{self.condition_string}"
+            f"{self._condition_string}"
         )
         result = relative_loss <= self.max_relative_loss
         return result, assertion_text
-        return TestResult(result, assertion_text)
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         self.max_relative_loss = self.max_relative_loss_getter(engine)
@@ -365,14 +367,14 @@ class NUniquesMaxGain(NUniques):
         self,
         ref: DataReference,
         ref2: DataReference,
-        max_relative_gain_getter: ToleranceGetter,
+        max_relative_gain_getter: _ToleranceGetter,
         name: str | None = None,
         cache_size=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
         self.max_relative_gain_getter = max_relative_gain_getter
 
-    def compare(
+    def _compare(
         self, n_uniques_factual: int, n_uniques_target: int
     ) -> tuple[bool, str | None]:
         if n_uniques_target == 0:
@@ -381,10 +383,10 @@ class NUniquesMaxGain(NUniques):
             return True, None
         relative_gain = (n_uniques_factual - n_uniques_target) / n_uniques_target
         assertion_text = (
-            f"{self.ref} has {relative_gain} of "
-            f"#uniques of {self.ref2}. It was only "
+            f"{self._ref} has {relative_gain} of "
+            f"#uniques of {self._ref2}. It was only "
             f"allowed to increase {self.max_relative_gain} . "
-            f"{self.condition_string}"
+            f"{self._condition_string}"
         )
         result = relative_gain <= self.max_relative_gain
         return result, assertion_text
@@ -395,9 +397,9 @@ class NUniquesMaxGain(NUniques):
 
 
 class CategoricalBoundConstraint(Constraint):
-    """
-    `CategoricalBoundConstraint` is a constraint class that checks if the share of specific values
-    in a column falls within predefined bounds. It compares the actual distribution of values in a
+    """Constraint that checks if the share of specific values in a column falls within predefined bounds.
+
+    It compares the actual distribution of values in a
     `DataSource` column with a target distribution, supplied as a dictionary.
 
     Example use cases include testing for consistency in columns with expected categorical values
@@ -407,7 +409,7 @@ class CategoricalBoundConstraint(Constraint):
     ----------
     ref : DataReference
         A reference to the column in the data source.
-    distribution : dict[T, tuple[float, float]]
+    distribution : dict[_T, tuple[float, float]]
         A dictionary with unique values as keys and tuples of minimum and maximum allowed shares as values.
     default_bounds : tuple[float, float], optional, default=(0, 0)
         A tuple specifying the minimum and maximum bounds for values not explicitly outlined in the target
@@ -422,15 +424,15 @@ class CategoricalBoundConstraint(Constraint):
     def __init__(
         self,
         ref: DataReference,
-        distribution: dict[T, tuple[float, float]],
+        distribution: dict[_T, tuple[float, float]],
         default_bounds: tuple[float, float] = (0, 0),
         name: str | None = None,
         cache_size=None,
         max_relative_violations: float = 0,
         **kwargs,
     ):
-        self.default_bounds = default_bounds
-        self.max_relative_violations = max_relative_violations
+        self._default_bounds = default_bounds
+        self._max_relative_violations = max_relative_violations
         super().__init__(
             ref,
             ref_value=distribution,
@@ -439,40 +441,38 @@ class CategoricalBoundConstraint(Constraint):
             **kwargs,
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[Counter, OptionalSelections]:
+    ) -> tuple[Counter, _OptionalSelections]:
         return db_access.get_uniques(engine, ref)
 
-    def compare(
+    def _compare(
         self,
         factual: Counter,
-        target: dict[T, tuple[float, float]],
+        target: dict[_T, tuple[float, float]],
     ) -> tuple[bool, str | None]:
-        # TODO: use .total() of Counter as soon as we can assume Python 3.10
-        total = sum(factual.values())
+        total = factual.total()
         all_variants = factual.keys() | target.keys()
         min_counts = Counter(
-            {k: target.get(k, self.default_bounds)[0] * total for k in all_variants}
+            {k: target.get(k, self._default_bounds)[0] * total for k in all_variants}
         )
         max_counts = Counter(
-            {k: target.get(k, self.default_bounds)[1] * total for k in all_variants}
+            {k: target.get(k, self._default_bounds)[1] * total for k in all_variants}
         )
 
         violations = (factual - max_counts) + (min_counts - factual)
 
         if (
-            # TODO: use .total() of Counter as soon as we can assume Python 3.10
-            relative_violations := (sum(violations.values()) / total)
-        ) > self.max_relative_violations:
+            relative_violations := violations.total() / total
+        ) > self._max_relative_violations:
             assertion_text = (
-                f"{self.ref} has {relative_violations * 100}% > "
-                f"{self.max_relative_violations * 100}% of element(s) violating the bound constraints:\n"
+                f"{self._ref} has {relative_violations * 100}% > "
+                f"{self._max_relative_violations * 100}% of element(s) violating the bound constraints:\n"
             )
 
             for variant in violations:
                 actual_share = factual[variant] / total
-                target_share = target.get(variant, self.default_bounds)
+                target_share = target.get(variant, self._default_bounds)
                 min_required = min_counts[variant]
                 max_required = max_counts[variant]
 
@@ -484,6 +484,6 @@ class CategoricalBoundConstraint(Constraint):
                     f"is required\n"
                 )
 
-            assertion_text += f"{self.condition_string}"
+            assertion_text += f"{self._condition_string}"
             return False, assertion_text
         return True, None

@@ -12,14 +12,15 @@ from ..db_access import DataReference
 from ..formatter import Formatter
 from ..utils import OutputProcessor, output_processor_limit
 
-DEFAULT_FORMATTER = Formatter()
+_T = TypeVar("_T")
 
-T = TypeVar("T")
-OptionalSelections = list[sa.sql.expression.Select] | None
-ToleranceGetter = Callable[[sa.engine.Engine], float]
+_DEFAULT_FORMATTER = Formatter()
+
+_OptionalSelections = list[sa.sql.expression.Select] | None
+_ToleranceGetter = Callable[[sa.engine.Engine], float]
 
 
-def uncommon_substrings(string1: str, string2: str) -> tuple[str, str]:
+def _uncommon_substrings(string1: str, string2: str) -> tuple[str, str]:
     qualifiers1 = string1.split(".")
     qualifiers2 = string2.split(".")
     if qualifiers1[0] != qualifiers2[0]:
@@ -31,6 +32,8 @@ def uncommon_substrings(string1: str, string2: str) -> tuple[str, str]:
 
 @dataclass(frozen=True)
 class TestResult:
+    """The result of the execution of a Constraint."""
+
     outcome: bool
     _failure_message: str | None = field(default=None, repr=False)
     _constraint_description: str | None = field(default=None, repr=False)
@@ -51,11 +54,11 @@ class TestResult:
 
     @property
     def failure_message(self) -> str | None:
-        return self.formatted_failure_message(DEFAULT_FORMATTER)
+        return self.formatted_failure_message(_DEFAULT_FORMATTER)
 
     @property
     def constraint_description(self) -> str | None:
-        return self.formatted_constraint_description(DEFAULT_FORMATTER)
+        return self.formatted_constraint_description(_DEFAULT_FORMATTER)
 
     @property
     def logging_message(self):
@@ -133,30 +136,30 @@ class Constraint(abc.ABC):
         cache_size=None,
     ):
         self._check_if_valid_between_or_within(ref2, ref_value)
-        self.ref = ref
-        self.ref2 = ref2
-        self.ref_value = ref_value
+        self._ref = ref
+        self._ref2 = ref2
+        self._ref_value = ref_value
         self.name = name
-        self.factual_selections: OptionalSelections = None
-        self.target_selections: OptionalSelections = None
-        self.factual_queries: list[str] | None = None
-        self.target_queries: list[str] | None = None
+        self._factual_selections: _OptionalSelections = None
+        self._target_selections: _OptionalSelections = None
+        self._factual_queries: list[str] | None = None
+        self._target_queries: list[str] | None = None
 
         if (output_processors is not None) and (
             not isinstance(output_processors, list)
         ):
             output_processors = [output_processors]
-        self.output_processors = output_processors
+        self._output_processors = output_processors
 
-        self.cache_size = cache_size
+        self._cache_size = cache_size
         self._setup_caching()
 
     def _setup_caching(self):
         # this has an added benefit of allowing the class to be garbage collected
         # according to https://rednafi.com/python/lru_cache_on_methods/
         # and https://docs.astral.sh/ruff/rules/cached-instance-method/
-        self.get_factual_value = lru_cache(self.cache_size)(self.get_factual_value)  # type: ignore[method-assign]
-        self.get_target_value = lru_cache(self.cache_size)(self.get_target_value)  # type: ignore[method-assign]
+        self._get_factual_value = lru_cache(self._cache_size)(self._get_factual_value)  # type: ignore[method-assign]
+        self._get_target_value = lru_cache(self._cache_size)(self._get_target_value)  # type: ignore[method-assign]
 
     def _check_if_valid_between_or_within(
         self,
@@ -177,95 +180,97 @@ class Constraint(abc.ABC):
             )
 
     # @lru_cache(maxsize=None), see _setup_caching()
-    def get_factual_value(self, engine: sa.engine.Engine) -> Any:
-        factual_value, factual_selections = self.retrieve(engine, self.ref)
-        self.factual_selections = factual_selections
+    def _get_factual_value(self, engine: sa.engine.Engine) -> Any:
+        factual_value, factual_selections = self._retrieve(engine, self._ref)
+        self._factual_selections = factual_selections
         return factual_value
 
     # @lru_cache(maxsize=None), see _setup_caching()
-    def get_target_value(self, engine: sa.engine.Engine) -> Any:
-        if self.ref2 is None:
-            return self.ref_value
-        target_value, target_selections = self.retrieve(engine, self.ref2)
-        self.target_selections = target_selections
+    def _get_target_value(self, engine: sa.engine.Engine) -> Any:
+        if self._ref2 is None:
+            return self._ref_value
+        target_value, target_selections = self._retrieve(engine, self._ref2)
+        self._target_selections = target_selections
         return target_value
 
     def get_description(self) -> str:
         if self.name is not None:
             return self.name
-        if self.ref2 is None:
-            data_source_string = str(self.ref.data_source)
+        if self._ref2 is None:
+            data_source_string = str(self._ref.data_source)
         else:
-            data_source1_string = str(self.ref.data_source)
-            data_source2_string = str(self.ref2.data_source)
+            data_source1_string = str(self._ref.data_source)
+            data_source2_string = str(self._ref2.data_source)
 
-            data_source1_substring, data_source2_substring = uncommon_substrings(
+            data_source1_substring, data_source2_substring = _uncommon_substrings(
                 data_source1_string, data_source2_string
             )
             data_source_string = f"{data_source1_substring} | {data_source2_substring}"
         return self.__class__.__name__ + "::" + data_source_string
 
     @property
-    def target_prefix(self) -> str:
-        return f"{self.ref2}'s " if (self.ref2 is not None) else ""
+    def _target_prefix(self) -> str:
+        return f"{self._ref2}'s " if (self._ref2 is not None) else ""
 
     @property
-    def condition_string(self) -> str:
-        if self.ref.condition is None and (
-            self.ref2 is None or self.ref2.condition is None
+    def _condition_string(self) -> str:
+        if self._ref.condition is None and (
+            self._ref2 is None or self._ref2.condition is None
         ):
             return ""
-        ref1_clause = self.ref.get_clause_string()
-        if self.ref2 is None:
+        ref1_clause = self._ref._get_clause_string()
+        if self._ref2 is None:
             # within constraint
             return f"Condition: {ref1_clause}"
-        ref2_clause = self.ref2.get_clause_string()
-        if self.ref.condition == self.ref2.condition:
+        ref2_clause = self._ref2._get_clause_string()
+        if self._ref.condition == self._ref2.condition:
             return f"Condition on both tables: {ref1_clause}; "
-        if self.ref.condition is None:
+        if self._ref.condition is None:
             return f"Condition on second table: {ref2_clause}; "
-        if self.ref2.condition is None:
+        if self._ref2.condition is None:
             return f"Condition on first table: {ref1_clause}; "
         return (
             f"Condition on first table: {ref1_clause}. "
             f"Condition on second table: {ref2_clause}. "
         )
 
-    def retrieve(
+    def _retrieve(
         self, engine: sa.engine.Engine, ref: DataReference
-    ) -> tuple[Any, OptionalSelections]:
+    ) -> tuple[Any, _OptionalSelections]:
         """Retrieve the value of interest for a DataReference from database."""
-        pass
+        raise NotImplementedError()
 
-    def compare(self, value_factual: Any, value_target: Any) -> tuple[bool, str | None]:
-        pass
+    def _compare(
+        self, value_factual: Any, value_target: Any
+    ) -> tuple[bool, str | None]:
+        raise NotImplementedError()
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        value_factual = self.get_factual_value(engine)
-        value_target = self.get_target_value(engine)
-        is_success, assertion_message = self.compare(value_factual, value_target)
+        value_factual = self._get_factual_value(engine)
+        value_target = self._get_target_value(engine)
+        is_success, assertion_message = self._compare(value_factual, value_target)
         if is_success:
             return TestResult.success()
 
         factual_queries = None
-        if self.factual_selections:
+        if self._factual_selections:
             factual_queries = [
                 str(
                     factual_selection.compile(
                         engine, compile_kwargs={"literal_binds": True}
                     )
                 )
-                for factual_selection in self.factual_selections
+                for factual_selection in self._factual_selections
             ]
         target_queries = None
-        if self.target_selections:
+        if self._target_selections:
             target_queries = [
                 str(
                     target_selection.compile(
                         engine, compile_kwargs={"literal_binds": True}
                     )
                 )
-                for target_selection in self.target_selections
+                for target_selection in self._target_selections
             ]
         return TestResult.failure(
             assertion_message,
@@ -274,14 +279,14 @@ class Constraint(abc.ABC):
             target_queries,
         )
 
-    def apply_output_formatting(self, values: Collection) -> Collection:
-        if self.output_processors is not None:
-            for output_processor in self.output_processors:
+    def _apply_output_formatting(self, values: Collection) -> Collection:
+        if self._output_processors is not None:
+            for output_processor in self._output_processors:
                 values, _ = output_processor(values)
         return values
 
 
-def format_sample(sample, ref: DataReference) -> str:
+def _format_sample(sample, ref: DataReference) -> str:
     """Build a string from a database row indicating its column values."""
     if ref.columns is None:
         return str(sample)

@@ -2,12 +2,14 @@ import pytest
 import sqlalchemy as sa
 
 from datajudge import BetweenRequirement, Condition
-from datajudge.db_access import (
-    DataReference,
+from datajudge._engines import is_bigquery
+from datajudge.data_source import (
     ExpressionDataSource,
     RawQueryDataSource,
+)
+from datajudge.db_access import (
+    DataReference,
     get_column_names,
-    is_bigquery,
 )
 
 
@@ -33,7 +35,7 @@ def test_custom_data_source_from_query(engine, int_table1, int_table2):
         f"SELECT * FROM {schema_name2}.{table_name2}"
     )
     data_source = RawQueryDataSource(query, "string query")
-    derived_clause = data_source.get_clause(engine)
+    derived_clause = data_source._get_clause(engine)
     derived_selection = sa.select(derived_clause)
     with engine.connect() as connection:
         rows = connection.execute(derived_selection).scalars().fetchall()
@@ -51,7 +53,7 @@ def test_custom_data_source_from_expression(engine, metadata, int_table1, int_ta
     ).subquery()
     selection = sa.select(subquery)
     data_source = ExpressionDataSource(selection, "expression")
-    derived_clause = data_source.get_clause(engine)
+    derived_clause = data_source._get_clause(engine)
     derived_selection = sa.select(derived_clause)
     with engine.connect() as connection:
         rows = connection.execute(derived_selection).scalars().fetchall()

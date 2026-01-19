@@ -1,7 +1,7 @@
 import pytest
 import sqlalchemy as sa
 
-from datajudge.db_access import ExpressionDataSource, TableDataSource
+from datajudge.data_source import ExpressionDataSource, TableDataSource
 
 
 @pytest.mark.parametrize(
