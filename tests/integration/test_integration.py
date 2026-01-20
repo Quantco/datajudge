@@ -70,7 +70,7 @@ def test_n_rows_equality_within(engine, int_table1, data):
     (operation, n_rows, condition) = data
     req = requirements.WithinRequirement.from_table(*int_table1)
     req.add_n_rows_equality_constraint(n_rows, condition=condition)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -87,7 +87,7 @@ def test_n_rows_min_within(engine, int_table1, data):
     (operation, n_rows, condition) = data
     req = requirements.WithinRequirement.from_table(*int_table1)
     req.add_n_rows_min_constraint(n_rows, condition=condition)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -105,7 +105,7 @@ def test_n_rows_max_within(engine, int_table1, data):
     (operation, n_rows, condition) = data
     req = requirements.WithinRequirement.from_table(*int_table1)
     req.add_n_rows_max_constraint(n_rows, condition=condition)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -124,7 +124,7 @@ def test_n_rows_equality_between(engine, int_table1, int_table2, data):
     (operation, condition1, condition2) = data
     req = requirements.BetweenRequirement.from_tables(*int_table1, *int_table2)
     req.add_n_rows_equality_constraint(condition1=condition1, condition2=condition2)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -156,7 +156,7 @@ def test_n_rows_max_gain_between(engine, mix_table1, mix_table2, data):
         condition1=condition1,
         condition2=condition2,
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -185,7 +185,7 @@ def test_n_rows_min_gain_between(engine, min_gain_table1, min_gain_table2, data)
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -232,7 +232,7 @@ def test_n_rows_max_loss_between(engine, int_table2, int_table1, data):
         condition1=condition2,
         condition2=condition1,
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -289,7 +289,7 @@ def test_n_uniques_equality_within(engine, unique_table1, data):
     (operation, columns, n_uniques, condition) = data
     req = requirements.WithinRequirement.from_table(*unique_table1)
     req.add_n_uniques_equality_constraint(columns, n_uniques, condition=condition)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -330,7 +330,7 @@ def test_uniques_equality_within(engine, unique_table1, data):
     req.add_uniques_equality_constraint(
         columns, uniques, condition=condition, map_func=function
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -369,7 +369,7 @@ def test_uniques_equality_within_with_outputcheck(engine, unique_table1, data):
         map_func=map_func,
         output_processors=output_processors,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
     assert test_result.failure_message.endswith(failure_message_suffix), (
         test_result.failure_message
@@ -433,7 +433,7 @@ def test_uniques_equality_between(engine, unique_table1, unique_table2, data):
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -477,7 +477,7 @@ def test_uniques_equality_between_with_outputcheck(
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
     assert test_result.failure_message.endswith(failure_message_suffix), (
         test_result.failure_message
@@ -521,7 +521,7 @@ def test_uniques_superset_within(engine, unique_table1, data):
         condition=condition,
         map_func=function,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -615,7 +615,7 @@ def test_uniques_superset_within_with_outputcheck(engine, unique_table1, data):
         map_func=function,
         output_processors=output_processors,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
     assert test_result.failure_message.endswith(failure_message_suffix), (
         test_result.failure_message
@@ -665,7 +665,7 @@ def test_uniques_superset_between_with_outputcheck(
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
     assert test_result.failure_message.endswith(failure_message_suffix), (
         test_result.failure_message
@@ -733,7 +733,7 @@ def test_uniques_superset_between(engine, unique_table1, unique_table2, data):
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -797,7 +797,7 @@ def test_uniques_subset_within(engine, unique_table1, data):
         condition=condition,
         map_func=function,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -987,7 +987,7 @@ def test_uniques_subset_within_complex_with_outputcheck(engine, unique_table1, d
         map_func=function,
     )
 
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     print(test_result)
     print(test_result.failure_message)
     assert operation(test_result.outcome), test_result.failure_message
@@ -1052,7 +1052,7 @@ def test_uniques_subset_within_complex_with_outputcheck_extralong(
         map_func=function,
     )
 
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     print(test_result)
     print(test_result.failure_message)
     assert operation(test_result.outcome), test_result.failure_message
@@ -1113,7 +1113,7 @@ def test_memory_no_caching(engine, unique_table_largesize, data):
 
     with QueryCollector() as query_collector:
         for constraint in req:
-            test_result = constraint.test(engine)
+            test_result = constraint._test(engine)
             assert operation(test_result.outcome)
         assert len(query_collector) > 20, query_collector.queries
 
@@ -1164,7 +1164,7 @@ def test_caching(engine, unique_table_largesize, data):
     with QueryCollector() as query_collector:
         for constraint in req:
             for i in range(20):
-                test_result = constraint.test(engine)
+                test_result = constraint._test(engine)
                 assert operation(test_result.outcome)
         assert len(query_collector) < 20, query_collector.queries
 
@@ -1241,7 +1241,7 @@ def test_uniques_subset_between_with_outputcheck(
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
     assert test_result.failure_message.endswith(failure_message_suffix), (
         test_result.failure_message
@@ -1293,7 +1293,7 @@ def test_uniques_subset_between(engine, unique_table1, unique_table2, data):
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1313,7 +1313,7 @@ def test_functional_dependency_within(engine, functional_dependency_table, data)
     ) = data
     req = requirements.WithinRequirement.from_table(*functional_dependency_table)
     req.add_functional_dependency_constraint(key_columns, value_columns)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1335,7 +1335,7 @@ def test_functional_dependency_within_multi_key(
         *functional_dependency_table_multi_key
     )
     req.add_functional_dependency_constraint(key_columns, value_columns)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1398,7 +1398,7 @@ def test_functional_dependency_within_multi_key_with_outputcheck(
         output_processors=output_processors,
     )
 
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome)
     assert test_result.failure_message.endswith(failure_message_suffix), (
         test_result.failure_message
@@ -1424,7 +1424,7 @@ def test_uniques_nested(engine, nested_table):
         map_func=splitter,
         reduce_func=_flatten_and_filter,
     )
-    assert identity(req[0].test(engine).outcome)
+    assert identity(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1453,7 +1453,7 @@ def test_n_uniques_equality_between(engine, unique_table1, unique_table2, data):
     req.add_n_uniques_equality_constraint(
         columns1, columns2, condition1=condition1, condition2=condition2
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1516,7 +1516,7 @@ def test_n_uniques_gain_between(engine, unique_table1, unique_table2, data):
         condition1=condition1,
         condition2=condition2,
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1561,7 +1561,7 @@ def test_n_uniques_loss_between(engine, unique_table2, unique_table1, data):
         condition1=condition2,
         condition2=condition1,
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1595,7 +1595,7 @@ def test_categorical_bound_within(engine, distribution_table, data):
     (operation, columns, distribution, default_bounds) = data
     req = requirements.WithinRequirement.from_table(*distribution_table)
     req.add_categorical_bound_constraint(columns, distribution, default_bounds)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1613,7 +1613,7 @@ def test_categorical_bound_within_relative_violations(engine, distribution_table
     req.add_categorical_bound_constraint(
         columns, distribution, max_relative_violations=max_relative_violations
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1630,7 +1630,7 @@ def test_numeric_min_within(engine, int_table1, data):
     (operation, min_value, condition) = data
     req = requirements.WithinRequirement.from_table(*int_table1)
     req.add_numeric_min_constraint("col_int", min_value, condition=condition)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1650,7 +1650,7 @@ def test_numeric_min_between(engine, int_table1, int_table2, data):
     req.add_numeric_min_constraint(
         "col_int", "col_int", condition1=condition1, condition2=condition2
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1666,7 +1666,7 @@ def test_numeric_max_within(engine, int_table1, data):
     (operation, max_value, condition) = data
     req = requirements.WithinRequirement.from_table(*int_table1)
     req.add_numeric_max_constraint("col_int", max_value, condition=condition)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1679,7 +1679,7 @@ def test_numeric_max_between(engine, int_table1, int_table2, data):
     req.add_numeric_max_constraint(
         "col_int", "col_int", condition1=condition1, condition2=condition2
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 # There are 62 rows in the table's column.
@@ -1702,7 +1702,7 @@ def test_numeric_between_within(engine, unique_table1, data):
     req.add_numeric_between_constraint(
         "col_int", lower_bound, upper_bound, min_fraction, condition
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize("data", [(identity, 9, 1, None), (negation, 9, 0.9, None)])
@@ -1712,7 +1712,7 @@ def test_numeric_mean_within(engine, int_table1, data):
     req.add_numeric_mean_constraint(
         "col_int", mean_value, max_absolute_deviation, condition=condition
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -1733,7 +1733,7 @@ def test_numeric_mean_between(engine, int_table1, int_table2, data):
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1781,7 +1781,7 @@ def test_numeric_percentile_within(engine, int_table1, data):
         max_relative_deviation=max_relative_deviation,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1851,7 +1851,7 @@ def test_numeric_percentile_within_null(engine, unique_table1, data):
         max_relative_deviation=max_relative_deviation,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert test_result.outcome, test_result.failure_message
 
 
@@ -1890,7 +1890,7 @@ def test_numeric_percentile_between(engine, int_table1, int_table2, data):
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1912,7 +1912,7 @@ def test_date_min_within(engine, date_table1, data):
         use_lower_bound_reference=use_lower_bound_reference,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1933,7 +1933,7 @@ def test_date_min_between(engine, date_table1, date_table2, data):
     req.add_date_min_constraint(
         "col_date", "col_date", condition1=condition1, condition2=condition2
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1955,7 +1955,7 @@ def test_date_max_within(engine, date_table1, data):
         use_upper_bound_reference=use_upper_bound_reference,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1972,7 +1972,7 @@ def test_date_max_between(engine, date_table1, date_table2, data):
     req.add_date_max_constraint(
         "col_date", "col_date", condition1=condition1, condition2=condition2
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -1989,7 +1989,7 @@ def test_date_between_within(engine, date_table1, data):
     req.add_date_between_constraint(
         "col_date", lower_bound, upper_bound, min_fraction, condition
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2021,7 +2021,7 @@ def test_date_no_overlap_within_varying_key_columns(
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2053,7 +2053,7 @@ def test_integer_no_overlap_within_varying_key_columns(
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2076,7 +2076,7 @@ def test_date_no_overlap_within_fixed_key_column(engine, date_table_overlap, dat
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2096,7 +2096,7 @@ def test_date_no_overlap_within_several_key_columns(engine, date_table_keys, dat
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2118,7 +2118,7 @@ def test_date_no_overlap_within_inclusion_exclusion(engine, date_table_overlap, 
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2154,7 +2154,7 @@ def test_date_no_overlap_2d_within_varying_key_column(
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2181,7 +2181,7 @@ def test_date_no_overlap_2d_within_fixed_key_column(
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2203,7 +2203,7 @@ def test_date_no_overlap_2d_within_several_key_columns(engine, date_table_keys, 
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2236,7 +2236,7 @@ def test_date_no_overlap_2d_within_inclusion_exclusion(
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2263,7 +2263,7 @@ def test_date_no_gap_within_fixed_key_columns(engine, date_table_gap, data):
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2288,7 +2288,7 @@ def test_integer_no_gap_within_fixed_key_columns(engine, integer_table_gap, data
         legitimate_gap_size=0,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2314,7 +2314,7 @@ def test_float_no_gap_within_fixed_key_columns(engine, float_table_gap, data):
         max_relative_n_violations=0,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2340,7 +2340,7 @@ def test_date_no_gap_within_varying_key_column(
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2360,7 +2360,7 @@ def test_date_no_gap_within_several_key_columns(engine, date_table_keys, data):
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2382,7 +2382,7 @@ def test_date_no_gap_within_inclusion_exclusion(engine, date_table_gap, data):
         max_relative_n_violations=max_relative_n_violations,
         condition=condition,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2412,7 +2412,7 @@ def test_varchar_regex_within(engine, mix_table1, computation_in_db, data):
             regex=regex,
             condition=condition,
         )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2432,7 +2432,7 @@ def test_varchar_regex_with_none_within(engine, varchar_table1, data):
         condition=condition,
         allow_none=allow,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2468,7 +2468,7 @@ def test_varchar_regex_tolerance(engine, varchar_table_real, computation_in_db, 
             relative_tolerance=tolerance,
             aggregated=aggregated,
         )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2512,7 +2512,7 @@ def test_varchar_regex_counterexample(
             aggregated=True,
             n_counterexamples=n_counterexamples,
         )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     failure_message = test_result.failure_message
     # If no counterexample are given, this marker should not be present in the
     # failure message.
@@ -2562,7 +2562,7 @@ def test_varchar_regex_counterexample_invalid(
             n_counterexamples=n_counterexamples,
         )
     with pytest.raises(ValueError):
-        req[0].test(engine)
+        req[0]._test(engine)
 
 
 def test_backend_dependent_condition(engine, mix_table1):
@@ -2581,7 +2581,7 @@ def test_backend_dependent_condition(engine, mix_table1):
     regex = "^hi[0-9]$"
     req = requirements.WithinRequirement.from_table(*mix_table1)
     req.add_varchar_regex_constraint("col_varchar", regex, condition=condition)
-    assert identity(req[0].test(engine).outcome)
+    assert identity(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2600,7 +2600,7 @@ def test_varchar_min_length_within(engine, varchar_table1, data):
     req.add_varchar_min_length_constraint(
         "col_varchar", min_length, condition=condition
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2625,7 +2625,7 @@ def test_varchar_min_length_between(engine, varchar_table1, varchar_table2, data
         condition1=condition1,
         condition2=condition2,
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2642,7 +2642,7 @@ def test_varchar_max_length_within(engine, varchar_table1, data):
     req.add_varchar_max_length_constraint(
         "col_varchar", max_length, condition=condition
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2667,7 +2667,7 @@ def test_varchar_max_length_between(engine, varchar_table1, varchar_table2, data
         condition1=condition1,
         condition2=condition2,
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2684,7 +2684,7 @@ def test_column_existence_within(engine, mix_table1, data):
     (operation, columns) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
     req.add_column_existence_constraint(columns)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2701,7 +2701,7 @@ def test_column_subset_between(engine, get_fixture, data):
     table2 = get_fixture(table_name2)
     req = requirements.BetweenRequirement.from_tables(*table1, *table2)
     req.add_column_subset_constraint()
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2717,7 +2717,7 @@ def test_column_superset_between(engine, get_fixture, data):
     table2 = get_fixture(table_name2)
     req = requirements.BetweenRequirement.from_tables(*table1, *table2)
     req.add_column_superset_constraint()
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2735,7 +2735,7 @@ def test_column_type_between(engine, get_fixture, data):
     table2 = get_fixture(table_name2)
     req = requirements.BetweenRequirement.from_tables(*table1, *table2)
     req.add_column_type_constraint(column1=column1, column2=column2)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2756,7 +2756,7 @@ def test_primary_key_definition_within(engine, pk_table, data):
     (operation, columns) = data
     req = requirements.WithinRequirement.from_table(*pk_table)
     req.add_primary_key_definition_constraint(columns)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2796,7 +2796,7 @@ def test_uniqueness_within(engine, mix_table2, data):
     req.add_uniqueness_constraint(
         columns, max_duplicate_fraction, condition, max_absolute_n_duplicates
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2818,7 +2818,7 @@ def test_uniqueness_within_infer_pk(engine, data, mix_table2_pk):
     operation, target_columns, selection_columns = data
     req = requirements.WithinRequirement.from_table(*mix_table2_pk)
     req.add_uniqueness_constraint(columns=selection_columns, infer_pk_columns=True)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     # additional test: the PK columns are inferred during test time, i.e. we can check here if they were inferred correctly
     assert req[0]._ref.columns == target_columns, (
         f"Incorrect columns were retrieved from table. {req[0]._ref.columns} != {target_columns}"
@@ -2835,7 +2835,7 @@ def test_null_absence_within(engine, get_fixture, data):
     table = get_fixture(table_name)
     req = requirements.WithinRequirement.from_table(*table)
     req.add_null_absence_constraint(col_name)
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2851,7 +2851,7 @@ def test_max_null_fraction_within(engine, unique_table1, data):
     req.add_max_null_fraction_constraint(
         column="col_int", max_null_fraction=max_null_fraction
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2875,7 +2875,7 @@ def test_max_null_fraction_between(engine, unique_table1, data):
         column2=column2,
         max_relative_deviation=max_relative_deviation,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2893,7 +2893,7 @@ def test_column_type_within(engine, mix_table1, data):
     (operation, col_name, type_name) = data
     req = requirements.WithinRequirement.from_table(*mix_table1)
     req.add_column_type_constraint(col_name, type_name)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -2936,7 +2936,7 @@ def test_row_equality_between(engine, mix_table1, mix_table2, data):
     req.add_row_equality_constraint(
         columns, columns, max_missing_fraction, condition1, condition2
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -2989,7 +2989,7 @@ def test_row_subset_between(engine, mix_table1, mix_table2, data):
         condition1,
         condition2,
     )
-    assert operation(req[0].test(engine).outcome)
+    assert operation(req[0]._test(engine).outcome)
 
 
 @pytest.mark.parametrize(
@@ -3041,7 +3041,7 @@ def test_row_superset_between(engine, mix_table2, mix_table1, data):
         condition1,
         condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -3090,7 +3090,7 @@ def test_row_matching_equality(engine, row_match_table1, row_match_table2, data)
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -3102,7 +3102,7 @@ def test_groupby_aggregation_within(engine, groupby_aggregation_table_correct, k
         pytest.skip()
     req = requirements.WithinRequirement.from_table(*groupby_aggregation_table_correct)
     req.add_groupby_aggregation_constraint(key, "value", 1)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert identity(test_result.outcome), test_result.failure_message
 
 
@@ -3118,7 +3118,7 @@ def test_groupby_aggregation_within_with_failures(
         *groupby_aggregation_table_incorrect
     )
     req.add_groupby_aggregation_constraint(key, "value", 1, tolerance)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -3151,7 +3151,7 @@ def test_ks_2sample_constraint_perfect_between(engine, int_table1, data):
         condition2=condition2,
         significance_level=significance_level,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -3191,7 +3191,7 @@ def test_ks_2sample_constraint_perfect_between_different_conditions(
         condition2=condition2,
         significance_level=1.0,
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert negation(test_result.outcome), test_result.failure_message
 
 
@@ -3213,7 +3213,7 @@ def test_ks_2sample_constraint_wrong_between(
     req.add_ks_2sample_constraint(
         column1=col_1, column2=col_2, significance_level=min_p_value
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -3246,5 +3246,5 @@ def test_ks_2sample_random(engine, random_normal_table, configuration):
     req.add_ks_2sample_constraint(
         column1=col_1, column2=col_2, significance_level=min_p_value
     )
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert operation(test_result.outcome), test_result.failure_message

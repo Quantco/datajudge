@@ -33,7 +33,7 @@ def test_column_existence(
     column = column.upper() if use_uppercase_query else column.lower()
     req = WithinRequirement.from_table(db_name, schema_name, table_name)
     req.add_column_existence_constraint([column])
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert test_result.outcome, test_result.failure_message
 
 
@@ -61,5 +61,5 @@ def test_column_condition(
     else:
         condition = Condition(raw_string=f"{column} != 100")
     req.add_n_rows_max_constraint(0, condition=condition)
-    test_result = req[0].test(engine)
+    test_result = req[0]._test(engine)
     assert test_result.outcome, test_result.failure_message
