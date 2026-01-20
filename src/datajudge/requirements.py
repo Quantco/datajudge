@@ -7,6 +7,7 @@ from typing import (
 )
 
 import sqlalchemy as sa
+from sqlalchemy.sql import selectable
 
 from .condition import Condition
 from .constraints import column as column_constraints
@@ -113,7 +114,7 @@ class WithinRequirement(Requirement):
         return cls(data_source=RawQueryDataSource(query, name, columns=columns))
 
     @classmethod
-    def from_expression(cls, expression: sa.sql.selectable.FromClause, name: str):
+    def from_expression(cls, expression: selectable.FromClause, name: str):
         """Create a ``WithinRequirement`` based on a sqlalchemy expression.
 
         Any sqlalchemy object implementing the ``alias`` method can be passed as an

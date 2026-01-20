@@ -320,7 +320,7 @@ def get_interval_overlaps_nd(
     start_columns: list[str],
     end_columns: list[str],
     end_included: bool,
-) -> tuple[sa.sql.selectable.CompoundSelect, sa.sql.selectable.Select]:
+) -> tuple[selectable.CompoundSelect, selectable.Select]:
     r"""Create selectables for interval overlaps in n dimensions.
 
     We define the presence of 'overlap' as presence of a non-empty intersection
