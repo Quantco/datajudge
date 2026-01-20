@@ -261,12 +261,12 @@ jobs:
           - bigquery-sa1
           - bigquery-sa2
     steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
       - name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@71fee32a0bb7e97b4d33d548e7d957010649d8fa"
         with:
           credentials_json: "${{ secrets.GCP_KEY }}"
-      - name: Checkout branch
-        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.9.3
         with:
