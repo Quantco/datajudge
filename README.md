@@ -22,7 +22,7 @@ Express and test specifications against data from database.
 
 `datajudge` can either be installed via pypi with `pip install datajudge` or via conda-forge with `conda install datajudge -c conda-forge`.
 
-Please refer to the [Getting Started](https://datajudge.readthedocs.io/en/latest/getting_started.html) section of our documentation for details.
+Please refer to the [Getting Started](https://datajudge.readthedocs.io/en/latest/getting-started/) section of our documentation for details.
 
 Expressing an expectations between different tables from a database may look as such:
 

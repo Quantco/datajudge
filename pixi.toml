@@ -159,5 +159,6 @@ duckdb-sa2 = ["duckdb", "sa2", "test"]
 
 bigquery-py310 = ["bigquery", "py310", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
+bigquery-sa2 = ["bigquery", "sa2", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }

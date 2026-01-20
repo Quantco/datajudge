@@ -24,8 +24,8 @@ To run integration tests against Postgres, first start a docker container with a
 ./start_postgres.sh
 ```
 
-In your current environment, install the `psycopg2` package.
-After this, you may execute integration tests as follows:
+Then, you can run tests against the database you just started with one of the Postgres-specific
+pixi environments, e.g.:
 
 ```bash
 pixi run -e postgres-py312 test
@@ -50,3 +50,6 @@ pixi run -e mssql-py312 test_freetds
 ```
 
 depending on the driver you'd like to use.
+
+Please note that running tests against Snowflake and BigQuery requires authentication to be
+set up properly.
