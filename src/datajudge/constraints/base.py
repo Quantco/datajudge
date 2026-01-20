@@ -250,7 +250,7 @@ class Constraint(abc.ABC):
     ) -> tuple[bool, str | None]:
         raise NotImplementedError()
 
-    def _test(self, engine: sa.engine.Engine) -> TestResult:
+    def test(self, engine: sa.engine.Engine) -> TestResult:
         # ty can't figure out that this is a method and that self is passed
         # as the first argument.
         value_factual = self._get_factual_value(engine=engine)  # type: ignore[missing-argument]

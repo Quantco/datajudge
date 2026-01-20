@@ -32,7 +32,7 @@ class Row(Constraint, abc.ABC):
         self._ref2_minus_ref1_sample, _ = db_access.get_row_difference_sample(
             engine, self._ref2, self._ref
         )
-        return super()._test(engine)
+        return super().test(engine)
 
 
 class RowEquality(Row):

@@ -160,7 +160,7 @@ def test_uniques_subset_between_expression(
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0]._test(engine)
+    test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message
 
 
@@ -216,5 +216,5 @@ def test_uniques_subset_between_raw_query(engine, unique_table1, unique_table2, 
         condition1=condition1,
         condition2=condition2,
     )
-    test_result = req[0]._test(engine)
+    test_result = req[0].test(engine)
     assert operation(test_result.outcome), test_result.failure_message

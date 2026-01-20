@@ -359,7 +359,7 @@ class NUniquesMaxLoss(NUniques):
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         self.max_relative_loss = self.max_relative_loss_getter(engine)
-        return super()._test(engine)
+        return super().test(engine)
 
 
 class NUniquesMaxGain(NUniques):
@@ -393,7 +393,7 @@ class NUniquesMaxGain(NUniques):
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
         self._max_relative_gain = self._max_relative_gain_getter(engine)
-        return super()._test(engine)
+        return super().test(engine)
 
 
 class CategoricalBoundConstraint(Constraint):
