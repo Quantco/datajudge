@@ -63,7 +63,6 @@ def get_engine(backend) -> sa.engine.Engine:
         connection_string = f"snowflake://{user}@{account}/datajudge/DBO?warehouse=datajudge&role=accountadmin"
         connect_args["private_key"] = pkb
     elif "bigquery" in backend:
-        # gcp_project = os.environ.get("GOOGLE_CLOUD_PROJECT", "scratch-361908")
         connection_string = "bigquery://"
     elif backend == "duckdb":
         connection_string = "duckdb:///:memory:"
