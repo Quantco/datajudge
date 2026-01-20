@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.13.0 - 2026.01.21
+
+- Deprecate `sqlalchemy` 1.*.
+
 ## 1.12.0 - 2026.01.12
 
 - Drop support impala as a backend.
