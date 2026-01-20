@@ -177,12 +177,12 @@ class UniquesEquality(Uniques):
 
     def _compare(
         self,
-        factual: tuple[list[_T], list[int]],
-        target: tuple[Collection[_T], list[int]],
+        value_factual: tuple[list[_T], list[int]],
+        value_target: tuple[Collection[_T], list[int]],
     ) -> tuple[bool, str | None]:
-        factual_values_list, _ = factual
+        factual_values_list, _ = value_factual
         factual_values = set(factual_values_list)
-        target_values_list, _ = target
+        target_values_list, _ = value_target
         target_values = set(target_values_list)
         is_subset, excess_values = _is_subset(factual_values, target_values)
         is_superset, lacking_values = _is_superset(factual_values, target_values)
@@ -214,11 +214,11 @@ class UniquesEquality(Uniques):
 class UniquesSubset(Uniques):
     def _compare(
         self,
-        factual: tuple[list[_T], list[int]],
-        target: tuple[Collection[_T], list[int]],
+        value_factual: tuple[list[_T], list[int]],
+        value_target: tuple[Collection[_T], list[int]],
     ) -> tuple[bool, str | None]:
-        factual_values, factual_counts = factual
-        target_values, _ = target
+        factual_values, factual_counts = value_factual
+        target_values, _ = value_target
 
         is_subset, remainder = _subset_violation_counts(
             factual_values, factual_counts, target_values
@@ -265,11 +265,11 @@ class UniquesSuperset(Uniques):
 
     def _compare(
         self,
-        factual: tuple[list[_T], list[int]],
-        target: tuple[Collection[_T], list[int]],
+        value_factual: tuple[list[_T], list[int]],
+        value_target: tuple[Collection[_T], list[int]],
     ) -> tuple[bool, str | None]:
-        factual_values, _ = factual
-        target_values, _ = target
+        factual_values, _ = value_factual
+        target_values, _ = value_target
         is_superset, remainder = _is_superset(factual_values, target_values)
         if (
             len(factual_values) > 0
@@ -317,13 +317,13 @@ class NUniques(Constraint, abc.ABC):
 
 class NUniquesEquality(NUniques):
     def _compare(
-        self, n_uniques_factual: int, n_uniques_target: int
+        self, value_factual: int, value_target: int
     ) -> tuple[bool, str | None]:
-        result = n_uniques_factual == n_uniques_target
+        result = value_factual == value_target
         assertion_text = (
-            f"{self._ref} has {n_uniques_factual} "
+            f"{self._ref} has {value_factual} "
             f"unique(s) instead of {self._target_prefix}"
-            f"{n_uniques_target}. "
+            f"{value_target}. "
             f"{self._condition_string}"
         )
         return result, assertion_text
@@ -342,11 +342,11 @@ class NUniquesMaxLoss(NUniques):
         self.max_relative_loss_getter = max_relative_loss_getter
 
     def _compare(
-        self, n_uniques_factual: int, n_uniques_target: int
+        self, value_factual: int, value_target: int
     ) -> tuple[bool, str | None]:
-        if n_uniques_target == 0 or n_uniques_factual > n_uniques_target:
+        if value_target == 0 or value_factual > value_target:
             return True, None
-        relative_loss = (n_uniques_target - n_uniques_factual) / n_uniques_target
+        relative_loss = (value_target - value_factual) / value_target
         assertion_text = (
             f"{self._ref} has lost {relative_loss} "
             f"of #uniques of table {self._ref2}. It "
@@ -372,27 +372,27 @@ class NUniquesMaxGain(NUniques):
         cache_size=None,
     ):
         super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
-        self.max_relative_gain_getter = max_relative_gain_getter
+        self._max_relative_gain_getter = max_relative_gain_getter
 
     def _compare(
-        self, n_uniques_factual: int, n_uniques_target: int
+        self, value_factual: int, value_target: int
     ) -> tuple[bool, str | None]:
-        if n_uniques_target == 0:
+        if value_target == 0:
             return False, "Target table empty."
-        if n_uniques_factual < n_uniques_target:
+        if value_factual < value_target:
             return True, None
-        relative_gain = (n_uniques_factual - n_uniques_target) / n_uniques_target
+        relative_gain = (value_factual - value_target) / value_target
         assertion_text = (
             f"{self._ref} has {relative_gain} of "
             f"#uniques of {self._ref2}. It was only "
-            f"allowed to increase {self.max_relative_gain} . "
+            f"allowed to increase {self._max_relative_gain} . "
             f"{self._condition_string}"
         )
-        result = relative_gain <= self.max_relative_gain
+        result = relative_gain <= self._max_relative_gain
         return result, assertion_text
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        self.max_relative_gain = self.max_relative_gain_getter(engine)
+        self._max_relative_gain = self._max_relative_gain_getter(engine)
         return super().test(engine)
 
 
@@ -448,19 +448,25 @@ class CategoricalBoundConstraint(Constraint):
 
     def _compare(
         self,
-        factual: Counter,
-        target: dict[_T, tuple[float, float]],
+        value_factual: Counter,
+        value_target: dict[_T, tuple[float, float]],
     ) -> tuple[bool, str | None]:
-        total = factual.total()
-        all_variants = factual.keys() | target.keys()
+        total = value_factual.total()
+        all_variants = value_factual.keys() | value_target.keys()
         min_counts = Counter(
-            {k: target.get(k, self._default_bounds)[0] * total for k in all_variants}
+            {
+                k: value_target.get(k, self._default_bounds)[0] * total
+                for k in all_variants
+            }
         )
         max_counts = Counter(
-            {k: target.get(k, self._default_bounds)[1] * total for k in all_variants}
+            {
+                k: value_target.get(k, self._default_bounds)[1] * total
+                for k in all_variants
+            }
         )
 
-        violations = (factual - max_counts) + (min_counts - factual)
+        violations = (value_factual - max_counts) + (min_counts - value_factual)
 
         if (
             relative_violations := violations.total() / total
@@ -471,14 +477,14 @@ class CategoricalBoundConstraint(Constraint):
             )
 
             for variant in violations:
-                actual_share = factual[variant] / total
-                target_share = target.get(variant, self._default_bounds)
+                actual_share = value_factual[variant] / total
+                target_share = value_target.get(variant, self._default_bounds)
                 min_required = min_counts[variant]
                 max_required = max_counts[variant]
 
                 assertion_text += (
                     f"'{variant}' with a share of {actual_share * 100}% "
-                    f"({factual[variant]} out of {total}) "
+                    f"({value_factual[variant]} out of {total}) "
                     f"while a share between {target_share[0] * 100}% ({ceil(min_required)}) "
                     f"and {target_share[1] * 100}% ({floor(max_required)}) "
                     f"is required\n"

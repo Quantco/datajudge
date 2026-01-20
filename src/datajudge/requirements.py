@@ -7,6 +7,7 @@ from typing import (
 )
 
 import sqlalchemy as sa
+from sqlalchemy.sql import selectable
 
 from .condition import Condition
 from .constraints import column as column_constraints
@@ -67,14 +68,14 @@ class Requirement(ABC, MutableSequence):
     def insert(self, index: int, value: Constraint) -> None:
         self._constraints.insert(index, value)
 
-    def __getitem__(self, i):
-        return self._constraints[i]
+    def __getitem__(self, index):
+        return self._constraints[index]
 
-    def __setitem__(self, i, o) -> None:
-        self._constraints[i] = o
+    def __setitem__(self, index, value) -> None:
+        self._constraints[index] = value
 
-    def __delitem__(self, i) -> None:
-        del self._constraints[i]
+    def __delitem__(self, index) -> None:
+        del self._constraints[index]
 
     def __len__(self) -> int:
         return len(self._constraints)
@@ -113,7 +114,7 @@ class WithinRequirement(Requirement):
         return cls(data_source=RawQueryDataSource(query, name, columns=columns))
 
     @classmethod
-    def from_expression(cls, expression: sa.sql.selectable.FromClause, name: str):
+    def from_expression(cls, expression: selectable.FromClause, name: str):
         """Create a ``WithinRequirement`` based on a sqlalchemy expression.
 
         Any sqlalchemy object implementing the ``alias`` method can be passed as an
@@ -1377,20 +1378,20 @@ class BetweenRequirement(Requirement):
     ) -> Callable[[sa.engine.Engine], float]:
         if fix_value is None and deviation is None:
             raise ValueError("No valid gain/loss/deviation given.")
-        # The second predictate is redundant but appeases mypy since fix_value
-        # could, a priori, be None.
-        if deviation is None and fix_value is not None:
+
+        if deviation is None:
+            # Mypy doesn't understand that this condition implies fix_value
+            # not being None.
+            if fix_value is None:
+                raise ValueError()
+
             return lambda engine: fix_value
-        # The second predictate is redundant but appeases mypy since deviation
-        # could, a priori, be None.
-        if fix_value is None and deviation is not None:
+
+        if fix_value is None:
             return lambda engine: self._get_date_growth_rate(engine) + deviation
-        # This clause is redundant but appeases mypy.
-        if fix_value is not None and deviation is not None:
-            return lambda engine: max(
-                fix_value, self._get_date_growth_rate(engine) + deviation
-            )
-        raise ValueError("No valid gain/loss/deviation given.")
+        return lambda engine: max(
+            fix_value, self._get_date_growth_rate(engine) + deviation
+        )
 
     def add_n_rows_equality_constraint(
         self,

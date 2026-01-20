@@ -92,17 +92,15 @@ sqlalchemy = "2.*"
 [feature.test.dependencies]
 pytest-cov = "*"
 pytest-xdist = "*"
+pytest-html = "*"
+ty = "*"
+mypy = "*"
+types-colorama = "*"
+pandas-stubs = "*"
 
 [feature.test.target.unix.dependencies]
 pytest-memray = "*"
 memray = "*"
-
-[feature.mypy.dependencies]
-mypy = "*"
-types-setuptools = "*"
-types-colorama = "*"
-pandas-stubs = "*"
-types-jinja2 = "*"
 
 [feature.lint.dependencies]
 pre-commit = "*"
@@ -163,5 +161,3 @@ bigquery-py310 = ["bigquery", "py310", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
 
 lint = { features = ["lint"], no-default-feature = true }
-
-mypy = ["mypy"]

@@ -1,9 +1,10 @@
 import pytest
 
-import datajudge
+from datajudge.constraints.stats import KolmogorovSmirnov2Sample
+from datajudge.data_source import TableDataSource
 from datajudge.db_access import (
     DataReference,
-    TableDataSource,
+    _cross_cdf_selection,
     is_bigquery,
     is_db2,
 )
@@ -19,9 +20,7 @@ def test_cross_cdf_selection(engine, cross_cdf_table1, cross_cdf_table2):
     tds2 = TableDataSource(database2, table2, schema2)
     ref1 = DataReference(tds1, columns=["col_int"])
     ref2 = DataReference(tds2, columns=["col_int"])
-    selection, _, _ = datajudge.db_access._cross_cdf_selection(
-        engine, ref1, ref2, "cdf", "value"
-    )
+    selection, _, _ = _cross_cdf_selection(engine, ref1, ref2, "cdf", "value")
     with engine.connect() as connection:
         result = connection.execute(selection).fetchall()
     assert result is not None and len(result) > 0
@@ -61,9 +60,7 @@ def test_ks_2sample_calculate_statistic(engine, random_normal_table, configurati
         n_samples,
         m_samples,
         _,
-    ) = datajudge.constraints.stats.KolmogorovSmirnov2Sample._calculate_statistic(
-        engine, ref, ref2
-    )
+    ) = KolmogorovSmirnov2Sample._calculate_statistic(engine, ref, ref2)
 
     assert abs(d_statistic - expected_d) <= 1e-10, (
         f"The test statistic does not match: {expected_d} vs {d_statistic}"

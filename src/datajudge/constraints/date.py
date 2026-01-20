@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from .. import db_access
 from ..db_access import DataReference
 from .base import Constraint, _OptionalSelections
-from .interval import NoGapConstraint, NoOverlapConstraint
+from .interval import NoGapConstraint, NoOverlapConstraint, _Selects
 
 _INPUT_DATE_FORMAT = "'%Y-%m-%d'"
 
@@ -220,7 +220,7 @@ class DateNoOverlap2d(NoOverlapConstraint):
 class DateNoGap(NoGapConstraint):
     _DIMENSIONS = 1
 
-    def select(self, engine: sa.engine.Engine, ref: DataReference):
+    def _select(self, engine: sa.engine.Engine, ref: DataReference) -> _Selects:
         sample_selection, n_violations_selection = db_access.get_date_gaps(
             engine,
             ref,

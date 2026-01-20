@@ -320,7 +320,7 @@ def get_interval_overlaps_nd(
     start_columns: list[str],
     end_columns: list[str],
     end_included: bool,
-) -> tuple[sa.sql.selectable.CompoundSelect, sa.sql.selectable.Select]:
+) -> tuple[selectable.CompoundSelect, selectable.Select]:
     r"""Create selectables for interval overlaps in n dimensions.
 
     We define the presence of 'overlap' as presence of a non-empty intersection
@@ -1002,10 +1002,15 @@ def get_column_type(engine: sa.engine.Engine, ref: DataReference) -> tuple[Any, 
 def get_primary_keys(
     engine: sa.engine.Engine, ref: DataReference
 ) -> tuple[list[str], None]:
-    table = ref.data_source._get_clause(engine)
-    # Kevin, 25/02/04
-    # Mypy complains about the following for a reason I can't follow.
-    return [column.name for column in table.primary_key.columns], None  # type: ignore
+    data_source = ref.data_source
+
+    if isinstance(data_source, TableDataSource):
+        table = data_source._get_clause(engine)
+        return [column.name for column in table.primary_key.columns], None
+
+    raise NotImplementedError(
+        f"Cannot determine primary keys of a data source of type {type(data_source)}."
+    )
 
 
 def get_row_difference_sample(
@@ -1089,7 +1094,7 @@ def get_row_mismatch(
     return result_mismatch, result_n_rows, [selection_difference, selection_n_rows]
 
 
-def duplicates(subquery: sa.sql.selectable.Subquery) -> sa.Select:
+def duplicates(subquery: sa.Subquery) -> sa.Select:
     aggregate_subquery = (
         sa.select(subquery, sa.func.count().label("n_copies"))
         .select_from(subquery)

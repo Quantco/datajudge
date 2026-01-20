@@ -27,23 +27,19 @@ class PrimaryKeyDefinition(Constraint):
 
     # Note: Exact equality!
     def _compare(
-        self, primary_keys_factual: set[str], primary_keys_target: set[str]
+        self, value_factual: set[str], value_target: set[str]
     ) -> tuple[bool, str | None]:
         assertion_message = ""
         result = True
         # If both are true, just report one.
-        if len(primary_keys_factual.difference(primary_keys_target)) > 0:
-            example_key = next(
-                iter(primary_keys_factual.difference(primary_keys_target))
-            )
+        if len(value_factual.difference(value_target)) > 0:
+            example_key = next(iter(value_factual.difference(value_target)))
             assertion_message = (
                 f"{self._ref} incorrectly includes {example_key} as primary key."
             )
             result = False
-        if len(primary_keys_target.difference(primary_keys_factual)) > 0:
-            example_key = next(
-                iter(primary_keys_target.difference(primary_keys_factual))
-            )
+        if len(value_target.difference(value_factual)) > 0:
+            example_key = next(iter(value_target.difference(value_factual)))
             assertion_message = (
                 f"{self._ref} doesn't include {example_key} as primary key."
             )
@@ -101,7 +97,9 @@ class Uniqueness(Constraint):
         self.target_selections = unique_selections
         if row_count == 0:
             return TestResult(True, "No occurrences.")
-        tolerance_kind, tolerance_value = self._ref_value  # type: ignore
+
+        tolerance_kind, tolerance_value = self._ref_value
+
         if tolerance_kind == "relative":
             result = unique_count >= row_count * (1 - tolerance_value)
         elif tolerance_kind == "absolute":
@@ -182,12 +180,12 @@ class MaxNullFraction(Constraint):
         return db_access.get_missing_fraction(engine=engine, ref=ref)
 
     def _compare(
-        self, missing_fraction_factual: float, missing_fracion_target: float
+        self, value_factual: float, value_target: float
     ) -> tuple[bool, str | None]:
-        threshold = missing_fracion_target * (1 + self.max_relative_deviation)
-        result = missing_fraction_factual <= threshold
+        threshold = value_target * (1 + self.max_relative_deviation)
+        result = value_factual <= threshold
         assertion_text = (
-            f"{missing_fraction_factual} of {self._ref} values are NULL "
+            f"{value_factual} of {self._ref} values are NULL "
             f"while only {self._target_prefix}{threshold} were allowed to be NULL."
         )
         return result, assertion_text
