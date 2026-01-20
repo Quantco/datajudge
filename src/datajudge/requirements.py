@@ -68,14 +68,14 @@ class Requirement(ABC, MutableSequence):
     def insert(self, index: int, value: Constraint) -> None:
         self._constraints.insert(index, value)
 
-    def __getitem__(self, i):
-        return self._constraints[i]
+    def __getitem__(self, index):
+        return self._constraints[index]
 
-    def __setitem__(self, i, o) -> None:
-        self._constraints[i] = o
+    def __setitem__(self, index, value) -> None:
+        self._constraints[index] = value
 
-    def __delitem__(self, i) -> None:
-        del self._constraints[i]
+    def __delitem__(self, index) -> None:
+        del self._constraints[index]
 
     def __len__(self) -> int:
         return len(self._constraints)

@@ -27,23 +27,19 @@ class PrimaryKeyDefinition(Constraint):
 
     # Note: Exact equality!
     def _compare(
-        self, primary_keys_factual: set[str], primary_keys_target: set[str]
+        self, value_factual: set[str], value_target: set[str]
     ) -> tuple[bool, str | None]:
         assertion_message = ""
         result = True
         # If both are true, just report one.
-        if len(primary_keys_factual.difference(primary_keys_target)) > 0:
-            example_key = next(
-                iter(primary_keys_factual.difference(primary_keys_target))
-            )
+        if len(value_factual.difference(value_target)) > 0:
+            example_key = next(iter(value_factual.difference(value_target)))
             assertion_message = (
                 f"{self._ref} incorrectly includes {example_key} as primary key."
             )
             result = False
-        if len(primary_keys_target.difference(primary_keys_factual)) > 0:
-            example_key = next(
-                iter(primary_keys_target.difference(primary_keys_factual))
-            )
+        if len(value_target.difference(value_factual)) > 0:
+            example_key = next(iter(value_target.difference(value_factual)))
             assertion_message = (
                 f"{self._ref} doesn't include {example_key} as primary key."
             )
