@@ -5,6 +5,7 @@ from functools import lru_cache
 from typing import Any, TypeVar
 
 import sqlalchemy as sa
+from sqlalchemy.sql import selectable
 
 from ..db_access import DataReference
 from ..formatter import Formatter
@@ -14,7 +15,7 @@ _T = TypeVar("_T")
 
 _DEFAULT_FORMATTER = Formatter()
 
-_Select = sa.Select | sa.CompoundSelect
+_Select = selectable.Select | selectable.CompoundSelect
 _OptionalSelections = Sequence[_Select] | None
 _ToleranceGetter = Callable[[sa.engine.Engine], float]
 

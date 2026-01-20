@@ -115,6 +115,13 @@ typos = "*"
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
 
+[feature.mypy.dependencies]
+mypy = "*"
+types-setuptools = "*"
+types-colorama = "*"
+pandas-stubs = "*"
+types-jinja2 = "*"
+
 [environments]
 default = ["test"]
 docs = ["docs"]
@@ -159,5 +166,7 @@ duckdb-sa2 = ["duckdb", "sa2", "test"]
 
 bigquery-py310 = ["bigquery", "py310", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
+
+mypy = ["mypy"]
 
 lint = { features = ["lint"], no-default-feature = true }

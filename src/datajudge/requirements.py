@@ -1380,6 +1380,11 @@ class BetweenRequirement(Requirement):
             raise ValueError("No valid gain/loss/deviation given.")
 
         if deviation is None:
+            # Mypy doesn't understand that this condition implies fix_value
+            # not being None.
+            if fix_value is None:
+                raise ValueError()
+
             return lambda engine: fix_value
 
         if fix_value is None:

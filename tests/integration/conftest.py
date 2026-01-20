@@ -36,7 +36,7 @@ def get_engine(backend) -> sa.engine.Engine:
     elif "snowflake" in backend:
         # cryptography is a dependency of snowflake-connector,
         # which is not present in the default environment
-        from cryptography.hazmat.primitives import (  # type: ignore[unresolved-import]
+        from cryptography.hazmat.primitives import (  # type: ignore[unresolved-import, import-not-found]
             serialization,
         )
 
