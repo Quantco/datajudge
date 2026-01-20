@@ -92,11 +92,11 @@ sqlalchemy = "2.*"
 [feature.test.dependencies]
 pytest-cov = "*"
 pytest-xdist = "*"
+pytest-html = "*"
 ty = "*"
+mypy = "*"
 types-colorama = "*"
 pandas-stubs = "*"
-types-jinja2 = "*"
-pytest-html = "*"
 
 [feature.test.target.unix.dependencies]
 pytest-memray = "*"
@@ -114,13 +114,6 @@ typos = "*"
 [feature.lint.tasks]
 pre-commit-install = "pre-commit install"
 pre-commit-run = "pre-commit run -a"
-
-[feature.mypy.dependencies]
-mypy = "*"
-types-setuptools = "*"
-types-colorama = "*"
-pandas-stubs = "*"
-types-jinja2 = "*"
 
 [environments]
 default = ["test"]
@@ -166,7 +159,5 @@ duckdb-sa2 = ["duckdb", "sa2", "test"]
 
 bigquery-py310 = ["bigquery", "py310", "test"]
 bigquery-sa1 = ["bigquery", "sa1", "test"]
-
-mypy = ["mypy"]
 
 lint = { features = ["lint"], no-default-feature = true }

@@ -24,12 +24,14 @@ repos:
         language: system
         types_or: [python, pyi]
         require_serial: true
+      # mypy
       - id: mypy
         name: mypy
-        entry: pixi run -e mypy mypy
+        entry: pixi run -e default mypy
         language: system
         types: [python]
         require_serial: true
+      # ty
       - id: ty
         name: ty
         entry: pixi run -e default ty check --no-progress
