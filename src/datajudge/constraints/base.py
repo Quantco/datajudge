@@ -1,5 +1,5 @@
 import abc
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Any, TypeVar
@@ -14,7 +14,8 @@ _T = TypeVar("_T")
 
 _DEFAULT_FORMATTER = Formatter()
 
-_OptionalSelections = list[sa.sql.expression.Select] | None
+_Select = sa.Select | sa.CompoundSelect
+_OptionalSelections = Sequence[_Select] | None
 _ToleranceGetter = Callable[[sa.engine.Engine], float]
 
 

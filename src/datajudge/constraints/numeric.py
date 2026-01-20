@@ -7,7 +7,7 @@ import sqlalchemy as sa
 from .. import db_access
 from ..db_access import DataReference
 from .base import Constraint, TestResult, _OptionalSelections
-from .interval import NoGapConstraint, NoOverlapConstraint
+from .interval import NoGapConstraint, NoOverlapConstraint, _Selects
 
 
 class NumericMin(Constraint):
@@ -263,7 +263,7 @@ class NumericPercentile(Constraint):
 class NumericNoGap(NoGapConstraint):
     _DIMENSIONS = 1
 
-    def select(self, engine: sa.engine.Engine, ref: DataReference):
+    def _select(self, engine: sa.engine.Engine, ref: DataReference) -> _Selects:
         sample_selection, n_violations_selection = db_access.get_numeric_gaps(
             engine,
             ref,
