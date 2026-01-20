@@ -1,12 +1,11 @@
-from __future__ import annotations
-
 import abc
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, Sequence
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Any, TypeVar
 
 import sqlalchemy as sa
+from sqlalchemy.sql import selectable
 
 from ..db_access import DataReference
 from ..formatter import Formatter
@@ -16,7 +15,8 @@ _T = TypeVar("_T")
 
 _DEFAULT_FORMATTER = Formatter()
 
-_OptionalSelections = list[sa.sql.expression.Select] | None
+_Select = selectable.Select | selectable.CompoundSelect
+_OptionalSelections = Sequence[_Select] | None
 _ToleranceGetter = Callable[[sa.engine.Engine], float]
 
 
@@ -149,17 +149,25 @@ class Constraint(abc.ABC):
             not isinstance(output_processors, list)
         ):
             output_processors = [output_processors]
-        self._output_processors = output_processors
+
+        self._output_processors: list[OutputProcessor] | None = output_processors
 
         self._cache_size = cache_size
         self._setup_caching()
 
     def _setup_caching(self):
-        # this has an added benefit of allowing the class to be garbage collected
+        # We don't use cache or lru_cache decorators since those would lead
+        # to class-based, not instance-based caching.
+        #
+        # Using this approach has the added benefit of allowing the class to be garbage collected
         # according to https://rednafi.com/python/lru_cache_on_methods/
         # and https://docs.astral.sh/ruff/rules/cached-instance-method/
-        self._get_factual_value = lru_cache(self._cache_size)(self._get_factual_value)  # type: ignore[method-assign]
-        self._get_target_value = lru_cache(self._cache_size)(self._get_target_value)  # type: ignore[method-assign]
+        self._get_factual_value: Callable[[Constraint, sa.engine.Engine], Any] = (
+            lru_cache(self._cache_size)(self._get_factual_value)
+        )
+        self._get_target_value: Callable[[Constraint, sa.engine.Engine], Any] = (
+            lru_cache(self._cache_size)(self._get_target_value)
+        )
 
     def _check_if_valid_between_or_within(
         self,
@@ -179,13 +187,11 @@ class Constraint(abc.ABC):
                 f"{class_name}. Use exactly either of them."
             )
 
-    # @lru_cache(maxsize=None), see _setup_caching()
     def _get_factual_value(self, engine: sa.engine.Engine) -> Any:
         factual_value, factual_selections = self._retrieve(engine, self._ref)
         self._factual_selections = factual_selections
         return factual_value
 
-    # @lru_cache(maxsize=None), see _setup_caching()
     def _get_target_value(self, engine: sa.engine.Engine) -> Any:
         if self._ref2 is None:
             return self._ref_value
@@ -246,9 +252,14 @@ class Constraint(abc.ABC):
         raise NotImplementedError()
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        value_factual = self._get_factual_value(engine)
-        value_target = self._get_target_value(engine)
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        value_factual = self._get_factual_value(engine=engine)  # type: ignore[missing-argument]
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        value_target = self._get_target_value(engine=engine)  # type: ignore[missing-argument]
         is_success, assertion_message = self._compare(value_factual, value_target)
+
         if is_success:
             return TestResult.success()
 

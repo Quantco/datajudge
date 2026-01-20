@@ -7,7 +7,7 @@ import sqlalchemy as sa
 from .. import db_access
 from ..db_access import DataReference
 from .base import Constraint, TestResult, _OptionalSelections
-from .interval import NoGapConstraint, NoOverlapConstraint
+from .interval import NoGapConstraint, NoOverlapConstraint, _Selects
 
 
 class NumericMin(Constraint):
@@ -156,8 +156,13 @@ class NumericMean(Constraint):
         return result, selections
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        mean_factual = self._get_factual_value(engine)
-        mean_target = self._get_target_value(engine)
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        mean_factual = self._get_factual_value(engine=engine)  # type: ignore[missing-argument]
+        # ty can't figure out that this is a method and that self is passed
+        # as the first argument.
+        mean_target = self._get_target_value(engine=engine)  # type: ignore[missing-argument]
+
         if mean_factual is None or mean_target is None:
             return TestResult(
                 mean_factual is None and mean_target is None,
@@ -258,7 +263,7 @@ class NumericPercentile(Constraint):
 class NumericNoGap(NoGapConstraint):
     _DIMENSIONS = 1
 
-    def select(self, engine: sa.engine.Engine, ref: DataReference):
+    def _select(self, engine: sa.engine.Engine, ref: DataReference) -> _Selects:
         sample_selection, n_violations_selection = db_access.get_numeric_gaps(
             engine,
             ref,

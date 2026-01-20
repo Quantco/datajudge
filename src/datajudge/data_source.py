@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import final
 
 import sqlalchemy as sa
+from sqlalchemy.sql import selectable
 
 from ._engines import is_mssql
 
@@ -12,7 +13,7 @@ class DataSource(ABC):
     def __str__(self) -> str: ...
 
     @abstractmethod
-    def _get_clause(self, engine: sa.engine.Engine) -> sa.sql.selectable.FromClause: ...
+    def _get_clause(self, engine: sa.engine.Engine) -> selectable.FromClause: ...
 
 
 @functools.lru_cache(maxsize=1)
@@ -58,7 +59,7 @@ class ExpressionDataSource(DataSource):
 
     def __init__(
         self,
-        expression: sa.sql.selectable.FromClause | sa.sql.selectable.Select,
+        expression: selectable.FromClause | selectable.Select,
         name: str,
     ):
         self._expression = expression
@@ -70,7 +71,7 @@ class ExpressionDataSource(DataSource):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(expression={self._expression!r}, name={self.name})"
 
-    def _get_clause(self, engine: sa.engine.Engine) -> sa.sql.selectable.FromClause:
+    def _get_clause(self, engine: sa.engine.Engine) -> selectable.FromClause:
         return self._expression.alias()
 
 
@@ -100,5 +101,5 @@ class RawQueryDataSource(DataSource):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(query_string={self._query_string}, name={self.name}, columns={self._columns})"
 
-    def _get_clause(self, engine: sa.engine.Engine) -> sa.sql.selectable.FromClause:
+    def _get_clause(self, engine: sa.engine.Engine) -> selectable.FromClause:
         return self.clause

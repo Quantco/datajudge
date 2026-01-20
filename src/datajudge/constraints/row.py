@@ -25,7 +25,7 @@ class Row(Constraint, abc.ABC):
     def test(self, engine: sa.engine.Engine) -> TestResult:
         if self._ref is None or self._ref2 is None:
             raise ValueError()
-        self.max_missing_fraction = self._max_missing_fraction_getter(engine)
+        self._max_missing_fraction = self._max_missing_fraction_getter(engine)
         self._ref1_minus_ref2_sample, _ = db_access.get_row_difference_sample(
             engine, self._ref, self._ref2
         )
@@ -45,7 +45,7 @@ class RowEquality(Row):
         n_rows_missing_right, selections_right = db_access.get_row_difference_count(
             engine, self._ref2, self._ref
         )
-        self.factual_selections = [*selections_left, *selections_right]
+        self._factual_selections = [*selections_left, *selections_right]
         return n_rows_missing_left, n_rows_missing_right
 
     def _get_target_value(self, engine: sa.engine.Engine) -> int:
@@ -59,11 +59,15 @@ class RowEquality(Row):
 
     # fraction: (|T1 - T2| + |T2 - T1|) / |T1 U T2|
     def _compare(
-        self, n_rows_missing_tuple: tuple[int, int], n_rows_total: int
-    ) -> tuple[bool, str | None]:
+        # We are abusing the _compare method's interface here. Rather than receiving
+        # factual and target values, we get missing and overall values.
+        self,
+        n_rows_missing_tuple: tuple[int, int],
+        n_rows_total: int,
+    ) -> tuple[bool, str | None]:  # type: ignore[invalid-method-override]
         n_rows_missing_left, n_rows_missing_right = n_rows_missing_tuple
         missing_fraction = (n_rows_missing_left + n_rows_missing_right) / n_rows_total
-        result = missing_fraction <= self.max_missing_fraction
+        result = missing_fraction <= self._max_missing_fraction
         if result:
             return result, None
         if self._ref2 is None:
@@ -74,7 +78,7 @@ class RowEquality(Row):
             sample_string = _format_sample(self._ref2_minus_ref1_sample, self._ref)
         assertion_message = (
             f"{missing_fraction} > "
-            f"{self.max_missing_fraction} of rows differ "
+            f"{self._max_missing_fraction} of rows differ "
             f"between {self._ref} and "
             f"{self._ref2}. E.g. for "
             f"{sample_string}."
@@ -103,18 +107,20 @@ class RowSubset(Row):
 
     @cache
     def _compare(
-        self, n_rows_missing: int, n_rows_total: int
+        self,
+        n_rows_missing: int,
+        n_rows_total: int,
     ) -> tuple[bool, str | None]:
         if n_rows_total == 0:
             return True, None
         missing_fraction = n_rows_missing / n_rows_total
-        result = missing_fraction <= self.max_missing_fraction
+        result = missing_fraction <= self._max_missing_fraction
         if result:
             return result, None
         sample_string = _format_sample(self._ref1_minus_ref2_sample, self._ref)
         assertion_message = (
             f"{missing_fraction} > "
-            f"{self.max_missing_fraction} of rows of "
+            f"{self._max_missing_fraction} of rows of "
             f"{self._ref} are "
             f"not in {self._ref2}. E.g. for "
             f"{sample_string}. "
@@ -141,12 +147,16 @@ class RowSuperset(Row):
         return n_rows_total
 
     def _compare(
-        self, n_rows_missing: int, n_rows_total: int
-    ) -> tuple[bool, str | None]:
+        # We are abusing the _compare method's interface here. Rather than receiving
+        # factual and target values, we get missing and overall values.
+        self,
+        n_rows_missing: int,
+        n_rows_total: int,
+    ) -> tuple[bool, str | None]:  # type: ignore[invalid-method-override]
         if n_rows_total == 0:
             return True, None
         missing_fraction = n_rows_missing / n_rows_total
-        result = missing_fraction <= self.max_missing_fraction
+        result = missing_fraction <= self._max_missing_fraction
         if result:
             return result, None
         if self._ref2 is None:
@@ -154,7 +164,7 @@ class RowSuperset(Row):
         sample_string = _format_sample(self._ref2_minus_ref1_sample, self._ref2)
         assertion_message = (
             f"{missing_fraction} > "
-            f"{self.max_missing_fraction} of rows of "
+            f"{self._max_missing_fraction} of rows of "
             f"{self._ref2} are "
             f"not in {self._ref}. E.g. for "
             f"{sample_string}. "
