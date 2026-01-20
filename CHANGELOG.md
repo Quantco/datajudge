@@ -2,7 +2,7 @@
 
 ## 1.13.0 - 2026.01.21
 
-- Deprecate `sqlalchemy` 1.*.
+- Deprecate `sqlalchemy` <2.0.0.
 
 ## 1.12.0 - 2026.01.12
 
