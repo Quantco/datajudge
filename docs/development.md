@@ -24,7 +24,7 @@ To run integration tests against Postgres, first start a docker container with a
 ./start_postgres.sh
 ```
 
-Then, you can run tests against the database just started with one of Postgres-specific
+Then, you can run tests against the database you just started with one of the Postgres-specific
 pixi environments, e.g.:
 
 ```bash
