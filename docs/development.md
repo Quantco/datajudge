@@ -51,5 +51,5 @@ pixi run -e mssql-py312 test_freetds
 
 depending on the driver you'd like to use.
 
-Please not that running tests against Snowflake and BigQuery requires authentication to be
+Please note that running tests against Snowflake and BigQuery requires authentication to be
 set up properly.
