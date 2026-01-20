@@ -141,14 +141,14 @@ class NRowsMaxGain(NRows):
         assertion_text = (
             f"{self._ref} has {relative_gain:%} gain in #rows compared to "
             f"{self._ref2}. It was only allowed "
-            f"to increase by {self.max_relative_gain:%}. "
+            f"to increase by {self._max_relative_gain:%}. "
             f"{self._condition_string}"
         )
-        result = relative_gain <= self.max_relative_gain
+        result = relative_gain <= self._max_relative_gain
         return result, assertion_text
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        self.max_relative_gain = self._max_relative_gain_getter(engine)
+        self._max_relative_gain = self._max_relative_gain_getter(engine)
         return super()._test(engine)
 
 
@@ -173,12 +173,12 @@ class NRowsMinGain(NRows):
         assertion_text = (
             f"{self._ref} has {relative_gain:%} gain in #rows compared to "
             f"{self._ref2}. It was supposed "
-            f"to increase at least by {self.min_relative_gain:%}. "
+            f"to increase at least by {self._min_relative_gain:%}. "
             f"{self._condition_string}"
         )
-        result = relative_gain >= self.min_relative_gain
+        result = relative_gain >= self._min_relative_gain
         return result, assertion_text
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
-        self.min_relative_gain = self._min_relative_gain_getter(engine)
+        self._min_relative_gain = self._min_relative_gain_getter(engine)
         return super()._test(engine)
