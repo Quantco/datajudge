@@ -143,7 +143,7 @@ class KolmogorovSmirnov2Sample(Constraint):
 
 
 class AndersonDarling2Sample(Constraint):
-    _COEFFICIENT_MAP = {
+    _COEFFICIENT_MAP: dict[float, dict[str, float]] = {
         0.25: {"b0": 0.675, "b1": -0.245, "b2": -0.105},
         0.1: {"b0": 1.281, "b1": 0.25, "b2": -0.305},
         0.05: {"b0": 1.645, "b1": 0.678, "b2": -0.362},
@@ -186,7 +186,9 @@ class AndersonDarling2Sample(Constraint):
         return critical_value
 
     @staticmethod
-    def compute_test_statistic(sum1, sum2, sample_size1, sample_size2):
+    def compute_test_statistic(
+        sum1: float, sum2: float, sample_size1: int, sample_size2: int
+    ) -> float:
         sample_size = sample_size1 + sample_size2
         return ((sum1 * sample_size1) + (sum2 * sample_size2)) / sample_size
 
@@ -209,7 +211,7 @@ class AndersonDarling2Sample(Constraint):
             sample_size1, sample_size2, self._significance_level
         )
         result = test_statistic <= critical_value
-        assertion_text = ""
+        assertion_text = "TODO"
         if not result:
             return TestResult.failure(
                 assertion_text,
