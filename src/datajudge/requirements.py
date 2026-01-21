@@ -36,6 +36,13 @@ from .utils import OutputProcessor, output_processor_limit
 _T = TypeVar("_T")
 
 
+def _check_significance_level(significance_level: float):
+    if significance_level <= 0.0 or significance_level > 1.0:
+        raise ValueError(
+            "The requested significance level has to be in ``(0.0, 1.0]``. Default is 0.05."
+        )
+
+
 class TableQualifier:
     def __init__(self, db_name: str, schema_name: str, table_name: str):
         self._db_name = db_name
@@ -2200,7 +2207,7 @@ class BetweenRequirement(Requirement):
         """
         Apply the so-called two-sample Kolmogorov-Smirnov test to the distributions of the two given columns.
 
-        The constraint is fulfilled, when the resulting p-value of the test is higher than the significance level
+        The constraint is fulfilled when the resulting p-value of the test is higher than the significance level
         (default is 0.05, i.e., 5%).
         The significance_level must be a value between 0.0 and 1.0.
         """
@@ -2209,10 +2216,7 @@ class BetweenRequirement(Requirement):
                 "Column names have to be given for this test's functionality."
             )
 
-        if significance_level <= 0.0 or significance_level > 1.0:
-            raise ValueError(
-                "The requested significance level has to be in ``(0.0, 1.0]``. Default is 0.05."
-            )
+        _check_significance_level(significance_level)
 
         ref = DataReference(self._data_source, [column1], condition=condition1)
         ref2 = DataReference(self._data_source2, [column2], condition=condition2)
@@ -2224,4 +2228,21 @@ class BetweenRequirement(Requirement):
                 name=name,
                 cache_size=cache_size,
             )
+        )
+
+    def add_anderson_darling_2sample_constraint(
+        self,
+        column1: str,
+        column2: str,
+        condition1: Condition = None,
+        condition2: Condition = None,
+        significance_level: float = 0.05,
+    ):
+        """Do."""
+        _check_significance_level(significance_level)
+
+        ref = DataReference(self.data_source, [column1], condition=condition1)
+        ref2 = DataReference(self.data_source2, [column2], condition=condition2)
+        self._constraints.append(
+            stats_constraints.AndersonDarling2Sample(ref, ref2, significance_level)
         )

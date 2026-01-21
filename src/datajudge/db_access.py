@@ -1280,6 +1280,72 @@ def _cross_cdf_selection(
     return filled_cross_cdf, cdf_label1, cdf_label2
 
 
+def get_anderson_darling_sums(
+    engine: sa.engine.Engine,
+    ref1: DataReference,
+    ref2: DataReference,
+    sample_size: int,
+):
+    """Return per-sample inner sum term of k-sample Anderson Darling test statistic.
+
+    For the first sample, this sum term equals
+
+    .. math::
+
+        \\sum_{j=1}^{N-1} \\frac{(N F_1(j) - j n_1)^2}{j(N-j)}
+
+    while for the second sample, this sum term equals:
+
+    .. math::
+
+        \\sum_{j=1}^{N-1} \\frac{(N F_2(j) - j n_2)^2}{j(N-j)}
+
+    where:
+
+    * :math:`F_i` is the respective empirical cumulative distribution function
+    * :math:`n_i` is the respective sample size
+    """
+    cdf_label = "cdf"
+    value_label = "val"
+    filled_cross_cdf_selection, cdf_label1, cdf_label2 = _cross_cdf_selection(
+        engine, ref1, ref2, cdf_label, value_label
+    )
+    filled_cross_cdf_selection = filled_cross_cdf_selection.subquery()
+
+    # Add a row number to the cross_cdf_selection.
+    row_number = "row_number"
+    selection = sa.select(
+        [
+            sa.func.row_number()
+            .over(
+                order_by=filled_cross_cdf_selection.c[value_label],
+            )
+            .label(row_number),
+            filled_cross_cdf_selection.c[value_label],
+            filled_cross_cdf_selection.c[cdf_label1],
+            filled_cross_cdf_selection.c[cdf_label2],
+        ]
+    ).subquery()
+
+    def sum_selection(cdf_label):
+        return sa.select(
+            sa.func.sum(
+                (sample_size * selection.c[cdf_label] - selection.c[row_number])
+                * (sample_size * selection.c[cdf_label] - selection.c[row_number])
+                / (selection.c[row_number] * (sample_size - selection.c[row_number]))
+            )
+        )
+
+    sum_selection1 = sum_selection(cdf_label1)
+    sum_selection2 = sum_selection(cdf_label2)
+
+    with engine.connect() as connection:
+        sum1 = connection.execute(sum_selection1).scalar()
+        sum2 = connection.execute(sum_selection2).scalar()
+
+    return sum1, sum2, [selection]
+
+
 def get_ks_2sample(
     engine: sa.engine.Engine,
     ref1: DataReference,
