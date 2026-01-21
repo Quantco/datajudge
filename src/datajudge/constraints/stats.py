@@ -143,38 +143,46 @@ class KolmogorovSmirnov2Sample(Constraint):
 
 
 class AndersonDarling2Sample(Constraint):
+    _COEFFICIENT_MAP = {
+        0.25: {"b0": 0.675, "b1": -0.245, "b2": -0.105},
+        0.1: {"b0": 1.281, "b1": 0.25, "b2": -0.305},
+        0.05: {"b0": 1.645, "b1": 0.678, "b2": -0.362},
+        0.025: {"b0": 1.96, "b1": 1.149, "b2": -0.391},
+        0.01: {"b0": 2.326, "b1": 1.822, "b2": -0.396},
+        0.005: {"b0": 2.573, "b1": 2.364, "b2": -0.345},
+        0.001: {"b0": 3.085, "b1": 3.615, "b2": -0.154},
+    }
+
     def __init__(
-        self, ref: DataReference, ref2: DataReference, significance_level: float = 0.05
+        self,
+        ref: DataReference,
+        ref2: DataReference,
+        significance_level: float = 0.05,
+        name: str | None = None,
+        cache_size=None,
     ):
-        self.significance_level = significance_level
-        super().__init__(ref, ref2=ref)
+        self._significance_level = significance_level
+        super().__init__(ref, ref2=ref2, name=name, cache_size=cache_size)
 
     @staticmethod
     def approximate_critical_value(
         size_sample1: int, size_sample2: int, significance_level: float
     ) -> float:
         """Approximate critical value for specific significance_level given sample sizes."""
-        coefficient_map = {
-            0.25: {"b0": 0.675, "b1": -0.245, "b2": -0.105},
-            0.1: {"b0": 1.281, "b1": 0.25, "b2": -0.305},
-            0.05: {"b0": 1.645, "b1": 0.678, "b2": -0.362},
-            0.025: {"b0": 1.96, "b1": 1.149, "b2": -0.391},
-            0.01: {"b0": 2.326, "b1": 1.822, "b2": -0.396},
-            0.005: {"b0": 2.573, "b1": 2.364, "b2": -0.345},
-            0.001: {"b0": 3.085, "b1": 3.615, "b2": -0.154},
-        }
-
-        if significance_level not in coefficient_map.keys():
+        if significance_level not in AndersonDarling2Sample._COEFFICIENT_MAP:
             raise KeyError(
                 f"Significance-level {significance_level} not supported."
-                f" Please choose one of {coefficient_map.keys()}."
+                f" Please choose one of {list(AndersonDarling2Sample._COEFFICIENT_MAP.keys())}."
             )
 
-        coefficients = coefficient_map[significance_level]
+        coefficients = AndersonDarling2Sample._COEFFICIENT_MAP[significance_level]
         b0 = coefficients["b0"]
         b1 = coefficients["b1"]
         b2 = coefficients["b2"]
-        critical_value = b0 + b1 / math.sqrt(size_sample1) + b2 / size_sample1
+        adjusted_sample_size1 = size_sample1 - 1
+        critical_value = (
+            b0 + b1 / math.sqrt(adjusted_sample_size1) + b2 / adjusted_sample_size1
+        )
         return critical_value
 
     @staticmethod
@@ -183,21 +191,22 @@ class AndersonDarling2Sample(Constraint):
         return ((sum1 * sample_size1) + (sum2 * sample_size2)) / sample_size
 
     def test(self, engine: sa.engine.Engine) -> TestResult:
+        assert self._ref2 is not None
         sample_size1, sample_size1_selections = db_access.get_row_count(
-            engine, self.ref
+            engine, self._ref
         )
         sample_size2, sample_size2_selections = db_access.get_row_count(
-            engine, self.ref2
+            engine, self._ref2
         )
         sample_size = sample_size1 + sample_size2
         sum1, sum2, sum_selections = db_access.get_anderson_darling_sums(
-            engine, self.ref, self.ref2, sample_size
+            engine, self._ref, self._ref2, sample_size
         )
         test_statistic = self.compute_test_statistic(
             sum1, sum2, sample_size1, sample_size2
         )
         critical_value = self.approximate_critical_value(
-            sample_size1, sample_size2, self.significance_level
+            sample_size1, sample_size2, self._significance_level
         )
         result = test_statistic <= critical_value
         assertion_text = ""

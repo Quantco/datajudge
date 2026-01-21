@@ -1,6 +1,6 @@
 import pytest
 
-from datajudge.constraints.stats import KolmogorovSmirnov2Sample, AndersonDarling2Sample
+from datajudge.constraints.stats import AndersonDarling2Sample, KolmogorovSmirnov2Sample
 from datajudge.data_source import TableDataSource
 from datajudge.db_access import (
     DataReference,
@@ -71,6 +71,7 @@ def test_ks_2sample_calculate_statistic(engine, random_normal_table, configurati
         f"The approx. p-value does not match: {expected_p} vs {p_value}"
     )
 
+
 def test_ad(engine, random_normal_table):
     col_1 = "value_0_1"
     col_2 = "value_005_1"
@@ -78,7 +79,5 @@ def test_ad(engine, random_normal_table):
     tds = TableDataSource(database, table, schema)
     ref = DataReference(tds, columns=[col_1])
     ref2 = DataReference(tds, columns=[col_2])
-    constraint = AndersonDarling2Sample(
-        ref, ref2, significance_level=0.05
-    )
+    constraint = AndersonDarling2Sample(ref, ref2, significance_level=0.05)
     constraint.test(engine)

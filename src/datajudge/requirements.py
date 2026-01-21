@@ -2234,15 +2234,18 @@ class BetweenRequirement(Requirement):
         self,
         column1: str,
         column2: str,
-        condition1: Condition = None,
-        condition2: Condition = None,
+        condition1: Condition | None = None,
+        condition2: Condition | None = None,
         significance_level: float = 0.05,
-    ):
+        cache_size=None,
+    ) -> None:
         """Do."""
         _check_significance_level(significance_level)
 
-        ref = DataReference(self.data_source, [column1], condition=condition1)
-        ref2 = DataReference(self.data_source2, [column2], condition=condition2)
+        ref = DataReference(self._data_source, [column1], condition=condition1)
+        ref2 = DataReference(self._data_source2, [column2], condition=condition2)
         self._constraints.append(
-            stats_constraints.AndersonDarling2Sample(ref, ref2, significance_level)
+            stats_constraints.AndersonDarling2Sample(
+                ref, ref2, significance_level=significance_level, cache_size=cache_size
+            )
         )
