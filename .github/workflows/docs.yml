@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@51b98037a96d8c8de9468a767400f984d173fd90
         with:
