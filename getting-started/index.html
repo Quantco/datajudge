@@ -1,0 +1,1411 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Assessing whether data from database complies with reference information.">
+      
+      
+      
+        <link rel="canonical" href="https://quantco.github.io/datajudge/getting-started/">
+      
+      
+        <link rel="prev" href="../installation/">
+      
+      
+        <link rel="next" href="../testing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Getting Started - datajudge</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
+    
+      <link rel="stylesheet" href="../styles/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="datajudge" class="md-header__button md-logo" aria-label="datajudge" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            datajudge
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/quantco/datajudge" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M202.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M496 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+  </div>
+  <div class="md-source__repository">
+    quantco/datajudge
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../installation/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Installation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../testing/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Testing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../motivation/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Motivation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../examples/company-data/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../development/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../api-documentation/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Documentation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CHANGELOG/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="datajudge" class="md-nav__button md-logo" aria-label="datajudge" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    datajudge
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/quantco/datajudge" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M202.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M496 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+  </div>
+  <div class="md-source__repository">
+    quantco/datajudge
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a specification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specifying-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specifying Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-limitations-of-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining limitations of change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-a-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing a specification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test information
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assertion-message-styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assertion Message Styling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assertion Message Styling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-styling-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported styling codes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternative-datasources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative DataSources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#column-capitalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Column capitalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../motivation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motivation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/company-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Company data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/twitch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dumps of Twitch data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/dates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/exploration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#glossary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Glossary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating a specification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specifying-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specifying Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-limitations-of-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining limitations of change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-a-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing a specification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-information" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test information
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assertion-message-styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Assertion Message Styling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assertion Message Styling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-styling-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported styling codes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternative-datasources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative DataSources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#column-capitalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Column capitalization
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/quantco/datajudge/edit/main/docs/getting-started.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="getting-started">Getting Started</h1>
+<h2 id="glossary">Glossary</h2>
+<ul>
+<li>
+<p>A <code>DataSource</code> represents a way to retrieve data from database. Typically, this corresponds to a table in the database. Yet, it could also be a more elaborate object. See the section on 'Alternative <code>DataSource</code> s' for more detail.</p>
+</li>
+<li>
+<p>A <code>Constraint</code> captures a concrete expectation between either two <code>DataSource</code> s or a single <code>DataSource</code> and a reference value.</p>
+</li>
+<li>
+<p>A <code>Requirement</code> captures all <code>Constraint</code> s between two given <code>DataSource</code> s or all <code>Constraint</code> s within a single <code>DataSource</code>. If a <code>Requirement</code> refers links to two <code>DataSource</code> s, it is a <a class="autorefs autorefs-internal" title="            BetweenRequirement" href="../api-documentation/#datajudge.requirements.BetweenRequirement"><code>BetweenRequirement</code></a>. If a <code>Requirement</code> merely refers to a single <code>DataSource</code>, it is a <a class="autorefs autorefs-internal" title="            WithinRequirement" href="../api-documentation/#datajudge.requirements.WithinRequirement"><code>WithinRequirement</code></a>.</p>
+</li>
+<li>
+<p>Conceptually, a 'specification' captures all <code>Requirement</code> s against a database. In practice that means it is usually a separate python file which:</p>
+<ul>
+<li>gathers all relevant <code>Requirement</code> s</li>
+<li>turns these <code>Requirement</code> s' <code>Constraint</code> s into individual tests</li>
+<li>can be 'tested' by pytest</li>
+</ul>
+</li>
+</ul>
+<h2 id="creating-a-specification">Creating a specification</h2>
+<p>In order to get going, you might want to use the following snippet in a new python file.
+This file will represent a specification.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datajudge.pytest_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">collect_data_tests</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;module&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">datajudge_engine</span><span class="p">():</span>
+    <span class="c1"># TODO: Adapt connection string to database at hand.</span>
+    <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="s2">&quot;your_connection_string&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># TODO: Insert Requirement objects to list.</span>
+<span class="n">requirements</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">test_constraints</span> <span class="o">=</span> <span class="n">collect_data_tests</span><span class="p">(</span><span class="n">requirements</span><span class="p">)</span>
+</code></pre></div>
+<p>This file will eventually lead as an input to pytest. More on that in the section <a href="../testing/">Testing a specification</a>.</p>
+<p>In case you haven't worked with sqlalchemy engines before, you might need to install drivers to connect to your database. You might want to install snowflake-sqlalchemy when using Snowflake, pyscopg when using Postgres and platform-specific drivers (<a href="https://docs.microsoft.com/en-us/sql/connect/odbc/windows/microsoft-odbc-driver-for-sql-server-on-windows?view=sql-server-ver15">Windows</a>, <a href="https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15">Linux</a>, <a href="https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/install-microsoft-odbc-driver-sql-server-macos?view=sql-server-ver15">macOS</a>) when using MSSQL.</p>
+<h2 id="specifying-constraints">Specifying Constraints</h2>
+<p>In order to discover possible <code>Constraint</code> s, please investigate the <code>_add_*_constraint</code> methods
+for <a class="autorefs autorefs-internal" title="            BetweenRequirement" href="../api-documentation/#datajudge.requirements.BetweenRequirement"><code>BetweenRequirement</code></a> and <a class="autorefs autorefs-internal" title="            WithinRequirement" href="../api-documentation/#datajudge.requirements.WithinRequirement"><code>WithinRequirement</code></a> respectively.</p>
+<p>These methods are meant to be mostly self-documenting through the usage of expressive parameters.</p>
+<p>Note that most <code>Constraint</code> s will allow for at least one <a class="autorefs autorefs-internal" title="            Condition
+
+
+  
+      dataclass
+  " href="../api-documentation/#datajudge.condition.Condition"><code>Condition</code></a>. A <a class="autorefs autorefs-internal" title="            Condition
+
+
+  
+      dataclass
+  " href="../api-documentation/#datajudge.condition.Condition"><code>Condition</code></a>
+can be thought of as a conditional event in probability theory or a filter/clause in a database
+query. Please consult the doc string of <a class="autorefs autorefs-internal" title="            Condition
+
+
+  
+      dataclass
+  " href="../api-documentation/#datajudge.condition.Condition"><code>Condition</code></a> for greater detail. For examples, please
+see <code>tests/unit/test_condition.py</code>.</p>
+<p>Many <code>Constraint</code> s have optional <code>columns</code> parameters. If no argument is given, all
+available columns will be used.</p>
+<h2 id="defining-limitations-of-change">Defining limitations of change</h2>
+<p><a class="autorefs autorefs-internal" title="            BetweenRequirement" href="../api-documentation/#datajudge.requirements.BetweenRequirement"><code>BetweenRequirement</code></a> s allow for <code>Constraint</code> s expressing the limitation of a loss or gain. For example, the <code>NRowsMinGain</code> <code>Constraint</code>
+expresses by how much the number of rows must at least grow from the first <code>DataSource</code> to the second. In the example of <code>NRowsMinGain</code> ,
+this growth limitation is expressed relative to the number of rows of the first <code>DataSource</code>.</p>
+<p>Generally, such relative limitations can be defined in two ways:</p>
+<ul>
+<li>
+<p>manually, based on domain knowledge (e.g. 'at least 5% growth')</p>
+</li>
+<li>
+<p>automatically, based on date ranges</p>
+</li>
+</ul>
+<p>The former would translate to</p>
+<div class="highlight"><pre><span></span><code>#rows_table_2 &gt; (1 + min_relative_gain) * #rows_table_1
+</code></pre></div>
+<p>while the latter would translate to</p>
+<div class="highlight"><pre><span></span><code>date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_date_table_1)
+#rows_table_2 &gt; (1 + date_growth) * #rows_table_1
+</code></pre></div>
+<p>In the latter case a date column must be passed during the instantiation of the <a class="autorefs autorefs-internal" title="            BetweenRequirement" href="../api-documentation/#datajudge.requirements.BetweenRequirement"><code>BetweenRequirement</code></a>. Moreover, the <code>date_range_*</code> must be passed
+in the respective <code>add_*_constraint</code> method. When using date ranges as an indicator of change, the <code>constant_max_*</code> argument can safely be ignored. Additionally,
+an additional buffer to the date growth can be added with help of the <code>date_range_gain_deviation</code> parameter:</p>
+<div class="highlight"><pre><span></span><code>date_growth := (max_date_table_2 - min_date_table_2) / (max_date_table_1 - min_date_table_1)
+#rows_table_2 &gt; (1 + date_growth + date_range_gain_deviation) + * #rows_table_1
+</code></pre></div>
+<p>This example revolving around <code>NRowsMinGain</code> generalizes to many <code>Constraint</code> s concerned with growth, gain, loss or shrinkage limitations.</p>
+<h2 id="testing-a-specification">Testing a specification</h2>
+<p>In order to test whether the <code>Constraint</code> s expressed in a specification hold true, you can simply run</p>
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>your_specification.py
+</code></pre></div>
+<p>This will produce results directly in your terminal. If you prefer to additionally generate a report,
+you can run</p>
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>your_specification.py<span class="w"> </span>--html<span class="o">=</span>your_report.html
+</code></pre></div>
+<p>As the testing relies on <a href="https://docs.pytest.org/en/latest">pytest</a>, all of <code>pytest</code>'s features can be used. More on this in the article on <a href="../testing/">testing</a>.</p>
+<h2 id="test-information">Test information</h2>
+<p>When calling a <code>Constraint</code>'s <code>test</code> method, a <a class="autorefs autorefs-internal" title="            TestResult
+
+
+  
+      dataclass
+  " href="../api-documentation/#datajudge.constraints.base.TestResult"><code>TestResult</code></a> is returned. The latter comes with a
+<code>logging_message</code> field. This field comprises information about the test failure, the constraint at hand
+as well as the underlying database queries.</p>
+<p>Depending on the use case at hand, it might make sense to rely on this information for logging or data investigation
+purposes. Again, more on this in the article on <a href="../testing/">testing</a>.</p>
+<h2 id="assertion-message-styling">Assertion Message Styling</h2>
+<p>Constraints can use styling to increase the readability of their assertion messages.
+The styling can be set independently of the platform and converted to e.g. ANSI color codes for command line output or CSS color tags for HTML reports.
+The styling tags describe use cases and not concrete colors, so formatters can use arbitrary color palettes, and these are not fixed by the constraint.</p>
+<p>The following table lists all the supported codes, along with their descriptions and examples of how they can be used:</p>
+<h3 id="supported-styling-codes">Supported styling codes</h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>numMatch</code></td>
+<td>Indicates the part of a number that matches the expected value.</td>
+<td><code>[numMatch]3.141[/numMatch]</code></td>
+</tr>
+<tr>
+<td><code>numDiff</code></td>
+<td>Indicates the part of a number that differs.</td>
+<td><code>[numDiff]6[/numDiff]</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="alternative-datasources">Alternative DataSources</h2>
+<p>A <code>Requirement</code> is instantiated with either one or two fixed <code>DataSource</code>s.</p>
+<p>While the most typical example of a <code>DataSource</code> would be a table in a database, <code>datajudge</code> allows
+for other <code>DataSource</code>s as well. These are often derived from primitive tables of a database.</p>
+<table>
+<thead>
+<tr>
+<th><a class="autorefs autorefs-internal" title="            DataSource" href="../api-documentation/#datajudge.data_source.DataSource"><code>DataSource</code></a></th>
+<th>explanation</th>
+<th><code>WithinRequirement</code> constructor</th>
+<th><code>BetweenRequirement</code> constructor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a class="autorefs autorefs-internal" title="            TableDataSource" href="../api-documentation/#datajudge.data_source.TableDataSource"><code>TableDataSource</code></a></td>
+<td>represents a table in a database</td>
+<td><a class="autorefs autorefs-internal" title="            from_table
+
+
+  
+      classmethod
+  " href="../api-documentation/#datajudge.requirements.WithinRequirement.from_table"><code>WithinRequirement.from_table</code></a></td>
+<td><a class="autorefs autorefs-internal" title="            from_tables
+
+
+  
+      classmethod
+  " href="../api-documentation/#datajudge.requirements.BetweenRequirement.from_tables"><code>BetweenRequirement.from_tables</code></a></td>
+</tr>
+<tr>
+<td><a class="autorefs autorefs-internal" title="            ExpressionDataSource" href="../api-documentation/#datajudge.data_source.ExpressionDataSource"><code>ExpressionDataSource</code></a></td>
+<td>represents the result of a <code>sqlalchemy</code> expression</td>
+<td><a class="autorefs autorefs-internal" title="            from_expression
+
+
+  
+      classmethod
+  " href="../api-documentation/#datajudge.requirements.WithinRequirement.from_expression"><code>WithinRequirement.from_expression</code></a></td>
+<td><a class="autorefs autorefs-internal" title="            from_expressions
+
+
+  
+      classmethod
+  " href="../api-documentation/#datajudge.requirements.BetweenRequirement.from_expressions"><code>BetweenRequirement.from_expressions</code></a></td>
+</tr>
+<tr>
+<td><a class="autorefs autorefs-internal" title="            RawQueryDataSource" href="../api-documentation/#datajudge.data_source.RawQueryDataSource"><code>RawQueryDataSource</code></a></td>
+<td>represents the result of a SQL query expressed via a string</td>
+<td><a class="autorefs autorefs-internal" title="            from_raw_query
+
+
+  
+      classmethod
+  " href="../api-documentation/#datajudge.requirements.WithinRequirement.from_raw_query"><code>WithinRequirement.from_raw_query</code></a></td>
+<td><a class="autorefs autorefs-internal" title="            from_raw_queries
+
+
+  
+      classmethod
+  " href="../api-documentation/#datajudge.requirements.BetweenRequirement.from_raw_queries"><code>BetweenRequirement.from_raw_queries</code></a></td>
+</tr>
+</tbody>
+</table>
+<p>Typically, a user does not need to instantiate a corresponding <code>DataSource</code> themselves. Rather, this is taken care
+of by using the appropriate constructor for <a class="autorefs autorefs-internal" title="            WithinRequirement" href="../api-documentation/#datajudge.requirements.WithinRequirement"><code>WithinRequirement</code></a> or <a class="autorefs autorefs-internal" title="            BetweenRequirement" href="../api-documentation/#datajudge.requirements.BetweenRequirement"><code>BetweenRequirement</code></a>.</p>
+<p>Note that in principle, several tables can be combined to make up for a single <code>DataSource</code>. Yet, most of
+the time when trying to compare two tables, it is more convenient to create a <a class="autorefs autorefs-internal" title="            BetweenRequirement" href="../api-documentation/#datajudge.requirements.BetweenRequirement"><code>BetweenRequirement</code></a> and use
+the <code>from_tables</code> constructor.</p>
+<h2 id="column-capitalization">Column capitalization</h2>
+<p>Different database management systems handle the capitalization of entities, such as column names, differently.
+For the time being:</p>
+<ul>
+<li>Mssql: <code>datajudge</code> expects column name capitalization as is seen in database, either lowercase or uppercase.</li>
+<li>Postgres: <code>datajudge</code> expects lowercase column names.</li>
+<li>Snowflake: <code>datajudge</code> will lowercase independently of the capitalization provided.</li>
+</ul>
+<p>The Snowflake behavior is due to an upstream <a href="https://github.com/snowflakedb/snowflake-sqlalchemy/issues/157">bug</a>
+in <code>snowflake-sqlalchemy</code>.</p>
+<p>This behavior is subject to change.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.action.edit", "search.suggest", "search.highlight", "content.code.annotate", "content.code.copy", "navigation.tabs"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/katex.js"></script>
+      
+        <script src="../javascripts/external_links.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>
