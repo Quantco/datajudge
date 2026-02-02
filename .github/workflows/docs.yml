@@ -13,7 +13,7 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v6
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@51b98037a96d8c8de9468a767400f984d173fd90
+        uses: prefix-dev/setup-pixi@33be5bafa68042a7d0747866e21e5a686bf961a1
         with:
           environments: docs
       - name: Build docs
