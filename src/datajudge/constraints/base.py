@@ -145,12 +145,14 @@ class Constraint(abc.ABC):
         self._factual_queries: list[str] | None = None
         self._target_queries: list[str] | None = None
 
+        self._output_processors: list[OutputProcessor] | None
+
         if (output_processors is not None) and (
             not isinstance(output_processors, list)
         ):
-            output_processors = [output_processors]
-
-        self._output_processors: list[OutputProcessor] | None = output_processors
+            self._output_processors = [output_processors]
+        else:
+            self._output_processors = output_processors  # ty: ignore[invalid-assignment]
 
         self._cache_size = cache_size
         self._setup_caching()

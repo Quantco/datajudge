@@ -1177,7 +1177,7 @@ class WithinRequirement(Requirement):
         feature is only for Snowflake when using sqlalchemy-snowflake >= 1.4.0. As an
         alternative, ``add_varchar_regex_constraint`` performs the regex matching in memory.
         This is typically slower and more expensive in terms of memory but available
-        on all supported database mamangement systems.
+        on all supported database management systems.
         """
         ref = DataReference(self._data_source, [column], condition)
         self._constraints.append(
