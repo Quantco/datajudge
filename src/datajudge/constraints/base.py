@@ -256,10 +256,10 @@ class Constraint(abc.ABC):
     def test(self, engine: sa.engine.Engine) -> TestResult:
         # ty can't figure out that this is a method and that self is passed
         # as the first argument.
-        value_factual = self._get_factual_value(engine=engine)  # type: ignore[missing-argument]
+        value_factual = self._get_factual_value(engine=engine)  # ty: ignore[missing-argument]
         # ty can't figure out that this is a method and that self is passed
         # as the first argument.
-        value_target = self._get_target_value(engine=engine)  # type: ignore[missing-argument]
+        value_target = self._get_target_value(engine=engine)  # ty: ignore[missing-argument]
         is_success, assertion_message = self._compare(value_factual, value_target)
 
         if is_success:

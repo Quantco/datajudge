@@ -158,10 +158,10 @@ class NumericMean(Constraint):
     def test(self, engine: sa.engine.Engine) -> TestResult:
         # ty can't figure out that this is a method and that self is passed
         # as the first argument.
-        mean_factual = self._get_factual_value(engine=engine)  # type: ignore[missing-argument]
+        mean_factual = self._get_factual_value(engine=engine)  # ty: ignore[missing-argument]
         # ty can't figure out that this is a method and that self is passed
         # as the first argument.
-        mean_target = self._get_target_value(engine=engine)  # type: ignore[missing-argument]
+        mean_target = self._get_target_value(engine=engine)  # ty: ignore[missing-argument]
 
         if mean_factual is None or mean_target is None:
             return TestResult(

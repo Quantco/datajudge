@@ -147,8 +147,8 @@ def test_n_rows_max_gain_between(engine, mix_table1, mix_table2, data):
     req = requirements.BetweenRequirement.from_tables(
         *mix_table1,
         *mix_table2,
-        date_column="col_date",  # type: ignore[misc] # ty: ignore[unused-ignore-comment]
-        date_column2="col_date",  # type: ignore[misc] # ty: ignore[unused-ignore-comment]
+        date_column="col_date",  # ty: ignore
+        date_column2="col_date",  # ty: ignore
     )
     req.add_n_rows_max_gain_constraint(
         constant_max_relative_gain=constant_max_relative_gain,
