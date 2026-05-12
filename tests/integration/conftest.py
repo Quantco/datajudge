@@ -762,7 +762,9 @@ def unique_table1(engine, metadata):
         sa.Column("col_int", sa.Integer()),
         sa.Column("col_varchar", _string_column(engine)),
     ]
-    data = [{"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(60)]
+    data: list[dict[str, int | str | None]] = [
+        {"col_int": i // 2, "col_varchar": f"hi{i // 3}"} for i in range(60)
+    ]
     data += [
         {"col_int": None, "col_varchar": None},
         {"col_int": None, "col_varchar": "hi"},
